@@ -21,19 +21,21 @@ from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional, Union
 from typing_extensions import Annotated
 from arize._generated.api_client.models.task_evaluator_input import TaskEvaluatorInput
+from arize._generated.api_client.models.task_query_filters_input import TaskQueryFiltersInput
 from typing import Optional, Set
 from typing_extensions import Self
 
 class UpdateEvaluationTaskRequest(BaseModel):
     """
-    PATCH body for `TEMPLATE_EVALUATION` and `CODE_EVALUATION` tasks. The two types share the same updatable shape; the server derives the task type from the URL's task record. At least one field must be provided. 
+    PATCH body for `TEMPLATE_EVALUATION` and `CODE_EVALUATION` tasks. The two types share the same updatable shape; the server derives the task type from the URL's task record. At least one field must be provided.  Evaluators carry one of two mutually exclusive shapes depending on their data granularity. Span evaluators use task-level `query_filter` plus per-evaluator `column_mappings`/`query_filter`. Trace/session evaluators use task-level `query_filters` plus per-evaluator `query_mappings`. Mixing the two shapes returns 400. 
     """ # noqa: E501
     name: Optional[Annotated[str, Field(min_length=1, strict=True)]] = Field(default=None, description="New task name.")
     sampling_rate: Optional[Union[Annotated[float, Field(le=1, strict=True, ge=0)], Annotated[int, Field(le=1, strict=True, ge=0)]]] = Field(default=None, description="Sampling rate between 0 and 1. Only applicable for project-based tasks.")
     is_continuous: Optional[StrictBool] = Field(default=None, description="Whether the task runs continuously. Only applicable for project-based tasks.")
-    query_filter: Optional[StrictStr] = Field(default=None, description="Task-level query filter. Pass `null` to clear.")
-    evaluators: Optional[Annotated[List[TaskEvaluatorInput], Field(min_length=1)]] = Field(default=None, description="Replaces the entire evaluator list. At least one evaluator is required when provided.")
-    __properties: ClassVar[List[str]] = ["name", "sampling_rate", "is_continuous", "query_filter", "evaluators"]
+    query_filter: Optional[StrictStr] = Field(default=None, description="Task-level query filter (span shape). Pass `null` to clear. Mutually exclusive with `query_filters`. ")
+    query_filters: Optional[TaskQueryFiltersInput] = Field(default=None, description="Named query filters plus optional expression (trace/session shape). Pass `null` to clear the entire multi-query shape (filters and expression together). Mutually exclusive with `query_filter`. ")
+    evaluators: Optional[Annotated[List[TaskEvaluatorInput], Field(min_length=1)]] = Field(default=None, description="Replaces the entire evaluator list. At least one evaluator is required when provided. Omit the field to leave evaluators unchanged. ")
+    __properties: ClassVar[List[str]] = ["name", "sampling_rate", "is_continuous", "query_filter", "query_filters", "evaluators"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -74,6 +76,9 @@ class UpdateEvaluationTaskRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of query_filters
+        if self.query_filters:
+            _dict['query_filters'] = self.query_filters.to_dict()
         # override the default output from pydantic by calling `to_dict()` of each item in evaluators (list)
         _items = []
         if self.evaluators:
@@ -85,6 +90,11 @@ class UpdateEvaluationTaskRequest(BaseModel):
         # and model_fields_set contains the field
         if self.query_filter is None and "query_filter" in self.model_fields_set:
             _dict['query_filter'] = None
+
+        # set to None if query_filters (nullable) is None
+        # and model_fields_set contains the field
+        if self.query_filters is None and "query_filters" in self.model_fields_set:
+            _dict['query_filters'] = None
 
         return _dict
 
@@ -107,6 +117,7 @@ class UpdateEvaluationTaskRequest(BaseModel):
             "sampling_rate": obj.get("sampling_rate"),
             "is_continuous": obj.get("is_continuous"),
             "query_filter": obj.get("query_filter"),
+            "query_filters": TaskQueryFiltersInput.from_dict(obj["query_filters"]) if obj.get("query_filters") is not None else None,
             "evaluators": [TaskEvaluatorInput.from_dict(_item) for _item in obj["evaluators"]] if obj.get("evaluators") is not None else None
         })
         return _obj

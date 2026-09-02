@@ -166,6 +166,7 @@ class AnnotationQueuesClient:
         """
         annotation_queue_id = _find_annotation_queue_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             annotation_queue=annotation_queue,
             space=space,
         )
@@ -298,6 +299,7 @@ class AnnotationQueuesClient:
 
         annotation_queue_id = _find_annotation_queue_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             annotation_queue=annotation_queue,
             space=space,
         )
@@ -330,6 +332,7 @@ class AnnotationQueuesClient:
         """
         annotation_queue_id = _find_annotation_queue_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             annotation_queue=annotation_queue,
             space=space,
         )
@@ -373,6 +376,7 @@ class AnnotationQueuesClient:
         """
         annotation_queue_id = _find_annotation_queue_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             annotation_queue=annotation_queue,
             space=space,
         )
@@ -423,6 +427,7 @@ class AnnotationQueuesClient:
 
         annotation_queue_id = _find_annotation_queue_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             annotation_queue=annotation_queue,
             space=space,
         )
@@ -469,6 +474,7 @@ class AnnotationQueuesClient:
 
         annotation_queue_id = _find_annotation_queue_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             annotation_queue=annotation_queue,
             space=space,
         )
@@ -518,6 +524,7 @@ class AnnotationQueuesClient:
 
         annotation_queue_id = _find_annotation_queue_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             annotation_queue=annotation_queue,
             space=space,
         )
@@ -567,6 +574,7 @@ class AnnotationQueuesClient:
 
         annotation_queue_id = _find_annotation_queue_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             annotation_queue=annotation_queue,
             space=space,
         )

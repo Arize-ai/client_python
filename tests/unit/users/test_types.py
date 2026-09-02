@@ -18,6 +18,7 @@ from arize.users.types import (
     CreateUserRequest,
     CreateUserResponse,
     CustomUserRole,
+    InviteMode,
     ListUsersResponse,
     PredefinedUserRole,
     UpdateUserRequest,
@@ -29,6 +30,7 @@ from arize.users.types import (
 # `datetime` and `PaginationMetadata` are imported only under TYPE_CHECKING in
 # users/types.py, so Pydantic v2 cannot resolve them at runtime without help.
 User.model_rebuild(_types_namespace={"datetime": datetime})
+CreateUserResponse.model_rebuild(_types_namespace={"datetime": datetime})
 ListUsersResponse.model_rebuild(
     _types_namespace={
         "datetime": datetime,
@@ -233,6 +235,66 @@ class TestUser:
         assert user.is_developer is True
         assert isinstance(user.role, PredefinedUserRole)
         assert user.role.name == UserRole.MEMBER
+
+
+@pytest.mark.unit
+class TestCreateUserResponse:
+    """Tests for CreateUserResponse, the domain return type of UsersClient.create()."""
+
+    def test_is_subclass_of_user(self) -> None:
+        assert issubclass(CreateUserResponse, User)
+
+    def test_surfaces_temporary_password(self) -> None:
+        """Regression test for the create() SDK bug that silently dropped
+        temporary_password: CreateUserResponse must carry it through.
+        """
+        from arize._generated.api_client.models.predefined_user_role_assignment import (
+            PredefinedUserRoleAssignment,
+        )
+
+        predefined = MagicMock(spec=PredefinedUserRoleAssignment)
+        predefined.name = UserRole.MEMBER
+        assignment = self._make_role_assignment(predefined)
+
+        result = CreateUserResponse(
+            id="user-1",
+            name="Jane Smith",
+            email="jane@example.com",
+            created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+            status=UserStatus.ACTIVE,
+            role=assignment,
+            is_developer=True,
+            invite_mode=InviteMode.TEMPORARY_PASSWORD,
+            temporary_password="tmp-pw-xyz",  # noqa: S106
+        )
+
+        assert result.invite_mode == InviteMode.TEMPORARY_PASSWORD
+        assert result.temporary_password == "tmp-pw-xyz"  # noqa: S105
+        assert isinstance(result.role, PredefinedUserRole)
+
+    def test_temporary_password_defaults_to_none(self) -> None:
+        """No temporary_password is issued outside TEMPORARY_PASSWORD invites."""
+        result = CreateUserResponse(
+            id="user-1",
+            name="Jane Smith",
+            email="jane@example.com",
+            created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+            status=UserStatus.ACTIVE,
+            role=PredefinedUserRole(name=UserRole.MEMBER),
+            is_developer=True,
+            invite_mode=InviteMode.EMAIL_LINK,
+        )
+
+        assert result.temporary_password is None
+
+    def _make_role_assignment(self, actual_instance: object) -> MagicMock:
+        from arize._generated.api_client.models.user_role_assignment import (
+            UserRoleAssignment,
+        )
+
+        assignment = MagicMock(spec=UserRoleAssignment)
+        assignment.actual_instance = actual_instance
+        return assignment
 
 
 @pytest.mark.unit

@@ -3,15 +3,23 @@
 from arize._generated.api_client.models.annotate_record_input import (
     AnnotateRecordInput,
 )
+from arize._generated.api_client.models.annotation_input import (
+    AnnotationInput,
+)
 from arize._generated.api_client.models.delete_spans_response import (
     DeleteSpansResponse,
 )
 from arize._generated.api_client.models.list_spans_response import (
     ListSpansResponse,
 )
+from arize._generated.api_client.models.record_granularity import (
+    RecordGranularity,
+)
 
 __all__ = [
     "AnnotateRecordInput",
+    "AnnotationInput",
     "DeleteSpansResponse",
     "ListSpansResponse",
+    "RecordGranularity",
 ]

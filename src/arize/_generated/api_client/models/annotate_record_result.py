@@ -27,7 +27,7 @@ class AnnotateRecordResult(BaseModel):
     """
     The annotation result for a single annotated record.
     """ # noqa: E501
-    record_id: StrictStr = Field(description="The record identifier (span ID, dataset example ID, or experiment run ID, depending on the endpoint).")
+    record_id: StrictStr = Field(description="The record identifier — a span ID, session ID, dataset example ID, or experiment run ID, depending on the endpoint and (for spans) the `granularity` field.")
     annotations: List[Annotation] = Field(description="The annotations that were written to this record.")
     __properties: ClassVar[List[str]] = ["record_id", "annotations"]
 

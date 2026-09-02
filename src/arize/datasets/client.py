@@ -224,6 +224,7 @@ class DatasetsClient:
         """
         dataset_id = _find_dataset_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             dataset=dataset,
             space=space,
         )
@@ -253,6 +254,7 @@ class DatasetsClient:
         """
         dataset_id = _find_dataset_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             dataset=dataset,
             space=space,
         )
@@ -283,7 +285,10 @@ class DatasetsClient:
         from arize._generated import api_client as gen
 
         dataset_id = _find_dataset_id(
-            api=self._api, dataset=dataset, space=space
+            api=self._api,
+            spaces_api=self._spaces_api,
+            dataset=dataset,
+            space=space,
         )
         body = gen.UpdateDatasetRequest(name=name)
         return self._api.update_dataset(
@@ -337,6 +342,7 @@ class DatasetsClient:
         """
         dataset_id = _find_dataset_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             dataset=dataset,
             space=space,
         )
@@ -476,6 +482,7 @@ class DatasetsClient:
         """
         dataset_id = _find_dataset_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             dataset=dataset,
             space=space,
         )
@@ -545,6 +552,7 @@ class DatasetsClient:
         """
         dataset_id = _find_dataset_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             dataset=dataset,
             space=space,
         )
@@ -601,6 +609,7 @@ class DatasetsClient:
         """
         dataset_id = _find_dataset_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             dataset=dataset,
             space=space,
         )
@@ -651,6 +660,7 @@ class DatasetsClient:
         """
         dataset_id = _find_dataset_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             dataset=dataset,
             space=space,
         )

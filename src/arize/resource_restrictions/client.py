@@ -29,10 +29,8 @@ class ResourceRestrictionsClient:
 
     Resource restrictions prevent roles bound at higher hierarchy levels (space,
     org, account) from granting access to the restricted resource. Only space
-    admins or users with the ``PROJECT_RESTRICT`` permission can restrict or
+    admins or users with the required permission can restrict or
     unrestrict a resource.
-
-    Currently only ``PROJECT`` resources are supported.
 
     The resource restrictions client is a thin wrapper around the generated REST
     API client, using the shared generated API client owned by
@@ -68,21 +66,19 @@ class ResourceRestrictionsClient:
         """List resource restrictions the caller is permitted to manage.
 
         Only restrictions the caller can manage are returned — i.e. an
-        account/org admin, a holder of the ``PROJECT_RESTRICT`` permission in the
-        resource's space, or a holder of ``PROJECT_RESTRICT`` granted directly on
-        the resource.
+        account/org admin, a holder of the required permission in
+        the resource's space, or a holder of the required permissions
+        granted directly on the resource.
 
         Results are paginated. Because entries are authorization-filtered after a
         page is read, a page may contain fewer items than ``limit`` (or be empty)
         while ``pagination.has_more`` is still ``True``. Keep paging until
         ``pagination.has_more`` is ``False`` — do not stop on an empty page.
 
-        Currently only ``PROJECT`` resources are supported.
-
         Args:
-            resource_type: Optional filter restricting results to a single
-                resource type. When omitted, restrictions of all supported
-                resource types are returned (currently only ``PROJECT``).
+            resource_type: Optional filter. When provided, only restrictions of
+                that type are returned. When ``None`` (the default), restrictions
+                of all supported types are returned in one merged list.
             limit: Maximum number of restrictions to return per page. The server
                 enforces an upper bound.
             cursor: Opaque pagination cursor returned from a previous response
@@ -111,16 +107,13 @@ class ResourceRestrictionsClient:
 
         Restricting a resource prevents roles bound at higher hierarchy levels
         (space, org, account) from granting access. Only space admins or users
-        with the ``PROJECT_RESTRICT`` permission can perform this action.
+        with the the correct permissions can perform this action.
 
         This operation is idempotent — restricting an already-restricted resource
         returns the existing restriction without error.
 
-        Currently only ``PROJECT`` resources are supported.
-
         Args:
-            resource_id: Global ID of the resource to restrict. Must encode a
-                project resource ID.
+            resource_id: Global ID of the resource to restrict.
 
         Returns:
             The resource restriction object.

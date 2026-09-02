@@ -61,7 +61,7 @@ class ResourceRestrictionsApi:
     ) -> ResourceRestriction:
         """Restrict a resource
 
-        Mark a resource as restricted. Only space admins or users with the RESOURCE_RESTRICT permission can perform this action. Idempotent.  **Payload Requirements** - `resource_id`: The ID for the resource.    Only `project` resources are currently supported. Other resource types are not currently supported and will return 400.  **Valid example** ```json { \"resource_id\": \"TW9kZWw6MTIxOmFCY0Q=\" } ```  **Invalid example** ```json { \"resource_id\": \"Not a project ID\" } ``` Returns 400 — only Project / Model IDs are accepted   <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Mark a resource as restricted. Only space admins or users with the the correct permissions can perform this action. Idempotent.  **Payload Requirements** - `resource_id`: The global ID for the resource.  **Valid examples** ```json { \"resource_id\": \"TW9kZWw6MTIxOmFCY0Q=\" } ``` ```json { \"resource_id\": \"RGFzaGJvYXJkOjQ1NjphQmNE\" } ```  **Invalid example** ```json { \"resource_id\": \"Not a valid global ID\" } ``` Returns 400 — only resources with the correct type are accepted  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param create_resource_restriction_request: Body containing resource restriction creation parameters. (required)
         :type create_resource_restriction_request: CreateResourceRestrictionRequest
@@ -134,7 +134,7 @@ class ResourceRestrictionsApi:
     ) -> ApiResponse[ResourceRestriction]:
         """Restrict a resource
 
-        Mark a resource as restricted. Only space admins or users with the RESOURCE_RESTRICT permission can perform this action. Idempotent.  **Payload Requirements** - `resource_id`: The ID for the resource.    Only `project` resources are currently supported. Other resource types are not currently supported and will return 400.  **Valid example** ```json { \"resource_id\": \"TW9kZWw6MTIxOmFCY0Q=\" } ```  **Invalid example** ```json { \"resource_id\": \"Not a project ID\" } ``` Returns 400 — only Project / Model IDs are accepted   <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Mark a resource as restricted. Only space admins or users with the the correct permissions can perform this action. Idempotent.  **Payload Requirements** - `resource_id`: The global ID for the resource.  **Valid examples** ```json { \"resource_id\": \"TW9kZWw6MTIxOmFCY0Q=\" } ``` ```json { \"resource_id\": \"RGFzaGJvYXJkOjQ1NjphQmNE\" } ```  **Invalid example** ```json { \"resource_id\": \"Not a valid global ID\" } ``` Returns 400 — only resources with the correct type are accepted  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param create_resource_restriction_request: Body containing resource restriction creation parameters. (required)
         :type create_resource_restriction_request: CreateResourceRestrictionRequest
@@ -207,7 +207,7 @@ class ResourceRestrictionsApi:
     ) -> RESTResponseType:
         """Restrict a resource
 
-        Mark a resource as restricted. Only space admins or users with the RESOURCE_RESTRICT permission can perform this action. Idempotent.  **Payload Requirements** - `resource_id`: The ID for the resource.    Only `project` resources are currently supported. Other resource types are not currently supported and will return 400.  **Valid example** ```json { \"resource_id\": \"TW9kZWw6MTIxOmFCY0Q=\" } ```  **Invalid example** ```json { \"resource_id\": \"Not a project ID\" } ``` Returns 400 — only Project / Model IDs are accepted   <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Mark a resource as restricted. Only space admins or users with the the correct permissions can perform this action. Idempotent.  **Payload Requirements** - `resource_id`: The global ID for the resource.  **Valid examples** ```json { \"resource_id\": \"TW9kZWw6MTIxOmFCY0Q=\" } ``` ```json { \"resource_id\": \"RGFzaGJvYXJkOjQ1NjphQmNE\" } ```  **Invalid example** ```json { \"resource_id\": \"Not a valid global ID\" } ``` Returns 400 — only resources with the correct type are accepted  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param create_resource_restriction_request: Body containing resource restriction creation parameters. (required)
         :type create_resource_restriction_request: CreateResourceRestrictionRequest
@@ -614,7 +614,7 @@ class ResourceRestrictionsApi:
     @validate_call
     def list_resource_restrictions(
         self,
-        resource_type: Annotated[Optional[ResourceRestrictionType], Field(description="Filter restrictions to a single resource type. - `PROJECT` — Return only restricted projects.  When not specified, restrictions of all supported resource types are returned (currently only `PROJECT`). ")] = None,
+        resource_type: Annotated[Optional[ResourceRestrictionType], Field(description="Filter the results to a specific resource type. When omitted, restrictions of all supported types are returned. - `PROJECT` — Return only restricted projects. - `DASHBOARD` — Return only restricted dashboards. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -632,9 +632,9 @@ class ResourceRestrictionsApi:
     ) -> ListResourceRestrictionsResponse:
         """List resource restrictions the caller is permitted to manage.
 
-        List active resource restrictions the authenticated user is permitted to manage. A restriction is returned only if the caller can manage it — i.e. an account/org admin (via admin escalation), a holder of the `PROJECT_RESTRICT` permission in the project's space, or a holder of `PROJECT_RESTRICT` granted directly on the project.  Results are paginated; use `limit` and `cursor` for subsequent pages. Because entries are authorization-filtered after a page is read, a page may contain fewer items than `limit` (or be empty) while `has_more` is still `true`. Clients MUST keep paging until `has_more` is `false` — do not stop on an empty page.  Use the optional `resource_type` query param to filter to a single resource type. When omitted, `PROJECT` restrictions are returned (currently the only supported type).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List active resource restrictions the authenticated user is permitted to manage. A restriction is returned only if the caller can manage it — i.e. an account/org admin (via admin escalation), a holder of the correct permissions in the parent resource or a holder of the correct permissions granted directly on the resource.  Results are paginated; use `limit` and `cursor` for subsequent pages. Because entries are authorization-filtered after a page is read, a page may contain fewer items than `limit` (or be empty) while `has_more` is still `true`. Clients MUST keep paging until `has_more` is `false` — do not stop on an empty page.  The `resource_type` query parameter is optional. When omitted, restrictions of all supported types are returned in one merged list.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param resource_type: Filter restrictions to a single resource type. - `PROJECT` — Return only restricted projects.  When not specified, restrictions of all supported resource types are returned (currently only `PROJECT`). 
+        :param resource_type: Filter the results to a specific resource type. When omitted, restrictions of all supported types are returned. - `PROJECT` — Return only restricted projects. - `DASHBOARD` — Return only restricted dashboards. 
         :type resource_type: ResourceRestrictionType
         :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
@@ -692,7 +692,7 @@ class ResourceRestrictionsApi:
     @validate_call
     def list_resource_restrictions_with_http_info(
         self,
-        resource_type: Annotated[Optional[ResourceRestrictionType], Field(description="Filter restrictions to a single resource type. - `PROJECT` — Return only restricted projects.  When not specified, restrictions of all supported resource types are returned (currently only `PROJECT`). ")] = None,
+        resource_type: Annotated[Optional[ResourceRestrictionType], Field(description="Filter the results to a specific resource type. When omitted, restrictions of all supported types are returned. - `PROJECT` — Return only restricted projects. - `DASHBOARD` — Return only restricted dashboards. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -710,9 +710,9 @@ class ResourceRestrictionsApi:
     ) -> ApiResponse[ListResourceRestrictionsResponse]:
         """List resource restrictions the caller is permitted to manage.
 
-        List active resource restrictions the authenticated user is permitted to manage. A restriction is returned only if the caller can manage it — i.e. an account/org admin (via admin escalation), a holder of the `PROJECT_RESTRICT` permission in the project's space, or a holder of `PROJECT_RESTRICT` granted directly on the project.  Results are paginated; use `limit` and `cursor` for subsequent pages. Because entries are authorization-filtered after a page is read, a page may contain fewer items than `limit` (or be empty) while `has_more` is still `true`. Clients MUST keep paging until `has_more` is `false` — do not stop on an empty page.  Use the optional `resource_type` query param to filter to a single resource type. When omitted, `PROJECT` restrictions are returned (currently the only supported type).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List active resource restrictions the authenticated user is permitted to manage. A restriction is returned only if the caller can manage it — i.e. an account/org admin (via admin escalation), a holder of the correct permissions in the parent resource or a holder of the correct permissions granted directly on the resource.  Results are paginated; use `limit` and `cursor` for subsequent pages. Because entries are authorization-filtered after a page is read, a page may contain fewer items than `limit` (or be empty) while `has_more` is still `true`. Clients MUST keep paging until `has_more` is `false` — do not stop on an empty page.  The `resource_type` query parameter is optional. When omitted, restrictions of all supported types are returned in one merged list.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param resource_type: Filter restrictions to a single resource type. - `PROJECT` — Return only restricted projects.  When not specified, restrictions of all supported resource types are returned (currently only `PROJECT`). 
+        :param resource_type: Filter the results to a specific resource type. When omitted, restrictions of all supported types are returned. - `PROJECT` — Return only restricted projects. - `DASHBOARD` — Return only restricted dashboards. 
         :type resource_type: ResourceRestrictionType
         :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
@@ -770,7 +770,7 @@ class ResourceRestrictionsApi:
     @validate_call
     def list_resource_restrictions_without_preload_content(
         self,
-        resource_type: Annotated[Optional[ResourceRestrictionType], Field(description="Filter restrictions to a single resource type. - `PROJECT` — Return only restricted projects.  When not specified, restrictions of all supported resource types are returned (currently only `PROJECT`). ")] = None,
+        resource_type: Annotated[Optional[ResourceRestrictionType], Field(description="Filter the results to a specific resource type. When omitted, restrictions of all supported types are returned. - `PROJECT` — Return only restricted projects. - `DASHBOARD` — Return only restricted dashboards. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -788,9 +788,9 @@ class ResourceRestrictionsApi:
     ) -> RESTResponseType:
         """List resource restrictions the caller is permitted to manage.
 
-        List active resource restrictions the authenticated user is permitted to manage. A restriction is returned only if the caller can manage it — i.e. an account/org admin (via admin escalation), a holder of the `PROJECT_RESTRICT` permission in the project's space, or a holder of `PROJECT_RESTRICT` granted directly on the project.  Results are paginated; use `limit` and `cursor` for subsequent pages. Because entries are authorization-filtered after a page is read, a page may contain fewer items than `limit` (or be empty) while `has_more` is still `true`. Clients MUST keep paging until `has_more` is `false` — do not stop on an empty page.  Use the optional `resource_type` query param to filter to a single resource type. When omitted, `PROJECT` restrictions are returned (currently the only supported type).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List active resource restrictions the authenticated user is permitted to manage. A restriction is returned only if the caller can manage it — i.e. an account/org admin (via admin escalation), a holder of the correct permissions in the parent resource or a holder of the correct permissions granted directly on the resource.  Results are paginated; use `limit` and `cursor` for subsequent pages. Because entries are authorization-filtered after a page is read, a page may contain fewer items than `limit` (or be empty) while `has_more` is still `true`. Clients MUST keep paging until `has_more` is `false` — do not stop on an empty page.  The `resource_type` query parameter is optional. When omitted, restrictions of all supported types are returned in one merged list.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param resource_type: Filter restrictions to a single resource type. - `PROJECT` — Return only restricted projects.  When not specified, restrictions of all supported resource types are returned (currently only `PROJECT`). 
+        :param resource_type: Filter the results to a specific resource type. When omitted, restrictions of all supported types are returned. - `PROJECT` — Return only restricted projects. - `DASHBOARD` — Return only restricted dashboards. 
         :type resource_type: ResourceRestrictionType
         :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int

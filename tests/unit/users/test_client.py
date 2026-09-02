@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 from unittest.mock import Mock, create_autospec, patch
 
 import pytest
+from pydantic import SecretStr
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -15,8 +16,10 @@ from arize._generated.api_client import UsersApi
 from arize.users.client import UsersClient
 from arize.users.types import (
     BulkUserDeletionResult,
+    CreateUserResponse,
     CustomUserRole,
     DeletionStatus,
+    InviteMode,
     ListUsersResponse,
     PredefinedUserRole,
     User,
@@ -32,6 +35,7 @@ def _stub_from_generated() -> Generator[None, None, None]:
     with (
         patch.object(User, "model_validate", return_value=Mock()),
         patch.object(ListUsersResponse, "model_validate", return_value=Mock()),
+        patch.object(CreateUserResponse, "model_validate", return_value=Mock()),
     ):
         yield
 
@@ -420,11 +424,11 @@ class TestUsersClientCreate:
             invite_mode="EMAIL_LINK",
         )
 
-    def test_create_returns_domain_user(
+    def test_create_returns_domain_create_user_response(
         self, users_client: UsersClient, mock_api: Mock
     ) -> None:
-        """create() should convert the raw API response to a domain User."""
-        raw = Mock()
+        """create() should convert the raw API response to a domain CreateUserResponse."""
+        raw = Mock(temporary_password=None)
         mock_api.create_user.return_value = raw
         domain = Mock()
 
@@ -432,7 +436,7 @@ class TestUsersClientCreate:
             patch("arize._generated.api_client.CreateUserRequest"),
             patch("arize._generated.api_client.UserRoleAssignmentRequest"),
             patch.object(
-                User, "model_validate", return_value=domain
+                CreateUserResponse, "model_validate", return_value=domain
             ) as mock_conv,
         ):
             result = users_client.create(
@@ -442,8 +446,77 @@ class TestUsersClientCreate:
                 invite_mode="none",
             )
 
-        mock_conv.assert_called_once_with(raw, from_attributes=True)
+        mock_conv.assert_called_once()
+        (merged,), kwargs = mock_conv.call_args
+        assert kwargs == {"from_attributes": True}
+        assert merged.id is raw.id
+        assert merged.invite_mode is raw.invite_mode
+        assert merged.temporary_password is None
         assert result is domain
+
+    def test_create_backfills_invite_mode_and_password_on_200_idempotency_hit(
+        self, users_client: UsersClient, mock_api: Mock
+    ) -> None:
+        """On the 200 idempotency-hit path, the raw response is the bare
+        generated User model — it has neither invite_mode nor
+        temporary_password as attributes at all. create() must fall back to
+        the caller's invite_mode and leave temporary_password unset, rather
+        than erroring or silently picking up an unrelated Mock attribute.
+        """
+        raw = Mock(
+            spec=[
+                "id",
+                "name",
+                "email",
+                "created_at",
+                "status",
+                "role",
+                "is_developer",
+            ]
+        )
+
+        with (
+            patch("arize._generated.api_client.CreateUserRequest"),
+            patch("arize._generated.api_client.UserRoleAssignmentRequest"),
+            patch.object(
+                CreateUserResponse, "model_validate", return_value=Mock()
+            ) as mock_conv,
+        ):
+            mock_api.create_user.return_value = raw
+            users_client.create(
+                name="Jane Smith",
+                email="jane@example.com",
+                role=PredefinedUserRole(name=UserRole.MEMBER),
+                invite_mode=InviteMode.EMAIL_LINK,
+            )
+
+        (merged,), _ = mock_conv.call_args
+        assert merged.invite_mode == InviteMode.EMAIL_LINK
+        assert merged.temporary_password is None
+
+    def test_create_unwraps_secret_str_temporary_password(
+        self, users_client: UsersClient, mock_api: Mock
+    ) -> None:
+        """create() should unwrap a generated SecretStr temporary_password to plain str."""
+        raw = Mock(temporary_password=SecretStr("tmp-pw-xyz"))
+        mock_api.create_user.return_value = raw
+
+        with (
+            patch("arize._generated.api_client.CreateUserRequest"),
+            patch("arize._generated.api_client.UserRoleAssignmentRequest"),
+            patch.object(
+                CreateUserResponse, "model_validate", return_value=Mock()
+            ) as mock_conv,
+        ):
+            users_client.create(
+                name="Jane Smith",
+                email="jane@example.com",
+                role=PredefinedUserRole(name=UserRole.MEMBER),
+                invite_mode=InviteMode.TEMPORARY_PASSWORD,
+            )
+
+        (merged,), _ = mock_conv.call_args
+        assert merged.temporary_password == "tmp-pw-xyz"  # noqa: S105
 
     def test_create_emits_beta_prerelease_warning(
         self,

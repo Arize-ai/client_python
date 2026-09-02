@@ -596,6 +596,7 @@ class TestSpansClientAnnotate:
             annotations=annotations,
             start_time=None,
             end_time=None,
+            granularity=None,
         )
         mock_api.annotate_spans.assert_called_once_with(
             annotate_spans_request=mock_body
@@ -631,6 +632,7 @@ class TestSpansClientAnnotate:
             annotations=mock_body_cls.call_args.kwargs["annotations"],
             start_time=start,
             end_time=end,
+            granularity=None,
         )
 
     def test_annotate_returns_none(
@@ -690,6 +692,37 @@ class TestSpansClientAnnotate:
             annotations=mock_body_cls.call_args.kwargs["annotations"],
             start_time=None,
             end_time=None,
+            granularity=None,
+        )
+
+    def test_annotate_forwards_granularity(
+        self, spans_client: SpansClient, mock_api: Mock
+    ) -> None:
+        """annotate() should forward granularity to the request body."""
+        from arize._generated.api_client import models
+        from arize.spans.types import RecordGranularity
+
+        with patch(
+            "arize._generated.api_client.AnnotateSpansRequest"
+        ) as mock_body_cls:
+            mock_body_cls.return_value = Mock()
+            spans_client.annotate(
+                project=_PROJECT_ID,
+                annotations=[
+                    models.AnnotateRecordInput(
+                        record_id="session-1",
+                        values=[models.AnnotationInput(name="q", score=1.0)],
+                    )
+                ],
+                granularity=RecordGranularity.SESSION,
+            )
+
+        mock_body_cls.assert_called_once_with(
+            project_id=_PROJECT_ID,
+            annotations=mock_body_cls.call_args.kwargs["annotations"],
+            start_time=None,
+            end_time=None,
+            granularity=RecordGranularity.SESSION,
         )
 
     def test_annotate_emits_beta_prerelease_warning(

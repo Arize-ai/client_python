@@ -238,6 +238,7 @@ python_functions = ["test_*"]
 # Directories and patterns to ignore during test collection
 norecursedirs = [
     "testing_notebooks",
+    "manual",
     ".*",
     "build",
     "dist",

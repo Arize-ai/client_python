@@ -9,8 +9,9 @@ Name | Type | Description | Notes
 **name** | **str** | New task name. | [optional] 
 **sampling_rate** | **float** | Sampling rate between 0 and 1. Only applicable for project-based tasks. | [optional] 
 **is_continuous** | **bool** | Whether the task runs continuously. Only applicable for project-based tasks. | [optional] 
-**query_filter** | **str** | Task-level query filter. Pass &#x60;null&#x60; to clear. | [optional] 
-**evaluators** | [**List[TaskEvaluatorInput]**](TaskEvaluatorInput.md) | Replaces the entire evaluator list. At least one evaluator is required when provided. | [optional] 
+**query_filter** | **str** | Task-level query filter (span shape). Pass &#x60;null&#x60; to clear. Mutually exclusive with &#x60;query_filters&#x60;.  | [optional] 
+**query_filters** | [**TaskQueryFiltersInput**](TaskQueryFiltersInput.md) | Named query filters plus optional expression (trace/session shape). Pass &#x60;null&#x60; to clear the entire multi-query shape (filters and expression together). Mutually exclusive with &#x60;query_filter&#x60;.  | [optional] 
+**evaluators** | [**List[TaskEvaluatorInput]**](TaskEvaluatorInput.md) | Replaces the entire evaluator list. At least one evaluator is required when provided. Omit the field to leave evaluators unchanged.  | [optional] 
 **run_configuration** | [**RunConfigurationRequest**](RunConfigurationRequest.md) |  | [optional] 
 
 ## Example

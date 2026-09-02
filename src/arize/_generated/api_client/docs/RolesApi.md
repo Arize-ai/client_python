@@ -116,6 +116,7 @@ Name | Type | Description  | Notes
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
 **409** | Resource conflict |  -  |
 **422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
@@ -129,6 +130,9 @@ Delete a role
 
 Delete a custom role by its ID (soft-delete). Predefined roles cannot
 be deleted.
+
+A role cannot be deleted while it still has role bindings — remove every
+binding for this role first, then delete the role.
 
 <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
@@ -202,6 +206,7 @@ void (empty response body)
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
+**409** | Resource conflict |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -212,6 +217,8 @@ void (empty response body)
 Get a role
 
 Get a role by its ID.
+
+Requires `ROLE_READ`
 
 <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
@@ -286,6 +293,7 @@ Name | Type | Description  | Notes
 **200** | A role object. |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
@@ -298,6 +306,9 @@ List roles
 
 List custom and predefined roles for the authenticated user's account.
 Results are paginated; use `limit` and `cursor` for subsequent pages.
+
+Account admins, members, and other callers with `ROLE_READ` receive each
+role's full permission list. Callers without `ROLE_READ` are rejected with 403.
 
 <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 

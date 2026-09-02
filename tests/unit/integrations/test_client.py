@@ -351,6 +351,23 @@ class TestIntegrationsClientCreateLlm:
         assert isinstance(forwarded, gen.CreateNvidiaNimConfig)
         assert forwarded.is_default_models_enabled is True
 
+    def test_create_litellm_builds_request(
+        self, integrations_client: IntegrationsClient, mock_api: Mock
+    ) -> None:
+        """create_llm(LITELLM) should forward the LiteLLM config."""
+        config = gen.CreateLiteLlmConfig(
+            provider="LITELLM",
+            base_url="https://litellm.internal:4000",
+            api_key="sk-litellm-x",
+            model_names=["team-gpt-4o"],
+        )
+        integrations_client.create_llm(name="LiteLLM", config=config)
+
+        forwarded = _created_llm_config(mock_api)
+        assert isinstance(forwarded, gen.CreateLiteLlmConfig)
+        assert forwarded.base_url == "https://litellm.internal:4000"
+        assert forwarded.model_names == ["team-gpt-4o"]
+
     def test_create_bedrock_default_auth(
         self, integrations_client: IntegrationsClient, mock_api: Mock
     ) -> None:

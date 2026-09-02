@@ -222,6 +222,7 @@ class TestProjectsClientUpdate:
 
         mock_resolve.assert_called_once_with(
             api=projects_client._api,
+            spaces_api=projects_client._spaces_api,
             project="my-project",
             space="my-space",
         )
@@ -247,6 +248,7 @@ class TestProjectsClientUpdate:
 
         mock_resolve.assert_called_once_with(
             api=projects_client._api,
+            spaces_api=projects_client._spaces_api,
             project=project_id,
             space=None,
         )

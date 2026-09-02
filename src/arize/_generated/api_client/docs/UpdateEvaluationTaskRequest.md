@@ -1,6 +1,6 @@
 # UpdateEvaluationTaskRequest
 
-PATCH body for `TEMPLATE_EVALUATION` and `CODE_EVALUATION` tasks. The two types share the same updatable shape; the server derives the task type from the URL's task record. At least one field must be provided. 
+PATCH body for `TEMPLATE_EVALUATION` and `CODE_EVALUATION` tasks. The two types share the same updatable shape; the server derives the task type from the URL's task record. At least one field must be provided.  Evaluators carry one of two mutually exclusive shapes depending on their data granularity. Span evaluators use task-level `query_filter` plus per-evaluator `column_mappings`/`query_filter`. Trace/session evaluators use task-level `query_filters` plus per-evaluator `query_mappings`. Mixing the two shapes returns 400. 
 
 ## Properties
 
@@ -9,8 +9,9 @@ Name | Type | Description | Notes
 **name** | **str** | New task name. | [optional] 
 **sampling_rate** | **float** | Sampling rate between 0 and 1. Only applicable for project-based tasks. | [optional] 
 **is_continuous** | **bool** | Whether the task runs continuously. Only applicable for project-based tasks. | [optional] 
-**query_filter** | **str** | Task-level query filter. Pass &#x60;null&#x60; to clear. | [optional] 
-**evaluators** | [**List[TaskEvaluatorInput]**](TaskEvaluatorInput.md) | Replaces the entire evaluator list. At least one evaluator is required when provided. | [optional] 
+**query_filter** | **str** | Task-level query filter (span shape). Pass &#x60;null&#x60; to clear. Mutually exclusive with &#x60;query_filters&#x60;.  | [optional] 
+**query_filters** | [**TaskQueryFiltersInput**](TaskQueryFiltersInput.md) | Named query filters plus optional expression (trace/session shape). Pass &#x60;null&#x60; to clear the entire multi-query shape (filters and expression together). Mutually exclusive with &#x60;query_filter&#x60;.  | [optional] 
+**evaluators** | [**List[TaskEvaluatorInput]**](TaskEvaluatorInput.md) | Replaces the entire evaluator list. At least one evaluator is required when provided. Omit the field to leave evaluators unchanged.  | [optional] 
 
 ## Example
 

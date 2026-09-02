@@ -62,6 +62,7 @@ class AiIntegrationsClient:
         from arize._generated import api_client as gen
 
         self._api = gen.AIIntegrationsApi(generated_client)
+        self._spaces_api = gen.SpacesApi(generated_client)
 
     @prerelease_endpoint(key="ai_integrations.list", stage=ReleaseStage.ALPHA)
     def list(
@@ -121,6 +122,7 @@ class AiIntegrationsClient:
         """
         integration_id = _find_ai_integration_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             integration=integration,
             space=space,
         )
@@ -286,6 +288,7 @@ class AiIntegrationsClient:
 
         integration_id = _find_ai_integration_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             integration=integration,
             space=space,
         )
@@ -313,6 +316,7 @@ class AiIntegrationsClient:
         """
         integration_id = _find_ai_integration_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             integration=integration,
             space=space,
         )

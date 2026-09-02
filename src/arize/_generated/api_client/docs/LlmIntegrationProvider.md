@@ -1,6 +1,6 @@
 # LlmIntegrationProvider
 
-The LLM vendor for an `LLM` integration. Selects the per-provider `config` member. `OPEN_AI`, `ANTHROPIC`, `GEMINI`, `AWS_BEDROCK`, `CUSTOM`, `VERTEX_AI`, and `NVIDIA_NIM` are implemented; additional providers are added non-breakingly.
+The LLM vendor for an `LLM` integration. Selects the per-provider `config` member. `OPEN_AI`, `ANTHROPIC`, `GEMINI`, `AWS_BEDROCK`, `CUSTOM`, `VERTEX_AI`, `NVIDIA_NIM`, and `LITELLM` are implemented; additional providers are added non-breakingly.
 
 ## Enum
 
@@ -17,6 +17,8 @@ The LLM vendor for an `LLM` integration. Selects the per-provider `config` membe
 * `VERTEX_AI` (value: `'VERTEX_AI'`)
 
 * `NVIDIA_NIM` (value: `'NVIDIA_NIM'`)
+
+* `LITELLM` (value: `'LITELLM'`)
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

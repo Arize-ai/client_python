@@ -157,6 +157,7 @@ def _find_space_id(api: SpacesApi, space: str) -> str:
 
 def _find_project_id(
     api: ProjectsApi,
+    spaces_api: SpacesApi,
     project: str,
     space: str | None,
 ) -> str:
@@ -164,6 +165,8 @@ def _find_project_id(
 
     Args:
         api: ProjectsApi instance.
+        spaces_api: SpacesApi instance, used to resolve a space name to an
+            exact ID before the list call.
         project: Project ID or name.
         space: Space ID or name used to filter the lookup.
 
@@ -173,6 +176,8 @@ def _find_project_id(
     Raises:
         NotFoundError: If the project name cannot be found or *space* is not
             provided when needed.
+        AmbiguousNameError: If *space* is a name that matches more than one
+            space.
     """
     if is_resource_id(project):
         return project
@@ -186,6 +191,11 @@ def _find_project_id(
                 "Provide 'space' so the project name can be resolved, "
                 "or provide the project ID instead of the name."
             ),
+        )
+
+    if resolved_space.is_name():
+        resolved_space = ResolvedIdentifier(
+            id=_find_space_id(spaces_api, resolved_space.name)  # type:ignore
         )
 
     available: list[str] = []
@@ -213,6 +223,7 @@ def _find_project_id(
 
 def _find_dataset_id(
     api: DatasetsApi,
+    spaces_api: SpacesApi,
     dataset: str,
     space: str | None,
 ) -> str:
@@ -220,6 +231,8 @@ def _find_dataset_id(
 
     Args:
         api: DatasetsApi instance.
+        spaces_api: SpacesApi instance, used to resolve a space name to an
+            exact ID before the list call.
         dataset: Dataset ID or name.
         space: Space ID or name used to filter the lookup.
 
@@ -228,6 +241,8 @@ def _find_dataset_id(
 
     Raises:
         NotFoundError: If the dataset name cannot be found.
+        AmbiguousNameError: If *space* is a name that matches more than one
+            space.
     """
     if is_resource_id(dataset):
         return dataset
@@ -241,6 +256,11 @@ def _find_dataset_id(
                 "Provide 'space' so the dataset name can be resolved, "
                 "or provide the dataset ID instead of the name."
             ),
+        )
+
+    if resolved_space.is_name():
+        resolved_space = ResolvedIdentifier(
+            id=_find_space_id(spaces_api, resolved_space.name)  # type:ignore
         )
 
     available: list[str] = []
@@ -334,7 +354,12 @@ def _find_experiment_id(
         dataset_id = (
             resolved_dataset.id
             if resolved_dataset.is_id()
-            else _find_dataset_id(datasets_api, resolved_dataset.name, space)  # type:ignore
+            else _find_dataset_id(
+                datasets_api,
+                spaces_api,
+                resolved_dataset.name,  # type:ignore[arg-type]
+                space,
+            )
         )
     else:
         # No dataset: resolve a standalone experiment within the space.
@@ -388,6 +413,7 @@ def _find_experiment_id(
 
 def _find_prompt_id(
     api: PromptsApi,
+    spaces_api: SpacesApi,
     prompt: str,
     space: str | None,
 ) -> str:
@@ -395,6 +421,8 @@ def _find_prompt_id(
 
     Args:
         api: PromptsApi instance.
+        spaces_api: SpacesApi instance, used to resolve a space name to an
+            exact ID before the list call.
         prompt: Prompt ID or name.
         space: Space ID or name used to filter the lookup.
 
@@ -403,6 +431,8 @@ def _find_prompt_id(
 
     Raises:
         NotFoundError: If the prompt name cannot be found.
+        AmbiguousNameError: If *space* is a name that matches more than one
+            space.
     """
     if is_resource_id(prompt):
         return prompt
@@ -416,6 +446,11 @@ def _find_prompt_id(
                 "Provide 'space' so the prompt name can be resolved, "
                 "or provide the prompt ID instead of the name."
             ),
+        )
+
+    if resolved_space.is_name():
+        resolved_space = ResolvedIdentifier(
+            id=_find_space_id(spaces_api, resolved_space.name)  # type:ignore
         )
 
     available: list[str] = []
@@ -443,6 +478,7 @@ def _find_prompt_id(
 
 def _find_evaluator_id(
     api: EvaluatorsApi,
+    spaces_api: SpacesApi,
     evaluator: str,
     space: str | None,
 ) -> str:
@@ -450,6 +486,8 @@ def _find_evaluator_id(
 
     Args:
         api: EvaluatorsApi instance.
+        spaces_api: SpacesApi instance, used to resolve a space name to an
+            exact ID before the list call.
         evaluator: Evaluator ID or name.
         space: Space ID or name used to filter the lookup.
 
@@ -458,6 +496,8 @@ def _find_evaluator_id(
 
     Raises:
         NotFoundError: If the evaluator name cannot be found.
+        AmbiguousNameError: If *space* is a name that matches more than one
+            space.
     """
     if is_resource_id(evaluator):
         return evaluator
@@ -471,6 +511,11 @@ def _find_evaluator_id(
                 "Provide 'space' so the evaluator name can be resolved, "
                 "or provide the evaluator ID instead of the name."
             ),
+        )
+
+    if resolved_space.is_name():
+        resolved_space = ResolvedIdentifier(
+            id=_find_space_id(spaces_api, resolved_space.name)  # type:ignore
         )
 
     available: list[str] = []
@@ -498,6 +543,7 @@ def _find_evaluator_id(
 
 def _find_annotation_config_id(
     api: AnnotationConfigsApi,
+    spaces_api: SpacesApi,
     annotation_config: str,
     space: str | None,
 ) -> str:
@@ -505,6 +551,8 @@ def _find_annotation_config_id(
 
     Args:
         api: AnnotationConfigsApi instance.
+        spaces_api: SpacesApi instance, used to resolve a space name to an
+            exact ID before the list call.
         annotation_config: Annotation config ID or name.
         space: Space ID or name used to filter the lookup.
 
@@ -513,6 +561,8 @@ def _find_annotation_config_id(
 
     Raises:
         NotFoundError: If the annotation config name cannot be found.
+        AmbiguousNameError: If *space* is a name that matches more than one
+            space.
     """
     if is_resource_id(annotation_config):
         return annotation_config
@@ -526,6 +576,11 @@ def _find_annotation_config_id(
                 "Provide 'space' so the annotation config name can be resolved, "
                 "or provide the annotation config ID instead of the name."
             ),
+        )
+
+    if resolved_space.is_name():
+        resolved_space = ResolvedIdentifier(
+            id=_find_space_id(spaces_api, resolved_space.name)  # type:ignore
         )
 
     available: list[str] = []
@@ -560,6 +615,7 @@ def _find_annotation_config_id(
 
 def _find_ai_integration_id(
     api: AIIntegrationsApi,
+    spaces_api: SpacesApi,
     integration: str,
     space: str | None,
 ) -> str:
@@ -567,6 +623,8 @@ def _find_ai_integration_id(
 
     Args:
         api: AIIntegrationsApi instance.
+        spaces_api: SpacesApi instance, used to resolve a space name to an
+            exact ID before the list call.
         integration: AI integration ID or name.
         space: Space ID or name used to filter the lookup.
 
@@ -575,6 +633,8 @@ def _find_ai_integration_id(
 
     Raises:
         NotFoundError: If the AI integration name cannot be found.
+        AmbiguousNameError: If *space* is a name that matches more than one
+            space.
     """
     if is_resource_id(integration):
         return integration
@@ -588,6 +648,11 @@ def _find_ai_integration_id(
                 "Provide 'space' so the AI integration name can be resolved, "
                 "or provide the AI integration ID instead of the name."
             ),
+        )
+
+    if resolved_space.is_name():
+        resolved_space = ResolvedIdentifier(
+            id=_find_space_id(spaces_api, resolved_space.name)  # type:ignore
         )
 
     available: list[str] = []
@@ -689,6 +754,7 @@ def _find_integration_id(
 
 def _find_annotation_queue_id(
     api: AnnotationQueuesApi,
+    spaces_api: SpacesApi,
     annotation_queue: str,
     space: str | None,
 ) -> str:
@@ -696,6 +762,8 @@ def _find_annotation_queue_id(
 
     Args:
         api: AnnotationQueuesApi instance.
+        spaces_api: SpacesApi instance, used to resolve a space name to an
+            exact ID before the list call.
         annotation_queue: Annotation queue ID or name.
         space: Space ID or name used to filter the lookup.
 
@@ -704,6 +772,8 @@ def _find_annotation_queue_id(
 
     Raises:
         NotFoundError: If the annotation queue name or ID cannot be found.
+        AmbiguousNameError: If *space* is a name that matches more than one
+            space.
     """
     if is_resource_id(annotation_queue):
         return annotation_queue
@@ -717,6 +787,11 @@ def _find_annotation_queue_id(
                 "Provide 'space' so the annotation queue name can be resolved, "
                 "or provide the annotation queue ID instead of the name."
             ),
+        )
+
+    if resolved_space.is_name():
+        resolved_space = ResolvedIdentifier(
+            id=_find_space_id(spaces_api, resolved_space.name)  # type:ignore
         )
 
     available: list[str] = []
@@ -748,6 +823,7 @@ def _find_annotation_queue_id(
 
 def _find_task_id(
     api: TasksApi,
+    spaces_api: SpacesApi,
     task: str,
     space: str | None,
 ) -> str:
@@ -755,6 +831,8 @@ def _find_task_id(
 
     Args:
         api: TasksApi instance.
+        spaces_api: SpacesApi instance, used to resolve a space name to an
+            exact ID before the list call.
         task: Task ID or name.
         space: Space ID or name used to filter the lookup.
 
@@ -763,6 +841,8 @@ def _find_task_id(
 
     Raises:
         NotFoundError: If the task name cannot be found.
+        AmbiguousNameError: If *space* is a name that matches more than one
+            space.
     """
     if is_resource_id(task):
         return task
@@ -776,6 +856,11 @@ def _find_task_id(
                 "Provide 'space' so the task name can be resolved, "
                 "or provide the task ID instead of the name."
             ),
+        )
+
+    if resolved_space.is_name():
+        resolved_space = ResolvedIdentifier(
+            id=_find_space_id(spaces_api, resolved_space.name)  # type:ignore
         )
 
     available: list[str] = []

@@ -29,6 +29,7 @@
   - [Operations on Spans](#operations-on-spans)
     - [Logging spans](#logging-spans)
     - [Listing spans](#listing-spans)
+    - [Annotating spans](#annotating-spans)
     - [Update spans Evaluations, Annotations, and Metadata](#update-spans-evaluations-annotations-and-metadata)
     - [Exporting spans](#exporting-spans)
   - [Traces](#traces)
@@ -68,6 +69,7 @@
     - [Update an Evaluator](#update-an-evaluator)
     - [Delete an Evaluator](#delete-an-evaluator)
     - [Evaluator Versions](#evaluator-versions)
+    - [Delete Evaluator Versions](#delete-evaluator-versions)
   - [Operations on Tasks](#operations-on-tasks)
     - [List Tasks](#list-tasks)
     - [Create a Task](#create-a-task)
@@ -275,6 +277,43 @@ spans = client.spans.list(
 )
 for span in spans.spans:
     print(span.name)
+```
+
+### Annotating spans
+
+Use `annotate` to write human annotations to a batch of records via the REST API.
+`granularity` selects what each `record_id` identifies: a span (`SPAN`, the
+default), a trace's root span (`TRACE`), or a session (`SESSION`, written to
+the root span of the session's earliest trace). Up to 1000 records may be
+annotated per request for `SPAN`/`TRACE`; up to 100 for `SESSION`.
+
+`start_time`/`end_time` bound the lookup window and are both optional: when
+omitted, `end_time` defaults to now and `start_time` defaults to 31 days
+before that (7 days for `SESSION`). If the record is older than the default
+window, pass `start_time` explicitly or the record won't be found.
+
+```python
+from datetime import datetime, timedelta, timezone
+from arize import ArizeClient
+from arize.spans.types import AnnotateRecordInput, AnnotationInput, RecordGranularity
+
+client = ArizeClient(api_key=API_KEY)
+
+end_time = datetime.now(timezone.utc)
+start_time = end_time - timedelta(days=7)
+
+client.spans.annotate(
+    project="<your-project-id>",
+    annotations=[
+        AnnotateRecordInput(
+            record_id="<session-id>",
+            values=[AnnotationInput(name="quality", label="good")],
+        ),
+    ],
+    granularity=RecordGranularity.SESSION,  # optional; defaults to SPAN
+    start_time=start_time,
+    end_time=end_time,
+)
 ```
 
 ### Update spans Evaluations, Annotations, and Metadata
@@ -1067,6 +1106,16 @@ new_version = client.evaluators.create_version(
     space=..., # Optional
     commit_message="Updated template",
     template_config=TemplateConfigInput(...),
+)
+```
+
+### Delete Evaluator Versions
+
+```python
+resp = client.evaluators.delete_versions(
+    evaluator="<evaluator-id-or-name>",
+    space=..., # Optional
+    version_ids=..., # List of version IDs to delete (1-100)
 )
 ```
 
@@ -1888,7 +1937,7 @@ integration = client.integrations.get(
 
 ### Create an LLM Integration
 
-LLM integrations configure access to a model provider. Construct the generated config that matches the provider you want — all 7 are supported: `CreateOpenAiConfig`, `CreateAnthropicConfig`, `CreateGeminiConfig`, `CreateAwsBedrockConfig`, `CreateCustomConfig`, `CreateVertexAiConfig`, and `CreateNvidiaNimConfig`.
+LLM integrations configure access to a model provider. Construct the generated config that matches the provider you want — all 8 are supported: `CreateOpenAiConfig`, `CreateAnthropicConfig`, `CreateGeminiConfig`, `CreateAwsBedrockConfig`, `CreateCustomConfig`, `CreateVertexAiConfig`, `CreateNvidiaNimConfig`, and `CreateLiteLlmConfig`.
 
 ```python
 from arize.integrations.types import CreateOpenAiConfig

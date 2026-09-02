@@ -14,23 +14,25 @@ Method | HTTP request | Description
 
 Restrict a resource
 
-Mark a resource as restricted. Only space admins or users with the RESOURCE_RESTRICT
-permission can perform this action. Idempotent.
+Mark a resource as restricted. Only space admins or users with the
+the correct permissions can perform this action. Idempotent.
 
 **Payload Requirements**
-- `resource_id`: The ID for the resource. 
-  Only `project` resources are currently supported. Other resource types are not currently supported and will return 400.
+- `resource_id`: The global ID for the resource.
 
-**Valid example**
+**Valid examples**
 ```json
 { "resource_id": "TW9kZWw6MTIxOmFCY0Q=" }
+```
+```json
+{ "resource_id": "RGFzaGJvYXJkOjQ1NjphQmNE" }
 ```
 
 **Invalid example**
 ```json
-{ "resource_id": "Not a project ID" }
+{ "resource_id": "Not a valid global ID" }
 ```
-Returns 400 — only Project / Model IDs are accepted 
+Returns 400 — only resources with the correct type are accepted
 
 <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
@@ -203,16 +205,16 @@ List resource restrictions the caller is permitted to manage.
 
 List active resource restrictions the authenticated user is permitted to manage.
 A restriction is returned only if the caller can manage it — i.e. an account/org admin
-(via admin escalation), a holder of the `PROJECT_RESTRICT` permission in the project's
-space, or a holder of `PROJECT_RESTRICT` granted directly on the project.
+(via admin escalation), a holder of the correct permissions in the parent resource
+or a holder of the correct permissions granted directly on the resource.
 
 Results are paginated; use `limit` and `cursor` for subsequent pages. Because entries
 are authorization-filtered after a page is read, a page may contain fewer items than
 `limit` (or be empty) while `has_more` is still `true`. Clients MUST keep paging until
 `has_more` is `false` — do not stop on an empty page.
 
-Use the optional `resource_type` query param to filter to a single resource type.
-When omitted, `PROJECT` restrictions are returned (currently the only supported type).
+The `resource_type` query parameter is optional. When omitted, restrictions of all
+supported types are returned in one merged list.
 
 <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
@@ -248,7 +250,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.ResourceRestrictionsApi(api_client)
-    resource_type = arize._generated.api_client.ResourceRestrictionType() # ResourceRestrictionType | Filter restrictions to a single resource type. - `PROJECT` — Return only restricted projects.  When not specified, restrictions of all supported resource types are returned (currently only `PROJECT`).  (optional)
+    resource_type = arize._generated.api_client.ResourceRestrictionType() # ResourceRestrictionType | Filter the results to a specific resource type. When omitted, restrictions of all supported types are returned. - `PROJECT` — Return only restricted projects. - `DASHBOARD` — Return only restricted dashboards.  (optional)
     limit = 50 # int | Maximum items to return. Defaults to 50 if omitted; maximum is 100. (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
@@ -268,7 +270,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **resource_type** | [**ResourceRestrictionType**](.md)| Filter restrictions to a single resource type. - &#x60;PROJECT&#x60; — Return only restricted projects.  When not specified, restrictions of all supported resource types are returned (currently only &#x60;PROJECT&#x60;).  | [optional] 
+ **resource_type** | [**ResourceRestrictionType**](.md)| Filter the results to a specific resource type. When omitted, restrictions of all supported types are returned. - &#x60;PROJECT&#x60; — Return only restricted projects. - &#x60;DASHBOARD&#x60; — Return only restricted dashboards.  | [optional] 
  **limit** | **int**| Maximum items to return. Defaults to 50 if omitted; maximum is 100. | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
 

@@ -12,6 +12,12 @@ from arize._generated.api_client.models.run_configuration import (
 from arize._generated.api_client.models.run_configuration_request import (
     RunConfigurationRequest,
 )
+from arize._generated.api_client.models.task_query_filter_input import (
+    TaskQueryFilterInput,
+)
+from arize._generated.api_client.models.task_query_filters_input import (
+    TaskQueryFiltersInput,
+)
 from arize.constants.config import DEFAULT_LIST_LIMIT
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.tasks.types import (
@@ -22,6 +28,7 @@ from arize.tasks.types import (
     LlmGenerationRunConfigRequest,
     RunStatus,
     Task,
+    TaskQueryFilters,
     TaskType,
     TemplateEvaluationRunConfig,
     TemplateEvaluationRunConfigRequest,
@@ -47,6 +54,19 @@ if TYPE_CHECKING:
     )
 
 logger = logging.getLogger(__name__)
+
+
+def _build_query_filters_input(
+    query_filters: TaskQueryFilters,
+) -> TaskQueryFiltersInput:
+    return TaskQueryFiltersInput(
+        filters=[
+            TaskQueryFilterInput(id=f.id, filter=f.filter)
+            for f in query_filters.filters
+        ],
+        expression=query_filters.expression,
+    )
+
 
 _TERMINAL_STATUSES: Final = frozenset(
     {RunStatus.COMPLETED, RunStatus.FAILED, RunStatus.CANCELLED}
@@ -83,6 +103,7 @@ class TasksClient:
         self._api = gen.TasksApi(generated_client)
         self._projects_api = gen.ProjectsApi(generated_client)
         self._datasets_api = gen.DatasetsApi(generated_client)
+        self._spaces_api = gen.SpacesApi(generated_client)
 
     # ------------------------------------------------------------------
     # Helpers
@@ -125,14 +146,12 @@ class TasksClient:
             payload = item.actual_instance.to_dict()
         elif isinstance(
             item,
-            (
-                AgentCallRunConfig,
-                AgentCallRunConfigRequest,
-                LlmGenerationRunConfig,
-                LlmGenerationRunConfigRequest,
-                TemplateEvaluationRunConfig,
-                TemplateEvaluationRunConfigRequest,
-            ),
+            AgentCallRunConfig
+            | AgentCallRunConfigRequest
+            | LlmGenerationRunConfig
+            | LlmGenerationRunConfigRequest
+            | TemplateEvaluationRunConfig
+            | TemplateEvaluationRunConfigRequest,
         ):
             payload = item.to_dict()
         elif isinstance(item, dict):
@@ -200,6 +219,7 @@ class TasksClient:
         project_id = (
             _find_project_id(
                 api=self._projects_api,
+                spaces_api=self._spaces_api,
                 project=project,
                 space=space,
             )
@@ -209,6 +229,7 @@ class TasksClient:
         dataset_id = (
             _find_dataset_id(
                 api=self._datasets_api,
+                spaces_api=self._spaces_api,
                 dataset=dataset,
                 space=space,
             )
@@ -247,6 +268,7 @@ class TasksClient:
         """
         task_id = _find_task_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             task=task,
             space=space,
         )
@@ -276,6 +298,7 @@ class TasksClient:
         sampling_rate: float | None = None,
         is_continuous: bool | None = None,
         query_filter: str | None = None,
+        query_filters: TaskQueryFilters | None = None,
     ) -> Task:
         """Create a new task.
 
@@ -304,9 +327,11 @@ class TasksClient:
                   (base64). Optional; omit it to run the latest version. Must
                   be a version of ``evaluator_id``.
                 - ``query_filter`` — Per-evaluator filter (AND-ed with
-                  task-level filter). Optional.
+                  task-level filter). Optional (span shape).
                 - ``column_mappings`` — Maps template variable names to column
-                  names. Optional.
+                  names. Optional (span shape).
+                - ``query_mappings`` — Variable-to-query mappings.
+                  Optional (trace/session shape).
 
             run_configuration: Experiment run configuration. Required for
                 ``"RUN_EXPERIMENT"`` tasks; must be omitted for eval task
@@ -331,8 +356,15 @@ class TasksClient:
                 project-based eval tasks.
             is_continuous: Whether to run the task continuously. Only valid
                 for eval tasks.
-            query_filter: Task-level query filter applied to all evaluators.
-                Only valid for eval tasks.
+            query_filter: Task-level query filter for span-granularity eval
+                tasks. Mutually exclusive with ``query_filters``.
+            query_filters: Combined named query filters and boolean expression
+                for trace/session eval tasks. Pass a
+                :class:`arize.tasks.types.TaskQueryFilters` object with
+                ``filters`` (1-5 entries, each a
+                :class:`arize.tasks.types.TaskQueryFilter` with ``id``
+                ``A``-``E`` and ``filter``) and an optional ``expression``
+                string. Mutually exclusive with ``query_filter``.
 
         Returns:
             The newly created task.
@@ -345,6 +377,11 @@ class TasksClient:
         """
         from arize._generated import api_client as gen
 
+        if query_filter and query_filters is not None:
+            raise ValueError(
+                "'query_filter' and 'query_filters' are mutually exclusive."
+            )
+
         if task_type == TaskType.RUN_EXPERIMENT:
             eval_only = {
                 k: v
@@ -354,6 +391,7 @@ class TasksClient:
                     "sampling_rate": sampling_rate,
                     "is_continuous": is_continuous,
                     "query_filter": query_filter,
+                    "query_filters": query_filters,
                     "experiment_ids": experiment_ids,
                 }.items()
                 if v is not None
@@ -373,6 +411,7 @@ class TasksClient:
                 )
             run_exp_dataset_id = _find_dataset_id(
                 api=self._datasets_api,
+                spaces_api=self._spaces_api,
                 dataset=dataset,
                 space=space,
             )
@@ -399,6 +438,7 @@ class TasksClient:
         project_id = (
             _find_project_id(
                 api=self._projects_api,
+                spaces_api=self._spaces_api,
                 project=project,
                 space=space,
             )
@@ -408,6 +448,7 @@ class TasksClient:
         dataset_id: str | None = (
             _find_dataset_id(
                 api=self._datasets_api,
+                spaces_api=self._spaces_api,
                 dataset=dataset,
                 space=space,
             )
@@ -418,6 +459,11 @@ class TasksClient:
             gen.CreateTemplateEvaluationTaskRequest
             if task_type == TaskType.TEMPLATE_EVALUATION
             else gen.CreateCodeEvaluationTaskRequest
+        )
+        query_filters_input = (
+            _build_query_filters_input(query_filters)
+            if query_filters is not None
+            else None
         )
         eval_inner = inner_cls(
             name=name,
@@ -431,6 +477,7 @@ class TasksClient:
             sampling_rate=sampling_rate,
             is_continuous=is_continuous,
             query_filter=query_filter,
+            query_filters=query_filters_input,
         )
         body = gen.CreateTaskRequest(actual_instance=eval_inner)
         result = self._api.create_task(create_task_request=body)
@@ -452,6 +499,7 @@ class TasksClient:
         sampling_rate: float | None = None,
         is_continuous: bool | None = None,
         query_filter: str | None = None,
+        query_filters: TaskQueryFilters | None = None,
     ) -> Task:
         """Create a new evaluation task.
 
@@ -472,8 +520,12 @@ class TasksClient:
                 - ``evaluator_id`` — Evaluator identifier (base64). Required.
                 - ``evaluator_version_id`` — Pins the evaluator to one version
                   (base64). Optional; omit it to run the latest version.
-                - ``query_filter`` — Per-evaluator filter. Optional.
-                - ``column_mappings`` — Template variable name mappings. Optional.
+                - ``query_filter`` — Per-evaluator filter. Optional (span
+                  shape).
+                - ``column_mappings`` — Template variable name mappings.
+                  Optional (span shape).
+                - ``query_mappings`` — Variable-to-query mappings.
+                  Optional (trace/session shape).
 
             project: Project name or identifier (base64). Required when
                 ``dataset`` is not provided.
@@ -487,7 +539,12 @@ class TasksClient:
                 project-based tasks.
             is_continuous: Whether to run the task continuously. Only valid
                 for project-based tasks.
-            query_filter: Task-level query filter applied to all evaluators.
+            query_filter: Task-level query filter for span-granularity
+                evaluators. Mutually exclusive with ``query_filters``.
+            query_filters: Combined named query filters and boolean expression
+                for trace/session evaluators. Pass a
+                :class:`arize.tasks.types.TaskQueryFilters` object.
+                Mutually exclusive with ``query_filter``.
 
         Returns:
             The newly created task.
@@ -508,6 +565,7 @@ class TasksClient:
             sampling_rate=sampling_rate,
             is_continuous=is_continuous,
             query_filter=query_filter,
+            query_filters=query_filters,
         )
 
     @prerelease_endpoint(
@@ -576,6 +634,7 @@ class TasksClient:
         sampling_rate: float | UNSET = _UNSET,
         is_continuous: bool | UNSET = _UNSET,
         query_filter: str | None | UNSET = _UNSET,
+        query_filters: TaskQueryFilters | None | UNSET = _UNSET,
         evaluators: builtins.list[TaskEvaluatorInput] | UNSET = _UNSET,
         # run_experiment-task fields
         run_configuration: RunConfiguration
@@ -603,14 +662,15 @@ class TasksClient:
         ``code_evaluation``):
 
         - Valid fields: ``name``, ``sampling_rate``, ``is_continuous``,
-          ``query_filter``, ``evaluators``.
+          ``query_filter``, ``query_filters``, ``evaluators``.
         - ``run_configuration`` must not be provided.
 
         For **run_experiment tasks**:
 
         - Valid fields: ``name``, ``run_configuration``.
         - Evaluation-only fields (``sampling_rate``, ``is_continuous``,
-          ``query_filter``, ``evaluators``) must not be provided.
+          ``query_filter``, ``query_filters``, ``evaluators``)
+          must not be provided.
 
         Args:
             task: Task name or identifier (base64). Names are resolved within
@@ -622,8 +682,14 @@ class TasksClient:
                 tasks only, project-based tasks only.
             is_continuous: Whether the task runs continuously. Evaluation
                 tasks only.
-            query_filter: Task-level query filter, or ``None`` to clear the
-                filter. Evaluation tasks only.
+            query_filter: Task-level query filter for span-granularity
+                evaluators, or ``None`` to clear. Mutually exclusive with
+                ``query_filters``. Evaluation tasks only.
+            query_filters: Combined named query filters and boolean expression
+                for trace/session evaluators, or ``None`` to clear. Pass a
+                :class:`arize.tasks.types.TaskQueryFilters` object with an
+                empty ``filters`` list to clear. Mutually exclusive with
+                ``query_filter``. Evaluation tasks only.
             evaluators: Full replacement list of evaluators (at least one when
                 provided). Evaluation tasks only.
             run_configuration: Replacement run configuration. When provided
@@ -642,6 +708,7 @@ class TasksClient:
 
         task_id = _find_task_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             task=task,
             space=space,
         )
@@ -655,6 +722,7 @@ class TasksClient:
                     "sampling_rate": sampling_rate,
                     "is_continuous": is_continuous,
                     "query_filter": query_filter,
+                    "query_filters": query_filters,
                     "evaluators": evaluators,
                 }.items()
                 if is_provided(v)
@@ -686,6 +754,15 @@ class TasksClient:
                     "'run_configuration' is only valid for run_experiment tasks, "
                     f"not '{task_obj.type}'.",
                 )
+            if (
+                is_provided(query_filter)
+                and is_provided(query_filters)
+                and query_filter is not None
+                and query_filters is not None
+            ):
+                raise ValueError(
+                    "'query_filter' and 'query_filters' are mutually exclusive."
+                )
             eval_kwargs: dict[str, Any] = {}
             if is_provided(name):
                 eval_kwargs["name"] = name
@@ -695,12 +772,19 @@ class TasksClient:
                 eval_kwargs["is_continuous"] = is_continuous
             if is_provided(query_filter):
                 eval_kwargs["query_filter"] = query_filter
+            if is_provided(query_filters):
+                eval_kwargs["query_filters"] = (
+                    None
+                    if query_filters is None
+                    else _build_query_filters_input(query_filters)
+                )
             if is_provided(evaluators):
                 eval_kwargs["evaluators"] = evaluators
             if not eval_kwargs:
                 raise ValueError(
                     "At least one update field must be provided "
-                    "(name, sampling_rate, is_continuous, query_filter, or evaluators).",
+                    "(name, sampling_rate, is_continuous, query_filter, "
+                    "query_filters, or evaluators).",
                 )
             inner = gen.UpdateEvaluationTaskRequest(**eval_kwargs)
             body = gen.UpdateTaskRequest(actual_instance=inner)
@@ -724,6 +808,7 @@ class TasksClient:
         """
         task_id = _find_task_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             task=task,
             space=space,
         )
@@ -824,6 +909,7 @@ class TasksClient:
 
         task_id = _find_task_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             task=task,
             space=space,
         )
@@ -935,6 +1021,7 @@ class TasksClient:
         """
         task_id = _find_task_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             task=task,
             space=space,
         )

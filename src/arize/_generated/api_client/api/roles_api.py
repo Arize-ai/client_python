@@ -100,6 +100,7 @@ class RolesApi:
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
+            '404': "Problem",
             '409': "Problem",
             '422': "Problem",
             '429': "Problem",
@@ -173,6 +174,7 @@ class RolesApi:
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
+            '404': "Problem",
             '409': "Problem",
             '422': "Problem",
             '429': "Problem",
@@ -246,6 +248,7 @@ class RolesApi:
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
+            '404': "Problem",
             '409': "Problem",
             '422': "Problem",
             '429': "Problem",
@@ -354,7 +357,7 @@ class RolesApi:
     ) -> None:
         """Delete a role
 
-        Delete a custom role by its ID (soft-delete). Predefined roles cannot be deleted.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Delete a custom role by its ID (soft-delete). Predefined roles cannot be deleted.  A role cannot be deleted while it still has role bindings — remove every binding for this role first, then delete the role.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param role_id: The unique role identifier (base64) (required)
         :type role_id: str
@@ -394,6 +397,7 @@ class RolesApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '409': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -426,7 +430,7 @@ class RolesApi:
     ) -> ApiResponse[None]:
         """Delete a role
 
-        Delete a custom role by its ID (soft-delete). Predefined roles cannot be deleted.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Delete a custom role by its ID (soft-delete). Predefined roles cannot be deleted.  A role cannot be deleted while it still has role bindings — remove every binding for this role first, then delete the role.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param role_id: The unique role identifier (base64) (required)
         :type role_id: str
@@ -466,6 +470,7 @@ class RolesApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '409': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -498,7 +503,7 @@ class RolesApi:
     ) -> RESTResponseType:
         """Delete a role
 
-        Delete a custom role by its ID (soft-delete). Predefined roles cannot be deleted.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Delete a custom role by its ID (soft-delete). Predefined roles cannot be deleted.  A role cannot be deleted while it still has role bindings — remove every binding for this role first, then delete the role.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param role_id: The unique role identifier (base64) (required)
         :type role_id: str
@@ -538,6 +543,7 @@ class RolesApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '409': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -630,7 +636,7 @@ class RolesApi:
     ) -> Role:
         """Get a role
 
-        Get a role by its ID.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Get a role by its ID.  Requires `ROLE_READ`  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param role_id: The unique role identifier (base64) (required)
         :type role_id: str
@@ -668,6 +674,7 @@ class RolesApi:
             '200': "Role",
             '400': "Problem",
             '401': "Problem",
+            '403': "Problem",
             '404': "Problem",
             '429': "Problem",
         }
@@ -701,7 +708,7 @@ class RolesApi:
     ) -> ApiResponse[Role]:
         """Get a role
 
-        Get a role by its ID.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Get a role by its ID.  Requires `ROLE_READ`  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param role_id: The unique role identifier (base64) (required)
         :type role_id: str
@@ -739,6 +746,7 @@ class RolesApi:
             '200': "Role",
             '400': "Problem",
             '401': "Problem",
+            '403': "Problem",
             '404': "Problem",
             '429': "Problem",
         }
@@ -772,7 +780,7 @@ class RolesApi:
     ) -> RESTResponseType:
         """Get a role
 
-        Get a role by its ID.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Get a role by its ID.  Requires `ROLE_READ`  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param role_id: The unique role identifier (base64) (required)
         :type role_id: str
@@ -810,6 +818,7 @@ class RolesApi:
             '200': "Role",
             '400': "Problem",
             '401': "Problem",
+            '403': "Problem",
             '404': "Problem",
             '429': "Problem",
         }
@@ -906,7 +915,7 @@ class RolesApi:
     ) -> ListRolesResponse:
         """List roles
 
-        List custom and predefined roles for the authenticated user's account. Results are paginated; use `limit` and `cursor` for subsequent pages.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List custom and predefined roles for the authenticated user's account. Results are paginated; use `limit` and `cursor` for subsequent pages.  Account admins, members, and other callers with `ROLE_READ` receive each role's full permission list. Callers without `ROLE_READ` are rejected with 403.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
@@ -985,7 +994,7 @@ class RolesApi:
     ) -> ApiResponse[ListRolesResponse]:
         """List roles
 
-        List custom and predefined roles for the authenticated user's account. Results are paginated; use `limit` and `cursor` for subsequent pages.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List custom and predefined roles for the authenticated user's account. Results are paginated; use `limit` and `cursor` for subsequent pages.  Account admins, members, and other callers with `ROLE_READ` receive each role's full permission list. Callers without `ROLE_READ` are rejected with 403.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
@@ -1064,7 +1073,7 @@ class RolesApi:
     ) -> RESTResponseType:
         """List roles
 
-        List custom and predefined roles for the authenticated user's account. Results are paginated; use `limit` and `cursor` for subsequent pages.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List custom and predefined roles for the authenticated user's account. Results are paginated; use `limit` and `cursor` for subsequent pages.  Account admins, members, and other callers with `ROLE_READ` receive each role's full permission list. Callers without `ROLE_READ` are rejected with 403.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int

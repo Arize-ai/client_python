@@ -28,7 +28,7 @@ class UpdateSpaceRequest(BaseModel):
     UpdateSpaceRequest
     """ # noqa: E501
     name: Optional[Annotated[str, Field(strict=True, max_length=255)]] = Field(default=None, description="Updated name of the space")
-    description: Optional[Annotated[str, Field(strict=True, max_length=1000)]] = Field(default=None, description="Updated description of the space. Set to `null` to clear it.")
+    description: Optional[Annotated[str, Field(strict=True, max_length=1000)]] = Field(default=None, description="Updated description of the space. Set to `null` to clear it. An empty string is rejected.")
     is_private: Optional[StrictBool] = Field(default=None, description="Updated visibility for the space. Set to `true` to make the space private (visible only to members and admins), or `false` to make it public. When omitted, the existing visibility is preserved. ")
     __properties: ClassVar[List[str]] = ["name", "description", "is_private"]
 

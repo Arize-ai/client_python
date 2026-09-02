@@ -42,8 +42,9 @@ class InvocationParams(BaseModel):
     thinking_budget: Optional[StrictInt] = Field(default=None, description="Maximum tokens the model may use for internal reasoning. Supported by Gemini 2.5 models. Range: 0-24576 (Flash/Flash-Lite) or 128-32768 (Pro). Set 0 to disable thinking on Flash models.")
     reasoning_effort: Optional[StrictStr] = Field(default=None, description="Controls how much reasoning the model performs before responding. Supported by OpenAI o-series and GPT-5 models. o-series: 'low' | 'medium' | 'high'. GPT-5: 'none' | 'low' | 'medium' | 'high' | 'xhigh'.")
     verbosity: Optional[StrictStr] = Field(default=None, description="Controls the verbosity of model output. Supported by OpenAI GPT-5 series. Accepted values: 'low' | 'medium' | 'high'.")
+    service_tier: Optional[StrictStr] = Field(default=None, description="Processing tier for the request. Supported by OpenAI only, and only for models eligible for Priority processing. Accepted value: 'priority'. Omit to use the project default.")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["temperature", "max_tokens", "max_completion_tokens", "top_p", "frequency_penalty", "presence_penalty", "stop", "response_format", "tool_config", "top_k", "thinking_level", "thinking_budget", "reasoning_effort", "verbosity"]
+    __properties: ClassVar[List[str]] = ["temperature", "max_tokens", "max_completion_tokens", "top_p", "frequency_penalty", "presence_penalty", "stop", "response_format", "tool_config", "top_k", "thinking_level", "thinking_budget", "reasoning_effort", "verbosity", "service_tier"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -122,7 +123,8 @@ class InvocationParams(BaseModel):
             "thinking_level": obj.get("thinking_level"),
             "thinking_budget": obj.get("thinking_budget"),
             "reasoning_effort": obj.get("reasoning_effort"),
-            "verbosity": obj.get("verbosity")
+            "verbosity": obj.get("verbosity"),
+            "service_tier": obj.get("service_tier")
         })
         # store additional fields in additional_properties
         for _key in obj.keys():

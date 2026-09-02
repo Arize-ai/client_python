@@ -190,6 +190,7 @@ class PromptsClient:
         """
         prompt_id = _find_prompt_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             prompt=prompt,
             space=space,
         )
@@ -245,6 +246,7 @@ class PromptsClient:
         """
         prompt_id = _find_prompt_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             prompt=prompt,
             space=space,
         )
@@ -276,6 +278,7 @@ class PromptsClient:
         """
         prompt_id = _find_prompt_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             prompt=prompt,
             space=space,
         )
@@ -309,6 +312,7 @@ class PromptsClient:
         """
         prompt_id = _find_prompt_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             prompt=prompt,
             space=space,
         )
@@ -358,6 +362,7 @@ class PromptsClient:
         """
         prompt_id = _find_prompt_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             prompt=prompt,
             space=space,
         )
@@ -401,6 +406,7 @@ class PromptsClient:
         """
         prompt_id = _find_prompt_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             prompt=prompt,
             space=space,
         )

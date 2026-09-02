@@ -285,8 +285,9 @@ Payload Requirements
 - Provide at least one run in `experiment_runs`.
 - Each run must include:
   - `output` -- model/task output for the run
-  - `example_id` -- the ID of an existing example in the dataset,
-  required only when the experiment is associated with a dataset
+  - `example_id` -- a correlation ID linking this run to a dataset example.
+  Required only when the experiment is associated with a dataset; its
+  existence in the dataset is never validated.
   - You may include any additional fields per run that can be used for
   analysis or filtering. For example: `model`, `latency_ms`,
   `temperature`, `prompt`, `tool_calls`, etc.
@@ -555,8 +556,9 @@ Append new runs to an existing experiment.
 - Provide between 1 and 1000 runs in `experiment_runs`.
 - Each run must include:
   - `output` -- model/task output for the run
-  - `example_id` -- the ID of an existing example in the dataset,
-  required only when the experiment is associated with a dataset
+  - `example_id` -- a correlation ID linking this run to a dataset example.
+  Required only when the experiment is associated with a dataset; its
+  existence in the dataset is never validated.
   - You may include any additional fields per run that can be used for
   analysis or filtering. For example: `model`, `latency_ms`,
   `temperature`, `prompt`, `tool_calls`, etc.

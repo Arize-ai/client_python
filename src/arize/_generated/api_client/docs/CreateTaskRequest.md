@@ -12,8 +12,9 @@ Name | Type | Description | Notes
 **experiment_ids** | **List[str]** | Experiment identifiers (base64). Required when &#x60;dataset_id&#x60; is provided (at least one entry). Must be omitted or empty for project-based tasks.  | [optional] 
 **sampling_rate** | **float** | Sampling rate between 0 and 1. Only supported on project-based tasks.  | [optional] 
 **is_continuous** | **bool** | Whether the task runs continuously. Only supported on project-based tasks. Must be &#x60;false&#x60; or omitted for dataset-based tasks.  | [optional] 
-**query_filter** | **str** | Task-level query filter applied to all evaluated data. | [optional] 
-**evaluators** | [**List[TaskEvaluatorInput]**](TaskEvaluatorInput.md) | Evaluators to attach (at least one required). | 
+**query_filter** | **str** | Task-level query filter applied to all evaluated data (span shape). Mutually exclusive with &#x60;query_filters&#x60;.  | [optional] 
+**query_filters** | [**TaskQueryFiltersInput**](TaskQueryFiltersInput.md) | Named query filters plus optional expression for trace/session evaluators. Mutually exclusive with &#x60;query_filter&#x60;.  | [optional] 
+**evaluators** | [**List[TaskEvaluatorInput]**](TaskEvaluatorInput.md) | Evaluators to attach (at least one required). Evaluators use one of two mutually exclusive shapes by data granularity. Span evaluators use &#x60;query_filter&#x60; + per-evaluator &#x60;column_mappings&#x60;/&#x60;query_filter&#x60;. Trace/session evaluators use task-level &#x60;query_filters&#x60; plus per-evaluator &#x60;query_mappings&#x60;. Mixing the two shapes returns 400. The granularity must match the chosen shape (enforced server-side).  | 
 **type** | **str** | Task type discriminator. Must be &#x60;\&quot;TEMPLATE_EVALUATION\&quot;&#x60;. | 
 **run_configuration** | [**RunConfigurationRequest**](RunConfigurationRequest.md) |  | 
 

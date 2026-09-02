@@ -8,8 +8,9 @@ Name | Type | Description | Notes
 **evaluator_id** | **str** | Evaluator identifier (base64). | 
 **evaluator_name** | **str** | The name of the attached evaluator. | 
 **evaluator_version_id** | **str** | The evaluator version this attachment is pinned to (base64). Null is the default and means the attachment is not pinned, so it runs the evaluator&#39;s latest version.  | 
-**query_filter** | **str** | Per-evaluator query filter, combined with the task-level filter (AND). | 
-**column_mappings** | **Dict[str, str]** | Maps evaluator template variable names to data source column names. | 
+**query_filter** | **str** | Per-evaluator query filter, combined with the task-level filter (AND). Span-granularity shape only; null for trace/session evaluators.  | 
+**column_mappings** | **Dict[str, str]** | Maps evaluator template variable names to data source column names. Span-granularity shape only; null for trace/session evaluators (which use &#x60;query_mappings&#x60;).  | 
+**query_mappings** | [**List[TaskQueryMapping]**](TaskQueryMapping.md) | Maps each evaluator variable to one or more declared query ids plus an attribute path, for trace/session evaluators. Present only on trace/session tasks; null on span tasks (which use &#x60;column_mappings&#x60;).  | [optional] 
 
 ## Example
 

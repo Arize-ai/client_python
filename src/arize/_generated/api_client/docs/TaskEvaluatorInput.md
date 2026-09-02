@@ -1,6 +1,6 @@
 # TaskEvaluatorInput
 
-An evaluator attachment supplied when creating or updating a task. At least one entry is required on evaluation-task requests. 
+An evaluator attachment supplied when creating or updating a task. At least one entry is required on evaluation-task requests. Evaluators carry one of two mutually exclusive shapes: span evaluators use `query_filter` + `column_mappings`; trace/session evaluators use `query_mappings`. 
 
 ## Properties
 
@@ -8,8 +8,9 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **evaluator_id** | **str** | Evaluator identifier (base64). Duplicates are not allowed. | 
 **evaluator_version_id** | **str** | Pin this evaluator to a specific version (base64). Defaults to null, which always runs the evaluator&#39;s latest version; omitting the field and sending null are equivalent. Must be a version of the evaluator named by &#x60;evaluator_id&#x60;, otherwise the request returns 422.  | [optional] 
-**query_filter** | **str** | Per-evaluator query filter. Combined with the task-level filter (AND). | [optional] 
-**column_mappings** | **Dict[str, str]** | Maps evaluator template variable names to data source column names. | [optional] 
+**query_filter** | **str** | Per-evaluator query filter (span shape). Combined with the task-level filter (AND). | [optional] 
+**column_mappings** | **Dict[str, str]** | Maps evaluator template variable names to data source column names (span shape). | [optional] 
+**query_mappings** | [**List[TaskQueryMappingInput]**](TaskQueryMappingInput.md) | Per-evaluator variable-to-query mappings (trace/session shape). | 
 
 ## Example
 

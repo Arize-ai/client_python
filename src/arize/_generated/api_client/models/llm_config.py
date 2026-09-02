@@ -21,6 +21,7 @@ from arize._generated.api_client.models.anthropic_config import AnthropicConfig
 from arize._generated.api_client.models.aws_bedrock_config import AwsBedrockConfig
 from arize._generated.api_client.models.custom_config import CustomConfig
 from arize._generated.api_client.models.gemini_config import GeminiConfig
+from arize._generated.api_client.models.lite_llm_config import LiteLlmConfig
 from arize._generated.api_client.models.nvidia_nim_config import NvidiaNimConfig
 from arize._generated.api_client.models.open_ai_config import OpenAiConfig
 from arize._generated.api_client.models.vertex_ai_config import VertexAiConfig
@@ -28,7 +29,7 @@ from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-LLMCONFIG_ONE_OF_SCHEMAS = ["AnthropicConfig", "AwsBedrockConfig", "CustomConfig", "GeminiConfig", "NvidiaNimConfig", "OpenAiConfig", "VertexAiConfig"]
+LLMCONFIG_ONE_OF_SCHEMAS = ["AnthropicConfig", "AwsBedrockConfig", "CustomConfig", "GeminiConfig", "LiteLlmConfig", "NvidiaNimConfig", "OpenAiConfig", "VertexAiConfig"]
 
 class LlmConfig(BaseModel):
     """
@@ -48,8 +49,10 @@ class LlmConfig(BaseModel):
     oneof_schema_6_validator: Optional[VertexAiConfig] = None
     # data type: NvidiaNimConfig
     oneof_schema_7_validator: Optional[NvidiaNimConfig] = None
-    actual_instance: Optional[Union[AnthropicConfig, AwsBedrockConfig, CustomConfig, GeminiConfig, NvidiaNimConfig, OpenAiConfig, VertexAiConfig]] = None
-    one_of_schemas: Set[str] = { "AnthropicConfig", "AwsBedrockConfig", "CustomConfig", "GeminiConfig", "NvidiaNimConfig", "OpenAiConfig", "VertexAiConfig" }
+    # data type: LiteLlmConfig
+    oneof_schema_8_validator: Optional[LiteLlmConfig] = None
+    actual_instance: Optional[Union[AnthropicConfig, AwsBedrockConfig, CustomConfig, GeminiConfig, LiteLlmConfig, NvidiaNimConfig, OpenAiConfig, VertexAiConfig]] = None
+    one_of_schemas: Set[str] = { "AnthropicConfig", "AwsBedrockConfig", "CustomConfig", "GeminiConfig", "LiteLlmConfig", "NvidiaNimConfig", "OpenAiConfig", "VertexAiConfig" }
 
     model_config = ConfigDict(
         validate_assignment=True,
@@ -110,12 +113,17 @@ class LlmConfig(BaseModel):
             error_messages.append(f"Error! Input type `{type(v)}` is not `NvidiaNimConfig`")
         else:
             match += 1
+        # validate data type: LiteLlmConfig
+        if not isinstance(v, LiteLlmConfig):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `LiteLlmConfig`")
+        else:
+            match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in LlmConfig with oneOf schemas: AnthropicConfig, AwsBedrockConfig, CustomConfig, GeminiConfig, NvidiaNimConfig, OpenAiConfig, VertexAiConfig. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in LlmConfig with oneOf schemas: AnthropicConfig, AwsBedrockConfig, CustomConfig, GeminiConfig, LiteLlmConfig, NvidiaNimConfig, OpenAiConfig, VertexAiConfig. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in LlmConfig with oneOf schemas: AnthropicConfig, AwsBedrockConfig, CustomConfig, GeminiConfig, NvidiaNimConfig, OpenAiConfig, VertexAiConfig. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in LlmConfig with oneOf schemas: AnthropicConfig, AwsBedrockConfig, CustomConfig, GeminiConfig, LiteLlmConfig, NvidiaNimConfig, OpenAiConfig, VertexAiConfig. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -172,13 +180,19 @@ class LlmConfig(BaseModel):
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
+        # deserialize data into LiteLlmConfig
+        try:
+            instance.actual_instance = LiteLlmConfig.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into LlmConfig with oneOf schemas: AnthropicConfig, AwsBedrockConfig, CustomConfig, GeminiConfig, NvidiaNimConfig, OpenAiConfig, VertexAiConfig. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into LlmConfig with oneOf schemas: AnthropicConfig, AwsBedrockConfig, CustomConfig, GeminiConfig, LiteLlmConfig, NvidiaNimConfig, OpenAiConfig, VertexAiConfig. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into LlmConfig with oneOf schemas: AnthropicConfig, AwsBedrockConfig, CustomConfig, GeminiConfig, NvidiaNimConfig, OpenAiConfig, VertexAiConfig. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into LlmConfig with oneOf schemas: AnthropicConfig, AwsBedrockConfig, CustomConfig, GeminiConfig, LiteLlmConfig, NvidiaNimConfig, OpenAiConfig, VertexAiConfig. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -192,7 +206,7 @@ class LlmConfig(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], AnthropicConfig, AwsBedrockConfig, CustomConfig, GeminiConfig, NvidiaNimConfig, OpenAiConfig, VertexAiConfig]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], AnthropicConfig, AwsBedrockConfig, CustomConfig, GeminiConfig, LiteLlmConfig, NvidiaNimConfig, OpenAiConfig, VertexAiConfig]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

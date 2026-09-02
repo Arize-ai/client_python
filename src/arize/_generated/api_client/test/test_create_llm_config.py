@@ -36,7 +36,7 @@ class TestCreateLlmConfig(unittest.TestCase):
         if include_optional:
             return CreateLlmConfig(
                 is_function_calling_enabled = True,
-                provider = 'NVIDIA_NIM',
+                provider = 'LITELLM',
                 api_key = '',
                 base_url = '',
                 auth = arize._generated.api_client.models.create_aws_bedrock_auth.CreateAwsBedrockAuth(),
@@ -53,7 +53,7 @@ class TestCreateLlmConfig(unittest.TestCase):
             )
         else:
             return CreateLlmConfig(
-                provider = 'NVIDIA_NIM',
+                provider = 'LITELLM',
                 api_key = '',
                 base_url = '',
                 auth = arize._generated.api_client.models.create_aws_bedrock_auth.CreateAwsBedrockAuth(),

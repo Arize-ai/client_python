@@ -9,6 +9,7 @@ import pytest
 
 from arize._generated.api_client import ResourceRestrictionsApi
 from arize.resource_restrictions.client import ResourceRestrictionsClient
+from arize.resource_restrictions.types import ResourceRestrictionType
 
 
 @pytest.fixture
@@ -69,7 +70,7 @@ class TestResourceRestrictionsClientInit:
 class TestResourceRestrictionsClientList:
     """Tests for ResourceRestrictionsClient.list()."""
 
-    def test_list_uses_default_limit_and_no_filters(
+    def test_list_uses_default_limit(
         self,
         resource_restrictions_client: ResourceRestrictionsClient,
         mock_api: Mock,
@@ -77,10 +78,12 @@ class TestResourceRestrictionsClientList:
         """list() should forward the default limit and omit optional filters."""
         from arize.constants.config import DEFAULT_LIST_LIMIT
 
-        resource_restrictions_client.list()
+        resource_restrictions_client.list(
+            resource_type=ResourceRestrictionType.PROJECT
+        )
 
         mock_api.list_resource_restrictions.assert_called_once_with(
-            resource_type=None,
+            resource_type=ResourceRestrictionType.PROJECT,
             limit=DEFAULT_LIST_LIMIT,
             cursor=None,
         )
@@ -91,8 +94,6 @@ class TestResourceRestrictionsClientList:
         mock_api: Mock,
     ) -> None:
         """list() should forward resource_type, limit, and cursor to the API."""
-        from arize.resource_restrictions.types import ResourceRestrictionType
-
         resource_restrictions_client.list(
             resource_type=ResourceRestrictionType.PROJECT,
             limit=25,
@@ -114,7 +115,9 @@ class TestResourceRestrictionsClientList:
         mock_response = Mock()
         mock_api.list_resource_restrictions.return_value = mock_response
 
-        result = resource_restrictions_client.list()
+        result = resource_restrictions_client.list(
+            resource_type=ResourceRestrictionType.PROJECT
+        )
 
         assert result is mock_response
 
@@ -129,7 +132,9 @@ class TestResourceRestrictionsClientList:
         pre_releases._WARNED.clear()
         caplog.set_level(logging.WARNING)
 
-        resource_restrictions_client.list()
+        resource_restrictions_client.list(
+            resource_type=ResourceRestrictionType.PROJECT
+        )
 
         assert any(
             "BETA" in record.message

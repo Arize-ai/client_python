@@ -52,7 +52,8 @@ class TestInvocationParams(unittest.TestCase):
                 thinking_level = '',
                 thinking_budget = 56,
                 reasoning_effort = '',
-                verbosity = ''
+                verbosity = '',
+                service_tier = ''
             )
         else:
             return InvocationParams(

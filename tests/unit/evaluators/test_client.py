@@ -715,6 +715,84 @@ class TestEvaluatorsClientListVersions:
 
 
 @pytest.mark.unit
+class TestEvaluatorsClientDeleteVersions:
+    """Tests for EvaluatorsClient.delete_versions()."""
+
+    def test_delete_versions_builds_request_and_forwards(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        """delete_versions() should build the request body and forward it."""
+        result = evaluators_client.delete_versions(
+            evaluator=_EVALUATOR_ID,
+            version_ids=["v1", "v2"],
+        )
+
+        mock_api.delete_evaluator_versions.assert_called_once()
+        call = mock_api.delete_evaluator_versions.call_args
+        assert call.kwargs["evaluator_id"] == _EVALUATOR_ID
+        body = call.kwargs["delete_evaluator_versions_request"]
+        assert body.version_ids == ["v1", "v2"]
+        assert result is mock_api.delete_evaluator_versions.return_value
+
+    def test_delete_versions_returns_partial_result_unchanged(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        """delete_versions() should return partial delete responses unchanged."""
+        from arize._generated.api_client.models.delete_evaluator_versions_response import (
+            DeleteEvaluatorVersionsResponse,
+        )
+
+        expected = DeleteEvaluatorVersionsResponse(
+            completed=True,
+            deleted_version_ids=["v1"],
+            not_deleted_version_ids=["v2"],
+        )
+        mock_api.delete_evaluator_versions.return_value = expected
+
+        result = evaluators_client.delete_versions(
+            evaluator=_EVALUATOR_ID,
+            version_ids=["v1", "v2"],
+        )
+
+        assert result is expected
+        assert result.completed is True
+        assert result.deleted_version_ids == ["v1"]
+        assert result.not_deleted_version_ids == ["v2"]
+
+    def test_delete_versions_rejects_empty_list(
+        self, evaluators_client: EvaluatorsClient
+    ) -> None:
+        """delete_versions() should reject an empty version list (min_length=1)."""
+        with pytest.raises(Exception):
+            evaluators_client.delete_versions(
+                evaluator=_EVALUATOR_ID,
+                version_ids=[],
+            )
+
+    def test_delete_versions_emits_beta_prerelease_warning(
+        self,
+        evaluators_client: EvaluatorsClient,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """First call to delete_versions() should emit the BETA prerelease warning."""
+        from arize import pre_releases
+
+        pre_releases._WARNED.clear()
+        caplog.set_level(logging.WARNING)
+
+        evaluators_client.delete_versions(
+            evaluator=_EVALUATOR_ID,
+            version_ids=["v1"],
+        )
+
+        assert any(
+            "BETA" in record.message
+            and "evaluators.delete_versions" in record.message
+            for record in caplog.records
+        )
+
+
+@pytest.mark.unit
 class TestEvaluatorsClientGetVersion:
     """Tests for EvaluatorsClient.get_version()."""
 

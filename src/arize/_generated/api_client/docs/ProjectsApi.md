@@ -10,6 +10,7 @@ Method | HTTP request | Description
 [**get_project**](ProjectsApi.md#get_project) | **GET** /v2/projects/{project_id} | Get a project
 [**list_project_tags**](ProjectsApi.md#list_project_tags) | **GET** /v2/projects/{project_id}/tags | List tags on a project
 [**list_projects**](ProjectsApi.md#list_projects) | **GET** /v2/projects | List projects
+[**remove_project_tags**](ProjectsApi.md#remove_project_tags) | **DELETE** /v2/projects/{project_id}/tags | Detach tags from a project
 [**update_project**](ProjectsApi.md#update_project) | **PATCH** /v2/projects/{project_id} | Update a project
 
 
@@ -578,6 +579,128 @@ Name | Type | Description  | Notes
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **remove_project_tags**
+> RemoveTagsResponse remove_project_tags(project_id, remove_tags_request)
+
+Detach tags from a project
+
+Detach one or more tags from a project.
+
+**Payload Requirements**
+- `tag_ids` is required and must contain between 1 and 100 tag IDs.
+- A tag ID that is not currently attached is reported in `not_found`
+  rather than causing the whole request to fail.
+- Unrecognized fields are rejected with `422` rather than ignored.
+
+Returns `200` with the outcome per requested ID, not `204`: a bulk
+delete needs to tell the caller which IDs took effect.
+
+**Valid example**
+```json
+{
+  "tag_ids": ["VGFnOjEyMzQ1", "VGFnOjEyMzQ2"]
+}
+```
+
+**Invalid example** (empty list)
+```json
+{
+  "tag_ids": []
+}
+```
+```json
+{
+  "type": "https://arize.com/docs/ax/rest-reference/errors#validation-error",
+  "title": "Unprocessable Entity",
+  "status": 422,
+  "detail": "tag_ids must contain at least 1 tag ID",
+  "request_id": "req_01HZY6X8E7"
+}
+```
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.remove_tags_request import RemoveTagsRequest
+from arize._generated.api_client.models.remove_tags_response import RemoveTagsResponse
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.ProjectsApi(api_client)
+    project_id = 'TW9kZWw6MTIzOmFCY0Q=' # str | The unique project identifier (base64)
+    remove_tags_request = {"tag_ids":["VGFnOjEyMzQ1","VGFnOjEyMzQ2"]} # RemoveTagsRequest | Body containing the IDs of the tags to detach from the resource
+
+    try:
+        # Detach tags from a project
+        api_response = api_instance.remove_project_tags(project_id, remove_tags_request)
+        print("The response of ProjectsApi->remove_project_tags:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling ProjectsApi->remove_project_tags: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **project_id** | **str**| The unique project identifier (base64) | 
+ **remove_tags_request** | [**RemoveTagsRequest**](RemoveTagsRequest.md)| Body containing the IDs of the tags to detach from the resource | 
+
+### Return type
+
+[**RemoveTagsResponse**](RemoveTagsResponse.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Reports which tags were detached and which were not attached |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

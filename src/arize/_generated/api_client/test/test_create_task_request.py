@@ -44,13 +44,27 @@ class TestCreateTaskRequest(unittest.TestCase):
                 sampling_rate = 0,
                 is_continuous = True,
                 query_filter = '',
+                query_filters = [
+                    arize._generated.api_client.models.task_query_filter.TaskQueryFilter(
+                        id = 'A', 
+                        filter = '', )
+                    ],
+                expression = '',
                 evaluators = [
                     arize._generated.api_client.models.task_evaluator_input.TaskEvaluatorInput(
                         evaluator_id = '', 
                         query_filter = '', 
                         column_mappings = {
                             'key' : ''
-                            }, )
+                            }, 
+                        query_column_mappings = [
+                            arize._generated.api_client.models.task_query_column_mapping.TaskQueryColumnMapping(
+                                variable_name = '', 
+                                query_ids = [
+                                    'A'
+                                    ], 
+                                attribute_path = '', )
+                            ], )
                     ],
                 type = 'TEMPLATE_EVALUATION',
                 run_configuration = None
@@ -65,7 +79,15 @@ class TestCreateTaskRequest(unittest.TestCase):
                         query_filter = '', 
                         column_mappings = {
                             'key' : ''
-                            }, )
+                            }, 
+                        query_column_mappings = [
+                            arize._generated.api_client.models.task_query_column_mapping.TaskQueryColumnMapping(
+                                variable_name = '', 
+                                query_ids = [
+                                    'A'
+                                    ], 
+                                attribute_path = '', )
+                            ], )
                     ],
                 type = 'TEMPLATE_EVALUATION',
                 run_configuration = None,

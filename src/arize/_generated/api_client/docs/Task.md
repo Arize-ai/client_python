@@ -1,6 +1,6 @@
 # Task
 
-A task is a typed, configurable unit of work that ties one or more evaluators to a data source (project or dataset). `RUN_EXPERIMENT` tasks additionally carry a `run_configuration` that defines the LLM, evaluator, or agent settings for each triggered run. 
+A task is a typed, configurable unit of work that ties one or more evaluators to a data source (project or dataset). `RUN_EXPERIMENT` tasks additionally carry a `run_configuration` that defines the LLM, evaluator, or agent settings for each triggered run.  Evaluation tasks (`TEMPLATE_EVALUATION` and `CODE_EVALUATION`) use one of two mutually exclusive query-filter shapes depending on the granularity of the data each evaluator processes:  - **Span shape** — `query_filter` (task-level) plus per-evaluator   `column_mappings`/`query_filter`. For tasks where each evaluated unit is   a single span. `query_filters` is null. - **Trace/session shape** — `query_filters` (named `filters` plus optional   `expression`) at the task level, and per-evaluator `query_mappings`. For   tasks where each evaluated unit is a complete trace or session.   `query_filter` is null.  All evaluators on a task must use the same shape; mixing shapes returns 400. 
 
 ## Properties
 
@@ -13,7 +13,8 @@ Name | Type | Description | Notes
 **dataset_id** | **str** | The dataset identifier (base64). Present for dataset-based tasks. | [optional] 
 **sampling_rate** | **float** | Sampling rate between 0 and 1. Only applicable for project-based tasks. | [optional] 
 **is_continuous** | **bool** | Whether the task runs continuously on incoming data. | 
-**query_filter** | **str** | Task-level query filter applied to all data. | 
+**query_filter** | **str** | Task-level query filter applied to all data. Span-granularity shape only. Null when the task uses the trace/session shape (&#x60;query_filters&#x60;). Mutually exclusive with &#x60;query_filters&#x60;.  | 
+**query_filters** | [**TaskQueryFilters**](TaskQueryFilters.md) | Named query filters plus optional boolean expression for trace/session-granularity evaluators. Null for span-granularity tasks (which use &#x60;query_filter&#x60;). Mutually exclusive with &#x60;query_filter&#x60;.  | [optional] 
 **evaluators** | [**List[TaskEvaluator]**](TaskEvaluator.md) | The evaluators attached to this task. Empty for run_experiment tasks. | 
 **experiment_ids** | **List[str]** | Experiment identifiers (base64) for dataset-based tasks. | 
 **run_configuration** | [**RunConfiguration**](RunConfiguration.md) | The run configuration for a &#x60;RUN_EXPERIMENT&#x60; task. Present only when &#x60;type&#x60; is &#x60;RUN_EXPERIMENT&#x60;. Null for all other task types.  | [optional] 

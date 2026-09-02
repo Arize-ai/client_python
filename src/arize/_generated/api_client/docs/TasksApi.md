@@ -743,7 +743,9 @@ terminal status (`completed`, `failed`, or `cancelled`).
 
 Supply `experiment_name` (required) plus any of the optional per-run fields:
 `dataset_version_id`, `example_ids` (exclusive with `max_examples`),
-`max_examples`, `tracing_metadata`, `evaluation_task_ids`.
+`max_examples`, `query_filter` (run only on matching examples; may be
+combined with `example_ids` to run their intersection),
+`tracing_metadata`, `evaluation_task_ids`.
 
 The fields `data_start_time`, `data_end_time`, `max_spans`,
 `override_evaluations`, and `experiment_ids` are not applicable and will

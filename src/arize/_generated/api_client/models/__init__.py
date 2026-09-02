@@ -106,6 +106,7 @@ from arize._generated.api_client.models.create_experiment_request import CreateE
 from arize._generated.api_client.models.create_freeform_annotation_config_request import CreateFreeformAnnotationConfigRequest
 from arize._generated.api_client.models.create_gemini_config import CreateGeminiConfig
 from arize._generated.api_client.models.create_integration_request import CreateIntegrationRequest
+from arize._generated.api_client.models.create_lite_llm_config import CreateLiteLlmConfig
 from arize._generated.api_client.models.create_llm_config import CreateLlmConfig
 from arize._generated.api_client.models.create_llm_integration_request import CreateLlmIntegrationRequest
 from arize._generated.api_client.models.create_nvidia_nim_config import CreateNvidiaNimConfig
@@ -239,6 +240,7 @@ from arize._generated.api_client.models.list_traces_response import ListTracesRe
 from arize._generated.api_client.models.list_users_response import ListUsersResponse
 from arize._generated.api_client.models.list_webhook_delivery_attempts_response import ListWebhookDeliveryAttemptsResponse
 from arize._generated.api_client.models.list_webhooks_response import ListWebhooksResponse
+from arize._generated.api_client.models.lite_llm_config import LiteLlmConfig
 from arize._generated.api_client.models.llm_config import LlmConfig
 from arize._generated.api_client.models.llm_generation_run_config import LlmGenerationRunConfig
 from arize._generated.api_client.models.llm_generation_run_config_request import LlmGenerationRunConfigRequest
@@ -294,6 +296,8 @@ from arize._generated.api_client.models.provider_params_request import ProviderP
 from arize._generated.api_client.models.record_granularity import RecordGranularity
 from arize._generated.api_client.models.refresh_api_key_request import RefreshApiKeyRequest
 from arize._generated.api_client.models.refresh_api_key_response import RefreshApiKeyResponse
+from arize._generated.api_client.models.remove_tags_request import RemoveTagsRequest
+from arize._generated.api_client.models.remove_tags_response import RemoveTagsResponse
 from arize._generated.api_client.models.resource_restriction import ResourceRestriction
 from arize._generated.api_client.models.resource_restriction_type import ResourceRestrictionType
 from arize._generated.api_client.models.response_format import ResponseFormat
@@ -319,6 +323,7 @@ from arize._generated.api_client.models.space_role_assignment_request import Spa
 from arize._generated.api_client.models.space_role_assignment_type import SpaceRoleAssignmentType
 from arize._generated.api_client.models.span import Span
 from arize._generated.api_client.models.span_context import SpanContext
+from arize._generated.api_client.models.span_evaluator_input import SpanEvaluatorInput
 from arize._generated.api_client.models.span_event import SpanEvent
 from arize._generated.api_client.models.span_kind import SpanKind
 from arize._generated.api_client.models.span_status_code import SpanStatusCode
@@ -331,6 +336,12 @@ from arize._generated.api_client.models.tag_color import TagColor
 from arize._generated.api_client.models.task import Task
 from arize._generated.api_client.models.task_evaluator import TaskEvaluator
 from arize._generated.api_client.models.task_evaluator_input import TaskEvaluatorInput
+from arize._generated.api_client.models.task_query_filter import TaskQueryFilter
+from arize._generated.api_client.models.task_query_filter_input import TaskQueryFilterInput
+from arize._generated.api_client.models.task_query_filters import TaskQueryFilters
+from arize._generated.api_client.models.task_query_filters_input import TaskQueryFiltersInput
+from arize._generated.api_client.models.task_query_mapping import TaskQueryMapping
+from arize._generated.api_client.models.task_query_mapping_input import TaskQueryMappingInput
 from arize._generated.api_client.models.task_run import TaskRun
 from arize._generated.api_client.models.task_run_status import TaskRunStatus
 from arize._generated.api_client.models.task_type import TaskType
@@ -350,6 +361,7 @@ from arize._generated.api_client.models.tool_call_type import ToolCallType
 from arize._generated.api_client.models.tool_config import ToolConfig
 from arize._generated.api_client.models.tool_config_request import ToolConfigRequest
 from arize._generated.api_client.models.trace import Trace
+from arize._generated.api_client.models.trace_or_session_evaluator_input import TraceOrSessionEvaluatorInput
 from arize._generated.api_client.models.tracing_data_quality_metric import TracingDataQualityMetric
 from arize._generated.api_client.models.tracing_monitor import TracingMonitor
 from arize._generated.api_client.models.trigger_evaluation_task_run_request import TriggerEvaluationTaskRunRequest

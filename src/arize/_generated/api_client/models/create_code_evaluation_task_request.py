@@ -21,12 +21,13 @@ from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_
 from typing import Any, ClassVar, Dict, List, Optional, Union
 from typing_extensions import Annotated
 from arize._generated.api_client.models.task_evaluator_input import TaskEvaluatorInput
+from arize._generated.api_client.models.task_query_filters_input import TaskQueryFiltersInput
 from typing import Optional, Set
 from typing_extensions import Self
 
 class CreateCodeEvaluationTaskRequest(BaseModel):
     """
-    Request body for creating a `CODE_EVALUATION` task. Requires `evaluators` and exactly one of `project_id` or `dataset_id`. When `dataset_id` is provided, `experiment_ids` must contain at least one entry. 
+    Request body for creating a `CODE_EVALUATION` task. Requires `evaluators` and exactly one of `project_id` or `dataset_id`. When `dataset_id` is provided, `experiment_ids` must contain at least one entry. Supports the same span and trace/session evaluator shapes as `CreateTemplateEvaluationTaskRequest`. 
     """ # noqa: E501
     name: Annotated[str, Field(min_length=1, strict=True)] = Field(description="Task name")
     project_id: Optional[StrictStr] = Field(default=None, description="Project identifier (base64). Required when `dataset_id` is not provided. Mutually exclusive with `dataset_id`. ")
@@ -34,10 +35,11 @@ class CreateCodeEvaluationTaskRequest(BaseModel):
     experiment_ids: Optional[List[StrictStr]] = Field(default=None, description="Experiment identifiers (base64). Required when `dataset_id` is provided (at least one entry). Must be omitted or empty for project-based tasks. ")
     sampling_rate: Optional[Union[Annotated[float, Field(le=1, strict=True, ge=0)], Annotated[int, Field(le=1, strict=True, ge=0)]]] = Field(default=None, description="Sampling rate between 0 and 1. Only supported on project-based tasks. ")
     is_continuous: Optional[StrictBool] = Field(default=None, description="Whether the task runs continuously. Only supported on project-based tasks. Must be `false` or omitted for dataset-based tasks. ")
-    query_filter: Optional[StrictStr] = Field(default=None, description="Task-level query filter applied to all evaluated data.")
-    evaluators: Annotated[List[TaskEvaluatorInput], Field(min_length=1)] = Field(description="Evaluators to attach (at least one required).")
+    query_filter: Optional[StrictStr] = Field(default=None, description="Task-level query filter applied to all evaluated data (span shape). Mutually exclusive with `query_filters`. ")
+    query_filters: Optional[TaskQueryFiltersInput] = Field(default=None, description="Named query filters plus optional expression for trace/session evaluators. Mutually exclusive with `query_filter`. ")
+    evaluators: Annotated[List[TaskEvaluatorInput], Field(min_length=1)] = Field(description="Evaluators to attach (at least one required). Evaluators use one of two mutually exclusive shapes by data granularity. Span evaluators use `query_filter` + per-evaluator `column_mappings`/`query_filter`. Trace/session evaluators use task-level `query_filters` plus per-evaluator `query_mappings`. Mixing the two shapes returns 400. The granularity must match the chosen shape (enforced server-side). ")
     type: StrictStr = Field(description="Task type discriminator. Must be `\"CODE_EVALUATION\"`.")
-    __properties: ClassVar[List[str]] = ["name", "project_id", "dataset_id", "experiment_ids", "sampling_rate", "is_continuous", "query_filter", "evaluators", "type"]
+    __properties: ClassVar[List[str]] = ["name", "project_id", "dataset_id", "experiment_ids", "sampling_rate", "is_continuous", "query_filter", "query_filters", "evaluators", "type"]
 
     @field_validator('type')
     def type_validate_enum(cls, value):
@@ -85,6 +87,9 @@ class CreateCodeEvaluationTaskRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of query_filters
+        if self.query_filters:
+            _dict['query_filters'] = self.query_filters.to_dict()
         # override the default output from pydantic by calling `to_dict()` of each item in evaluators (list)
         _items = []
         if self.evaluators:
@@ -116,6 +121,7 @@ class CreateCodeEvaluationTaskRequest(BaseModel):
             "sampling_rate": obj.get("sampling_rate"),
             "is_continuous": obj.get("is_continuous"),
             "query_filter": obj.get("query_filter"),
+            "query_filters": TaskQueryFiltersInput.from_dict(obj["query_filters"]) if obj.get("query_filters") is not None else None,
             "evaluators": [TaskEvaluatorInput.from_dict(_item) for _item in obj["evaluators"]] if obj.get("evaluators") is not None else None,
             "type": obj.get("type")
         })

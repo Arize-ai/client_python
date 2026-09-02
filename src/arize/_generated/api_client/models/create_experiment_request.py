@@ -28,10 +28,10 @@ class CreateExperimentRequest(BaseModel):
     """
     Experiment creation parameters with an initial set of runs.  An experiment belongs to a space and may optionally be associated with a dataset. Provide exactly one of: - `dataset_id` — associate the experiment with a dataset; it's created in   that dataset's space, and its runs may reference the dataset's examples   via `example_id`. - `space_id` — the space to create the experiment in, when it isn't   associated with a dataset.  Providing both, or neither, is a validation error. 
     """ # noqa: E501
-    name: Annotated[str, Field(min_length=1, strict=True)] = Field(description="Name of the experiment. Must not contain double quotes (`\"`) or backslashes (`\\`). ")
+    name: Annotated[str, Field(min_length=1, strict=True, max_length=255)] = Field(description="Name of the experiment. Must be 1–255 characters and must not contain double quotes (`\"`) or backslashes (`\\`). ")
     dataset_id: Optional[StrictStr] = Field(default=None, description="ID of the dataset to associate the experiment with. Provide `space_id` instead when the experiment isn't associated with a dataset.")
     space_id: Optional[StrictStr] = Field(default=None, description="ID of the space to create the experiment in. Provide instead of `dataset_id`.")
-    experiment_runs: List[ExperimentRunInput] = Field(description="Array of experiment run data")
+    experiment_runs: Annotated[List[ExperimentRunInput], Field(min_length=1, max_length=1000)] = Field(description="Array of experiment run data. Between 1 and 1000 runs per request.")
     __properties: ClassVar[List[str]] = ["name", "dataset_id", "space_id", "experiment_runs"]
 
     @field_validator('name')

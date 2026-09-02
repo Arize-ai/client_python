@@ -20,7 +20,7 @@ from typing_extensions import Self
 
 class RecordGranularity(str, Enum):
     """
-    Granularity of an annotation queue record. - SPAN: The record represents a span. - TRACE: The record represents a trace. 
+    Granularity of an annotation queue record. - SPAN: The record represents a span. - TRACE: The record represents a trace. - SESSION: The record represents a session. 
     """
 
     """
@@ -28,6 +28,7 @@ class RecordGranularity(str, Enum):
     """
     SPAN = 'SPAN'
     TRACE = 'TRACE'
+    SESSION = 'SESSION'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

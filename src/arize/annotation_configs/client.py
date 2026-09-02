@@ -257,6 +257,7 @@ class AnnotationConfigsClient:
         """
         annotation_config_id = _find_annotation_config_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             annotation_config=annotation_config,
             space=space,
         )
@@ -302,6 +303,7 @@ class AnnotationConfigsClient:
 
         annotation_config_id = _find_annotation_config_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             annotation_config=annotation_config,
             space=space,
         )
@@ -356,6 +358,7 @@ class AnnotationConfigsClient:
 
         annotation_config_id = _find_annotation_config_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             annotation_config=annotation_config,
             space=space,
         )
@@ -404,6 +407,7 @@ class AnnotationConfigsClient:
 
         annotation_config_id = _find_annotation_config_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             annotation_config=annotation_config,
             space=space,
         )
@@ -441,6 +445,7 @@ class AnnotationConfigsClient:
         """
         annotation_config_id = _find_annotation_config_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             annotation_config=annotation_config,
             space=space,
         )

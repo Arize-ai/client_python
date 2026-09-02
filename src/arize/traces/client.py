@@ -47,6 +47,7 @@ class TracesClient:
         # Use the provided client directly
         self._api = gen.TracesApi(generated_client)
         self._projects_api = gen.ProjectsApi(generated_client)
+        self._spaces_api = gen.SpacesApi(generated_client)
 
     @prerelease_endpoint(key="traces.list", stage=ReleaseStage.BETA)
     def list(
@@ -101,6 +102,7 @@ class TracesClient:
         """
         project_id = _find_project_id(
             api=self._projects_api,
+            spaces_api=self._spaces_api,
             project=project,
             space=space,
         )

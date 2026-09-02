@@ -32,6 +32,15 @@ from arize._generated.api_client.models.task_evaluator import TaskEvaluator
 from arize._generated.api_client.models.task_evaluator_input import (
     TaskEvaluatorInput,
 )
+from arize._generated.api_client.models.task_query_filter import (
+    TaskQueryFilter,
+)
+from arize._generated.api_client.models.task_query_filters import (
+    TaskQueryFilters,
+)
+from arize._generated.api_client.models.task_query_mapping import (
+    TaskQueryMapping,
+)
 from arize._generated.api_client.models.task_run import TaskRun
 from arize._generated.api_client.models.task_run_status import (
     TaskRunStatus as RunStatus,
@@ -62,6 +71,7 @@ class Task(BaseModel):
     sampling_rate: float | None = None
     is_continuous: bool
     query_filter: str | None = None
+    query_filters: TaskQueryFilters | None = None
     evaluators: list[TaskEvaluator]
     experiment_ids: list[str]
     run_configuration: (
@@ -118,6 +128,9 @@ __all__ = [
     "Task",
     "TaskEvaluator",
     "TaskEvaluatorInput",
+    "TaskQueryFilter",
+    "TaskQueryFilters",
+    "TaskQueryMapping",
     "TaskRun",
     "TaskType",
     "TemplateEvaluationRunConfig",

@@ -20,6 +20,22 @@ from arize._generated.api_client.models.run_configuration import (
 from arize._generated.api_client.models.run_configuration_request import (
     RunConfigurationRequest,
 )
+from arize._generated.api_client.models.task_query_filter import (
+    TaskQueryFilter,
+)
+from arize._generated.api_client.models.task_query_filter_input import (
+    TaskQueryFilterInput,
+)
+from arize._generated.api_client.models.task_query_filters import (
+    TaskQueryFilters,
+)
+from arize._generated.api_client.models.task_query_filters_input import (
+    TaskQueryFiltersInput,
+)
+from arize._generated.api_client.models.task_query_mapping import (
+    TaskQueryMapping,
+)
+from arize._generated.api_client.models.task_type import TaskType
 from arize.tasks.client import (
     _DEFAULT_POLL_INTERVAL,
     _DEFAULT_TIMEOUT,
@@ -316,6 +332,7 @@ class TestTasksClientCreate:
             sampling_rate=None,
             is_continuous=None,
             query_filter=None,
+            query_filters=None,
         )
         mock_wrapper_cls.assert_called_once_with(actual_instance=mock_inner)
         mock_api.create_task.assert_called_once_with(
@@ -476,6 +493,32 @@ class TestTasksClientCreate:
 
         mock_api.create_task.assert_not_called()
 
+    def test_create_run_experiment_requires_dataset(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """create(task_type=RUN_EXPERIMENT) should raise when dataset is absent."""
+        with pytest.raises(ValueError, match="dataset"):
+            tasks_client._create(
+                name="bad",
+                task_type=TaskType.RUN_EXPERIMENT,
+                run_configuration=Mock(spec=RunConfiguration),
+            )
+
+        mock_api.create_task.assert_not_called()
+
+    def test_create_eval_requires_evaluators(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """create() for eval types should raise when evaluators is None."""
+        with pytest.raises(ValueError, match="evaluators"):
+            tasks_client._create(
+                name="bad",
+                task_type=TaskType.TEMPLATE_EVALUATION,
+                project=_PROJECT_ID,
+            )
+
+        mock_api.create_task.assert_not_called()
+
     def test_create_eval_rejects_run_configuration(
         self, tasks_client: TasksClient, mock_api: Mock
     ) -> None:
@@ -512,6 +555,323 @@ class TestTasksClientCreate:
             )
 
         assert result is expected
+
+
+@pytest.mark.unit
+class TestTasksClientCreateMSQ:
+    """Tests for MSQ (multi-span-query) fields in create/create_evaluation_task."""
+
+    @pytest.fixture(autouse=True)
+    def _bypass_model_validate(self) -> None:
+        with patch.object(
+            Task, "model_validate", side_effect=lambda v, **kw: v
+        ):
+            yield
+
+    def test_create_with_query_filters_and_expression(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """_create() should wrap TaskQueryFilters into TaskQueryFiltersInput."""
+        qf = TaskQueryFilter(id="A", filter="span_kind == 'LLM'")
+        mock_evaluator = Mock()
+
+        with (
+            patch(
+                "arize._generated.api_client.CreateTemplateEvaluationTaskRequest"
+            ) as mock_inner_cls,
+            patch("arize._generated.api_client.CreateTaskRequest"),
+        ):
+            mock_inner_cls.return_value = Mock()
+
+            tasks_client._create(
+                name="msq-task",
+                task_type=TaskType.TEMPLATE_EVALUATION,
+                evaluators=[mock_evaluator],
+                project=_PROJECT_ID,
+                query_filters=TaskQueryFilters(filters=[qf], expression="A"),
+            )
+
+        _, kwargs = mock_inner_cls.call_args
+        expected_qf_input = TaskQueryFiltersInput(
+            filters=[TaskQueryFilterInput(id="A", filter="span_kind == 'LLM'")],
+            expression="A",
+        )
+        assert kwargs["query_filters"] == expected_qf_input
+        assert kwargs["query_filter"] is None
+
+    def test_create_evaluation_task_with_query_filters(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """create_evaluation_task() should wrap TaskQueryFilters into TaskQueryFiltersInput."""
+        qf_a = TaskQueryFilter(id="A", filter="span_kind == 'LLM'")
+        qf_b = TaskQueryFilter(id="B", filter="span_kind == 'RETRIEVER'")
+        qm = TaskQueryMapping(
+            variable_name="input",
+            query_ids=["A"],
+            attribute_path="attributes.input.value",
+        )
+        mock_evaluator = Mock()
+        mock_evaluator.query_mappings = [qm]
+
+        with (
+            patch(
+                "arize._generated.api_client.CreateTemplateEvaluationTaskRequest"
+            ) as mock_inner_cls,
+            patch("arize._generated.api_client.CreateTaskRequest"),
+        ):
+            mock_inner_cls.return_value = Mock()
+
+            tasks_client.create_evaluation_task(
+                name="msq-task",
+                task_type=TaskType.TEMPLATE_EVALUATION,
+                evaluators=[mock_evaluator],
+                project=_PROJECT_ID,
+                query_filters=TaskQueryFilters(
+                    filters=[qf_a, qf_b], expression="A AND B"
+                ),
+            )
+
+        _, kwargs = mock_inner_cls.call_args
+        expected_qf_input = TaskQueryFiltersInput(
+            filters=[
+                TaskQueryFilterInput(id="A", filter="span_kind == 'LLM'"),
+                TaskQueryFilterInput(id="B", filter="span_kind == 'RETRIEVER'"),
+            ],
+            expression="A AND B",
+        )
+        assert kwargs["query_filters"] == expected_qf_input
+
+    def test_create_run_experiment_rejects_query_filters(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """_create(run_experiment) should reject query_filters as eval-only."""
+        qf = TaskQueryFilter(id="A", filter="span_kind == 'LLM'")
+
+        with pytest.raises(ValueError, match="eval-only fields"):
+            tasks_client._create(
+                name="bad",
+                task_type=TaskType.RUN_EXPERIMENT,
+                run_configuration=Mock(spec=RunConfiguration),
+                dataset=_DATASET_ID,
+                query_filters=TaskQueryFilters(filters=[qf]),
+            )
+
+        mock_api.create_task.assert_not_called()
+
+    def test_create_defaults_query_filters_to_none(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """_create() should default query_filters to None."""
+        with (
+            patch(
+                "arize._generated.api_client.CreateTemplateEvaluationTaskRequest"
+            ) as mock_inner_cls,
+            patch("arize._generated.api_client.CreateTaskRequest"),
+        ):
+            mock_inner_cls.return_value = Mock()
+
+            tasks_client._create(
+                name="span-task",
+                task_type=TaskType.TEMPLATE_EVALUATION,
+                evaluators=[Mock()],
+                project=_PROJECT_ID,
+            )
+
+        _, kwargs = mock_inner_cls.call_args
+        assert kwargs["query_filters"] is None
+
+    def test_create_deserializes_msq_fields(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """model_validate must correctly round-trip query_filters and query_mappings."""
+        from arize._generated.api_client.models.task import (
+            Task as GeneratedTask,
+        )
+        from arize._generated.api_client.models.task_evaluator import (
+            TaskEvaluator as GeneratedTaskEvaluator,
+        )
+
+        raw_evaluator = GeneratedTaskEvaluator(
+            evaluator_id="ev-1",
+            evaluator_name="My Eval",
+            evaluator_version_id=None,
+            query_filter=None,
+            column_mappings=None,
+            query_mappings=[
+                TaskQueryMapping(
+                    variable_name="input",
+                    query_ids=["A"],
+                    attribute_path="attributes.input.value",
+                )
+            ],
+        )
+        raw_task = GeneratedTask(
+            id="task-1",
+            name="msq-task",
+            type="TEMPLATE_EVALUATION",
+            is_continuous=False,
+            query_filter=None,
+            evaluators=[raw_evaluator],
+            experiment_ids=[],
+            last_run_at=None,
+            created_at="2026-01-01T00:00:00Z",
+            updated_at="2026-01-01T00:00:00Z",
+            created_by_user_id=None,
+            query_filters=TaskQueryFilters(
+                filters=[TaskQueryFilter(id="A", filter="span_kind == 'LLM'")],
+                expression="A",
+            ),
+        )
+        mock_api.create_task.return_value = raw_task
+
+        with (
+            patch(
+                "arize._generated.api_client.CreateTemplateEvaluationTaskRequest"
+            ) as mock_inner_cls,
+            patch("arize._generated.api_client.CreateTaskRequest"),
+        ):
+            mock_inner_cls.return_value = Mock()
+            task = tasks_client._create(
+                name="msq-task",
+                task_type=TaskType.TEMPLATE_EVALUATION,
+                evaluators=[Mock()],
+                project=_PROJECT_ID,
+                query_filters=TaskQueryFilters(
+                    filters=[
+                        TaskQueryFilter(id="A", filter="span_kind == 'LLM'")
+                    ],
+                    expression="A",
+                ),
+            )
+
+        assert task.query_filters is not None
+        assert len(task.query_filters.filters) == 1
+        assert task.query_filters.filters[0].id == "A"
+        assert task.query_filters.expression == "A"
+        assert task.evaluators is not None
+        assert len(task.evaluators) == 1
+        assert task.evaluators[0].query_mappings is not None
+        mapping = task.evaluators[0].query_mappings[0]
+        assert mapping.variable_name == "input"
+        assert mapping.query_ids == ["A"]
+        assert mapping.attribute_path == "attributes.input.value"
+
+
+@pytest.mark.unit
+class TestTasksClientUpdateMSQ:
+    """Tests for MSQ fields in update()."""
+
+    @pytest.fixture(autouse=True)
+    def _bypass_model_validate(self) -> None:
+        with patch.object(
+            Task, "model_validate", side_effect=lambda v, **kw: v
+        ):
+            yield
+
+    def test_update_with_query_filters_and_expression(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """update() should wrap TaskQueryFilters into TaskQueryFiltersInput."""
+        qf = TaskQueryFilter(id="A", filter="span_kind == 'LLM'")
+
+        with (
+            patch(
+                "arize._generated.api_client.UpdateEvaluationTaskRequest"
+            ) as mock_inner_cls,
+            patch("arize._generated.api_client.UpdateTaskRequest"),
+        ):
+            mock_inner_cls.return_value = Mock()
+
+            tasks_client.update(
+                task=_TASK_ID,
+                query_filters=TaskQueryFilters(filters=[qf], expression="A"),
+            )
+
+        _, kwargs = mock_inner_cls.call_args
+        expected_qf_input = TaskQueryFiltersInput(
+            filters=[TaskQueryFilterInput(id="A", filter="span_kind == 'LLM'")],
+            expression="A",
+        )
+        assert kwargs["query_filters"] == expected_qf_input
+
+    def test_update_with_query_filters_none_clears_filter(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """Passing query_filters=None should clear the filters (tri-state)."""
+        with (
+            patch(
+                "arize._generated.api_client.UpdateEvaluationTaskRequest"
+            ) as mock_inner_cls,
+            patch("arize._generated.api_client.UpdateTaskRequest"),
+        ):
+            mock_inner_cls.return_value = Mock()
+
+            tasks_client.update(task=_TASK_ID, query_filters=None)
+
+        mock_inner_cls.assert_called_once_with(query_filters=None)
+
+    def test_update_with_query_filters_no_expression(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """Passing TaskQueryFilters without expression sends expression=None."""
+        qf = TaskQueryFilter(id="A", filter="span_kind == 'LLM'")
+
+        with (
+            patch(
+                "arize._generated.api_client.UpdateEvaluationTaskRequest"
+            ) as mock_inner_cls,
+            patch("arize._generated.api_client.UpdateTaskRequest"),
+        ):
+            mock_inner_cls.return_value = Mock()
+
+            tasks_client.update(
+                task=_TASK_ID,
+                query_filters=TaskQueryFilters(filters=[qf]),
+            )
+
+        _, kwargs = mock_inner_cls.call_args
+        expected_qf_input = TaskQueryFiltersInput(
+            filters=[TaskQueryFilterInput(id="A", filter="span_kind == 'LLM'")],
+            expression=None,
+        )
+        assert kwargs["query_filters"] == expected_qf_input
+
+    def test_update_omits_query_filters_when_not_provided(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """Omitting query_filters should not include it in the payload at all."""
+        with (
+            patch(
+                "arize._generated.api_client.UpdateEvaluationTaskRequest"
+            ) as mock_inner_cls,
+            patch("arize._generated.api_client.UpdateTaskRequest"),
+        ):
+            mock_inner_cls.return_value = Mock()
+
+            tasks_client.update(task=_TASK_ID, name="new-name")
+
+        _, kwargs = mock_inner_cls.call_args
+        assert "query_filters" not in kwargs
+
+    def test_update_run_experiment_rejects_query_filters(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """update() against run_experiment task should reject query_filters."""
+        mock_api.get_task.return_value.type = TaskType.RUN_EXPERIMENT
+        qf = TaskQueryFilter(id="A", filter="span_kind == 'LLM'")
+
+        with pytest.raises(ValueError, match="query_filters"):
+            tasks_client.update(
+                task=_TASK_ID,
+                query_filters=TaskQueryFilters(filters=[qf]),
+            )
+
+    def test_update_raises_when_only_msq_fields_omitted(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """update() should raise with the new field names in the error."""
+        with pytest.raises(ValueError, match="query_filters"):
+            tasks_client.update(task=_TASK_ID)
 
 
 @pytest.mark.unit
@@ -905,6 +1265,55 @@ class TestTasksClientUpdate:
             "BETA" in record.message and "tasks.update" in record.message
             for record in caplog.records
         )
+
+    def test_update_eval_rejects_run_configuration(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """update() for an eval task should raise when run_configuration is provided."""
+        mock_api.get_task.return_value.type = TaskType.TEMPLATE_EVALUATION
+
+        with pytest.raises(ValueError, match="run_configuration"):
+            tasks_client.update(
+                task=_TASK_ID,
+                run_configuration=Mock(spec=RunConfiguration),
+            )
+
+        mock_api.update_task.assert_not_called()
+
+    def test_update_run_experiment_builds_request_name_only(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """update() for run_experiment task should build UpdateRunExperimentTaskRequest."""
+        mock_api.get_task.return_value.type = TaskType.RUN_EXPERIMENT
+
+        with (
+            patch(
+                "arize._generated.api_client.UpdateRunExperimentTaskRequest"
+            ) as mock_inner_cls,
+            patch(
+                "arize._generated.api_client.UpdateTaskRequest"
+            ) as mock_wrapper_cls,
+        ):
+            mock_inner_cls.return_value = Mock()
+            mock_wrapper = Mock()
+            mock_wrapper_cls.return_value = mock_wrapper
+
+            tasks_client.update(task=_TASK_ID, name="new-name")
+
+        _, kwargs = mock_inner_cls.call_args
+        assert kwargs["name"] == "new-name"
+        mock_api.update_task.assert_called_once()
+
+    def test_update_run_experiment_raises_when_no_fields(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """update() for run_experiment task should raise when no fields provided."""
+        mock_api.get_task.return_value.type = TaskType.RUN_EXPERIMENT
+
+        with pytest.raises(ValueError, match="run_experiment"):
+            tasks_client.update(task=_TASK_ID)
+
+        mock_api.update_task.assert_not_called()
 
 
 @pytest.mark.unit

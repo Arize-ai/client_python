@@ -137,6 +137,7 @@ class ProjectsClient:
         """
         project_id = _find_project_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             project=project,
             space=space,
         )
@@ -161,6 +162,7 @@ class ProjectsClient:
         """
         project_id = _find_project_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             project=project,
             space=space,
         )
@@ -192,7 +194,10 @@ class ProjectsClient:
         from arize._generated import api_client as gen
 
         project_id = _find_project_id(
-            api=self._api, project=project, space=space
+            api=self._api,
+            spaces_api=self._spaces_api,
+            project=project,
+            space=space,
         )
 
         body = gen.UpdateProjectRequest(name=name)

@@ -3,12 +3,16 @@
 from __future__ import annotations
 
 import logging
+from types import SimpleNamespace
 from typing import TYPE_CHECKING
+
+from pydantic import SecretStr
 
 from arize.constants.config import DEFAULT_LIST_LIMIT
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.users.types import (
     BulkUserDeletionResult,
+    CreateUserResponse,
     DeletionStatus,
     ListUsersResponse,
     User,
@@ -144,7 +148,7 @@ class UsersClient:
         role: PredefinedUserRole | CustomUserRole,
         invite_mode: InviteMode,
         is_developer: bool | None = None,
-    ) -> User:
+    ) -> CreateUserResponse:
         """Create a new user.
 
         Args:
@@ -162,7 +166,8 @@ class UsersClient:
                 ``ANNOTATOR``.
 
         Returns:
-            The created user object.
+            The created user, including ``temporary_password`` when
+            ``invite_mode`` is ``"TEMPORARY_PASSWORD"``.
 
         Raises:
             ApiException: If the API request fails.
@@ -193,8 +198,28 @@ class UsersClient:
             invite_mode=invite_mode,
             **kwargs,
         )
-        return User.model_validate(
-            self._api.create_user(create_user_request=body),
+        raw = self._api.create_user(create_user_request=body)
+        # The 200 idempotency-hit path returns the bare generated `User`
+        # model, which carries neither `invite_mode` nor
+        # `temporary_password` — echo back the requested invite_mode and
+        # leave temporary_password unset, since no new password is issued
+        # for an already-existing user. The 201 path returns the full
+        # generated `CreateUserResponse`, which already carries both.
+        temporary_password = getattr(raw, "temporary_password", None)
+        if isinstance(temporary_password, SecretStr):
+            temporary_password = temporary_password.get_secret_value()
+        return CreateUserResponse.model_validate(
+            SimpleNamespace(
+                id=raw.id,
+                name=raw.name,
+                email=raw.email,
+                created_at=raw.created_at,
+                status=raw.status,
+                role=raw.role,
+                is_developer=raw.is_developer,
+                invite_mode=getattr(raw, "invite_mode", invite_mode),
+                temporary_password=temporary_password,
+            ),
             from_attributes=True,
         )
 

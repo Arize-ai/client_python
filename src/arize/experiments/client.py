@@ -141,6 +141,7 @@ class ExperimentsClient:
         if dataset is not None:
             dataset_id = _find_dataset_id(
                 api=self._datasets_api,
+                spaces_api=self._spaces_api,
                 dataset=dataset,
                 space=space,
             )
@@ -225,6 +226,7 @@ class ExperimentsClient:
         if dataset is not None:
             dataset_id: str | None = _find_dataset_id(
                 api=self._datasets_api,
+                spaces_api=self._spaces_api,
                 dataset=dataset,
                 space=space,
             )
@@ -722,6 +724,7 @@ class ExperimentsClient:
         """
         dataset_id = _find_dataset_id(
             api=self._datasets_api,
+            spaces_api=self._spaces_api,
             dataset=dataset,
             space=space,
         )

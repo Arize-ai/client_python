@@ -125,6 +125,7 @@ arize/_generated/api_client/docs/CreateExperimentRequest.md
 arize/_generated/api_client/docs/CreateFreeformAnnotationConfigRequest.md
 arize/_generated/api_client/docs/CreateGeminiConfig.md
 arize/_generated/api_client/docs/CreateIntegrationRequest.md
+arize/_generated/api_client/docs/CreateLiteLlmConfig.md
 arize/_generated/api_client/docs/CreateLlmConfig.md
 arize/_generated/api_client/docs/CreateLlmIntegrationRequest.md
 arize/_generated/api_client/docs/CreateNvidiaNimConfig.md
@@ -262,6 +263,7 @@ arize/_generated/api_client/docs/ListTracesResponse.md
 arize/_generated/api_client/docs/ListUsersResponse.md
 arize/_generated/api_client/docs/ListWebhookDeliveryAttemptsResponse.md
 arize/_generated/api_client/docs/ListWebhooksResponse.md
+arize/_generated/api_client/docs/LiteLlmConfig.md
 arize/_generated/api_client/docs/LlmConfig.md
 arize/_generated/api_client/docs/LlmGenerationRunConfig.md
 arize/_generated/api_client/docs/LlmGenerationRunConfigRequest.md
@@ -321,6 +323,8 @@ arize/_generated/api_client/docs/ProviderParamsRequest.md
 arize/_generated/api_client/docs/RecordGranularity.md
 arize/_generated/api_client/docs/RefreshApiKeyRequest.md
 arize/_generated/api_client/docs/RefreshApiKeyResponse.md
+arize/_generated/api_client/docs/RemoveTagsRequest.md
+arize/_generated/api_client/docs/RemoveTagsResponse.md
 arize/_generated/api_client/docs/ResourceRestriction.md
 arize/_generated/api_client/docs/ResourceRestrictionType.md
 arize/_generated/api_client/docs/ResourceRestrictionsApi.md
@@ -350,6 +354,7 @@ arize/_generated/api_client/docs/SpaceRoleAssignmentType.md
 arize/_generated/api_client/docs/SpacesApi.md
 arize/_generated/api_client/docs/Span.md
 arize/_generated/api_client/docs/SpanContext.md
+arize/_generated/api_client/docs/SpanEvaluatorInput.md
 arize/_generated/api_client/docs/SpanEvent.md
 arize/_generated/api_client/docs/SpanKind.md
 arize/_generated/api_client/docs/SpanStatusCode.md
@@ -364,6 +369,12 @@ arize/_generated/api_client/docs/TagsApi.md
 arize/_generated/api_client/docs/Task.md
 arize/_generated/api_client/docs/TaskEvaluator.md
 arize/_generated/api_client/docs/TaskEvaluatorInput.md
+arize/_generated/api_client/docs/TaskQueryFilter.md
+arize/_generated/api_client/docs/TaskQueryFilterInput.md
+arize/_generated/api_client/docs/TaskQueryFilters.md
+arize/_generated/api_client/docs/TaskQueryFiltersInput.md
+arize/_generated/api_client/docs/TaskQueryMapping.md
+arize/_generated/api_client/docs/TaskQueryMappingInput.md
 arize/_generated/api_client/docs/TaskRun.md
 arize/_generated/api_client/docs/TaskRunStatus.md
 arize/_generated/api_client/docs/TaskType.md
@@ -384,6 +395,7 @@ arize/_generated/api_client/docs/ToolCallType.md
 arize/_generated/api_client/docs/ToolConfig.md
 arize/_generated/api_client/docs/ToolConfigRequest.md
 arize/_generated/api_client/docs/Trace.md
+arize/_generated/api_client/docs/TraceOrSessionEvaluatorInput.md
 arize/_generated/api_client/docs/TracesApi.md
 arize/_generated/api_client/docs/TracingDataQualityMetric.md
 arize/_generated/api_client/docs/TracingMonitor.md
@@ -531,6 +543,7 @@ arize/_generated/api_client/models/create_experiment_request.py
 arize/_generated/api_client/models/create_freeform_annotation_config_request.py
 arize/_generated/api_client/models/create_gemini_config.py
 arize/_generated/api_client/models/create_integration_request.py
+arize/_generated/api_client/models/create_lite_llm_config.py
 arize/_generated/api_client/models/create_llm_config.py
 arize/_generated/api_client/models/create_llm_integration_request.py
 arize/_generated/api_client/models/create_nvidia_nim_config.py
@@ -662,6 +675,7 @@ arize/_generated/api_client/models/list_traces_response.py
 arize/_generated/api_client/models/list_users_response.py
 arize/_generated/api_client/models/list_webhook_delivery_attempts_response.py
 arize/_generated/api_client/models/list_webhooks_response.py
+arize/_generated/api_client/models/lite_llm_config.py
 arize/_generated/api_client/models/llm_config.py
 arize/_generated/api_client/models/llm_generation_run_config.py
 arize/_generated/api_client/models/llm_generation_run_config_request.py
@@ -719,6 +733,8 @@ arize/_generated/api_client/models/provider_params_request.py
 arize/_generated/api_client/models/record_granularity.py
 arize/_generated/api_client/models/refresh_api_key_request.py
 arize/_generated/api_client/models/refresh_api_key_response.py
+arize/_generated/api_client/models/remove_tags_request.py
+arize/_generated/api_client/models/remove_tags_response.py
 arize/_generated/api_client/models/resource_restriction.py
 arize/_generated/api_client/models/resource_restriction_type.py
 arize/_generated/api_client/models/response_format.py
@@ -744,6 +760,7 @@ arize/_generated/api_client/models/space_role_assignment_request.py
 arize/_generated/api_client/models/space_role_assignment_type.py
 arize/_generated/api_client/models/span.py
 arize/_generated/api_client/models/span_context.py
+arize/_generated/api_client/models/span_evaluator_input.py
 arize/_generated/api_client/models/span_event.py
 arize/_generated/api_client/models/span_kind.py
 arize/_generated/api_client/models/span_status_code.py
@@ -756,6 +773,12 @@ arize/_generated/api_client/models/tag_color.py
 arize/_generated/api_client/models/task.py
 arize/_generated/api_client/models/task_evaluator.py
 arize/_generated/api_client/models/task_evaluator_input.py
+arize/_generated/api_client/models/task_query_filter.py
+arize/_generated/api_client/models/task_query_filter_input.py
+arize/_generated/api_client/models/task_query_filters.py
+arize/_generated/api_client/models/task_query_filters_input.py
+arize/_generated/api_client/models/task_query_mapping.py
+arize/_generated/api_client/models/task_query_mapping_input.py
 arize/_generated/api_client/models/task_run.py
 arize/_generated/api_client/models/task_run_status.py
 arize/_generated/api_client/models/task_type.py
@@ -775,6 +798,7 @@ arize/_generated/api_client/models/tool_call_type.py
 arize/_generated/api_client/models/tool_config.py
 arize/_generated/api_client/models/tool_config_request.py
 arize/_generated/api_client/models/trace.py
+arize/_generated/api_client/models/trace_or_session_evaluator_input.py
 arize/_generated/api_client/models/tracing_data_quality_metric.py
 arize/_generated/api_client/models/tracing_monitor.py
 arize/_generated/api_client/models/trigger_evaluation_task_run_request.py
@@ -861,6 +885,7 @@ arize/_generated/api_client/test/test_code_config.py
 arize/_generated/api_client/test/test_continuous_annotation_config.py
 arize/_generated/api_client/test/test_create_anthropic_config.py
 arize/_generated/api_client/test/test_create_api_key_response.py
+arize/_generated/api_client/test/test_create_lite_llm_config.py
 arize/_generated/api_client/test/test_create_llm_config.py
 arize/_generated/api_client/test/test_create_llm_integration_request.py
 arize/_generated/api_client/test/test_create_open_ai_config.py
@@ -901,6 +926,7 @@ arize/_generated/api_client/test/test_list_tags_response.py
 arize/_generated/api_client/test/test_list_traces_request.py
 arize/_generated/api_client/test/test_list_webhook_delivery_attempts_response.py
 arize/_generated/api_client/test/test_list_webhooks_response.py
+arize/_generated/api_client/test/test_lite_llm_config.py
 arize/_generated/api_client/test/test_llm_config.py
 arize/_generated/api_client/test/test_llm_integration.py
 arize/_generated/api_client/test/test_llm_integration_provider.py
@@ -921,6 +947,8 @@ arize/_generated/api_client/test/test_prompt_version_create_request.py
 arize/_generated/api_client/test/test_prompt_with_version.py
 arize/_generated/api_client/test/test_provider_params.py
 arize/_generated/api_client/test/test_refresh_api_key_response.py
+arize/_generated/api_client/test/test_remove_tags_request.py
+arize/_generated/api_client/test/test_remove_tags_response.py
 arize/_generated/api_client/test/test_resource_restriction.py
 arize/_generated/api_client/test/test_resource_restriction_type.py
 arize/_generated/api_client/test/test_response_format.py
@@ -933,6 +961,7 @@ arize/_generated/api_client/test/test_service_key_bot_user_space_assignment.py
 arize/_generated/api_client/test/test_service_key_org_assignment.py
 arize/_generated/api_client/test/test_service_key_space_assignment.py
 arize/_generated/api_client/test/test_set_webhook_subscriptions_request.py
+arize/_generated/api_client/test/test_span_evaluator_input.py
 arize/_generated/api_client/test/test_span_status_code.py
 arize/_generated/api_client/test/test_static_param.py
 arize/_generated/api_client/test/test_static_param_default_value.py
@@ -942,6 +971,11 @@ arize/_generated/api_client/test/test_tag_color.py
 arize/_generated/api_client/test/test_tags_api.py
 arize/_generated/api_client/test/test_task.py
 arize/_generated/api_client/test/test_task_evaluator.py
+arize/_generated/api_client/test/test_task_query_filter_input.py
+arize/_generated/api_client/test/test_task_query_filters.py
+arize/_generated/api_client/test/test_task_query_filters_input.py
+arize/_generated/api_client/test/test_task_query_mapping.py
+arize/_generated/api_client/test/test_task_query_mapping_input.py
 arize/_generated/api_client/test/test_task_run.py
 arize/_generated/api_client/test/test_task_run_status.py
 arize/_generated/api_client/test/test_task_type.py
@@ -951,6 +985,7 @@ arize/_generated/api_client/test/test_tool_call_function.py
 arize/_generated/api_client/test/test_tool_call_type.py
 arize/_generated/api_client/test/test_tool_config.py
 arize/_generated/api_client/test/test_trace.py
+arize/_generated/api_client/test/test_trace_or_session_evaluator_input.py
 arize/_generated/api_client/test/test_traces_api.py
 arize/_generated/api_client/test/test_update_llm_config.py
 arize/_generated/api_client/test/test_update_llm_integration_request.py

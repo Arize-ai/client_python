@@ -38,6 +38,8 @@ A permission identifier following the pattern {RESOURCE}_{ACTION}. Auto-generate
 
 * `DASHBOARD_READ` (value: `'DASHBOARD_READ'`)
 
+* `DASHBOARD_RESTRICT` (value: `'DASHBOARD_RESTRICT'`)
+
 * `DASHBOARD_UPDATE` (value: `'DASHBOARD_UPDATE'`)
 
 * `DATASET_CREATE` (value: `'DATASET_CREATE'`)

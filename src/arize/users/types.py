@@ -14,9 +14,6 @@ from pydantic import BaseModel, Field, field_validator
 from arize._generated.api_client.models.create_user_request import (
     CreateUserRequest,
 )
-from arize._generated.api_client.models.create_user_response import (
-    CreateUserResponse,
-)
 from arize._generated.api_client.models.custom_user_role_assignment import (
     CustomUserRoleAssignment,
 )
@@ -109,6 +106,20 @@ class User(BaseModel):
                 return CustomUserRole(id=actual.id, name=actual.name)
             raise TypeError(f"Unknown role type: {type(actual)!r}")
         return v
+
+
+class CreateUserResponse(User):
+    """Response from :meth:`UsersClient.create`.
+
+    Extends :class:`User` with the invite mode used to create the account
+    and, when ``invite_mode`` is ``"TEMPORARY_PASSWORD"``, the one-time
+    password issued for the new account.
+    """
+
+    invite_mode: InviteMode
+    # repr=False so logging/printing a CreateUserResponse (e.g. `logger.debug("%r", result)`)
+    # doesn't leak the plaintext password, mirroring the generated model's use of SecretStr.
+    temporary_password: str | None = Field(default=None, repr=False)
 
 
 class ListUsersResponse(BaseModel):

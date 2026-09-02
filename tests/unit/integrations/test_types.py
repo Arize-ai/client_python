@@ -43,8 +43,8 @@ class TestIntegrationsTypes:
         assert "CreateAgentRequestPresetInput" in types_module.__all__
         assert "UpdateAgentRequestPresetInput" in types_module.__all__
 
-    def test_all_seven_read_configs_exported(self) -> None:
-        """All 7 provider read config types should be re-exported."""
+    def test_all_read_configs_exported(self) -> None:
+        """Every provider read config type should be re-exported."""
         for name in (
             "OpenAiConfig",
             "AnthropicConfig",
@@ -53,11 +53,12 @@ class TestIntegrationsTypes:
             "CustomConfig",
             "VertexAiConfig",
             "NvidiaNimConfig",
+            "LiteLlmConfig",
         ):
             assert name in types_module.__all__
 
-    def test_all_seven_create_configs_and_auth_exported(self) -> None:
-        """All 7 create config types plus Bedrock auth variants are exported."""
+    def test_all_create_configs_and_auth_exported(self) -> None:
+        """Every create config type plus Bedrock auth variants are exported."""
         for name in (
             "CreateOpenAiConfig",
             "CreateAnthropicConfig",
@@ -66,6 +67,7 @@ class TestIntegrationsTypes:
             "CreateCustomConfig",
             "CreateVertexAiConfig",
             "CreateNvidiaNimConfig",
+            "CreateLiteLlmConfig",
             "CreateLlmConfig",
             "UpdateLlmConfig",
             "AwsBedrockAuth",

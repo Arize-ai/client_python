@@ -36,15 +36,22 @@ same value (no duplicates).
   one span by its `record_id` and provides one or more annotation values.
 - Each `record_id` must be unique within the request (duplicates return 400).
 - Each record's `values` list must not contain duplicate annotation config names (returns 400).
+- `granularity` selects what `record_id` identifies: `SPAN` (a span ID, the
+  default), `TRACE` (a trace's root span ID), or `SESSION` (a session ID).
+  For SESSION, the annotation is written to the root span of the session's
+  earliest trace found within the lookup window.
 - `start_time` / `end_time` constrain the time range for span lookup.
-  If omitted, `start_time` defaults to 31 days ago and `end_time` to now.
-  Both `start_time` and `end_time` may not be in the future. The window may
-  not exceed 31 days. If ANY span ID cannot be located within the given
-  range, the entire request is rejected with 404 and no annotations are
-  written (all-or-nothing pre-validation). Only after all spans are
-  confirmed does the write phase begin.
+  If omitted, `start_time` defaults to 31 days before `end_time` (7 days
+  for SESSION granularity) and `end_time` to now. Both `start_time` and
+  `end_time` may not be in the future. For SPAN/TRACE the window may not
+  exceed 31 days; for SESSION it may not exceed 7 days. If ANY span
+  cannot be located within the given range, the entire request is
+  rejected with 404 and no annotations are written (all-or-nothing
+  pre-validation). Only after all spans are confirmed does the write
+  phase begin.
 - Annotation names must match existing annotation configs in the project's space.
-- Up to 1000 span records may be annotated per request.
+- Up to 1000 records may be annotated per request for SPAN/TRACE granularity;
+  up to 100 records per request for SESSION granularity.
 
 **Valid example**
 ```json
@@ -52,6 +59,17 @@ same value (no duplicates).
   "project_id": "proj_abc123",
   "annotations": [
     {"record_id": "span_abc", "values": [{"name": "relevance", "label": "good", "score": 1.0}]}
+  ]
+}
+```
+
+**Valid example** (session granularity)
+```json
+{
+  "project_id": "proj_abc123",
+  "granularity": "SESSION",
+  "annotations": [
+    {"record_id": "session_abc", "values": [{"name": "quality", "label": "good", "score": 1.0}]}
   ]
 }
 ```
@@ -74,6 +92,19 @@ same value (no duplicates).
   "end_time": "2025-03-01T00:00:00Z",
   "annotations": [
     {"record_id": "span_abc", "values": [{"name": "relevance", "label": "good"}]}
+  ]
+}
+```
+
+**Invalid example** (session time window exceeds 7 days)
+```json
+{
+  "project_id": "proj_abc123",
+  "granularity": "SESSION",
+  "start_time": "2025-01-01T00:00:00Z",
+  "end_time": "2025-01-15T00:00:00Z",
+  "annotations": [
+    {"record_id": "session_abc", "values": [{"name": "quality", "label": "good"}]}
   ]
 }
 ```

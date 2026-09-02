@@ -50,6 +50,9 @@ from arize._generated.api_client.models.create_custom_config import (
 from arize._generated.api_client.models.create_gemini_config import (
     CreateGeminiConfig,
 )
+from arize._generated.api_client.models.create_lite_llm_config import (
+    CreateLiteLlmConfig,
+)
 from arize._generated.api_client.models.create_llm_config import CreateLlmConfig
 from arize._generated.api_client.models.create_nvidia_nim_config import (
     CreateNvidiaNimConfig,
@@ -67,6 +70,7 @@ from arize._generated.api_client.models.integration_scoping import (
     IntegrationScoping,
 )
 from arize._generated.api_client.models.integration_type import IntegrationType
+from arize._generated.api_client.models.lite_llm_config import LiteLlmConfig
 from arize._generated.api_client.models.llm_config import LlmConfig
 from arize._generated.api_client.models.llm_integration import LlmIntegration
 from arize._generated.api_client.models.llm_integration_provider import (
@@ -133,6 +137,7 @@ __all__ = [
     "CreateAwsBedrockProxyWithHeadersAuth",
     "CreateCustomConfig",
     "CreateGeminiConfig",
+    "CreateLiteLlmConfig",
     "CreateLlmConfig",
     "CreateNvidiaNimConfig",
     "CreateOpenAiConfig",
@@ -142,6 +147,7 @@ __all__ = [
     "IntegrationScoping",
     "IntegrationType",
     "ListIntegrationsResponse",
+    "LiteLlmConfig",
     "LlmConfig",
     "LlmIntegration",
     "LlmIntegrationProvider",

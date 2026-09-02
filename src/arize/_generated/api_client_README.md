@@ -112,6 +112,7 @@ Class | Method | HTTP request | Description
 *DatasetsApi* | [**list_dataset_examples**](arize/_generated/api_client/docs/DatasetsApi.md#list_dataset_examples) | **GET** /v2/datasets/{dataset_id}/examples | List dataset examples
 *DatasetsApi* | [**list_dataset_tags**](arize/_generated/api_client/docs/DatasetsApi.md#list_dataset_tags) | **GET** /v2/datasets/{dataset_id}/tags | List tags on a dataset
 *DatasetsApi* | [**list_datasets**](arize/_generated/api_client/docs/DatasetsApi.md#list_datasets) | **GET** /v2/datasets | List datasets
+*DatasetsApi* | [**remove_dataset_tags**](arize/_generated/api_client/docs/DatasetsApi.md#remove_dataset_tags) | **DELETE** /v2/datasets/{dataset_id}/tags | Detach tags from a dataset
 *DatasetsApi* | [**update_dataset**](arize/_generated/api_client/docs/DatasetsApi.md#update_dataset) | **PATCH** /v2/datasets/{dataset_id} | Update a dataset
 *DatasetsApi* | [**update_dataset_examples**](arize/_generated/api_client/docs/DatasetsApi.md#update_dataset_examples) | **PATCH** /v2/datasets/{dataset_id}/examples | Update existing examples in a dataset
 *EvaluatorsApi* | [**add_evaluator_tags**](arize/_generated/api_client/docs/EvaluatorsApi.md#add_evaluator_tags) | **POST** /v2/evaluators/{evaluator_id}/tags | Attach tags to a evaluator
@@ -159,6 +160,7 @@ Class | Method | HTTP request | Description
 *ProjectsApi* | [**get_project**](arize/_generated/api_client/docs/ProjectsApi.md#get_project) | **GET** /v2/projects/{project_id} | Get a project
 *ProjectsApi* | [**list_project_tags**](arize/_generated/api_client/docs/ProjectsApi.md#list_project_tags) | **GET** /v2/projects/{project_id}/tags | List tags on a project
 *ProjectsApi* | [**list_projects**](arize/_generated/api_client/docs/ProjectsApi.md#list_projects) | **GET** /v2/projects | List projects
+*ProjectsApi* | [**remove_project_tags**](arize/_generated/api_client/docs/ProjectsApi.md#remove_project_tags) | **DELETE** /v2/projects/{project_id}/tags | Detach tags from a project
 *ProjectsApi* | [**update_project**](arize/_generated/api_client/docs/ProjectsApi.md#update_project) | **PATCH** /v2/projects/{project_id} | Update a project
 *PromptsApi* | [**add_prompt_tags**](arize/_generated/api_client/docs/PromptsApi.md#add_prompt_tags) | **POST** /v2/prompts/{prompt_id}/tags | Attach tags to a prompt
 *PromptsApi* | [**create_prompt**](arize/_generated/api_client/docs/PromptsApi.md#create_prompt) | **POST** /v2/prompts | Create a prompt
@@ -322,6 +324,7 @@ Class | Method | HTTP request | Description
  - [CreateFreeformAnnotationConfigRequest](arize/_generated/api_client/docs/CreateFreeformAnnotationConfigRequest.md)
  - [CreateGeminiConfig](arize/_generated/api_client/docs/CreateGeminiConfig.md)
  - [CreateIntegrationRequest](arize/_generated/api_client/docs/CreateIntegrationRequest.md)
+ - [CreateLiteLlmConfig](arize/_generated/api_client/docs/CreateLiteLlmConfig.md)
  - [CreateLlmConfig](arize/_generated/api_client/docs/CreateLlmConfig.md)
  - [CreateLlmIntegrationRequest](arize/_generated/api_client/docs/CreateLlmIntegrationRequest.md)
  - [CreateNvidiaNimConfig](arize/_generated/api_client/docs/CreateNvidiaNimConfig.md)
@@ -455,6 +458,7 @@ Class | Method | HTTP request | Description
  - [ListUsersResponse](arize/_generated/api_client/docs/ListUsersResponse.md)
  - [ListWebhookDeliveryAttemptsResponse](arize/_generated/api_client/docs/ListWebhookDeliveryAttemptsResponse.md)
  - [ListWebhooksResponse](arize/_generated/api_client/docs/ListWebhooksResponse.md)
+ - [LiteLlmConfig](arize/_generated/api_client/docs/LiteLlmConfig.md)
  - [LlmConfig](arize/_generated/api_client/docs/LlmConfig.md)
  - [LlmGenerationRunConfig](arize/_generated/api_client/docs/LlmGenerationRunConfig.md)
  - [LlmGenerationRunConfigRequest](arize/_generated/api_client/docs/LlmGenerationRunConfigRequest.md)
@@ -510,6 +514,8 @@ Class | Method | HTTP request | Description
  - [RecordGranularity](arize/_generated/api_client/docs/RecordGranularity.md)
  - [RefreshApiKeyRequest](arize/_generated/api_client/docs/RefreshApiKeyRequest.md)
  - [RefreshApiKeyResponse](arize/_generated/api_client/docs/RefreshApiKeyResponse.md)
+ - [RemoveTagsRequest](arize/_generated/api_client/docs/RemoveTagsRequest.md)
+ - [RemoveTagsResponse](arize/_generated/api_client/docs/RemoveTagsResponse.md)
  - [ResourceRestriction](arize/_generated/api_client/docs/ResourceRestriction.md)
  - [ResourceRestrictionType](arize/_generated/api_client/docs/ResourceRestrictionType.md)
  - [ResponseFormat](arize/_generated/api_client/docs/ResponseFormat.md)
@@ -535,6 +541,7 @@ Class | Method | HTTP request | Description
  - [SpaceRoleAssignmentType](arize/_generated/api_client/docs/SpaceRoleAssignmentType.md)
  - [Span](arize/_generated/api_client/docs/Span.md)
  - [SpanContext](arize/_generated/api_client/docs/SpanContext.md)
+ - [SpanEvaluatorInput](arize/_generated/api_client/docs/SpanEvaluatorInput.md)
  - [SpanEvent](arize/_generated/api_client/docs/SpanEvent.md)
  - [SpanKind](arize/_generated/api_client/docs/SpanKind.md)
  - [SpanStatusCode](arize/_generated/api_client/docs/SpanStatusCode.md)
@@ -547,6 +554,12 @@ Class | Method | HTTP request | Description
  - [Task](arize/_generated/api_client/docs/Task.md)
  - [TaskEvaluator](arize/_generated/api_client/docs/TaskEvaluator.md)
  - [TaskEvaluatorInput](arize/_generated/api_client/docs/TaskEvaluatorInput.md)
+ - [TaskQueryFilter](arize/_generated/api_client/docs/TaskQueryFilter.md)
+ - [TaskQueryFilterInput](arize/_generated/api_client/docs/TaskQueryFilterInput.md)
+ - [TaskQueryFilters](arize/_generated/api_client/docs/TaskQueryFilters.md)
+ - [TaskQueryFiltersInput](arize/_generated/api_client/docs/TaskQueryFiltersInput.md)
+ - [TaskQueryMapping](arize/_generated/api_client/docs/TaskQueryMapping.md)
+ - [TaskQueryMappingInput](arize/_generated/api_client/docs/TaskQueryMappingInput.md)
  - [TaskRun](arize/_generated/api_client/docs/TaskRun.md)
  - [TaskRunStatus](arize/_generated/api_client/docs/TaskRunStatus.md)
  - [TaskType](arize/_generated/api_client/docs/TaskType.md)
@@ -566,6 +579,7 @@ Class | Method | HTTP request | Description
  - [ToolConfig](arize/_generated/api_client/docs/ToolConfig.md)
  - [ToolConfigRequest](arize/_generated/api_client/docs/ToolConfigRequest.md)
  - [Trace](arize/_generated/api_client/docs/Trace.md)
+ - [TraceOrSessionEvaluatorInput](arize/_generated/api_client/docs/TraceOrSessionEvaluatorInput.md)
  - [TracingDataQualityMetric](arize/_generated/api_client/docs/TracingDataQualityMetric.md)
  - [TracingMonitor](arize/_generated/api_client/docs/TracingMonitor.md)
  - [TriggerEvaluationTaskRunRequest](arize/_generated/api_client/docs/TriggerEvaluationTaskRunRequest.md)

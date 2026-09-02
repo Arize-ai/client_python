@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.permission import Permission
@@ -28,10 +28,17 @@ class CreateRoleRequest(BaseModel):
     """
     CreateRoleRequest
     """ # noqa: E501
-    name: Annotated[str, Field(strict=True, max_length=255)] = Field(description="Human-readable name for the role. Must be unique within the account.")
+    name: Annotated[str, Field(min_length=1, strict=True, max_length=255)] = Field(description="Human-readable name for the role. Must be unique within the account.")
     description: Optional[Annotated[str, Field(strict=True, max_length=1000)]] = Field(default=None, description="Optional description of the role's purpose. Omitted from the response if empty.")
     permissions: Annotated[List[Permission], Field(min_length=1)] = Field(description="List of permissions to grant. At least one permission is required. Each value must be a valid permission identifier (e.g. `PROJECT_READ`, `DATASET_CREATE`). ")
     __properties: ClassVar[List[str]] = ["name", "description", "permissions"]
+
+    @field_validator('name')
+    def name_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^[a-zA-Z0-9 \-_.,()[\]\'\"\/:\\&@#$%!?+=]+$", value):
+            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9 \-_.,()[\]'\"\/:\\&@#$%!?+=]+$/")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,

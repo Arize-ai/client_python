@@ -41,7 +41,15 @@ class TestTaskEvaluator(unittest.TestCase):
                 query_filter = '',
                 column_mappings = {
                     'key' : ''
-                    }
+                    },
+                query_mappings = [
+                    arize._generated.api_client.models.task_query_mapping.TaskQueryMapping(
+                        variable_name = '', 
+                        query_ids = [
+                            'A'
+                            ], 
+                        attribute_path = '', )
+                    ]
             )
         else:
             return TaskEvaluator(

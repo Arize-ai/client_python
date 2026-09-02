@@ -13,6 +13,7 @@ from arize.constants.config import DEFAULT_LIST_LIMIT
 from arize.evaluators.types import (
     CodeConfigRequest,
     CustomCodeConfigRequest,
+    DeleteEvaluatorVersionsResponse,
     EvaluatorVersionCode,
     EvaluatorWithVersion,
     ListEvaluatorVersionsResponse,
@@ -28,6 +29,8 @@ from arize.utils.resolve import (
 from arize.utils.unset import _UNSET, UNSET, is_provided
 
 if TYPE_CHECKING:
+    import builtins
+
     from arize._generated.api_client.api_client import ApiClient
     from arize.config import SDKConfiguration
     from arize.evaluators.types import (
@@ -165,6 +168,7 @@ class EvaluatorsClient:
         """
         evaluator_id = _find_evaluator_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             evaluator=evaluator,
             space=space,
         )
@@ -325,6 +329,7 @@ class EvaluatorsClient:
         """
         evaluator_id = _find_evaluator_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             evaluator=evaluator,
             space=space,
         )
@@ -362,6 +367,7 @@ class EvaluatorsClient:
         """
         evaluator_id = _find_evaluator_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             evaluator=evaluator,
             space=space,
         )
@@ -401,6 +407,7 @@ class EvaluatorsClient:
         """
         evaluator_id = _find_evaluator_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             evaluator=evaluator,
             space=space,
         )
@@ -411,6 +418,61 @@ class EvaluatorsClient:
         )
         return ListEvaluatorVersionsResponse.model_validate(
             result, from_attributes=True
+        )
+
+    @prerelease_endpoint(
+        key="evaluators.delete_versions", stage=ReleaseStage.BETA
+    )
+    def delete_versions(
+        self,
+        *,
+        evaluator: str,
+        space: str | None = None,
+        version_ids: builtins.list[str],
+    ) -> DeleteEvaluatorVersionsResponse:
+        """Delete a batch of evaluator versions.
+
+        This operation is irreversible. The delete is partial-tolerant: versions
+        that exist and belong to the evaluator are deleted; requested IDs that
+        were not deleted appear in ``not_deleted_version_ids``. The API still
+        returns HTTP 200.
+
+        ``version_ids`` must contain 1-100 IDs. Duplicates are accepted and
+        silently collapsed server-side.
+
+        On success, ``completed`` is always true; it does NOT mean every ID was
+        deleted. Each requested ID appears in exactly one of
+        ``deleted_version_ids`` or ``not_deleted_version_ids``.
+
+        Deleting a version pinned to a running online task un-pins that task
+        (falls back to latest).
+
+        Args:
+            evaluator: Evaluator name or identifier (base64) to delete versions
+                from.
+            space: Optional space name or ID. Required when ``evaluator`` is a
+                name rather than an ID.
+            version_ids: Version identifiers (base64) to delete (1-100).
+
+        Returns:
+            A :class:`DeleteEvaluatorVersionsResponse` with ``completed``,
+            ``deleted_version_ids``, and ``not_deleted_version_ids``.
+
+        Raises:
+            ApiException: If the API request fails.
+        """
+        evaluator_id = _find_evaluator_id(
+            api=self._api,
+            spaces_api=self._spaces_api,
+            evaluator=evaluator,
+            space=space,
+        )
+        from arize._generated import api_client as gen
+
+        body = gen.DeleteEvaluatorVersionsRequest(version_ids=version_ids)
+        return self._api.delete_evaluator_versions(
+            evaluator_id=evaluator_id,
+            delete_evaluator_versions_request=body,
         )
 
     @prerelease_endpoint(key="evaluators.get_version", stage=ReleaseStage.BETA)
@@ -481,6 +543,7 @@ class EvaluatorsClient:
 
         evaluator_id = _find_evaluator_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             evaluator=evaluator,
             space=space,
         )
@@ -538,6 +601,7 @@ class EvaluatorsClient:
 
         evaluator_id = _find_evaluator_id(
             api=self._api,
+            spaces_api=self._spaces_api,
             evaluator=evaluator,
             space=space,
         )

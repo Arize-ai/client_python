@@ -31,7 +31,7 @@ class Role(BaseModel):
     id: StrictStr = Field(description="Unique identifier for the role.")
     name: StrictStr = Field(description="Human-readable name of the role.")
     description: Optional[StrictStr] = Field(default=None, description="A brief description of the role's purpose.")
-    permissions: List[Permission] = Field(description="List of permissions granted by this role. Each value corresponds to a permission identifier (e.g. `PROJECT_READ`, `DATASET_CREATE`). ")
+    permissions: List[Permission] = Field(description="List of permissions granted by this role. Each value corresponds to a permission identifier (e.g. `PROJECT_READ`, `DATASET_CREATE`). Returned only to callers with `ROLE_READ`. ")
     is_predefined: StrictBool = Field(description="Whether this role is a system-defined predefined role. Predefined roles cannot be updated or deleted. ")
     created_at: datetime = Field(description="Timestamp when the role was created.")
     updated_at: datetime = Field(description="Timestamp when the role was last updated.")

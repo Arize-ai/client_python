@@ -20,6 +20,7 @@ Name | Type | Description | Notes
 **thinking_budget** | **int** | Maximum tokens the model may use for internal reasoning. Supported by Gemini 2.5 models. Range: 0-24576 (Flash/Flash-Lite) or 128-32768 (Pro). Set 0 to disable thinking on Flash models. | [optional] 
 **reasoning_effort** | **str** | Controls how much reasoning the model performs before responding. Supported by OpenAI o-series and GPT-5 models. o-series: &#39;low&#39; | &#39;medium&#39; | &#39;high&#39;. GPT-5: &#39;none&#39; | &#39;low&#39; | &#39;medium&#39; | &#39;high&#39; | &#39;xhigh&#39;. | [optional] 
 **verbosity** | **str** | Controls the verbosity of model output. Supported by OpenAI GPT-5 series. Accepted values: &#39;low&#39; | &#39;medium&#39; | &#39;high&#39;. | [optional] 
+**service_tier** | **str** | Processing tier for the request. Supported by OpenAI only, and only for models eligible for Priority processing. Accepted value: &#39;priority&#39;. Omit to use the project default. | [optional] 
 
 ## Example
 

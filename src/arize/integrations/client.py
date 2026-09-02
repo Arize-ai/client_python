@@ -12,6 +12,7 @@ from arize.integrations.types import (
     CreateAwsBedrockConfig,
     CreateCustomConfig,
     CreateGeminiConfig,
+    CreateLiteLlmConfig,
     CreateLlmConfig,
     CreateNvidiaNimConfig,
     CreateOpenAiConfig,
@@ -57,6 +58,7 @@ CreateLlmConfigInput = (
     | CreateCustomConfig
     | CreateVertexAiConfig
     | CreateNvidiaNimConfig
+    | CreateLiteLlmConfig
     | CreateLlmConfig
 )
 
@@ -76,7 +78,8 @@ class IntegrationsClient:
 
     Integrations are polymorphic: ``LLM`` integrations configure a model
     provider (``OPEN_AI``, ``ANTHROPIC``, ``GEMINI``, ``AWS_BEDROCK``,
-    ``CUSTOM``, ``VERTEX_AI``, or ``NVIDIA_NIM``), while ``AGENT`` integrations
+    ``CUSTOM``, ``VERTEX_AI``, ``NVIDIA_NIM``, or ``LITELLM``), while ``AGENT``
+    integrations
     connect a customer-hosted agent exposed at an HTTP endpoint. The integration
     :class:`~arize.integrations.types.IntegrationType` selects the config shape.
     """
@@ -207,12 +210,13 @@ class IntegrationsClient:
         - ``CUSTOM`` — :class:`~arize.integrations.types.CreateCustomConfig`
         - ``VERTEX_AI`` — :class:`~arize.integrations.types.CreateVertexAiConfig`
         - ``NVIDIA_NIM`` — :class:`~arize.integrations.types.CreateNvidiaNimConfig`
+        - ``LITELLM`` — :class:`~arize.integrations.types.CreateLiteLlmConfig`
 
         Integration names must be unique within the account for the ``LLM`` type.
 
         Args:
             name: Integration name (must be unique within the account per type).
-            config: The provider-specific config. Accepts any of the 7 generated
+            config: The provider-specific config. Accepts any of the 8 generated
                 per-provider ``Create*Config`` objects, or a pre-wrapped
                 :class:`~arize.integrations.types.CreateLlmConfig` union.
             scopings: Visibility scoping rules. Defaults to account-wide if omitted.
@@ -331,9 +335,12 @@ class IntegrationsClient:
         - ``api_key``, ``function_calling_enabled`` — all providers except
           ``AWS_BEDROCK`` and ``VERTEX_AI``.
         - ``auth`` — ``AWS_BEDROCK`` only; replaces the stored auth wholesale.
-        - ``base_url``, ``headers`` — ``CUSTOM`` and ``NVIDIA_NIM`` only.
-        - ``is_default_models_enabled``, ``model_names`` — ``AWS_BEDROCK``,
-          ``CUSTOM``, and ``NVIDIA_NIM`` only.
+        - ``base_url``, ``headers`` — ``CUSTOM``, ``NVIDIA_NIM``, and
+          ``LITELLM`` only.
+        - ``is_default_models_enabled`` — ``AWS_BEDROCK``, ``CUSTOM``, and
+          ``NVIDIA_NIM`` only.
+        - ``model_names`` — ``AWS_BEDROCK``, ``CUSTOM``, ``NVIDIA_NIM``, and
+          ``LITELLM`` only.
         - ``project_id``, ``location``, ``project_access_label`` —
           ``VERTEX_AI`` only.
 
@@ -352,7 +359,7 @@ class IntegrationsClient:
             auth: Replacement AWS Bedrock auth
                 (:class:`~arize.integrations.types.CreateAwsBedrockAuth`).
             base_url: New endpoint URL. Pass ``None`` to clear (``NVIDIA_NIM``;
-                ``CUSTOM`` rejects ``None`` with a 422).
+                ``CUSTOM`` and ``LITELLM`` reject ``None`` with a 422).
             headers: Replacement custom request headers as a name-to-value map.
                 Pass ``None`` to clear all headers.
             is_default_models_enabled: Toggle Arize's default model catalog.

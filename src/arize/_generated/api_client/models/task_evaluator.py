@@ -19,6 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
+from arize._generated.api_client.models.task_query_mapping import TaskQueryMapping
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -29,9 +30,10 @@ class TaskEvaluator(BaseModel):
     evaluator_id: StrictStr = Field(description="Evaluator identifier (base64).")
     evaluator_name: StrictStr = Field(description="The name of the attached evaluator.")
     evaluator_version_id: Optional[StrictStr] = Field(description="The evaluator version this attachment is pinned to (base64). Null is the default and means the attachment is not pinned, so it runs the evaluator's latest version. ")
-    query_filter: Optional[StrictStr] = Field(description="Per-evaluator query filter, combined with the task-level filter (AND).")
-    column_mappings: Optional[Dict[str, StrictStr]] = Field(description="Maps evaluator template variable names to data source column names.")
-    __properties: ClassVar[List[str]] = ["evaluator_id", "evaluator_name", "evaluator_version_id", "query_filter", "column_mappings"]
+    query_filter: Optional[StrictStr] = Field(description="Per-evaluator query filter, combined with the task-level filter (AND). Span-granularity shape only; null for trace/session evaluators. ")
+    column_mappings: Optional[Dict[str, StrictStr]] = Field(description="Maps evaluator template variable names to data source column names. Span-granularity shape only; null for trace/session evaluators (which use `query_mappings`). ")
+    query_mappings: Optional[List[TaskQueryMapping]] = Field(default=None, description="Maps each evaluator variable to one or more declared query ids plus an attribute path, for trace/session evaluators. Present only on trace/session tasks; null on span tasks (which use `column_mappings`). ")
+    __properties: ClassVar[List[str]] = ["evaluator_id", "evaluator_name", "evaluator_version_id", "query_filter", "column_mappings", "query_mappings"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -72,6 +74,13 @@ class TaskEvaluator(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in query_mappings (list)
+        _items = []
+        if self.query_mappings:
+            for _item_query_mappings in self.query_mappings:
+                if _item_query_mappings:
+                    _items.append(_item_query_mappings.to_dict())
+            _dict['query_mappings'] = _items
         # set to None if evaluator_version_id (nullable) is None
         # and model_fields_set contains the field
         if self.evaluator_version_id is None and "evaluator_version_id" in self.model_fields_set:
@@ -86,6 +95,11 @@ class TaskEvaluator(BaseModel):
         # and model_fields_set contains the field
         if self.column_mappings is None and "column_mappings" in self.model_fields_set:
             _dict['column_mappings'] = None
+
+        # set to None if query_mappings (nullable) is None
+        # and model_fields_set contains the field
+        if self.query_mappings is None and "query_mappings" in self.model_fields_set:
+            _dict['query_mappings'] = None
 
         return _dict
 
@@ -104,7 +118,8 @@ class TaskEvaluator(BaseModel):
             "evaluator_name": obj.get("evaluator_name"),
             "evaluator_version_id": obj.get("evaluator_version_id"),
             "query_filter": obj.get("query_filter"),
-            "column_mappings": obj.get("column_mappings")
+            "column_mappings": obj.get("column_mappings"),
+            "query_mappings": [TaskQueryMapping.from_dict(_item) for _item in obj["query_mappings"]] if obj.get("query_mappings") is not None else None
         })
         return _obj
 

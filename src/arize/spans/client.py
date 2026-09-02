@@ -54,6 +54,7 @@ if TYPE_CHECKING:
         AnnotateRecordInput,
         DeleteSpansResponse,
         ListSpansResponse,
+        RecordGranularity,
     )
 
 logger = logging.getLogger(__name__)
@@ -83,6 +84,7 @@ class SpansClient:
         # Use the provided client directly
         self._api = gen.SpansApi(generated_client)
         self._projects_api = gen.ProjectsApi(generated_client)
+        self._spaces_api = gen.SpacesApi(generated_client)
 
     @prerelease_endpoint(key="spans.delete", stage=ReleaseStage.BETA)
     def delete(
@@ -130,6 +132,7 @@ class SpansClient:
 
         project_id = _find_project_id(
             api=self._projects_api,
+            spaces_api=self._spaces_api,
             project=project,
             space=space,
         )
@@ -202,6 +205,7 @@ class SpansClient:
         """
         project_id = _find_project_id(
             api=self._projects_api,
+            spaces_api=self._spaces_api,
             project=project,
             space=space,
         )
@@ -234,18 +238,30 @@ class SpansClient:
         annotations: builtins.list[AnnotateRecordInput],
         start_time: datetime | None = None,
         end_time: datetime | None = None,
+        granularity: RecordGranularity | None = None,
     ) -> None:
-        """Write human annotations to a batch of spans in a project.
+        """Write human annotations to a batch of records in a project.
 
-        Annotations are upserted by annotation config name for each span.
-        Submitting the same annotation config name for the same span
+        Annotations are upserted by annotation config name for each record.
+        Submitting the same annotation config name for the same record
         overwrites the previous value. Retrying on network failure will
         not create duplicates.
 
-        Up to 1000 spans may be annotated per request. Spans are looked up
-        within the specified time window (defaulting to the last 31 days).
-        If any span ID in the batch is not found within the window, the
-        entire request is rejected with a 404 error.
+        ``granularity`` selects what each ``record_id`` identifies:
+
+        - ``SPAN`` (default): ``record_id`` is a span ID.
+        - ``TRACE``: ``record_id`` must be a trace's root span ID; annotating
+          a non-root span is rejected.
+        - ``SESSION``: ``record_id`` is a session ID. The annotation is
+          written to the root span of the session's earliest trace found
+          within the lookup window.
+
+        Up to 1000 records may be annotated per request for ``SPAN``/``TRACE``
+        granularity; up to 100 for ``SESSION``. Records are looked up within
+        the specified time window, which defaults to the last 31 days
+        (``SPAN``/``TRACE``) or 7 days (``SESSION``). If any record in the
+        batch is not found within the window, the entire request is rejected
+        with a 404 error.
 
         The write completes synchronously before the function returns. Visibility
         in read queries may lag by a short interval (HTTP 202 Accepted).
@@ -254,20 +270,25 @@ class SpansClient:
             project: Project ID or name.
             space: Space ID or name. Required when *project* is a name.
             annotations: A list of :class:`AnnotateRecordInput` items. Each item
-                must include a ``record_id`` (the span ID) and ``values``
+                must include a ``record_id`` (a span, trace root span, or
+                session ID, depending on ``granularity``) and ``values``
                 (a list of :class:`AnnotationInput` items with ``name``, and
                 optionally ``score``, ``label``, or ``text``).
-            start_time: Start of the time window used to look up spans.
-                Defaults to 31 days before the request time.
-            end_time: End of the time window used to look up spans.
+            start_time: Start of the time window used to look up records.
+                Defaults to 31 days before the request time, or 7 days when
+                ``granularity`` is ``SESSION``.
+            end_time: End of the time window used to look up records.
                 Defaults to the request time.
+            granularity: Whether ``record_id`` identifies a span, a trace, or
+                a session. Defaults to ``SPAN``.
 
         Raises:
             ApiException: If the REST API returns an error response
-                (e.g. 400/401/403/404/429).
+                (e.g. 400/401/403/404/422/429).
         """
         project_id = _find_project_id(
             api=self._projects_api,
+            spaces_api=self._spaces_api,
             project=project,
             space=space,
         )
@@ -278,6 +299,7 @@ class SpansClient:
             annotations=annotations,
             start_time=start_time,
             end_time=end_time,
+            granularity=granularity,
         )
         return self._api.annotate_spans(annotate_spans_request=body)
 

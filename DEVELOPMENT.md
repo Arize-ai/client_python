@@ -54,6 +54,31 @@ export ARIZE_TEST_SPACE_NAME="your-space-name"
 uv run task test-integration
 ```
 
+### Dev endpoint configuration
+
+The SDK defaults to production endpoints. To exercise all SDK transports
+against the shared `arize-dev` environment, configure its separate REST, OTLP,
+and Flight endpoints:
+
+```bash
+export ARIZE_API_HOST="devr.arize.com"
+export ARIZE_OTLP_HOST="devotlp.arize.com"
+export ARIZE_FLIGHT_HOST="devx.arize.com"
+export ARIZE_FLIGHT_PORT="443"
+```
+
+The default schemes remain correct: `https` for REST and OTLP, and `grpc+tls`
+for Flight. Do not use `ARIZE_SINGLE_HOST` for this environment: each
+transport has its own host.
+
+A personal mynamespace provides
+`https://api-<namespace>.dev.arize.com`, which routes REST `/v2` and receiver
+`/v1` traffic for that namespace. It is not a complete SDK v8 endpoint set:
+this repository does not configure namespace-specific public OTLP or Flight
+hosts. Set `ARIZE_API_HOST="api-<namespace>.dev.arize.com"` only when testing
+REST or receiver operations in your namespace; use the shared dev endpoints
+above for a full multi-transport configuration.
+
 ### Per-module notes
 
 - **Evaluators** (`test_evaluators_flows.py`): Templates use an **AI integration** in the test space (the first integration from `ai_integrations.list`). That integration must have **working provider credentials** (for the default model in the tests, an OpenAI integration needs a real OpenAI API key configured **on the integration in Arize**). The API also requires the template body to include at least one f-string-style placeholder (e.g. `{output}`), not `{{...}}`. If the space has no integrations, those tests skip. See the module docstring in that file for details.

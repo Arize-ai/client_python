@@ -225,18 +225,20 @@ class TestFindSpaceId:
 @pytest.mark.unit
 class TestFindProjectId:
     def test_base64_passthrough(self) -> None:
-        assert _find_project_id(MagicMock(), B64_ID, None) == B64_ID
+        assert (
+            _find_project_id(MagicMock(), MagicMock(), B64_ID, None) == B64_ID
+        )
 
     def test_no_space_raises(self) -> None:
         with pytest.raises(NotFoundError, match="project"):
-            _find_project_id(MagicMock(), "my-project", None)
+            _find_project_id(MagicMock(), MagicMock(), "my-project", None)
 
     def test_name_resolved_with_space_id(self) -> None:
         resp = _make_paginated([])
         resp.projects = [_item("my-project", "proj-id")]
         mock_api = MagicMock()
         mock_api.list_projects.return_value = resp
-        result = _find_project_id(mock_api, "my-project", B64_ID)
+        result = _find_project_id(mock_api, MagicMock(), "my-project", B64_ID)
         assert result == "proj-id"
 
     def test_name_resolved_with_space_name(self) -> None:
@@ -244,7 +246,14 @@ class TestFindProjectId:
         resp.projects = [_item("my-project", "proj-id")]
         mock_api = MagicMock()
         mock_api.list_projects.return_value = resp
-        result = _find_project_id(mock_api, "my-project", "sname")
+        mock_spaces_api = MagicMock()
+        mock_spaces_api.list_spaces.return_value = _make_paginated([])
+        mock_spaces_api.list_spaces.return_value.spaces = [
+            _item("sname", B64_ID)
+        ]
+        result = _find_project_id(
+            mock_api, mock_spaces_api, "my-project", "sname"
+        )
         assert result == "proj-id"
 
     def test_name_not_found_raises(self) -> None:
@@ -253,7 +262,7 @@ class TestFindProjectId:
         mock_api = MagicMock()
         mock_api.list_projects.return_value = resp
         with pytest.raises(NotFoundError, match="project"):
-            _find_project_id(mock_api, "missing", B64_ID)
+            _find_project_id(mock_api, MagicMock(), "missing", B64_ID)
 
     def test_pagination(self) -> None:
         page1 = _make_paginated([], next_cursor="c")
@@ -262,7 +271,10 @@ class TestFindProjectId:
         page2.projects = [_item("my-project", "proj-id")]
         mock_api = MagicMock()
         mock_api.list_projects.side_effect = [page1, page2]
-        assert _find_project_id(mock_api, "my-project", B64_ID) == "proj-id"
+        assert (
+            _find_project_id(mock_api, MagicMock(), "my-project", B64_ID)
+            == "proj-id"
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -273,18 +285,20 @@ class TestFindProjectId:
 @pytest.mark.unit
 class TestFindDatasetId:
     def test_base64_passthrough(self) -> None:
-        assert _find_dataset_id(MagicMock(), B64_ID, None) == B64_ID
+        assert (
+            _find_dataset_id(MagicMock(), MagicMock(), B64_ID, None) == B64_ID
+        )
 
     def test_no_space_raises(self) -> None:
         with pytest.raises(NotFoundError, match="dataset"):
-            _find_dataset_id(MagicMock(), "my-dataset", None)
+            _find_dataset_id(MagicMock(), MagicMock(), "my-dataset", None)
 
     def test_name_resolved(self) -> None:
         resp = _make_paginated([])
         resp.datasets = [_item("my-dataset", "ds-id")]
         mock_api = MagicMock()
         mock_api.list_datasets.return_value = resp
-        result = _find_dataset_id(mock_api, "my-dataset", B64_ID)
+        result = _find_dataset_id(mock_api, MagicMock(), "my-dataset", B64_ID)
         assert result == "ds-id"
 
     def test_name_not_found_raises(self) -> None:
@@ -293,7 +307,7 @@ class TestFindDatasetId:
         mock_api = MagicMock()
         mock_api.list_datasets.return_value = resp
         with pytest.raises(NotFoundError, match="dataset"):
-            _find_dataset_id(mock_api, "missing", B64_ID)
+            _find_dataset_id(mock_api, MagicMock(), "missing", B64_ID)
 
     def test_pagination(self) -> None:
         page1 = _make_paginated([], next_cursor="c")
@@ -302,7 +316,10 @@ class TestFindDatasetId:
         page2.datasets = [_item("my-dataset", "ds-id")]
         mock_api = MagicMock()
         mock_api.list_datasets.side_effect = [page1, page2]
-        assert _find_dataset_id(mock_api, "my-dataset", B64_ID) == "ds-id"
+        assert (
+            _find_dataset_id(mock_api, MagicMock(), "my-dataset", B64_ID)
+            == "ds-id"
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -429,18 +446,18 @@ class TestFindExperimentId:
 @pytest.mark.unit
 class TestFindPromptId:
     def test_base64_passthrough(self) -> None:
-        assert _find_prompt_id(MagicMock(), B64_ID, None) == B64_ID
+        assert _find_prompt_id(MagicMock(), MagicMock(), B64_ID, None) == B64_ID
 
     def test_no_space_raises(self) -> None:
         with pytest.raises(NotFoundError, match="prompt"):
-            _find_prompt_id(MagicMock(), "my-prompt", None)
+            _find_prompt_id(MagicMock(), MagicMock(), "my-prompt", None)
 
     def test_name_resolved(self) -> None:
         resp = _make_paginated([])
         resp.prompts = [_item("my-prompt", "pr-id")]
         mock_api = MagicMock()
         mock_api.list_prompts.return_value = resp
-        result = _find_prompt_id(mock_api, "my-prompt", B64_ID)
+        result = _find_prompt_id(mock_api, MagicMock(), "my-prompt", B64_ID)
         assert result == "pr-id"
 
     def test_name_not_found_raises(self) -> None:
@@ -449,7 +466,7 @@ class TestFindPromptId:
         mock_api = MagicMock()
         mock_api.list_prompts.return_value = resp
         with pytest.raises(NotFoundError, match="prompt"):
-            _find_prompt_id(mock_api, "missing", B64_ID)
+            _find_prompt_id(mock_api, MagicMock(), "missing", B64_ID)
 
     def test_pagination(self) -> None:
         page1 = _make_paginated([], next_cursor="c")
@@ -458,7 +475,10 @@ class TestFindPromptId:
         page2.prompts = [_item("my-prompt", "pr-id")]
         mock_api = MagicMock()
         mock_api.list_prompts.side_effect = [page1, page2]
-        assert _find_prompt_id(mock_api, "my-prompt", B64_ID) == "pr-id"
+        assert (
+            _find_prompt_id(mock_api, MagicMock(), "my-prompt", B64_ID)
+            == "pr-id"
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -469,18 +489,22 @@ class TestFindPromptId:
 @pytest.mark.unit
 class TestFindEvaluatorId:
     def test_base64_passthrough(self) -> None:
-        assert _find_evaluator_id(MagicMock(), B64_ID, None) == B64_ID
+        assert (
+            _find_evaluator_id(MagicMock(), MagicMock(), B64_ID, None) == B64_ID
+        )
 
     def test_no_space_raises(self) -> None:
         with pytest.raises(NotFoundError, match="evaluator"):
-            _find_evaluator_id(MagicMock(), "my-evaluator", None)
+            _find_evaluator_id(MagicMock(), MagicMock(), "my-evaluator", None)
 
     def test_name_resolved(self) -> None:
         resp = _make_paginated([])
         resp.evaluators = [_item("my-evaluator", "ev-id")]
         mock_api = MagicMock()
         mock_api.list_evaluators.return_value = resp
-        result = _find_evaluator_id(mock_api, "my-evaluator", B64_ID)
+        result = _find_evaluator_id(
+            mock_api, MagicMock(), "my-evaluator", B64_ID
+        )
         assert result == "ev-id"
 
     def test_name_not_found_raises(self) -> None:
@@ -489,7 +513,7 @@ class TestFindEvaluatorId:
         mock_api = MagicMock()
         mock_api.list_evaluators.return_value = resp
         with pytest.raises(NotFoundError, match="evaluator"):
-            _find_evaluator_id(mock_api, "missing", B64_ID)
+            _find_evaluator_id(mock_api, MagicMock(), "missing", B64_ID)
 
     def test_pagination(self) -> None:
         page1 = _make_paginated([], next_cursor="c")
@@ -498,7 +522,10 @@ class TestFindEvaluatorId:
         page2.evaluators = [_item("my-evaluator", "ev-id")]
         mock_api = MagicMock()
         mock_api.list_evaluators.side_effect = [page1, page2]
-        assert _find_evaluator_id(mock_api, "my-evaluator", B64_ID) == "ev-id"
+        assert (
+            _find_evaluator_id(mock_api, MagicMock(), "my-evaluator", B64_ID)
+            == "ev-id"
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -509,11 +536,16 @@ class TestFindEvaluatorId:
 @pytest.mark.unit
 class TestFindAnnotationConfigId:
     def test_base64_passthrough(self) -> None:
-        assert _find_annotation_config_id(MagicMock(), B64_ID, None) == B64_ID
+        assert (
+            _find_annotation_config_id(MagicMock(), MagicMock(), B64_ID, None)
+            == B64_ID
+        )
 
     def test_no_space_raises(self) -> None:
         with pytest.raises(NotFoundError, match="annotation config"):
-            _find_annotation_config_id(MagicMock(), "my-config", None)
+            _find_annotation_config_id(
+                MagicMock(), MagicMock(), "my-config", None
+            )
 
     def test_name_resolved(self) -> None:
         inner = MagicMock()
@@ -526,7 +558,9 @@ class TestFindAnnotationConfigId:
         resp.annotation_configs = [ac]
         mock_api = MagicMock()
         mock_api.list_annotation_configs.return_value = resp
-        result = _find_annotation_config_id(mock_api, "my-config", B64_ID)
+        result = _find_annotation_config_id(
+            mock_api, MagicMock(), "my-config", B64_ID
+        )
         assert result == "ac-id"
 
     def test_skips_none_inner_instance(self) -> None:
@@ -542,7 +576,9 @@ class TestFindAnnotationConfigId:
         resp.annotation_configs = [ac_null, ac_real]
         mock_api = MagicMock()
         mock_api.list_annotation_configs.return_value = resp
-        result = _find_annotation_config_id(mock_api, "my-config", B64_ID)
+        result = _find_annotation_config_id(
+            mock_api, MagicMock(), "my-config", B64_ID
+        )
         assert result == "ac-id"
 
     def test_name_not_found_raises(self) -> None:
@@ -556,7 +592,7 @@ class TestFindAnnotationConfigId:
         mock_api = MagicMock()
         mock_api.list_annotation_configs.return_value = resp
         with pytest.raises(NotFoundError, match="annotation config"):
-            _find_annotation_config_id(mock_api, "missing", B64_ID)
+            _find_annotation_config_id(mock_api, MagicMock(), "missing", B64_ID)
 
     def test_pagination(self) -> None:
         inner1 = MagicMock()
@@ -576,7 +612,10 @@ class TestFindAnnotationConfigId:
         mock_api = MagicMock()
         mock_api.list_annotation_configs.side_effect = [page1, page2]
         assert (
-            _find_annotation_config_id(mock_api, "my-config", B64_ID) == "ac-id"
+            _find_annotation_config_id(
+                mock_api, MagicMock(), "my-config", B64_ID
+            )
+            == "ac-id"
         )
 
 
@@ -588,18 +627,25 @@ class TestFindAnnotationConfigId:
 @pytest.mark.unit
 class TestFindAiIntegrationId:
     def test_base64_passthrough(self) -> None:
-        assert _find_ai_integration_id(MagicMock(), B64_ID, None) == B64_ID
+        assert (
+            _find_ai_integration_id(MagicMock(), MagicMock(), B64_ID, None)
+            == B64_ID
+        )
 
     def test_no_space_raises(self) -> None:
         with pytest.raises(NotFoundError, match="AI integration"):
-            _find_ai_integration_id(MagicMock(), "my-integration", None)
+            _find_ai_integration_id(
+                MagicMock(), MagicMock(), "my-integration", None
+            )
 
     def test_name_resolved(self) -> None:
         resp = _make_paginated([])
         resp.ai_integrations = [_item("my-integration", "ai-id")]
         mock_api = MagicMock()
         mock_api.list_ai_integrations.return_value = resp
-        result = _find_ai_integration_id(mock_api, "my-integration", B64_ID)
+        result = _find_ai_integration_id(
+            mock_api, MagicMock(), "my-integration", B64_ID
+        )
         assert result == "ai-id"
 
     def test_name_not_found_raises(self) -> None:
@@ -608,7 +654,7 @@ class TestFindAiIntegrationId:
         mock_api = MagicMock()
         mock_api.list_ai_integrations.return_value = resp
         with pytest.raises(NotFoundError, match="AI integration"):
-            _find_ai_integration_id(mock_api, "missing", B64_ID)
+            _find_ai_integration_id(mock_api, MagicMock(), "missing", B64_ID)
 
     def test_pagination(self) -> None:
         page1 = _make_paginated([], next_cursor="c")
@@ -618,7 +664,9 @@ class TestFindAiIntegrationId:
         mock_api = MagicMock()
         mock_api.list_ai_integrations.side_effect = [page1, page2]
         assert (
-            _find_ai_integration_id(mock_api, "my-integration", B64_ID)
+            _find_ai_integration_id(
+                mock_api, MagicMock(), "my-integration", B64_ID
+            )
             == "ai-id"
         )
 
@@ -729,18 +777,18 @@ class TestFindIntegrationId:
 @pytest.mark.unit
 class TestFindTaskId:
     def test_base64_passthrough(self) -> None:
-        assert _find_task_id(MagicMock(), B64_ID, None) == B64_ID
+        assert _find_task_id(MagicMock(), MagicMock(), B64_ID, None) == B64_ID
 
     def test_no_space_raises(self) -> None:
         with pytest.raises(NotFoundError, match="task"):
-            _find_task_id(MagicMock(), "my-task", None)
+            _find_task_id(MagicMock(), MagicMock(), "my-task", None)
 
     def test_name_resolved(self) -> None:
         resp = _make_paginated([])
         resp.tasks = [_item("my-task", "task-id")]
         mock_api = MagicMock()
         mock_api.list_tasks.return_value = resp
-        result = _find_task_id(mock_api, "my-task", B64_ID)
+        result = _find_task_id(mock_api, MagicMock(), "my-task", B64_ID)
         assert result == "task-id"
 
     def test_name_not_found_raises(self) -> None:
@@ -749,7 +797,7 @@ class TestFindTaskId:
         mock_api = MagicMock()
         mock_api.list_tasks.return_value = resp
         with pytest.raises(NotFoundError, match="task"):
-            _find_task_id(mock_api, "missing", B64_ID)
+            _find_task_id(mock_api, MagicMock(), "missing", B64_ID)
 
     def test_pagination(self) -> None:
         page1 = _make_paginated([], next_cursor="c")
@@ -758,4 +806,6 @@ class TestFindTaskId:
         page2.tasks = [_item("my-task", "task-id")]
         mock_api = MagicMock()
         mock_api.list_tasks.side_effect = [page1, page2]
-        assert _find_task_id(mock_api, "my-task", B64_ID) == "task-id"
+        assert (
+            _find_task_id(mock_api, MagicMock(), "my-task", B64_ID) == "task-id"
+        )

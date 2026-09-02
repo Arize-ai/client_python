@@ -43,6 +43,13 @@ class TestTask(unittest.TestCase):
                 sampling_rate = 0,
                 is_continuous = True,
                 query_filter = '',
+                query_filters = arize._generated.api_client.models.task_query_filters.TaskQueryFilters(
+                    filters = [
+                        arize._generated.api_client.models.task_query_filter.TaskQueryFilter(
+                            id = 'A', 
+                            filter = '', )
+                        ], 
+                    expression = '', ),
                 evaluators = [
                     arize._generated.api_client.models.task_evaluator.TaskEvaluator(
                         evaluator_id = '', 
@@ -51,7 +58,15 @@ class TestTask(unittest.TestCase):
                         query_filter = '', 
                         column_mappings = {
                             'key' : ''
-                            }, )
+                            }, 
+                        query_mappings = [
+                            arize._generated.api_client.models.task_query_mapping.TaskQueryMapping(
+                                variable_name = '', 
+                                query_ids = [
+                                    'A'
+                                    ], 
+                                attribute_path = '', )
+                            ], )
                     ],
                 experiment_ids = [
                     ''
@@ -77,7 +92,15 @@ class TestTask(unittest.TestCase):
                         query_filter = '', 
                         column_mappings = {
                             'key' : ''
-                            }, )
+                            }, 
+                        query_mappings = [
+                            arize._generated.api_client.models.task_query_mapping.TaskQueryMapping(
+                                variable_name = '', 
+                                query_ids = [
+                                    'A'
+                                    ], 
+                                attribute_path = '', )
+                            ], )
                     ],
                 experiment_ids = [
                     ''

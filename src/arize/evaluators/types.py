@@ -24,6 +24,9 @@ from arize._generated.api_client.models.custom_code_config_request import (
     CustomCodeConfigRequest,
 )
 from arize._generated.api_client.models.data_granularity import DataGranularity
+from arize._generated.api_client.models.delete_evaluator_versions_response import (
+    DeleteEvaluatorVersionsResponse,
+)
 from arize._generated.api_client.models.evaluator import Evaluator
 from arize._generated.api_client.models.evaluator_llm_config import (
     EvaluatorLlmConfig,
@@ -206,6 +209,7 @@ __all__ = [
     "CustomCodeConfig",
     "CustomCodeConfigRequest",
     "DataGranularity",
+    "DeleteEvaluatorVersionsResponse",
     "Evaluator",
     "EvaluatorLlmConfig",
     "EvaluatorLlmConfigRequest",

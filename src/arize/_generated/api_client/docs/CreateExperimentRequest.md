@@ -6,10 +6,10 @@ Experiment creation parameters with an initial set of runs.  An experiment belon
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**name** | **str** | Name of the experiment. Must not contain double quotes (&#x60;\&quot;&#x60;) or backslashes (&#x60;\\&#x60;).  | 
+**name** | **str** | Name of the experiment. Must be 1–255 characters and must not contain double quotes (&#x60;\&quot;&#x60;) or backslashes (&#x60;\\&#x60;).  | 
 **dataset_id** | **str** | ID of the dataset to associate the experiment with. Provide &#x60;space_id&#x60; instead when the experiment isn&#39;t associated with a dataset. | [optional] 
 **space_id** | **str** | ID of the space to create the experiment in. Provide instead of &#x60;dataset_id&#x60;. | [optional] 
-**experiment_runs** | [**List[ExperimentRunInput]**](ExperimentRunInput.md) | Array of experiment run data | 
+**experiment_runs** | [**List[ExperimentRunInput]**](ExperimentRunInput.md) | Array of experiment run data. Between 1 and 1000 runs per request. | 
 
 ## Example
 

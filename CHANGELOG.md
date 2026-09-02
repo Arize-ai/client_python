@@ -1,5 +1,28 @@
 # Changelog
 
+## [8.51.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.50.0...arize-python-sdk/v8.51.0) (2026-09-02)
+
+
+### 🎁 New Features
+
+* **annotations:** Add Python SDK support for session annotations ([#84866](https://github.com/Arize-ai/arize/issues/84866)) ([b152c30](https://github.com/Arize-ai/arize/commit/b152c307f1ad21d14258002f5f787a89ac036874))
+* **dashboards:** add dashboard resource restrictions API (needs [#84566](https://github.com/Arize-ai/arize/issues/84566)) ([#84567](https://github.com/Arize-ai/arize/issues/84567)) ([ebd3224](https://github.com/Arize-ai/arize/commit/ebd32248bd2578948f45b165a31111f4c293aef1))
+* **datasets:** implement lazy per-segment loading with bounded memory ([#85400](https://github.com/Arize-ai/arize/issues/85400)) ([42cf544](https://github.com/Arize-ai/arize/commit/42cf544c4931eceb62fe707fa0f9f849b582c134))
+* **litellm:** register provider across proto and typescript enums ([#83852](https://github.com/Arize-ai/arize/issues/83852)) ([232b0e5](https://github.com/Arize-ai/arize/commit/232b0e50f20c354bb206feaead27c1f20fc9de74))
+* **evaluators:** add evaluators.delete_versions ([#84971](https://github.com/Arize-ai/arize/issues/84971)) ([d1b403b](https://github.com/Arize-ai/arize/commit/d1b403b0b4f18f1899e39542e32c743e4e1085d8))
+* **tasks:** surface MSQ task fields in python/go/ts SDKs [[#66636](https://github.com/Arize-ai/arize/issues/66636) PR3/4] ([#75389](https://github.com/Arize-ai/arize/issues/75389)) ([0f59109](https://github.com/Arize-ai/arize/commit/0f591092aa5a4d73c1c8b702340289ef43e574dc))
+
+
+### 🐛 Bug Fixes
+
+* **spaces:** resolve space name to exact ID before listing resources ([#85447](https://github.com/Arize-ai/arize/issues/85447)) ([14bd977](https://github.com/Arize-ai/arize/commit/14bd97784d0296388ac30c76a15fff55832c5702))
+* **users:** surface temporary_password from users.create() in Go and Python SDK ([#84885](https://github.com/Arize-ai/arize/issues/84885)) ([cab6a78](https://github.com/Arize-ai/arize/commit/cab6a78030e9d37ec41d7c6fb82fda7e4bb2bdf5))
+
+
+### 🧪 Tests
+
+* **tasks:** introduce manual dataset creation script with Dev endpoint docs ([#85084](https://github.com/Arize-ai/arize/issues/85084)) ([847e934](https://github.com/Arize-ai/arize/commit/847e934f8cc02e2abb96ad3e82614a174221d3e8))
+
 ## [8.50.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.49.0...arize-python-sdk/v8.50.0) (2026-08-26)
 
 
@@ -23,7 +46,7 @@
 
 ### 💫 Code Refactoring
 
-* **openapi:** remove use_function_calling_if_available; replace with required use_function_calling ([#82394](https://github.com/Arize-ai/arize/issues/82394)) ([7938126](https://github.com/Arize-ai/arize/commit/7938126f6a201ec810dd1fda7cee7e663bb2dc0d))
+* **tasks:** remove use_function_calling_if_available; replace with required use_function_calling ([#82394](https://github.com/Arize-ai/arize/issues/82394)) ([7938126](https://github.com/Arize-ai/arize/commit/7938126f6a201ec810dd1fda7cee7e663bb2dc0d))
 
 ## [8.48.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.47.0...arize-python-sdk/v8.48.0) (2026-08-18)
 

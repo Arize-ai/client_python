@@ -20,7 +20,7 @@ from typing_extensions import Self
 
 class AiIntegrationAuthType(str, Enum):
     """
-    The authentication method for this integration
+    The authentication method for this integration. `OAUTH2_CLIENT_CREDENTIALS` is returned for integrations configured with OAuth 2.0 client credentials in the Arize UI. Setting it through this API is not yet supported.
     """
 
     """
@@ -29,6 +29,7 @@ class AiIntegrationAuthType(str, Enum):
     DEFAULT = 'DEFAULT'
     PROXY_WITH_HEADERS = 'PROXY_WITH_HEADERS'
     BEARER_TOKEN = 'BEARER_TOKEN'
+    OAUTH2_CLIENT_CREDENTIALS = 'OAUTH2_CLIENT_CREDENTIALS'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
