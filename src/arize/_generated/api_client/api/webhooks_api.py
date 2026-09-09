@@ -64,7 +64,7 @@ class WebhooksApi:
     ) -> CreateWebhookResponse:
         """Create a webhook
 
-        Create a new webhook in an organization.  **Payload Requirements** - `organization_id`, `name`, and `url` are required. - The webhook name must be unique within the organization (409 on conflict). - `auth_type` is optional, defaults to `BEARER`, and cannot be changed   after creation. - `auth_token` is only valid when `auth_type` is `BEARER`, and is   write-only — it is never returned in any response. - `timeout_ms` is optional, defaults to 30000, and must be between   1000 and 60000. - `headers` is optional and holds at most 20 entries; header names   must be valid HTTP header names, and connection-management headers   are rejected. - System-managed fields (`id`, `created_at`, `updated_at`) are   generated automatically and rejected if provided.  For `HMAC_SHA256` webhooks, a signing secret is generated and returned in this response — **the only time it is ever returned**. Store it securely: only a redacted hint is readable afterwards, and losing the secret means deleting and recreating the webhook.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new webhook in an organization.  **Payload Requirements** - `organization_id`, `name`, and `url` are required. - The webhook name must be unique within the organization (409 on conflict). - `auth_type` is optional, defaults to `BEARER`, and cannot be changed   after creation. - `auth_token` is only valid when `auth_type` is `BEARER`, and is   write-only — it is never returned in any response. - `timeout_ms` is optional, defaults to 30000, and must be between   1000 and 60000. - `headers` is optional and holds at most 20 entries; header names   must be valid HTTP header names, and connection-management headers   are rejected. Write-only: header values are never returned. - System-managed fields (`id`, `created_at`, `updated_at`) are   generated automatically and rejected if provided.  For `HMAC_SHA256` webhooks, a signing secret is generated and returned in this response — **the only time it is ever returned**. Store it securely: only a redacted hint is readable afterwards, and losing the secret means deleting and recreating the webhook.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param create_webhook_request: Body containing webhook creation parameters (required)
         :type create_webhook_request: CreateWebhookRequest
@@ -138,7 +138,7 @@ class WebhooksApi:
     ) -> ApiResponse[CreateWebhookResponse]:
         """Create a webhook
 
-        Create a new webhook in an organization.  **Payload Requirements** - `organization_id`, `name`, and `url` are required. - The webhook name must be unique within the organization (409 on conflict). - `auth_type` is optional, defaults to `BEARER`, and cannot be changed   after creation. - `auth_token` is only valid when `auth_type` is `BEARER`, and is   write-only — it is never returned in any response. - `timeout_ms` is optional, defaults to 30000, and must be between   1000 and 60000. - `headers` is optional and holds at most 20 entries; header names   must be valid HTTP header names, and connection-management headers   are rejected. - System-managed fields (`id`, `created_at`, `updated_at`) are   generated automatically and rejected if provided.  For `HMAC_SHA256` webhooks, a signing secret is generated and returned in this response — **the only time it is ever returned**. Store it securely: only a redacted hint is readable afterwards, and losing the secret means deleting and recreating the webhook.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new webhook in an organization.  **Payload Requirements** - `organization_id`, `name`, and `url` are required. - The webhook name must be unique within the organization (409 on conflict). - `auth_type` is optional, defaults to `BEARER`, and cannot be changed   after creation. - `auth_token` is only valid when `auth_type` is `BEARER`, and is   write-only — it is never returned in any response. - `timeout_ms` is optional, defaults to 30000, and must be between   1000 and 60000. - `headers` is optional and holds at most 20 entries; header names   must be valid HTTP header names, and connection-management headers   are rejected. Write-only: header values are never returned. - System-managed fields (`id`, `created_at`, `updated_at`) are   generated automatically and rejected if provided.  For `HMAC_SHA256` webhooks, a signing secret is generated and returned in this response — **the only time it is ever returned**. Store it securely: only a redacted hint is readable afterwards, and losing the secret means deleting and recreating the webhook.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param create_webhook_request: Body containing webhook creation parameters (required)
         :type create_webhook_request: CreateWebhookRequest
@@ -212,7 +212,7 @@ class WebhooksApi:
     ) -> RESTResponseType:
         """Create a webhook
 
-        Create a new webhook in an organization.  **Payload Requirements** - `organization_id`, `name`, and `url` are required. - The webhook name must be unique within the organization (409 on conflict). - `auth_type` is optional, defaults to `BEARER`, and cannot be changed   after creation. - `auth_token` is only valid when `auth_type` is `BEARER`, and is   write-only — it is never returned in any response. - `timeout_ms` is optional, defaults to 30000, and must be between   1000 and 60000. - `headers` is optional and holds at most 20 entries; header names   must be valid HTTP header names, and connection-management headers   are rejected. - System-managed fields (`id`, `created_at`, `updated_at`) are   generated automatically and rejected if provided.  For `HMAC_SHA256` webhooks, a signing secret is generated and returned in this response — **the only time it is ever returned**. Store it securely: only a redacted hint is readable afterwards, and losing the secret means deleting and recreating the webhook.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new webhook in an organization.  **Payload Requirements** - `organization_id`, `name`, and `url` are required. - The webhook name must be unique within the organization (409 on conflict). - `auth_type` is optional, defaults to `BEARER`, and cannot be changed   after creation. - `auth_token` is only valid when `auth_type` is `BEARER`, and is   write-only — it is never returned in any response. - `timeout_ms` is optional, defaults to 30000, and must be between   1000 and 60000. - `headers` is optional and holds at most 20 entries; header names   must be valid HTTP header names, and connection-management headers   are rejected. Write-only: header values are never returned. - System-managed fields (`id`, `created_at`, `updated_at`) are   generated automatically and rejected if provided.  For `HMAC_SHA256` webhooks, a signing secret is generated and returned in this response — **the only time it is ever returned**. Store it securely: only a redacted hint is readable afterwards, and losing the secret means deleting and recreating the webhook.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param create_webhook_request: Body containing webhook creation parameters (required)
         :type create_webhook_request: CreateWebhookRequest
@@ -1551,7 +1551,7 @@ class WebhooksApi:
     ) -> TestWebhookResponse:
         """Send a test event to a webhook
 
-        Send a test event to the webhook's endpoint and report the outcome. Use this to verify the endpoint is reachable and accepts deliveries before subscribing the webhook to real events.  A 200 response means the test ran — check `status_code` and `error_message` in the body for the endpoint's actual outcome.  Test deliveries are not supported for `HMAC_SHA256` webhooks; those requests fail with a 400.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Send a test event to the webhook's endpoint and report the outcome. Use this to verify the endpoint is reachable and accepts deliveries before subscribing the webhook to real events.  A 200 response means the test ran — check `status_code` and `error_message` in the body for the endpoint's actual outcome. A 404 means the destination was not available to receive a test. A 503 means the test could not be sent; retry later.  Test deliveries are not supported for `HMAC_SHA256` webhooks; those requests fail with a 400.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param webhook_id: The unique webhook identifier (base64) (required)
         :type webhook_id: str
@@ -1592,6 +1592,7 @@ class WebhooksApi:
             '403': "Problem",
             '404': "Problem",
             '429': "Problem",
+            '503': "Problem",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -1623,7 +1624,7 @@ class WebhooksApi:
     ) -> ApiResponse[TestWebhookResponse]:
         """Send a test event to a webhook
 
-        Send a test event to the webhook's endpoint and report the outcome. Use this to verify the endpoint is reachable and accepts deliveries before subscribing the webhook to real events.  A 200 response means the test ran — check `status_code` and `error_message` in the body for the endpoint's actual outcome.  Test deliveries are not supported for `HMAC_SHA256` webhooks; those requests fail with a 400.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Send a test event to the webhook's endpoint and report the outcome. Use this to verify the endpoint is reachable and accepts deliveries before subscribing the webhook to real events.  A 200 response means the test ran — check `status_code` and `error_message` in the body for the endpoint's actual outcome. A 404 means the destination was not available to receive a test. A 503 means the test could not be sent; retry later.  Test deliveries are not supported for `HMAC_SHA256` webhooks; those requests fail with a 400.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param webhook_id: The unique webhook identifier (base64) (required)
         :type webhook_id: str
@@ -1664,6 +1665,7 @@ class WebhooksApi:
             '403': "Problem",
             '404': "Problem",
             '429': "Problem",
+            '503': "Problem",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -1695,7 +1697,7 @@ class WebhooksApi:
     ) -> RESTResponseType:
         """Send a test event to a webhook
 
-        Send a test event to the webhook's endpoint and report the outcome. Use this to verify the endpoint is reachable and accepts deliveries before subscribing the webhook to real events.  A 200 response means the test ran — check `status_code` and `error_message` in the body for the endpoint's actual outcome.  Test deliveries are not supported for `HMAC_SHA256` webhooks; those requests fail with a 400.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Send a test event to the webhook's endpoint and report the outcome. Use this to verify the endpoint is reachable and accepts deliveries before subscribing the webhook to real events.  A 200 response means the test ran — check `status_code` and `error_message` in the body for the endpoint's actual outcome. A 404 means the destination was not available to receive a test. A 503 means the test could not be sent; retry later.  Test deliveries are not supported for `HMAC_SHA256` webhooks; those requests fail with a 400.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param webhook_id: The unique webhook identifier (base64) (required)
         :type webhook_id: str
@@ -1736,6 +1738,7 @@ class WebhooksApi:
             '403': "Problem",
             '404': "Problem",
             '429': "Problem",
+            '503': "Problem",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -1829,7 +1832,7 @@ class WebhooksApi:
     ) -> Webhook:
         """Update a webhook
 
-        Update a webhook by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name`, `description`, `url`, `auth_token`,   `timeout_ms`, or `headers` must be provided. - If `name` is provided, it must be unique within the organization   (409 on conflict). - `headers` replaces the whole header map. - `auth_type` cannot be changed after creation, and the signing secret   of an `HMAC_SHA256` webhook cannot be rotated — create a new webhook   instead. - System-managed fields (`id`, `created_at`, `updated_at`) cannot be   modified.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Update a webhook by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name`, `description`, `url`, `auth_token`,   `timeout_ms`, or `headers` must be provided. - If `name` is provided, it must be unique within the organization   (409 on conflict). - `headers` replaces the whole header map. Write-only: header values   are never returned. - `auth_type` cannot be changed after creation, and the signing secret   of an `HMAC_SHA256` webhook cannot be rotated — create a new webhook   instead. - System-managed fields (`id`, `created_at`, `updated_at`) cannot be   modified.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param webhook_id: The unique webhook identifier (base64) (required)
         :type webhook_id: str
@@ -1907,7 +1910,7 @@ class WebhooksApi:
     ) -> ApiResponse[Webhook]:
         """Update a webhook
 
-        Update a webhook by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name`, `description`, `url`, `auth_token`,   `timeout_ms`, or `headers` must be provided. - If `name` is provided, it must be unique within the organization   (409 on conflict). - `headers` replaces the whole header map. - `auth_type` cannot be changed after creation, and the signing secret   of an `HMAC_SHA256` webhook cannot be rotated — create a new webhook   instead. - System-managed fields (`id`, `created_at`, `updated_at`) cannot be   modified.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Update a webhook by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name`, `description`, `url`, `auth_token`,   `timeout_ms`, or `headers` must be provided. - If `name` is provided, it must be unique within the organization   (409 on conflict). - `headers` replaces the whole header map. Write-only: header values   are never returned. - `auth_type` cannot be changed after creation, and the signing secret   of an `HMAC_SHA256` webhook cannot be rotated — create a new webhook   instead. - System-managed fields (`id`, `created_at`, `updated_at`) cannot be   modified.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param webhook_id: The unique webhook identifier (base64) (required)
         :type webhook_id: str
@@ -1985,7 +1988,7 @@ class WebhooksApi:
     ) -> RESTResponseType:
         """Update a webhook
 
-        Update a webhook by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name`, `description`, `url`, `auth_token`,   `timeout_ms`, or `headers` must be provided. - If `name` is provided, it must be unique within the organization   (409 on conflict). - `headers` replaces the whole header map. - `auth_type` cannot be changed after creation, and the signing secret   of an `HMAC_SHA256` webhook cannot be rotated — create a new webhook   instead. - System-managed fields (`id`, `created_at`, `updated_at`) cannot be   modified.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Update a webhook by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name`, `description`, `url`, `auth_token`,   `timeout_ms`, or `headers` must be provided. - If `name` is provided, it must be unique within the organization   (409 on conflict). - `headers` replaces the whole header map. Write-only: header values   are never returned. - `auth_type` cannot be changed after creation, and the signing secret   of an `HMAC_SHA256` webhook cannot be rotated — create a new webhook   instead. - System-managed fields (`id`, `created_at`, `updated_at`) cannot be   modified.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param webhook_id: The unique webhook identifier (base64) (required)
         :type webhook_id: str

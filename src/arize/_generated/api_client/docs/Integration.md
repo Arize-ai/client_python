@@ -8,12 +8,12 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **str** | The unique identifier for the integration. | 
 **type** | **str** | Discriminator identifying an LLM integration. | 
-**name** | **str** | The integration name. Unique per (account, type). | 
+**name** | **str** | The integration name. Unique among active AGENT and EVALUATOR integrations in the account. | 
 **scopings** | [**List[IntegrationScoping]**](IntegrationScoping.md) | Visibility scoping rules. Account-wide when empty. | 
 **created_at** | **datetime** | When the integration was created. | 
 **updated_at** | **datetime** | When the integration was last updated. | 
 **created_by_user_id** | **str** | Unique identifier of the user who created the integration. Null if that user has since been deleted. | 
-**config** | [**AgentConfig**](AgentConfig.md) |  | 
+**config** | [**EvaluatorIntegrationConfig**](EvaluatorIntegrationConfig.md) |  | 
 **description** | **str** | Optional human-readable description of the integration. | [optional] 
 
 ## Example

@@ -11,13 +11,19 @@ from arize._generated.api_client.models.evaluator_version_code import (
 from arize._utils import unwrap_oneof
 from arize.constants.config import DEFAULT_LIST_LIMIT
 from arize.evaluators.types import (
+    CodeConfig,
     CodeConfigRequest,
+    CreateRemoteEvaluatorVersionRequest,
+    CustomCodeConfig,
     CustomCodeConfigRequest,
     DeleteEvaluatorVersionsResponse,
     EvaluatorVersionCode,
+    EvaluatorVersionRemote,
     EvaluatorWithVersion,
     ListEvaluatorVersionsResponse,
+    ManagedCodeConfig,
     ManagedCodeConfigRequest,
+    RemoteConfigInput,
     TemplateConfigInput,
 )
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
@@ -36,7 +42,6 @@ if TYPE_CHECKING:
     from arize.evaluators.types import (
         Evaluator,
         EvaluatorVersionHarness,
-        EvaluatorVersionRemote,
         EvaluatorVersionTemplate,
         ListEvaluatorsResponse,
     )
@@ -79,22 +84,59 @@ class EvaluatorsClient:
 
     @staticmethod
     def _coerce_code_config(
-        item: (
-            CodeConfigRequest
-            | CustomCodeConfigRequest
-            | ManagedCodeConfigRequest
-        ),
+        item: CodeConfigRequest
+        | CodeConfig
+        | CustomCodeConfigRequest
+        | ManagedCodeConfigRequest
+        | CustomCodeConfig
+        | ManagedCodeConfig
+        | dict,
     ) -> CodeConfigRequest:
         """Normalize a code config to a properly wrapped ``CodeConfigRequest``.
 
         Accepts:
-        - An already-wrapped ``CodeConfigRequest`` (returned as-is).
-        - An unwrapped request inner type (``CustomCodeConfigRequest`` or
-          ``ManagedCodeConfigRequest``), which is wrapped automatically.
+        - An already-prepared ``CodeConfigRequest`` oneOf wrapper (returned as-is).
+        - A ``ManagedCodeConfigRequest`` or ``CustomCodeConfigRequest`` inner request
+          type, which is wrapped in a ``CodeConfigRequest`` automatically.
+        - An already-wrapped ``CodeConfig`` or unwrapped ``CustomCodeConfig`` /
+          ``ManagedCodeConfig`` response type, which is round-tripped through dict to
+          produce a ``CodeConfigRequest``.
+        - A plain ``dict`` whose keys match one of the inner schemas; parsed via
+          ``CodeConfigRequest.from_dict``.
         """
         if isinstance(item, CodeConfigRequest):
             return item
-        return CodeConfigRequest(item)
+        if isinstance(item, ManagedCodeConfigRequest):
+            return CodeConfigRequest(oneof_schema_1_validator=item)
+        if isinstance(item, CustomCodeConfigRequest):
+            return CodeConfigRequest(oneof_schema_2_validator=item)
+        if isinstance(item, ManagedCodeConfig):
+            return CodeConfigRequest(
+                oneof_schema_1_validator=ManagedCodeConfigRequest.from_dict(
+                    item.to_dict()
+                )  # type: ignore[arg-type]
+            )
+        if isinstance(item, CustomCodeConfig):
+            return CodeConfigRequest(
+                oneof_schema_2_validator=CustomCodeConfigRequest.from_dict(
+                    item.to_dict()
+                )  # type: ignore[arg-type]
+            )
+        if isinstance(item, CodeConfig):
+            # Round-trip via dict to produce a CodeConfigRequest.
+            inner = item.actual_instance
+            return (
+                EvaluatorsClient._coerce_code_config(inner)
+                if inner is not None
+                else CodeConfigRequest.from_dict({})
+            )  # type: ignore[arg-type]
+        if isinstance(item, dict):
+            return CodeConfigRequest.from_dict(item)
+        raise TypeError(
+            f"code_config must be CodeConfigRequest, ManagedCodeConfigRequest, "
+            f"CustomCodeConfigRequest, CodeConfig, CustomCodeConfig, ManagedCodeConfig, "
+            f"or dict; got {type(item)!r}"
+        )
 
     # -------------------------------------------------------------------------
     # Evaluators
@@ -212,7 +254,7 @@ class EvaluatorsClient:
                   output over free-text parsing when the model supports it.
                 - ``classification_choices`` — required map of choice label to
                   numeric score, e.g. ``{"relevant": 1, "irrelevant": 0}``.
-                - ``llm_config`` — :class:`arize.evaluators.types.EvaluatorLlmConfigRequest`
+                - ``llm_config`` — :class:`arize.evaluators.types.EvaluatorLlmConfig`
                   specifying the model provider, model name, and API key.
 
                 Optional fields: ``use_structured_output``, ``direction``,
@@ -253,11 +295,13 @@ class EvaluatorsClient:
         name: str,
         space: str,
         commit_message: str,
-        code_config: (
-            CodeConfigRequest
-            | CustomCodeConfigRequest
-            | ManagedCodeConfigRequest
-        ),
+        code_config: CodeConfig
+        | CustomCodeConfig
+        | ManagedCodeConfig
+        | CodeConfigRequest
+        | CustomCodeConfigRequest
+        | ManagedCodeConfigRequest
+        | dict,
         description: str | None = None,
     ) -> EvaluatorWithVersion:
         """Create a new code evaluator with an initial version.
@@ -268,11 +312,11 @@ class EvaluatorsClient:
             name: Evaluator name (must be unique within the space).
             space: Space name or ID to create the evaluator in.
             commit_message: Commit message for the initial version.
-            code_config: Code configuration for the evaluator. Use
-                :class:`arize.evaluators.types.CodeConfigRequest` (wrapping a
-                :class:`arize.evaluators.types.ManagedCodeConfigRequest` or
-                :class:`arize.evaluators.types.CustomCodeConfigRequest`), or
-                pass an unwrapped inner request type directly.
+            code_config: Code configuration for the evaluator. Accepts a
+                :class:`arize.evaluators.types.CodeConfig` wrapper, an unwrapped
+                :class:`arize.evaluators.types.ManagedCodeConfig` or
+                :class:`arize.evaluators.types.CustomCodeConfig`, or a plain
+                ``dict`` matching one of those schemas.
             description: Optional human-readable description of the evaluator.
 
         Returns:
@@ -295,6 +339,61 @@ class EvaluatorsClient:
             name=name,
             space_id=space_id,
             type=gen.EvaluatorType.CODE,
+            description=description,
+            version=version,
+        )
+        result = self._api.create_evaluator(create_evaluator_request=body)
+        return EvaluatorWithVersion.model_validate(result, from_attributes=True)
+
+    @prerelease_endpoint(
+        key="evaluators.create_remote", stage=ReleaseStage.ALPHA
+    )
+    def create_remote_evaluator(
+        self,
+        *,
+        name: str,
+        space: str,
+        integration_id: str,
+        commit_message: str,
+        description: str | None = None,
+    ) -> EvaluatorWithVersion:
+        """Create a new remote evaluator with an initial version.
+
+        Remote evaluators call a customer-hosted HTTP endpoint on each
+        evaluation run. The endpoint must already exist as an ``EVALUATOR``
+        integration (see :meth:`arize.ai_integrations.AiIntegrationsClient`).
+        The feature flag ``enableRemoteEvalTasks`` must be enabled on the
+        account.
+
+        Args:
+            name: Evaluator name (must be unique within the space).
+            space: Space name or ID to create the evaluator in.
+            integration_id: Global ID of an ``EVALUATOR`` integration that
+                defines the remote endpoint, headers, and input schema.
+            commit_message: Commit message for the initial version.
+            description: Optional human-readable description of the evaluator.
+
+        Returns:
+            The created evaluator with its initial version.
+
+        Raises:
+            ApiException: If the API request fails (for example, name
+                conflict, invalid payload, or feature flag disabled).
+        """
+        from arize._generated import api_client as gen
+
+        remote_config = RemoteConfigInput(integration_id=integration_id)
+        version = gen.CreateEvaluatorVersionRequest(
+            CreateRemoteEvaluatorVersionRequest(
+                commit_message=commit_message,
+                remote_config=remote_config,
+            )
+        )
+        space_id = _find_space_id(self._spaces_api, space)
+        body = gen.CreateEvaluatorRequest(
+            name=name,
+            space_id=space_id,
+            type=gen.EvaluatorType.REMOTE,
             description=description,
             version=version,
         )
@@ -494,8 +593,8 @@ class EvaluatorsClient:
             evaluators (with ``code_config`` already unwrapped), an
             :class:`EvaluatorVersionTemplate` for template evaluators, or an
             :class:`EvaluatorVersionHarness` / :class:`EvaluatorVersionRemote`
-            for harness and remote evaluators (common version metadata only —
-            their configurations are not yet accessible via the REST API).
+            for harness and remote evaluators. Remote evaluators include
+            ``remote_config`` with the referenced integration ID.
 
         Raises:
             ApiException: If the API request fails
@@ -568,11 +667,13 @@ class EvaluatorsClient:
         evaluator: str,
         space: str | None = None,
         commit_message: str,
-        code_config: (
-            CodeConfigRequest
-            | CustomCodeConfigRequest
-            | ManagedCodeConfigRequest
-        ),
+        code_config: CodeConfig
+        | CustomCodeConfig
+        | ManagedCodeConfig
+        | CodeConfigRequest
+        | CustomCodeConfigRequest
+        | ManagedCodeConfigRequest
+        | dict,
     ) -> EvaluatorVersionCode:
         """Create a new code version of an existing evaluator.
 
@@ -585,11 +686,11 @@ class EvaluatorsClient:
             space: Optional space name or ID. Required when ``evaluator`` is a
                 name rather than an ID.
             commit_message: Commit message describing the changes in this version.
-            code_config: Updated code configuration for this version. Use
-                :class:`arize.evaluators.types.CodeConfigRequest` (wrapping a
-                :class:`arize.evaluators.types.ManagedCodeConfigRequest` or
-                :class:`arize.evaluators.types.CustomCodeConfigRequest`), or
-                pass an unwrapped inner request type directly.
+            code_config: Updated code configuration for this version. Accepts a
+                :class:`arize.evaluators.types.CodeConfig` wrapper, an unwrapped
+                :class:`arize.evaluators.types.ManagedCodeConfig` or
+                :class:`arize.evaluators.types.CustomCodeConfig`, or a plain
+                ``dict`` matching one of those schemas.
 
         Returns:
             The newly created evaluator version.
@@ -618,3 +719,62 @@ class EvaluatorsClient:
         return EvaluatorVersionCode.model_validate(
             unwrap_oneof(result), from_attributes=True
         )
+
+    @prerelease_endpoint(
+        key="evaluators.create_remote_version", stage=ReleaseStage.ALPHA
+    )
+    def create_remote_version(
+        self,
+        *,
+        evaluator: str,
+        space: str | None = None,
+        integration_id: str,
+        commit_message: str,
+    ) -> EvaluatorVersionRemote:
+        """Create a new remote version of an existing evaluator.
+
+        The new version becomes the latest version immediately (versioning is
+        append-only). Versions are immutable once created; to change the
+        configuration, create a new version.
+
+        The feature flag ``enableRemoteEvalTasks`` must be enabled on the
+        account, and the referenced integration must be an ``EVALUATOR``
+        integration.
+
+        Args:
+            evaluator: Evaluator name or identifier (base64) to add a version
+                to.
+            space: Optional space name or ID. Required when ``evaluator`` is a
+                name rather than an ID.
+            integration_id: Global ID of an ``EVALUATOR`` integration that
+                defines the remote endpoint, headers, and input schema.
+            commit_message: Commit message describing the changes in this
+                version.
+
+        Returns:
+            The newly created remote evaluator version.
+
+        Raises:
+            ApiException: If the API request fails (for example, feature flag
+                disabled, integration not found, or wrong integration type).
+        """
+        from arize._generated import api_client as gen
+
+        evaluator_id = _find_evaluator_id(
+            api=self._api,
+            spaces_api=self._spaces_api,
+            evaluator=evaluator,
+            space=space,
+        )
+        remote_config = RemoteConfigInput(integration_id=integration_id)
+        body = gen.CreateEvaluatorVersionRequest(
+            CreateRemoteEvaluatorVersionRequest(
+                commit_message=commit_message,
+                remote_config=remote_config,
+            )
+        )
+        result = self._api.create_evaluator_version(
+            evaluator_id=evaluator_id,
+            create_evaluator_version_request=body,
+        )
+        return unwrap_oneof(result)  # type: ignore[return-value]

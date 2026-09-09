@@ -43,9 +43,6 @@ class TestWebhook(unittest.TestCase):
                 auth_type = 'BEARER',
                 signing_secret_hint = '',
                 timeout_ms = 1000,
-                headers = {
-                    'key' : ''
-                    },
                 created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 created_by_user_id = 'RW50aXR5OjEyMzQ1'
@@ -59,9 +56,6 @@ class TestWebhook(unittest.TestCase):
                 url = '',
                 auth_type = 'BEARER',
                 timeout_ms = 1000,
-                headers = {
-                    'key' : ''
-                    },
                 created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
         )

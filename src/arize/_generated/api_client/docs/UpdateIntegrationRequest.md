@@ -9,7 +9,7 @@ Name | Type | Description | Notes
 **type** | **str** | Discriminator. Immutable; must match the integration&#39;s type. | 
 **name** | **str** |  | [optional] 
 **scopings** | [**List[IntegrationScopingRequest]**](IntegrationScopingRequest.md) | Replace-on-provide. Empty array reverts to account-wide. | [optional] 
-**config** | [**UpdateAgentConfig**](UpdateAgentConfig.md) |  | [optional] 
+**config** | [**UpdateEvaluatorIntegrationConfigInput**](UpdateEvaluatorIntegrationConfigInput.md) |  | [optional] 
 **description** | **str** |  | [optional] 
 
 ## Example

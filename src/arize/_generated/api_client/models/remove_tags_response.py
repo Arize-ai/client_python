@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List
 from typing import Optional, Set
 from typing_extensions import Self
@@ -26,9 +26,10 @@ class RemoveTagsResponse(BaseModel):
     """
     RemoveTagsResponse
     """ # noqa: E501
-    removed: List[StrictStr] = Field(description="IDs of the tags that were attached and have been detached.")
-    not_found: List[StrictStr] = Field(description="IDs from the request that were not attached to the resource. Not an error — detaching an already-detached tag is a no-op. ")
-    __properties: ClassVar[List[str]] = ["removed", "not_found"]
+    completed: StrictBool = Field(description="True when every requested tag ID was attached and has been detached. False when one or more requested IDs appear in `not_deleted`. ")
+    deleted: List[StrictStr] = Field(description="IDs of the tags that were attached and have been detached.")
+    not_deleted: List[StrictStr] = Field(description="IDs from the request that were not attached to the resource. Not an error — detaching an already-detached tag is a no-op. ")
+    __properties: ClassVar[List[str]] = ["completed", "deleted", "not_deleted"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -82,8 +83,9 @@ class RemoveTagsResponse(BaseModel):
 
 
         _obj = cls.model_validate({
-            "removed": obj.get("removed"),
-            "not_found": obj.get("not_found")
+            "completed": obj.get("completed"),
+            "deleted": obj.get("deleted"),
+            "not_deleted": obj.get("not_deleted")
         })
         return _obj
 

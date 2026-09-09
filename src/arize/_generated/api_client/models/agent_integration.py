@@ -31,7 +31,7 @@ class AgentIntegration(BaseModel):
     """ # noqa: E501
     id: StrictStr = Field(description="The unique identifier for the integration.")
     type: StrictStr = Field(description="Discriminator identifying an agent integration.")
-    name: StrictStr = Field(description="The integration name. Unique per (account, type).")
+    name: StrictStr = Field(description="The integration name. Unique among active AGENT and EVALUATOR integrations in the account.")
     description: Optional[StrictStr] = Field(default=None, description="Optional human-readable description of the integration.")
     scopings: List[IntegrationScoping] = Field(description="Visibility scoping rules. Account-wide when empty.")
     created_at: datetime = Field(description="When the integration was created.")

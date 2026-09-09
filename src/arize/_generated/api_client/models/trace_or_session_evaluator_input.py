@@ -30,7 +30,7 @@ class TraceOrSessionEvaluatorInput(BaseModel):
     """ # noqa: E501
     evaluator_id: StrictStr = Field(description="Evaluator identifier (base64). Duplicates are not allowed.")
     evaluator_version_id: Optional[StrictStr] = Field(default=None, description="Pin this evaluator to a specific version (base64). Defaults to null, which always runs the evaluator's latest version; omitting the field and sending null are equivalent. Must be a version of the evaluator named by `evaluator_id`, otherwise the request returns 422. ")
-    query_mappings: Annotated[List[TaskQueryMappingInput], Field(min_length=1)] = Field(description="Per-evaluator variable-to-query mappings (trace/session shape).")
+    query_mappings: Annotated[List[TaskQueryMappingInput], Field(min_length=1, max_length=50)] = Field(description="Per-evaluator variable-to-query mappings (trace/session shape).")
     __properties: ClassVar[List[str]] = ["evaluator_id", "evaluator_version_id", "query_mappings"]
 
     model_config = ConfigDict(

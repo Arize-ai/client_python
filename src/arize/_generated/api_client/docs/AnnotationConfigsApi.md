@@ -615,7 +615,7 @@ Update an annotation config by its ID.
 - All fields other than `annotation_config_type` are optional; omitted fields are left
   unchanged.
 - `name`, if provided, must be unique within the space (409 Conflict if duplicate).
-- `values` replaces the full label set (2-100 labels).
+- `values` replaces the full label set (2-500 labels).
 - System-managed fields (`id`, `space_id`, `created_at`) cannot be modified.
 
 **Valid example** (categorical config)

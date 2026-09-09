@@ -12,7 +12,7 @@ Name | Type | Description | Notes
 **auth_type** | [**WebhookAuthType**](WebhookAuthType.md) | How deliveries from this webhook are authenticated. Defaults to &#x60;BEARER&#x60; if omitted, and cannot be changed after creation. For &#x60;HMAC_SHA256&#x60;, a signing secret is generated for you and returned once in the create response.  | [optional] 
 **auth_token** | **str** | The complete &#x60;Authorization&#x60; header value sent with each delivery request, e.g. &#x60;Bearer my-token&#x60;. Sent verbatim — include the &#x60;Bearer &#x60; prefix if your endpoint expects one. Only valid when &#x60;auth_type&#x60; is &#x60;BEARER&#x60;. Write-only: never returned in any response.  | [optional] 
 **timeout_ms** | **int** | How long a delivery request may run before it is abandoned, in milliseconds. Defaults to 30000 if omitted. | [optional] 
-**headers** | **Dict[str, str]** | Custom HTTP headers sent with each delivery request, as a map of at most 20 header names to values. Header names must be valid HTTP header names; connection-management headers (e.g. &#x60;Host&#x60;, &#x60;Content-Length&#x60;) are rejected.  | [optional] 
+**headers** | **Dict[str, str]** | Custom HTTP headers sent with each delivery request, as a map of at most 20 header names to values. Header names must be valid HTTP header names; connection-management headers (e.g. &#x60;Host&#x60;, &#x60;Content-Length&#x60;) are rejected. Write-only: never returned in any response.  | [optional] 
 
 ## Example
 

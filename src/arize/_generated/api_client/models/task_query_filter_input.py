@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Any, ClassVar, Dict, List
 from typing_extensions import Annotated
 from typing import Optional, Set
@@ -28,7 +28,7 @@ class TaskQueryFilterInput(BaseModel):
     A single named task-level query filter for create/update requests (trace/session shape). The `id` is a logical label used in `query_filters.expression` and per-evaluator `query_mappings`. 
     """ # noqa: E501
     id: Annotated[str, Field(strict=True)] = Field(description="Single-letter query id, one of `A`-`E`. Unique within the task. Referenced by `query_filters.expression` and by each evaluator's `query_mappings`. ")
-    filter: StrictStr = Field(description="The query filter expression for this named query.")
+    filter: Annotated[str, Field(strict=True, max_length=2000)] = Field(description="The query filter expression for this named query.")
     __properties: ClassVar[List[str]] = ["id", "filter"]
 
     @field_validator('id')

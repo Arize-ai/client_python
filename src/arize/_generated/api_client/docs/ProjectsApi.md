@@ -592,12 +592,12 @@ Detach one or more tags from a project.
 
 **Payload Requirements**
 - `tag_ids` is required and must contain between 1 and 100 tag IDs.
-- A tag ID that is not currently attached is reported in `not_found`
+- A tag ID that is not currently attached is reported in `not_deleted`
   rather than causing the whole request to fail.
-- Unrecognized fields are rejected with `422` rather than ignored.
+- Unrecognized fields are rejected with `400`.
 
-Returns `200` with the outcome per requested ID, not `204`: a bulk
-delete needs to tell the caller which IDs took effect.
+Returns a `200` with `completed`, `deleted`, and `not_deleted` for the
+requested tag IDs.
 
 **Valid example**
 ```json

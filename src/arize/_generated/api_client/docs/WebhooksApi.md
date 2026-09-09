@@ -31,7 +31,7 @@ Create a new webhook in an organization.
   1000 and 60000.
 - `headers` is optional and holds at most 20 entries; header names
   must be valid HTTP header names, and connection-management headers
-  are rejected.
+  are rejected. Write-only: header values are never returned.
 - System-managed fields (`id`, `created_at`, `updated_at`) are
   generated automatically and rejected if provided.
 
@@ -493,6 +493,8 @@ before subscribing the webhook to real events.
 
 A 200 response means the test ran — check `status_code` and
 `error_message` in the body for the endpoint's actual outcome.
+A 404 means the destination was not available to receive a test.
+A 503 means the test could not be sent; retry later.
 
 Test deliveries are not supported for `HMAC_SHA256` webhooks; those
 requests fail with a 400.
@@ -573,6 +575,7 @@ Name | Type | Description  | Notes
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+**503** | Service temporarily unavailable |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -588,7 +591,8 @@ Update a webhook by its ID. At least one field must be provided.
   `timeout_ms`, or `headers` must be provided.
 - If `name` is provided, it must be unique within the organization
   (409 on conflict).
-- `headers` replaces the whole header map.
+- `headers` replaces the whole header map. Write-only: header values
+  are never returned.
 - `auth_type` cannot be changed after creation, and the signing secret
   of an `HMAC_SHA256` webhook cannot be rotated — create a new webhook
   instead.

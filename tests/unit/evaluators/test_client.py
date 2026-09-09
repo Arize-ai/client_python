@@ -1256,3 +1256,140 @@ class TestEvaluatorsClientCreateCodeVersionRealInstance:
         mock_api.create_evaluator_version.assert_called_once()
         _, kwargs = mock_api.create_evaluator_version.call_args
         assert kwargs["create_evaluator_version_request"] is not None
+
+
+# Base64 ID that decodes to "RemoteEndpointIntegration:42"
+_INTEGRATION_ID = "UmVtb3RlRW5kcG9pbnRJbnRlZ3JhdGlvbjo0Mg=="
+
+# Base64 space ID used in existing tests — passes _is_resource_id(), no
+# list_spaces call required.
+_SPACE_ID = "U3BhY2U6OTA1MDoxSmtS"
+
+
+@pytest.mark.unit
+class TestEvaluatorsClientCreateRemoteEvaluator:
+    """Tests for EvaluatorsClient.create_remote_evaluator()."""
+
+    @pytest.fixture(autouse=True)
+    def _bypass_model_validate(self) -> None:
+        with patch.object(
+            EvaluatorWithVersion,
+            "model_validate",
+            side_effect=lambda v, **kw: v,
+        ):
+            yield
+
+    def test_creates_evaluator_with_remote_type(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        """create_remote_evaluator() should call create_evaluator with type=REMOTE."""
+        mock_api.create_evaluator.return_value = Mock()
+        evaluators_client.create_remote_evaluator(
+            name="my-remote-eval",
+            space=_SPACE_ID,
+            integration_id=_INTEGRATION_ID,
+            commit_message="initial remote version",
+        )
+
+        mock_api.create_evaluator.assert_called_once()
+        _, kwargs = mock_api.create_evaluator.call_args
+        body = kwargs["create_evaluator_request"]
+        assert body.type.value == "REMOTE"
+
+    def test_creates_evaluator_with_correct_integration_id(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        """create_remote_evaluator() payload must contain the given integration_id."""
+        mock_api.create_evaluator.return_value = Mock()
+        evaluators_client.create_remote_evaluator(
+            name="my-remote-eval",
+            space=_SPACE_ID,
+            integration_id=_INTEGRATION_ID,
+            commit_message="initial remote version",
+        )
+
+        mock_api.create_evaluator.assert_called_once()
+        _, kwargs = mock_api.create_evaluator.call_args
+        body = kwargs["create_evaluator_request"]
+        version_inner = body.version.actual_instance
+        assert version_inner.remote_config.integration_id == _INTEGRATION_ID
+
+    def test_creates_evaluator_with_commit_message_and_description(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        """The commit message and optional description are both forwarded."""
+        mock_api.create_evaluator.return_value = Mock()
+        evaluators_client.create_remote_evaluator(
+            name="my-remote-eval",
+            space=_SPACE_ID,
+            integration_id=_INTEGRATION_ID,
+            commit_message="initial remote version",
+            description="evaluates remotely",
+        )
+
+        _, kwargs = mock_api.create_evaluator.call_args
+        body = kwargs["create_evaluator_request"]
+        assert body.description == "evaluates remotely"
+        version_inner = body.version.actual_instance
+        assert version_inner.commit_message == "initial remote version"
+
+
+@pytest.mark.unit
+class TestEvaluatorsClientCreateRemoteVersion:
+    """Tests for EvaluatorsClient.create_remote_version()."""
+
+    def test_calls_create_evaluator_version(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        """create_remote_version() should call create_evaluator_version once."""
+        mock_api.create_evaluator_version.return_value = Mock()
+        with patch(
+            "arize.evaluators.client.unwrap_oneof",
+            side_effect=lambda v: v,
+        ):
+            evaluators_client.create_remote_version(
+                evaluator=_EVALUATOR_ID,
+                integration_id=_INTEGRATION_ID,
+                commit_message="v2 remote",
+            )
+
+        mock_api.create_evaluator_version.assert_called_once()
+
+    def test_payload_contains_remote_config(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        """create_remote_version() payload must contain remote_config with integration_id."""
+        mock_api.create_evaluator_version.return_value = Mock()
+        with patch(
+            "arize.evaluators.client.unwrap_oneof",
+            side_effect=lambda v: v,
+        ):
+            evaluators_client.create_remote_version(
+                evaluator=_EVALUATOR_ID,
+                integration_id=_INTEGRATION_ID,
+                commit_message="v2 remote",
+            )
+
+        _, kwargs = mock_api.create_evaluator_version.call_args
+        req = kwargs["create_evaluator_version_request"]
+        inner = req.actual_instance
+        assert inner.remote_config.integration_id == _INTEGRATION_ID
+        assert inner.commit_message == "v2 remote"
+
+    def test_evaluator_id_forwarded(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        """The evaluator ID should be forwarded to create_evaluator_version."""
+        mock_api.create_evaluator_version.return_value = Mock()
+        with patch(
+            "arize.evaluators.client.unwrap_oneof",
+            side_effect=lambda v: v,
+        ):
+            evaluators_client.create_remote_version(
+                evaluator=_EVALUATOR_ID,
+                integration_id=_INTEGRATION_ID,
+                commit_message="v2 remote",
+            )
+
+        _, kwargs = mock_api.create_evaluator_version.call_args
+        assert kwargs["evaluator_id"] == _EVALUATOR_ID

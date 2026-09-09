@@ -20,7 +20,7 @@ from typing_extensions import Self
 
 class IntegrationType(str, Enum):
     """
-    The integration category. Selects the shape of `config`. Additive — new types (alerting, webhook, ...) are added non-breakingly.  - `LLM`   — a model-provider integration (e.g. OpenAI). - `AGENT` — connects your own agent, exposed at an HTTP endpoint. 
+    The integration category. Selects the shape of `config`. Additive — new types (alerting, webhook, ...) are added non-breakingly.  - `LLM`       — a model-provider integration (e.g. OpenAI). - `AGENT`     — connects your own agent, exposed at an HTTP endpoint. - `EVALUATOR` — connects a remote evaluator endpoint. Only returned when                 `?type=EVALUATOR` is passed explicitly; excluded from the                 default (`LLM` + `AGENT`) list to keep the cursor contract                 stable. Requires the remote evaluators feature to be enabled. 
     """
 
     """
@@ -28,6 +28,7 @@ class IntegrationType(str, Enum):
     """
     LLM = 'LLM'
     AGENT = 'AGENT'
+    EVALUATOR = 'EVALUATOR'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

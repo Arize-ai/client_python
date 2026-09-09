@@ -82,6 +82,7 @@ __all__ = [
     "AnnotationQueueExampleRecordInput",
     "AnnotationQueueRecord",
     "AnnotationQueueRecordInput",
+    "AnnotationQueueSessionRecordInput",
     "AnnotationQueueSourceType",
     "AnnotationQueueSpanRecordInput",
     "AnnotationQueueTraceRecordInput",
@@ -137,6 +138,8 @@ __all__ = [
     "CreateContinuousAnnotationConfigRequest",
     "CreateCustomConfig",
     "CreateDatasetRequest",
+    "CreateEvaluatorIntegrationConfigInput",
+    "CreateEvaluatorIntegrationRequest",
     "CreateEvaluatorRequest",
     "CreateEvaluatorVersionRequest",
     "CreateExperimentRequest",
@@ -152,6 +155,7 @@ __all__ = [
     "CreateProjectRequest",
     "CreatePromptRequest",
     "CreatePromptVersionRequest",
+    "CreateRemoteEvaluatorVersionRequest",
     "CreateResourceRestrictionRequest",
     "CreateRoleBindingRequest",
     "CreateRoleRequest",
@@ -207,6 +211,8 @@ __all__ = [
     "EmailNotificationConfig",
     "Evaluation",
     "Evaluator",
+    "EvaluatorIntegration",
+    "EvaluatorIntegrationConfig",
     "EvaluatorLlmConfig",
     "EvaluatorLlmConfigRequest",
     "EvaluatorTemplate",
@@ -333,6 +339,8 @@ __all__ = [
     "RecordGranularity",
     "RefreshApiKeyRequest",
     "RefreshApiKeyResponse",
+    "RemoteConfig",
+    "RemoteConfigInput",
     "RemoveTagsRequest",
     "RemoveTagsResponse",
     "ResourceRestriction",
@@ -416,6 +424,8 @@ __all__ = [
     "UpdateDatasetExamplesRequest",
     "UpdateDatasetRequest",
     "UpdateEvaluationTaskRequest",
+    "UpdateEvaluatorIntegrationConfigInput",
+    "UpdateEvaluatorIntegrationRequest",
     "UpdateEvaluatorRequest",
     "UpdateFreeformAnnotationConfigRequest",
     "UpdateIntegrationRequest",
@@ -519,6 +529,7 @@ from arize._generated.api_client.models.annotation_queue_completion_status impor
 from arize._generated.api_client.models.annotation_queue_example_record_input import AnnotationQueueExampleRecordInput as AnnotationQueueExampleRecordInput
 from arize._generated.api_client.models.annotation_queue_record import AnnotationQueueRecord as AnnotationQueueRecord
 from arize._generated.api_client.models.annotation_queue_record_input import AnnotationQueueRecordInput as AnnotationQueueRecordInput
+from arize._generated.api_client.models.annotation_queue_session_record_input import AnnotationQueueSessionRecordInput as AnnotationQueueSessionRecordInput
 from arize._generated.api_client.models.annotation_queue_source_type import AnnotationQueueSourceType as AnnotationQueueSourceType
 from arize._generated.api_client.models.annotation_queue_span_record_input import AnnotationQueueSpanRecordInput as AnnotationQueueSpanRecordInput
 from arize._generated.api_client.models.annotation_queue_trace_record_input import AnnotationQueueTraceRecordInput as AnnotationQueueTraceRecordInput
@@ -574,6 +585,8 @@ from arize._generated.api_client.models.create_code_evaluator_version_request im
 from arize._generated.api_client.models.create_continuous_annotation_config_request import CreateContinuousAnnotationConfigRequest as CreateContinuousAnnotationConfigRequest
 from arize._generated.api_client.models.create_custom_config import CreateCustomConfig as CreateCustomConfig
 from arize._generated.api_client.models.create_dataset_request import CreateDatasetRequest as CreateDatasetRequest
+from arize._generated.api_client.models.create_evaluator_integration_config_input import CreateEvaluatorIntegrationConfigInput as CreateEvaluatorIntegrationConfigInput
+from arize._generated.api_client.models.create_evaluator_integration_request import CreateEvaluatorIntegrationRequest as CreateEvaluatorIntegrationRequest
 from arize._generated.api_client.models.create_evaluator_request import CreateEvaluatorRequest as CreateEvaluatorRequest
 from arize._generated.api_client.models.create_evaluator_version_request import CreateEvaluatorVersionRequest as CreateEvaluatorVersionRequest
 from arize._generated.api_client.models.create_experiment_request import CreateExperimentRequest as CreateExperimentRequest
@@ -589,6 +602,7 @@ from arize._generated.api_client.models.create_organization_request import Creat
 from arize._generated.api_client.models.create_project_request import CreateProjectRequest as CreateProjectRequest
 from arize._generated.api_client.models.create_prompt_request import CreatePromptRequest as CreatePromptRequest
 from arize._generated.api_client.models.create_prompt_version_request import CreatePromptVersionRequest as CreatePromptVersionRequest
+from arize._generated.api_client.models.create_remote_evaluator_version_request import CreateRemoteEvaluatorVersionRequest as CreateRemoteEvaluatorVersionRequest
 from arize._generated.api_client.models.create_resource_restriction_request import CreateResourceRestrictionRequest as CreateResourceRestrictionRequest
 from arize._generated.api_client.models.create_role_binding_request import CreateRoleBindingRequest as CreateRoleBindingRequest
 from arize._generated.api_client.models.create_role_request import CreateRoleRequest as CreateRoleRequest
@@ -644,6 +658,8 @@ from arize._generated.api_client.models.dynamic_threshold_bound import DynamicTh
 from arize._generated.api_client.models.email_notification_config import EmailNotificationConfig as EmailNotificationConfig
 from arize._generated.api_client.models.evaluation import Evaluation as Evaluation
 from arize._generated.api_client.models.evaluator import Evaluator as Evaluator
+from arize._generated.api_client.models.evaluator_integration import EvaluatorIntegration as EvaluatorIntegration
+from arize._generated.api_client.models.evaluator_integration_config import EvaluatorIntegrationConfig as EvaluatorIntegrationConfig
 from arize._generated.api_client.models.evaluator_llm_config import EvaluatorLlmConfig as EvaluatorLlmConfig
 from arize._generated.api_client.models.evaluator_llm_config_request import EvaluatorLlmConfigRequest as EvaluatorLlmConfigRequest
 from arize._generated.api_client.models.evaluator_template import EvaluatorTemplate as EvaluatorTemplate
@@ -770,6 +786,8 @@ from arize._generated.api_client.models.provider_params_request import ProviderP
 from arize._generated.api_client.models.record_granularity import RecordGranularity as RecordGranularity
 from arize._generated.api_client.models.refresh_api_key_request import RefreshApiKeyRequest as RefreshApiKeyRequest
 from arize._generated.api_client.models.refresh_api_key_response import RefreshApiKeyResponse as RefreshApiKeyResponse
+from arize._generated.api_client.models.remote_config import RemoteConfig as RemoteConfig
+from arize._generated.api_client.models.remote_config_input import RemoteConfigInput as RemoteConfigInput
 from arize._generated.api_client.models.remove_tags_request import RemoveTagsRequest as RemoveTagsRequest
 from arize._generated.api_client.models.remove_tags_response import RemoveTagsResponse as RemoveTagsResponse
 from arize._generated.api_client.models.resource_restriction import ResourceRestriction as ResourceRestriction
@@ -853,6 +871,8 @@ from arize._generated.api_client.models.update_dataset_example_input import Upda
 from arize._generated.api_client.models.update_dataset_examples_request import UpdateDatasetExamplesRequest as UpdateDatasetExamplesRequest
 from arize._generated.api_client.models.update_dataset_request import UpdateDatasetRequest as UpdateDatasetRequest
 from arize._generated.api_client.models.update_evaluation_task_request import UpdateEvaluationTaskRequest as UpdateEvaluationTaskRequest
+from arize._generated.api_client.models.update_evaluator_integration_config_input import UpdateEvaluatorIntegrationConfigInput as UpdateEvaluatorIntegrationConfigInput
+from arize._generated.api_client.models.update_evaluator_integration_request import UpdateEvaluatorIntegrationRequest as UpdateEvaluatorIntegrationRequest
 from arize._generated.api_client.models.update_evaluator_request import UpdateEvaluatorRequest as UpdateEvaluatorRequest
 from arize._generated.api_client.models.update_freeform_annotation_config_request import UpdateFreeformAnnotationConfigRequest as UpdateFreeformAnnotationConfigRequest
 from arize._generated.api_client.models.update_integration_request import UpdateIntegrationRequest as UpdateIntegrationRequest

@@ -15,6 +15,7 @@ Name | Type | Description | Notes
 **type** | **str** | Discriminator identifying this as a template evaluator version. Always &#x60;TEMPLATE&#x60; for this variant. | 
 **template_config** | [**TemplateConfig**](TemplateConfig.md) |  | 
 **code_config** | [**CodeConfig**](CodeConfig.md) |  | 
+**remote_config** | [**RemoteConfig**](RemoteConfig.md) |  | 
 
 ## Example
 

@@ -1,6 +1,6 @@
 # EvaluatorVersionRemote
 
-Evaluator version backed by a remote evaluation config. Only common version metadata (id, commit info, timestamps) is returned — the remote configuration is not yet accessible and will be a future addition. 
+Evaluator version backed by a remote evaluator integration.
 
 ## Properties
 
@@ -12,7 +12,8 @@ Name | Type | Description | Notes
 **commit_message** | **str** | A message describing the changes in this version | 
 **created_at** | **datetime** | When this version was created | 
 **created_by_user_id** | **str** | The unique identifier for the user who created this version | 
-**type** | **str** | Discriminator identifying this as a remote evaluator version. | 
+**type** | **str** | Discriminator identifying this as a remote evaluator version. Always &#x60;REMOTE&#x60; for this variant. | 
+**remote_config** | [**RemoteConfig**](RemoteConfig.md) |  | 
 
 ## Example
 

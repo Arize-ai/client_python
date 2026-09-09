@@ -6,7 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **type** | **str** |  | 
-**name** | **str** | Integration name (unique within the account). | 
+**name** | **str** | Integration name. Must be unique among active AGENT and EVALUATOR integrations in the account. | 
 **description** | **str** |  | [optional] 
 **scopings** | [**List[IntegrationScopingRequest]**](IntegrationScopingRequest.md) | Visibility scoping rules. Defaults to account-wide if omitted or empty. A scoping with &#x60;space_id&#x60; set MUST also set &#x60;organization_id&#x60;.  | [optional] 
 **config** | [**CreateAgentConfig**](CreateAgentConfig.md) |  | 

@@ -41,7 +41,9 @@ class TestEvaluatorVersionRemote(unittest.TestCase):
                 commit_message = '',
                 created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 created_by_user_id = '',
-                type = 'REMOTE'
+                type = 'REMOTE',
+                remote_config = arize._generated.api_client.models.remote_config.RemoteConfig(
+                    integration_id = '', )
             )
         else:
             return EvaluatorVersionRemote(
@@ -52,6 +54,8 @@ class TestEvaluatorVersionRemote(unittest.TestCase):
                 created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 created_by_user_id = '',
                 type = 'REMOTE',
+                remote_config = arize._generated.api_client.models.remote_config.RemoteConfig(
+                    integration_id = '', ),
         )
         """
 

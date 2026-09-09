@@ -35,19 +35,21 @@ class TestRemoveTagsResponse(unittest.TestCase):
         model = RemoveTagsResponse()
         if include_optional:
             return RemoveTagsResponse(
-                removed = [
+                completed = True,
+                deleted = [
                     'RW50aXR5OjEyMzQ1'
                     ],
-                not_found = [
+                not_deleted = [
                     'RW50aXR5OjEyMzQ1'
                     ]
             )
         else:
             return RemoveTagsResponse(
-                removed = [
+                completed = True,
+                deleted = [
                     'RW50aXR5OjEyMzQ1'
                     ],
-                not_found = [
+                not_deleted = [
                     'RW50aXR5OjEyMzQ1'
                     ],
         )

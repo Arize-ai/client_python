@@ -8,7 +8,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **str** | The unique identifier for the integration. | 
 **type** | **str** | Discriminator identifying an agent integration. | 
-**name** | **str** | The integration name. Unique per (account, type). | 
+**name** | **str** | The integration name. Unique among active AGENT and EVALUATOR integrations in the account. | 
 **description** | **str** | Optional human-readable description of the integration. | [optional] 
 **scopings** | [**List[IntegrationScoping]**](IntegrationScoping.md) | Visibility scoping rules. Account-wide when empty. | 
 **created_at** | **datetime** | When the integration was created. | 

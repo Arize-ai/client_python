@@ -62,6 +62,7 @@ arize/_generated/api_client/docs/AnnotationQueueCompletionStatus.md
 arize/_generated/api_client/docs/AnnotationQueueExampleRecordInput.md
 arize/_generated/api_client/docs/AnnotationQueueRecord.md
 arize/_generated/api_client/docs/AnnotationQueueRecordInput.md
+arize/_generated/api_client/docs/AnnotationQueueSessionRecordInput.md
 arize/_generated/api_client/docs/AnnotationQueueSourceType.md
 arize/_generated/api_client/docs/AnnotationQueueSpanRecordInput.md
 arize/_generated/api_client/docs/AnnotationQueueTraceRecordInput.md
@@ -119,6 +120,8 @@ arize/_generated/api_client/docs/CreateCodeEvaluatorVersionRequest.md
 arize/_generated/api_client/docs/CreateContinuousAnnotationConfigRequest.md
 arize/_generated/api_client/docs/CreateCustomConfig.md
 arize/_generated/api_client/docs/CreateDatasetRequest.md
+arize/_generated/api_client/docs/CreateEvaluatorIntegrationConfigInput.md
+arize/_generated/api_client/docs/CreateEvaluatorIntegrationRequest.md
 arize/_generated/api_client/docs/CreateEvaluatorRequest.md
 arize/_generated/api_client/docs/CreateEvaluatorVersionRequest.md
 arize/_generated/api_client/docs/CreateExperimentRequest.md
@@ -134,6 +137,7 @@ arize/_generated/api_client/docs/CreateOrganizationRequest.md
 arize/_generated/api_client/docs/CreateProjectRequest.md
 arize/_generated/api_client/docs/CreatePromptRequest.md
 arize/_generated/api_client/docs/CreatePromptVersionRequest.md
+arize/_generated/api_client/docs/CreateRemoteEvaluatorVersionRequest.md
 arize/_generated/api_client/docs/CreateResourceRestrictionRequest.md
 arize/_generated/api_client/docs/CreateRoleBindingRequest.md
 arize/_generated/api_client/docs/CreateRoleRequest.md
@@ -190,6 +194,8 @@ arize/_generated/api_client/docs/DynamicThresholdBound.md
 arize/_generated/api_client/docs/EmailNotificationConfig.md
 arize/_generated/api_client/docs/Evaluation.md
 arize/_generated/api_client/docs/Evaluator.md
+arize/_generated/api_client/docs/EvaluatorIntegration.md
+arize/_generated/api_client/docs/EvaluatorIntegrationConfig.md
 arize/_generated/api_client/docs/EvaluatorLlmConfig.md
 arize/_generated/api_client/docs/EvaluatorLlmConfigRequest.md
 arize/_generated/api_client/docs/EvaluatorTemplate.md
@@ -323,6 +329,8 @@ arize/_generated/api_client/docs/ProviderParamsRequest.md
 arize/_generated/api_client/docs/RecordGranularity.md
 arize/_generated/api_client/docs/RefreshApiKeyRequest.md
 arize/_generated/api_client/docs/RefreshApiKeyResponse.md
+arize/_generated/api_client/docs/RemoteConfig.md
+arize/_generated/api_client/docs/RemoteConfigInput.md
 arize/_generated/api_client/docs/RemoveTagsRequest.md
 arize/_generated/api_client/docs/RemoveTagsResponse.md
 arize/_generated/api_client/docs/ResourceRestriction.md
@@ -414,6 +422,8 @@ arize/_generated/api_client/docs/UpdateDatasetExampleInput.md
 arize/_generated/api_client/docs/UpdateDatasetExamplesRequest.md
 arize/_generated/api_client/docs/UpdateDatasetRequest.md
 arize/_generated/api_client/docs/UpdateEvaluationTaskRequest.md
+arize/_generated/api_client/docs/UpdateEvaluatorIntegrationConfigInput.md
+arize/_generated/api_client/docs/UpdateEvaluatorIntegrationRequest.md
 arize/_generated/api_client/docs/UpdateEvaluatorRequest.md
 arize/_generated/api_client/docs/UpdateFreeformAnnotationConfigRequest.md
 arize/_generated/api_client/docs/UpdateIntegrationRequest.md
@@ -482,6 +492,7 @@ arize/_generated/api_client/models/annotation_queue_completion_status.py
 arize/_generated/api_client/models/annotation_queue_example_record_input.py
 arize/_generated/api_client/models/annotation_queue_record.py
 arize/_generated/api_client/models/annotation_queue_record_input.py
+arize/_generated/api_client/models/annotation_queue_session_record_input.py
 arize/_generated/api_client/models/annotation_queue_source_type.py
 arize/_generated/api_client/models/annotation_queue_span_record_input.py
 arize/_generated/api_client/models/annotation_queue_trace_record_input.py
@@ -537,6 +548,8 @@ arize/_generated/api_client/models/create_code_evaluator_version_request.py
 arize/_generated/api_client/models/create_continuous_annotation_config_request.py
 arize/_generated/api_client/models/create_custom_config.py
 arize/_generated/api_client/models/create_dataset_request.py
+arize/_generated/api_client/models/create_evaluator_integration_config_input.py
+arize/_generated/api_client/models/create_evaluator_integration_request.py
 arize/_generated/api_client/models/create_evaluator_request.py
 arize/_generated/api_client/models/create_evaluator_version_request.py
 arize/_generated/api_client/models/create_experiment_request.py
@@ -552,6 +565,7 @@ arize/_generated/api_client/models/create_organization_request.py
 arize/_generated/api_client/models/create_project_request.py
 arize/_generated/api_client/models/create_prompt_request.py
 arize/_generated/api_client/models/create_prompt_version_request.py
+arize/_generated/api_client/models/create_remote_evaluator_version_request.py
 arize/_generated/api_client/models/create_resource_restriction_request.py
 arize/_generated/api_client/models/create_role_binding_request.py
 arize/_generated/api_client/models/create_role_request.py
@@ -607,6 +621,8 @@ arize/_generated/api_client/models/dynamic_threshold_bound.py
 arize/_generated/api_client/models/email_notification_config.py
 arize/_generated/api_client/models/evaluation.py
 arize/_generated/api_client/models/evaluator.py
+arize/_generated/api_client/models/evaluator_integration.py
+arize/_generated/api_client/models/evaluator_integration_config.py
 arize/_generated/api_client/models/evaluator_llm_config.py
 arize/_generated/api_client/models/evaluator_llm_config_request.py
 arize/_generated/api_client/models/evaluator_template.py
@@ -733,6 +749,8 @@ arize/_generated/api_client/models/provider_params_request.py
 arize/_generated/api_client/models/record_granularity.py
 arize/_generated/api_client/models/refresh_api_key_request.py
 arize/_generated/api_client/models/refresh_api_key_response.py
+arize/_generated/api_client/models/remote_config.py
+arize/_generated/api_client/models/remote_config_input.py
 arize/_generated/api_client/models/remove_tags_request.py
 arize/_generated/api_client/models/remove_tags_response.py
 arize/_generated/api_client/models/resource_restriction.py
@@ -816,6 +834,8 @@ arize/_generated/api_client/models/update_dataset_example_input.py
 arize/_generated/api_client/models/update_dataset_examples_request.py
 arize/_generated/api_client/models/update_dataset_request.py
 arize/_generated/api_client/models/update_evaluation_task_request.py
+arize/_generated/api_client/models/update_evaluator_integration_config_input.py
+arize/_generated/api_client/models/update_evaluator_integration_request.py
 arize/_generated/api_client/models/update_evaluator_request.py
 arize/_generated/api_client/models/update_freeform_annotation_config_request.py
 arize/_generated/api_client/models/update_integration_request.py
@@ -868,6 +888,7 @@ arize/_generated/api_client/test/test_annotation_queue.py
 arize/_generated/api_client/test/test_annotation_queue_assigned_user.py
 arize/_generated/api_client/test/test_annotation_queue_example_record_input.py
 arize/_generated/api_client/test/test_annotation_queue_record_input.py
+arize/_generated/api_client/test/test_annotation_queue_session_record_input.py
 arize/_generated/api_client/test/test_annotation_queue_source_type.py
 arize/_generated/api_client/test/test_annotation_queue_trace_record_input.py
 arize/_generated/api_client/test/test_annotator_user.py

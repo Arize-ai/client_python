@@ -45,9 +45,6 @@ class TestListWebhooksResponse(unittest.TestCase):
                         auth_type = null, 
                         signing_secret_hint = '', 
                         timeout_ms = 1000, 
-                        headers = {
-                            'key' : ''
-                            }, 
                         created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
                         updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
                         created_by_user_id = null, )
@@ -68,9 +65,6 @@ class TestListWebhooksResponse(unittest.TestCase):
                         auth_type = null, 
                         signing_secret_hint = '', 
                         timeout_ms = 1000, 
-                        headers = {
-                            'key' : ''
-                            }, 
                         created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
                         updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
                         created_by_user_id = null, )

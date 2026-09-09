@@ -30,7 +30,7 @@ class UpdateCategoricalAnnotationConfigRequest(BaseModel):
     """ # noqa: E501
     name: Optional[StrictStr] = Field(default=None, description="New name for the annotation config. Must be unique within the space.")
     annotation_config_type: StrictStr = Field(description="Discriminator value identifying a categorical annotation config. The config `type` is immutable and must match the stored config's type. ")
-    values: Optional[List[CategoricalAnnotationValueRequest]] = Field(default=None, description="The full replacement set of categorical annotation values (2–100 items). ")
+    values: Optional[List[CategoricalAnnotationValueRequest]] = Field(default=None, description="The full replacement set of categorical annotation values (2–500 items). ")
     optimization_direction: Optional[OptimizationDirection] = Field(default=None, description="New optimization direction.")
     __properties: ClassVar[List[str]] = ["name", "annotation_config_type", "values", "optimization_direction"]
 

@@ -8,6 +8,7 @@ Method | HTTP request | Description
 [**get_monitor**](MonitorsApi.md#get_monitor) | **GET** /v2/monitors/{monitor_id} | Get a monitor
 [**list_monitor_tags**](MonitorsApi.md#list_monitor_tags) | **GET** /v2/monitors/{monitor_id}/tags | List tags on a monitor
 [**list_monitors**](MonitorsApi.md#list_monitors) | **GET** /v2/monitors | List monitors
+[**remove_monitor_tags**](MonitorsApi.md#remove_monitor_tags) | **DELETE** /v2/monitors/{monitor_id}/tags | Detach tags from a monitor
 
 
 # **add_monitor_tags**
@@ -461,6 +462,128 @@ Name | Type | Description  | Notes
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **remove_monitor_tags**
+> RemoveTagsResponse remove_monitor_tags(monitor_id, remove_tags_request)
+
+Detach tags from a monitor
+
+Detach one or more tags from a monitor.
+
+**Payload Requirements**
+- `tag_ids` is required and must contain between 1 and 100 tag IDs.
+- A tag ID that is not currently attached is reported in `not_deleted`
+  rather than causing the whole request to fail.
+- Unrecognized fields are rejected with `400`.
+
+Returns a `200` with `completed`, `deleted`, and `not_deleted` for the
+requested tag IDs.
+
+**Valid example**
+```json
+{
+  "tag_ids": ["VGFnOjEyMzQ1", "VGFnOjEyMzQ2"]
+}
+```
+
+**Invalid example** (empty list)
+```json
+{
+  "tag_ids": []
+}
+```
+```json
+{
+  "type": "https://arize.com/docs/ax/rest-reference/errors#validation-error",
+  "title": "Unprocessable Entity",
+  "status": 422,
+  "detail": "tag_ids must contain at least 1 tag ID",
+  "request_id": "req_01HZY6X8E7"
+}
+```
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.remove_tags_request import RemoveTagsRequest
+from arize._generated.api_client.models.remove_tags_response import RemoveTagsResponse
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.MonitorsApi(api_client)
+    monitor_id = 'TW9uaXRvcjoxMjM=' # str | The unique monitor identifier (base64)
+    remove_tags_request = {"tag_ids":["VGFnOjEyMzQ1","VGFnOjEyMzQ2"]} # RemoveTagsRequest | Body containing the IDs of the tags to detach from the resource
+
+    try:
+        # Detach tags from a monitor
+        api_response = api_instance.remove_monitor_tags(monitor_id, remove_tags_request)
+        print("The response of MonitorsApi->remove_monitor_tags:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling MonitorsApi->remove_monitor_tags: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **monitor_id** | **str**| The unique monitor identifier (base64) | 
+ **remove_tags_request** | [**RemoveTagsRequest**](RemoveTagsRequest.md)| Body containing the IDs of the tags to detach from the resource | 
+
+### Return type
+
+[**RemoveTagsResponse**](RemoveTagsResponse.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Reports which tags were detached and which were not attached |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

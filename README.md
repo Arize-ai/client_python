@@ -64,7 +64,9 @@
     - [Prompt Labels](#prompt-labels)
   - [Operations on Evaluators](#operations-on-evaluators)
     - [List Evaluators](#list-evaluators)
-    - [Create an Evaluator](#create-an-evaluator)
+    - [Create a Template Evaluator](#create-a-template-evaluator)
+    - [Create a Code Evaluator](#create-a-code-evaluator)
+    - [Create a Remote Evaluator](#create-a-remote-evaluator)
     - [Get an Evaluator](#get-an-evaluator)
     - [Update an Evaluator](#update-an-evaluator)
     - [Delete an Evaluator](#delete-an-evaluator)
@@ -1029,7 +1031,9 @@ client.prompts.delete_label(
 
 ## Operations on Evaluators
 
-Use `client.evaluators` to manage LLM evaluators and their versions.
+Use `client.evaluators` to manage evaluators and their versions. Three evaluator
+types are supported: `template` (LLM-based), `code` (managed built-in or custom Python),
+and `remote` (customer-hosted HTTP endpoint via an EVALUATOR integration).
 
 ### List Evaluators
 
@@ -1042,17 +1046,49 @@ resp = client.evaluators.list(
 evaluator_list = resp.evaluators
 ```
 
-### Create an Evaluator
+### Create a Template Evaluator
 
 ```python
 from arize.evaluators.types import TemplateConfigInput
 
-evaluator = client.evaluators.create(
+evaluator = client.evaluators.create_template_evaluator(
     name="<your-evaluator-name>",
     space="<space-id-or-name>",
-    evaluator_type="template",
     commit_message="Initial version",
     template_config=TemplateConfigInput(...),
+    description=..., # Optional
+)
+```
+
+### Create a Code Evaluator
+
+```python
+from arize.evaluators.types import ManagedCodeConfigInput
+
+evaluator = client.evaluators.create_code_evaluator(
+    name="<your-evaluator-name>",
+    space="<space-id-or-name>",
+    commit_message="Initial version",
+    code_config=ManagedCodeConfigInput(
+        name="hallucination",
+        managed_evaluator="hallucination",
+        variables=["input", "output", "context"],
+    ),
+    description=..., # Optional
+)
+```
+
+### Create a Remote Evaluator
+
+A remote evaluator calls a customer-hosted HTTP endpoint via an EVALUATOR integration.
+Requires the `enableRemoteEvalTasks` feature flag on the account.
+
+```python
+evaluator = client.evaluators.create_remote_evaluator(
+    name="<your-evaluator-name>",
+    space="<space-id-or-name>",
+    integration_id="<evaluator-integration-id>",
+    commit_message="Initial version",
     description=..., # Optional
 )
 ```
@@ -1100,12 +1136,20 @@ versions = client.evaluators.list_versions(
 # Get a specific version
 version = client.evaluators.get_version(version_id="<version-id>")
 
-# Create a new version
-new_version = client.evaluators.create_version(
+# Create a new template version
+new_version = client.evaluators.create_template_version(
     evaluator="<evaluator-id-or-name>",
     space=..., # Optional
     commit_message="Updated template",
     template_config=TemplateConfigInput(...),
+)
+
+# Create a new remote version (switches to a different EVALUATOR integration)
+new_remote_version = client.evaluators.create_remote_version(
+    evaluator="<evaluator-id-or-name>",
+    space=..., # Optional
+    commit_message="Switch endpoint",
+    integration_id="<evaluator-integration-id>",
 )
 ```
 

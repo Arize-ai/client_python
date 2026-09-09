@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Any, ClassVar, Dict, List
 from typing_extensions import Annotated
 from typing import Optional, Set
@@ -27,9 +27,9 @@ class TaskQueryMappingInput(BaseModel):
     """
     Maps one evaluator variable to one or more query ids and an attribute path for create/update requests (trace/session shape). 
     """ # noqa: E501
-    variable_name: StrictStr = Field(description="The evaluator template variable this mapping populates.")
-    query_ids: Annotated[List[Annotated[str, Field(strict=True)]], Field(min_length=0)] = Field(description="Declared query ids (`A`-`E`) whose matching units feed this variable. An empty list means \"any declared query\" (valid for session-level variables that match all spans in the conversation). Every id must be declared in the task's `query_filters.filters`. ")
-    attribute_path: StrictStr = Field(description="Span attribute path (e.g. `attributes.input.value`) resolved within each admitted unit to populate `variable_name`. ")
+    variable_name: Annotated[str, Field(strict=True, max_length=256)] = Field(description="The evaluator template variable this mapping populates.")
+    query_ids: Annotated[List[Annotated[str, Field(strict=True)]], Field(min_length=0, max_length=5)] = Field(description="Declared query ids (`A`-`E`) whose matching units feed this variable. An empty list means \"any declared query\" (valid for session-level variables that match all spans in the conversation). Every id must be declared in the task's `query_filters.filters`. ")
+    attribute_path: Annotated[str, Field(strict=True, max_length=1024)] = Field(description="Span attribute path (e.g. `attributes.input.value`) resolved within each admitted unit to populate `variable_name`. ")
     __properties: ClassVar[List[str]] = ["variable_name", "query_ids", "attribute_path"]
 
     model_config = ConfigDict(

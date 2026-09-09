@@ -14,6 +14,9 @@ from arize._generated.api_client.models.create_code_evaluator_version_request im
 from arize._generated.api_client.models.create_evaluator_version_request import (
     CreateEvaluatorVersionRequest,
 )
+from arize._generated.api_client.models.create_remote_evaluator_version_request import (
+    CreateRemoteEvaluatorVersionRequest,
+)
 from arize._generated.api_client.models.create_template_evaluator_version_request import (
     CreateTemplateEvaluatorVersionRequest,
 )
@@ -73,6 +76,10 @@ from arize._generated.api_client.models.optimization_direction import (
 )
 from arize._generated.api_client.models.pagination_metadata import (
     PaginationMetadata,
+)
+from arize._generated.api_client.models.remote_config import RemoteConfig
+from arize._generated.api_client.models.remote_config_input import (
+    RemoteConfigInput,
 )
 from arize._generated.api_client.models.static_param import StaticParam
 from arize._generated.api_client.models.static_param_default_value import (
@@ -205,6 +212,7 @@ __all__ = [
     "CodeConfigRequest",
     "CreateCodeEvaluatorVersionRequest",
     "CreateEvaluatorVersionRequest",
+    "CreateRemoteEvaluatorVersionRequest",
     "CreateTemplateEvaluatorVersionRequest",
     "CustomCodeConfig",
     "CustomCodeConfigRequest",
@@ -225,6 +233,8 @@ __all__ = [
     "ManagedCodeConfigRequest",
     "ManagedCodeEvaluator",
     "OptimizationDirection",
+    "RemoteConfig",
+    "RemoteConfigInput",
     "StaticParam",
     "StaticParamDefaultValue",
     "StaticParamRequest",

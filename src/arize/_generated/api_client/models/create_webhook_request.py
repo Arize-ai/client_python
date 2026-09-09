@@ -35,7 +35,7 @@ class CreateWebhookRequest(BaseModel):
     auth_type: Optional[WebhookAuthType] = Field(default=None, description="How deliveries from this webhook are authenticated. Defaults to `BEARER` if omitted, and cannot be changed after creation. For `HMAC_SHA256`, a signing secret is generated for you and returned once in the create response. ")
     auth_token: Optional[StrictStr] = Field(default=None, description="The complete `Authorization` header value sent with each delivery request, e.g. `Bearer my-token`. Sent verbatim — include the `Bearer ` prefix if your endpoint expects one. Only valid when `auth_type` is `BEARER`. Write-only: never returned in any response. ")
     timeout_ms: Optional[Annotated[int, Field(le=60000, strict=True, ge=1000)]] = Field(default=None, description="How long a delivery request may run before it is abandoned, in milliseconds. Defaults to 30000 if omitted.")
-    headers: Optional[Dict[str, StrictStr]] = Field(default=None, description="Custom HTTP headers sent with each delivery request, as a map of at most 20 header names to values. Header names must be valid HTTP header names; connection-management headers (e.g. `Host`, `Content-Length`) are rejected. ")
+    headers: Optional[Dict[str, StrictStr]] = Field(default=None, description="Custom HTTP headers sent with each delivery request, as a map of at most 20 header names to values. Header names must be valid HTTP header names; connection-management headers (e.g. `Host`, `Content-Length`) are rejected. Write-only: never returned in any response. ")
     __properties: ClassVar[List[str]] = ["organization_id", "name", "url", "description", "auth_type", "auth_token", "timeout_ms", "headers"]
 
     model_config = ConfigDict(

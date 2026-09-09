@@ -127,6 +127,7 @@ Class | Method | HTTP request | Description
 *EvaluatorsApi* | [**list_evaluator_templates**](arize/_generated/api_client/docs/EvaluatorsApi.md#list_evaluator_templates) | **GET** /v2/evaluator-templates | List evaluator templates
 *EvaluatorsApi* | [**list_evaluator_versions**](arize/_generated/api_client/docs/EvaluatorsApi.md#list_evaluator_versions) | **GET** /v2/evaluators/{evaluator_id}/versions | List evaluator versions
 *EvaluatorsApi* | [**list_evaluators**](arize/_generated/api_client/docs/EvaluatorsApi.md#list_evaluators) | **GET** /v2/evaluators | List evaluators
+*EvaluatorsApi* | [**remove_evaluator_tags**](arize/_generated/api_client/docs/EvaluatorsApi.md#remove_evaluator_tags) | **DELETE** /v2/evaluators/{evaluator_id}/tags | Detach tags from a evaluator
 *EvaluatorsApi* | [**set_evaluator_webhook_subscriptions**](arize/_generated/api_client/docs/EvaluatorsApi.md#set_evaluator_webhook_subscriptions) | **PUT** /v2/evaluators/{evaluator_id}/webhook-subscriptions | Set an evaluator&#39;s webhook subscriptions
 *EvaluatorsApi* | [**update_evaluator**](arize/_generated/api_client/docs/EvaluatorsApi.md#update_evaluator) | **PATCH** /v2/evaluators/{evaluator_id} | Update evaluator
 *ExperimentsApi* | [**add_experiment_tags**](arize/_generated/api_client/docs/ExperimentsApi.md#add_experiment_tags) | **POST** /v2/experiments/{experiment_id}/tags | Attach tags to a experiment
@@ -147,6 +148,7 @@ Class | Method | HTTP request | Description
 *MonitorsApi* | [**get_monitor**](arize/_generated/api_client/docs/MonitorsApi.md#get_monitor) | **GET** /v2/monitors/{monitor_id} | Get a monitor
 *MonitorsApi* | [**list_monitor_tags**](arize/_generated/api_client/docs/MonitorsApi.md#list_monitor_tags) | **GET** /v2/monitors/{monitor_id}/tags | List tags on a monitor
 *MonitorsApi* | [**list_monitors**](arize/_generated/api_client/docs/MonitorsApi.md#list_monitors) | **GET** /v2/monitors | List monitors
+*MonitorsApi* | [**remove_monitor_tags**](arize/_generated/api_client/docs/MonitorsApi.md#remove_monitor_tags) | **DELETE** /v2/monitors/{monitor_id}/tags | Detach tags from a monitor
 *OrganizationsApi* | [**add_organization_user**](arize/_generated/api_client/docs/OrganizationsApi.md#add_organization_user) | **POST** /v2/organizations/{org_id}/users | Add a user to an organization
 *OrganizationsApi* | [**create_organization**](arize/_generated/api_client/docs/OrganizationsApi.md#create_organization) | **POST** /v2/organizations | Create an organization
 *OrganizationsApi* | [**delete_organization**](arize/_generated/api_client/docs/OrganizationsApi.md#delete_organization) | **DELETE** /v2/organizations/{org_id} | Delete an organization
@@ -174,6 +176,7 @@ Class | Method | HTTP request | Description
 *PromptsApi* | [**list_prompt_tags**](arize/_generated/api_client/docs/PromptsApi.md#list_prompt_tags) | **GET** /v2/prompts/{prompt_id}/tags | List tags on a prompt
 *PromptsApi* | [**list_prompt_versions**](arize/_generated/api_client/docs/PromptsApi.md#list_prompt_versions) | **GET** /v2/prompts/{prompt_id}/versions | List prompt versions
 *PromptsApi* | [**list_prompts**](arize/_generated/api_client/docs/PromptsApi.md#list_prompts) | **GET** /v2/prompts | List prompts
+*PromptsApi* | [**remove_prompt_tags**](arize/_generated/api_client/docs/PromptsApi.md#remove_prompt_tags) | **DELETE** /v2/prompts/{prompt_id}/tags | Detach tags from a prompt
 *PromptsApi* | [**set_prompt_version_label**](arize/_generated/api_client/docs/PromptsApi.md#set_prompt_version_label) | **PUT** /v2/prompt-versions/{version_id}/labels | Set labels on a prompt version
 *PromptsApi* | [**set_prompt_webhook_subscriptions**](arize/_generated/api_client/docs/PromptsApi.md#set_prompt_webhook_subscriptions) | **PUT** /v2/prompts/{prompt_id}/webhook-subscriptions | Set a prompt&#39;s webhook subscriptions
 *PromptsApi* | [**update_prompt**](arize/_generated/api_client/docs/PromptsApi.md#update_prompt) | **PATCH** /v2/prompts/{prompt_id} | Update a prompt
@@ -263,6 +266,7 @@ Class | Method | HTTP request | Description
  - [AnnotationQueueExampleRecordInput](arize/_generated/api_client/docs/AnnotationQueueExampleRecordInput.md)
  - [AnnotationQueueRecord](arize/_generated/api_client/docs/AnnotationQueueRecord.md)
  - [AnnotationQueueRecordInput](arize/_generated/api_client/docs/AnnotationQueueRecordInput.md)
+ - [AnnotationQueueSessionRecordInput](arize/_generated/api_client/docs/AnnotationQueueSessionRecordInput.md)
  - [AnnotationQueueSourceType](arize/_generated/api_client/docs/AnnotationQueueSourceType.md)
  - [AnnotationQueueSpanRecordInput](arize/_generated/api_client/docs/AnnotationQueueSpanRecordInput.md)
  - [AnnotationQueueTraceRecordInput](arize/_generated/api_client/docs/AnnotationQueueTraceRecordInput.md)
@@ -318,6 +322,8 @@ Class | Method | HTTP request | Description
  - [CreateContinuousAnnotationConfigRequest](arize/_generated/api_client/docs/CreateContinuousAnnotationConfigRequest.md)
  - [CreateCustomConfig](arize/_generated/api_client/docs/CreateCustomConfig.md)
  - [CreateDatasetRequest](arize/_generated/api_client/docs/CreateDatasetRequest.md)
+ - [CreateEvaluatorIntegrationConfigInput](arize/_generated/api_client/docs/CreateEvaluatorIntegrationConfigInput.md)
+ - [CreateEvaluatorIntegrationRequest](arize/_generated/api_client/docs/CreateEvaluatorIntegrationRequest.md)
  - [CreateEvaluatorRequest](arize/_generated/api_client/docs/CreateEvaluatorRequest.md)
  - [CreateEvaluatorVersionRequest](arize/_generated/api_client/docs/CreateEvaluatorVersionRequest.md)
  - [CreateExperimentRequest](arize/_generated/api_client/docs/CreateExperimentRequest.md)
@@ -333,6 +339,7 @@ Class | Method | HTTP request | Description
  - [CreateProjectRequest](arize/_generated/api_client/docs/CreateProjectRequest.md)
  - [CreatePromptRequest](arize/_generated/api_client/docs/CreatePromptRequest.md)
  - [CreatePromptVersionRequest](arize/_generated/api_client/docs/CreatePromptVersionRequest.md)
+ - [CreateRemoteEvaluatorVersionRequest](arize/_generated/api_client/docs/CreateRemoteEvaluatorVersionRequest.md)
  - [CreateResourceRestrictionRequest](arize/_generated/api_client/docs/CreateResourceRestrictionRequest.md)
  - [CreateRoleBindingRequest](arize/_generated/api_client/docs/CreateRoleBindingRequest.md)
  - [CreateRoleRequest](arize/_generated/api_client/docs/CreateRoleRequest.md)
@@ -388,6 +395,8 @@ Class | Method | HTTP request | Description
  - [EmailNotificationConfig](arize/_generated/api_client/docs/EmailNotificationConfig.md)
  - [Evaluation](arize/_generated/api_client/docs/Evaluation.md)
  - [Evaluator](arize/_generated/api_client/docs/Evaluator.md)
+ - [EvaluatorIntegration](arize/_generated/api_client/docs/EvaluatorIntegration.md)
+ - [EvaluatorIntegrationConfig](arize/_generated/api_client/docs/EvaluatorIntegrationConfig.md)
  - [EvaluatorLlmConfig](arize/_generated/api_client/docs/EvaluatorLlmConfig.md)
  - [EvaluatorLlmConfigRequest](arize/_generated/api_client/docs/EvaluatorLlmConfigRequest.md)
  - [EvaluatorTemplate](arize/_generated/api_client/docs/EvaluatorTemplate.md)
@@ -514,6 +523,8 @@ Class | Method | HTTP request | Description
  - [RecordGranularity](arize/_generated/api_client/docs/RecordGranularity.md)
  - [RefreshApiKeyRequest](arize/_generated/api_client/docs/RefreshApiKeyRequest.md)
  - [RefreshApiKeyResponse](arize/_generated/api_client/docs/RefreshApiKeyResponse.md)
+ - [RemoteConfig](arize/_generated/api_client/docs/RemoteConfig.md)
+ - [RemoteConfigInput](arize/_generated/api_client/docs/RemoteConfigInput.md)
  - [RemoveTagsRequest](arize/_generated/api_client/docs/RemoveTagsRequest.md)
  - [RemoveTagsResponse](arize/_generated/api_client/docs/RemoveTagsResponse.md)
  - [ResourceRestriction](arize/_generated/api_client/docs/ResourceRestriction.md)
@@ -597,6 +608,8 @@ Class | Method | HTTP request | Description
  - [UpdateDatasetExamplesRequest](arize/_generated/api_client/docs/UpdateDatasetExamplesRequest.md)
  - [UpdateDatasetRequest](arize/_generated/api_client/docs/UpdateDatasetRequest.md)
  - [UpdateEvaluationTaskRequest](arize/_generated/api_client/docs/UpdateEvaluationTaskRequest.md)
+ - [UpdateEvaluatorIntegrationConfigInput](arize/_generated/api_client/docs/UpdateEvaluatorIntegrationConfigInput.md)
+ - [UpdateEvaluatorIntegrationRequest](arize/_generated/api_client/docs/UpdateEvaluatorIntegrationRequest.md)
  - [UpdateEvaluatorRequest](arize/_generated/api_client/docs/UpdateEvaluatorRequest.md)
  - [UpdateFreeformAnnotationConfigRequest](arize/_generated/api_client/docs/UpdateFreeformAnnotationConfigRequest.md)
  - [UpdateIntegrationRequest](arize/_generated/api_client/docs/UpdateIntegrationRequest.md)

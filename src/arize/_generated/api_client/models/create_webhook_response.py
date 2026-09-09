@@ -38,11 +38,10 @@ class CreateWebhookResponse(BaseModel):
     signing_secret: Optional[StrictStr] = Field(default=None, description="The secret used to verify delivery signatures. **Only returned once**, in this response, when `auth_type` is `HMAC_SHA256`. Store it securely — it cannot be retrieved again; only a redacted hint (`signing_secret_hint`) is readable afterwards. Absent for `BEARER` webhooks. ")
     signing_secret_hint: Optional[StrictStr] = Field(default=None, description="Redacted hint of the signing secret (e.g. `whsec_…abcd`), useful for identifying which secret the webhook uses. Present only for `HMAC_SHA256` webhooks. ")
     timeout_ms: Annotated[int, Field(le=60000, strict=True, ge=1000)] = Field(description="How long a delivery request may run before it is abandoned, in milliseconds. Defaults to 30000.")
-    headers: Dict[str, StrictStr] = Field(description="Custom HTTP headers sent with each delivery request")
     created_at: datetime = Field(description="Timestamp for when the webhook was created")
     updated_at: datetime = Field(description="Timestamp for when the webhook was last updated")
     created_by_user_id: Optional[StrictStr] = Field(default=None, description="The unique identifier of the user who created the webhook. Absent when that user has since been removed from the account.")
-    __properties: ClassVar[List[str]] = ["id", "organization_id", "name", "description", "url", "auth_type", "signing_secret", "signing_secret_hint", "timeout_ms", "headers", "created_at", "updated_at", "created_by_user_id"]
+    __properties: ClassVar[List[str]] = ["id", "organization_id", "name", "description", "url", "auth_type", "signing_secret", "signing_secret_hint", "timeout_ms", "created_at", "updated_at", "created_by_user_id"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -105,7 +104,6 @@ class CreateWebhookResponse(BaseModel):
             "signing_secret": obj.get("signing_secret"),
             "signing_secret_hint": obj.get("signing_secret_hint"),
             "timeout_ms": obj.get("timeout_ms"),
-            "headers": obj.get("headers"),
             "created_at": obj.get("created_at"),
             "updated_at": obj.get("updated_at"),
             "created_by_user_id": obj.get("created_by_user_id")

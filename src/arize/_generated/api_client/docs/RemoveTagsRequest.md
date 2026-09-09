@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**tag_ids** | **List[str]** | IDs of the tags to detach. Up to 100 per request. An ID that is not currently attached is reported in &#x60;not_found&#x60; rather than causing the whole request to fail, so the same request can be retried safely.  | 
+**tag_ids** | **List[str]** | IDs of the tags to detach. Up to 100 per request. An ID that is not currently attached is reported in &#x60;not_deleted&#x60; rather than causing the whole request to fail, so the same request can be retried safely.  | 
 
 ## Example
 

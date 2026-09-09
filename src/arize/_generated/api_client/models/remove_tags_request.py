@@ -27,7 +27,7 @@ class RemoveTagsRequest(BaseModel):
     """
     RemoveTagsRequest
     """ # noqa: E501
-    tag_ids: Annotated[List[StrictStr], Field(min_length=1, max_length=100)] = Field(description="IDs of the tags to detach. Up to 100 per request. An ID that is not currently attached is reported in `not_found` rather than causing the whole request to fail, so the same request can be retried safely. ")
+    tag_ids: Annotated[List[StrictStr], Field(min_length=1, max_length=100)] = Field(description="IDs of the tags to detach. Up to 100 per request. An ID that is not currently attached is reported in `not_deleted` rather than causing the whole request to fail, so the same request can be retried safely. ")
     __properties: ClassVar[List[str]] = ["tag_ids"]
 
     model_config = ConfigDict(

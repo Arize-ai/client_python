@@ -17,9 +17,53 @@ Method | HTTP request | Description
 Create an integration
 
 Create a new integration. The `type` field selects the config shape;
-for `LLM`, `config.provider` selects the per-provider config. v1
-supports `type=LLM` (providers `OPEN_AI`, `ANTHROPIC`, `GEMINI`,
-`AWS_BEDROCK`, `CUSTOM`, `VERTEX_AI`, `NVIDIA_NIM`) and `type=AGENT`.
+for `LLM`, `config.provider` selects the per-provider config.
+Supported types: `LLM`, `AGENT`, `EVALUATOR`.
+
+**Payload Requirements**
+- `type`, `name`, and `config` are required.
+- `name` must be unique within the account. `LLM` names are unique among
+  LLM integrations; `AGENT` and `EVALUATOR` names share the same remote
+  endpoint integration namespace.
+- Server-set fields (`id`, `created_at`, `updated_at`) are not accepted on input.
+- `scopings` defaults to account-wide visibility when omitted.
+- For `type: EVALUATOR`, `config.endpoint` and `config.input_schema` are
+  required. `config.headers` is optional (omit means no headers; pass `null`
+  or `{}` on PATCH to clear them). `config.headers` is encrypted at rest and
+  never returned — reads surface `has_headers` instead.
+- `type: EVALUATOR` requires the remote evaluators feature to be enabled for
+  the account. If not enabled the request returns `403`.
+
+**Valid example** (`type: EVALUATOR`)
+```json
+{
+  "type": "EVALUATOR",
+  "name": "My remote evaluator",
+  "config": {
+    "endpoint": "https://eval.example.com/evaluate",
+    "input_schema": { "type": "object" }
+  }
+}
+```
+
+**Invalid example** (missing required `config.endpoint`)
+```json
+{
+  "type": "EVALUATOR",
+  "name": "My remote evaluator",
+  "config": {
+    "input_schema": { "type": "object" }
+  }
+}
+```
+
+**Invalid example** (missing required `config`)
+```json
+{
+  "type": "EVALUATOR",
+  "name": "My remote evaluator"
+}
+```
 
 <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
 
@@ -55,7 +99,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.IntegrationsApi(api_client)
-    create_integration_request = arize._generated.api_client.CreateIntegrationRequest() # CreateIntegrationRequest | Create a new integration. The `type` field selects the config shape; for `LLM`, `config.provider` selects the per-provider config.  **Payload Requirements** - `type`, `name`, and `config` are required. - `name` must be unique within the account for the given `type`. - `scopings` defaults to account-wide visibility when omitted. - Type- and provider-specific rules (required fields, defaults, write-only   secrets) are documented on each config schema: see the per-provider   members of `CreateLlmConfig` for `type: LLM`, and `CreateAgentConfig`   for `type: AGENT`.  **Valid example** ```json {   \"type\": \"LLM\",   \"name\": \"Production OpenAI\",   \"config\": {     \"provider\": \"OPEN_AI\",     \"api_key\": \"sk-abc123...\"   } } ```  **Invalid example** (missing required `config`) ```json {   \"type\": \"LLM\",   \"name\": \"Bad Integration\" } ```  **Invalid example** (missing required `config.provider` for `type: LLM`) ```json {   \"type\": \"LLM\",   \"name\": \"Bad Integration\",   \"config\": {} } ``` 
+    create_integration_request = {"type":"LLM","name":"Production OpenAI","config":{"provider":"OPEN_AI","api_key":"sk-abc123..."}} # CreateIntegrationRequest | Create a new integration. The `type` field selects the config shape; for `LLM`, `config.provider` selects the per-provider config.  **Payload Requirements** - `type`, `name`, and `config` are required. - `name` must be unique within the account. `LLM` names are unique among   LLM integrations; `AGENT` and `EVALUATOR` names share the same remote   endpoint integration namespace. - `scopings` defaults to account-wide visibility when omitted. - Type- and provider-specific rules (required fields, defaults, write-only   secrets) are documented on each config schema: see the per-provider   members of `CreateLlmConfig` for `type: LLM`, `CreateAgentConfig`   for `type: AGENT`, and `CreateEvaluatorIntegrationConfigInput`   for `type: EVALUATOR`.  **Valid example** ```json {   \"type\": \"LLM\",   \"name\": \"Production OpenAI\",   \"config\": {     \"provider\": \"OPEN_AI\",     \"api_key\": \"sk-abc123...\"   } } ```  **Invalid example** (missing required `config`) ```json {   \"type\": \"LLM\",   \"name\": \"Bad Integration\" } ```  **Invalid example** (missing required `config.provider` for `type: LLM`) ```json {   \"type\": \"LLM\",   \"name\": \"Bad Integration\",   \"config\": {} } ``` 
 
     try:
         # Create an integration
@@ -73,7 +117,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **create_integration_request** | [**CreateIntegrationRequest**](CreateIntegrationRequest.md)| Create a new integration. The &#x60;type&#x60; field selects the config shape; for &#x60;LLM&#x60;, &#x60;config.provider&#x60; selects the per-provider config.  **Payload Requirements** - &#x60;type&#x60;, &#x60;name&#x60;, and &#x60;config&#x60; are required. - &#x60;name&#x60; must be unique within the account for the given &#x60;type&#x60;. - &#x60;scopings&#x60; defaults to account-wide visibility when omitted. - Type- and provider-specific rules (required fields, defaults, write-only   secrets) are documented on each config schema: see the per-provider   members of &#x60;CreateLlmConfig&#x60; for &#x60;type: LLM&#x60;, and &#x60;CreateAgentConfig&#x60;   for &#x60;type: AGENT&#x60;.  **Valid example** &#x60;&#x60;&#x60;json {   \&quot;type\&quot;: \&quot;LLM\&quot;,   \&quot;name\&quot;: \&quot;Production OpenAI\&quot;,   \&quot;config\&quot;: {     \&quot;provider\&quot;: \&quot;OPEN_AI\&quot;,     \&quot;api_key\&quot;: \&quot;sk-abc123...\&quot;   } } &#x60;&#x60;&#x60;  **Invalid example** (missing required &#x60;config&#x60;) &#x60;&#x60;&#x60;json {   \&quot;type\&quot;: \&quot;LLM\&quot;,   \&quot;name\&quot;: \&quot;Bad Integration\&quot; } &#x60;&#x60;&#x60;  **Invalid example** (missing required &#x60;config.provider&#x60; for &#x60;type: LLM&#x60;) &#x60;&#x60;&#x60;json {   \&quot;type\&quot;: \&quot;LLM\&quot;,   \&quot;name\&quot;: \&quot;Bad Integration\&quot;,   \&quot;config\&quot;: {} } &#x60;&#x60;&#x60;  | 
+ **create_integration_request** | [**CreateIntegrationRequest**](CreateIntegrationRequest.md)| Create a new integration. The &#x60;type&#x60; field selects the config shape; for &#x60;LLM&#x60;, &#x60;config.provider&#x60; selects the per-provider config.  **Payload Requirements** - &#x60;type&#x60;, &#x60;name&#x60;, and &#x60;config&#x60; are required. - &#x60;name&#x60; must be unique within the account. &#x60;LLM&#x60; names are unique among   LLM integrations; &#x60;AGENT&#x60; and &#x60;EVALUATOR&#x60; names share the same remote   endpoint integration namespace. - &#x60;scopings&#x60; defaults to account-wide visibility when omitted. - Type- and provider-specific rules (required fields, defaults, write-only   secrets) are documented on each config schema: see the per-provider   members of &#x60;CreateLlmConfig&#x60; for &#x60;type: LLM&#x60;, &#x60;CreateAgentConfig&#x60;   for &#x60;type: AGENT&#x60;, and &#x60;CreateEvaluatorIntegrationConfigInput&#x60;   for &#x60;type: EVALUATOR&#x60;.  **Valid example** &#x60;&#x60;&#x60;json {   \&quot;type\&quot;: \&quot;LLM\&quot;,   \&quot;name\&quot;: \&quot;Production OpenAI\&quot;,   \&quot;config\&quot;: {     \&quot;provider\&quot;: \&quot;OPEN_AI\&quot;,     \&quot;api_key\&quot;: \&quot;sk-abc123...\&quot;   } } &#x60;&#x60;&#x60;  **Invalid example** (missing required &#x60;config&#x60;) &#x60;&#x60;&#x60;json {   \&quot;type\&quot;: \&quot;LLM\&quot;,   \&quot;name\&quot;: \&quot;Bad Integration\&quot; } &#x60;&#x60;&#x60;  **Invalid example** (missing required &#x60;config.provider&#x60; for &#x60;type: LLM&#x60;) &#x60;&#x60;&#x60;json {   \&quot;type\&quot;: \&quot;LLM\&quot;,   \&quot;name\&quot;: \&quot;Bad Integration\&quot;,   \&quot;config\&quot;: {} } &#x60;&#x60;&#x60;  | 
 
 ### Return type
 
@@ -109,6 +153,10 @@ Name | Type | Description  | Notes
 Delete an integration
 
 Delete an integration by its ID. This operation is irreversible.
+
+A `type: EVALUATOR` integration that is still referenced by one or more
+active remote evaluators returns `409`. Delete or repoint those evaluators
+first.
 
 <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
 
@@ -182,6 +230,7 @@ void (empty response body)
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
+**409** | Resource conflict |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -277,11 +326,14 @@ Name | Type | Description  | Notes
 List integrations
 
 List integrations the user has access to, ordered by creation time
-(newest first). By default the list includes every integration type;
-pass `type` to list a single type. Each item carries its `type` (and,
-for `LLM`, `config.provider`) for client-side discrimination. An
-invalid `type` or pagination `cursor` returns `400`; a cursor is only
-valid for the query parameters it was issued with.
+(newest first). The default list covers `LLM` and `AGENT` integrations
+only; pass `?type=EVALUATOR` to retrieve evaluator integrations. `EVALUATOR`
+is excluded from the default list to keep the cursor contract stable —
+it is a distinct, feature-flagged surface whose inclusion would shift
+existing type ranks and invalidate in-flight cursors. Each item carries
+its `type` (and, for `LLM`, `config.provider`) for client-side
+discrimination. An invalid `type` or pagination `cursor` returns `400`;
+a cursor is only valid for the query parameters it was issued with.
 
 Integrations are owned at the account level but carry visibility scopings
 (account-wide, organization, or space). `space_id` / `space_name` filter
@@ -324,7 +376,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.IntegrationsApi(api_client)
-    type = arize._generated.api_client.IntegrationType() # IntegrationType | Filter the list to a single integration type. When omitted, integrations of every type are returned; each item carries its `type` for client-side discrimination. (optional)
+    type = arize._generated.api_client.IntegrationType() # IntegrationType | Filter the list to a single integration type. When omitted, `LLM` and `AGENT` integrations are returned; `EVALUATOR` integrations must be requested explicitly with `type=EVALUATOR`. Each item carries its `type` for client-side discrimination. (optional)
     space_id = 'U3BhY2U6MTIzNDU=' # str | Filter search results to a particular space ID (optional)
     space_name = 'my-space' # str | Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned.  (optional)
     name = 'production' # str | Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned.  (optional)
@@ -347,7 +399,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **type** | [**IntegrationType**](.md)| Filter the list to a single integration type. When omitted, integrations of every type are returned; each item carries its &#x60;type&#x60; for client-side discrimination. | [optional] 
+ **type** | [**IntegrationType**](.md)| Filter the list to a single integration type. When omitted, &#x60;LLM&#x60; and &#x60;AGENT&#x60; integrations are returned; &#x60;EVALUATOR&#x60; integrations must be requested explicitly with &#x60;type&#x3D;EVALUATOR&#x60;. Each item carries its &#x60;type&#x60; for client-side discrimination. | [optional] 
  **space_id** | **str**| Filter search results to a particular space ID | [optional] 
  **space_name** | **str**| Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned.  | [optional] 
  **name** | **str**| Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, &#x60;name&#x3D;prod&#x60; matches \&quot;production\&quot;, \&quot;my-prod-dataset\&quot;, etc. If omitted, no name filtering is applied and all resources are returned.  | [optional] 
@@ -388,6 +440,37 @@ Update an integration
 Partially update an integration. `type` is immutable (and, for `LLM`,
 `config.provider`). At least one field must be provided.
 
+**Payload Requirements**
+- `type` is **required** (it selects the per-type PATCH shape) and is
+  immutable: it must match the stored integration's type, otherwise the
+  request is rejected with 422 (change category by delete + recreate).
+- At least one updatable field (`name`, `description`, `scopings`, `config`)
+  must be provided in addition to `type`.
+- Scalar fields deep-merge: omit = keep, explicit `null` = clear (for
+  nullable fields).
+- Collection fields (`scopings`, `config.headers`) replace the existing
+  values when provided.
+- For `type: EVALUATOR`, `config.headers` accepts a string map (replace),
+  `null` (clear), or may be omitted (keep).
+- `type: EVALUATOR` requires the remote evaluators feature to be enabled.
+
+**Valid example** (`type: EVALUATOR`)
+```json
+{
+  "type": "EVALUATOR",
+  "config": {
+    "endpoint": "https://eval.example.com/v2/evaluate"
+  }
+}
+```
+
+**Invalid example** (type mismatch)
+```json
+{
+  "type": "AGENT"
+}
+```
+
 <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
 
 
@@ -423,7 +506,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.IntegrationsApi(api_client)
     integration_id = 'TGxtSW50ZWdyYXRpb246MTI6YUJjRA==' # str | The unique integration identifier.
-    update_integration_request = arize._generated.api_client.UpdateIntegrationRequest() # UpdateIntegrationRequest | Partially update an integration. The body is discriminated by `type`. Omitted fields are left unchanged.  **Payload Requirements** - `type` is **required** (it selects the per-type PATCH shape) and is   immutable: it must match the stored integration's type, otherwise the   request is rejected with 422 (change category by delete + recreate). - At least one updatable field (`name`, `scopings`, `config`, or — for   `AGENT` only — `description`) must be provided in addition to `type`.   `description` is not a valid field for `type: LLM` and is rejected. - For `LLM`, `config.provider` is immutable, and config-field   applicability is provider-specific (enforced with 422) — see the   per-field docs on `UpdateLlmConfig`. - Envelope and `config` scalar fields deep-merge: omit = keep, explicit   `null` = clear (for nullable fields). - Collections (`scopings`, `config.model_names`, `config.headers`,   `config.request_presets`) replace the existing values when provided.  **Valid example** ```json {   \"type\": \"LLM\",   \"name\": \"Updated OpenAI\",   \"config\": { \"is_function_calling_enabled\": true } } ```  **Invalid example** (empty body) ```json {} ``` 
+    update_integration_request = {"type":"LLM","name":"Updated OpenAI","config":{"is_function_calling_enabled":true}} # UpdateIntegrationRequest | Partially update an integration. The body is discriminated by `type`. Omitted fields are left unchanged.  **Payload Requirements** - `type` is **required** (it selects the per-type PATCH shape) and is   immutable: it must match the stored integration's type, otherwise the   request is rejected with 422 (change category by delete + recreate). - At least one updatable field (`name`, `scopings`, `config`, or — for   `AGENT` and `EVALUATOR` — `description`) must be provided in addition   to `type`. `description` is not a valid field for `type: LLM` and is   rejected. - For `LLM`, `config.provider` is immutable, and config-field   applicability is provider-specific (enforced with 422) — see the   per-field docs on `UpdateLlmConfig`. - Envelope and `config` scalar fields deep-merge: omit = keep, explicit   `null` = clear (for nullable fields). - Collections (`scopings`, `config.model_names`, `config.headers`,   `config.request_presets`) replace the existing values when provided. - For `type: EVALUATOR`, `config.headers` accepts a string map (replace),   `null` (clear), or may be omitted (keep).  **Valid example** ```json {   \"type\": \"LLM\",   \"name\": \"Updated OpenAI\",   \"config\": { \"is_function_calling_enabled\": true } } ```  **Invalid example** (empty body) ```json {} ``` 
 
     try:
         # Update an integration
@@ -442,7 +525,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **integration_id** | **str**| The unique integration identifier. | 
- **update_integration_request** | [**UpdateIntegrationRequest**](UpdateIntegrationRequest.md)| Partially update an integration. The body is discriminated by &#x60;type&#x60;. Omitted fields are left unchanged.  **Payload Requirements** - &#x60;type&#x60; is **required** (it selects the per-type PATCH shape) and is   immutable: it must match the stored integration&#39;s type, otherwise the   request is rejected with 422 (change category by delete + recreate). - At least one updatable field (&#x60;name&#x60;, &#x60;scopings&#x60;, &#x60;config&#x60;, or — for   &#x60;AGENT&#x60; only — &#x60;description&#x60;) must be provided in addition to &#x60;type&#x60;.   &#x60;description&#x60; is not a valid field for &#x60;type: LLM&#x60; and is rejected. - For &#x60;LLM&#x60;, &#x60;config.provider&#x60; is immutable, and config-field   applicability is provider-specific (enforced with 422) — see the   per-field docs on &#x60;UpdateLlmConfig&#x60;. - Envelope and &#x60;config&#x60; scalar fields deep-merge: omit &#x3D; keep, explicit   &#x60;null&#x60; &#x3D; clear (for nullable fields). - Collections (&#x60;scopings&#x60;, &#x60;config.model_names&#x60;, &#x60;config.headers&#x60;,   &#x60;config.request_presets&#x60;) replace the existing values when provided.  **Valid example** &#x60;&#x60;&#x60;json {   \&quot;type\&quot;: \&quot;LLM\&quot;,   \&quot;name\&quot;: \&quot;Updated OpenAI\&quot;,   \&quot;config\&quot;: { \&quot;is_function_calling_enabled\&quot;: true } } &#x60;&#x60;&#x60;  **Invalid example** (empty body) &#x60;&#x60;&#x60;json {} &#x60;&#x60;&#x60;  | 
+ **update_integration_request** | [**UpdateIntegrationRequest**](UpdateIntegrationRequest.md)| Partially update an integration. The body is discriminated by &#x60;type&#x60;. Omitted fields are left unchanged.  **Payload Requirements** - &#x60;type&#x60; is **required** (it selects the per-type PATCH shape) and is   immutable: it must match the stored integration&#39;s type, otherwise the   request is rejected with 422 (change category by delete + recreate). - At least one updatable field (&#x60;name&#x60;, &#x60;scopings&#x60;, &#x60;config&#x60;, or — for   &#x60;AGENT&#x60; and &#x60;EVALUATOR&#x60; — &#x60;description&#x60;) must be provided in addition   to &#x60;type&#x60;. &#x60;description&#x60; is not a valid field for &#x60;type: LLM&#x60; and is   rejected. - For &#x60;LLM&#x60;, &#x60;config.provider&#x60; is immutable, and config-field   applicability is provider-specific (enforced with 422) — see the   per-field docs on &#x60;UpdateLlmConfig&#x60;. - Envelope and &#x60;config&#x60; scalar fields deep-merge: omit &#x3D; keep, explicit   &#x60;null&#x60; &#x3D; clear (for nullable fields). - Collections (&#x60;scopings&#x60;, &#x60;config.model_names&#x60;, &#x60;config.headers&#x60;,   &#x60;config.request_presets&#x60;) replace the existing values when provided. - For &#x60;type: EVALUATOR&#x60;, &#x60;config.headers&#x60; accepts a string map (replace),   &#x60;null&#x60; (clear), or may be omitted (keep).  **Valid example** &#x60;&#x60;&#x60;json {   \&quot;type\&quot;: \&quot;LLM\&quot;,   \&quot;name\&quot;: \&quot;Updated OpenAI\&quot;,   \&quot;config\&quot;: { \&quot;is_function_calling_enabled\&quot;: true } } &#x60;&#x60;&#x60;  **Invalid example** (empty body) &#x60;&#x60;&#x60;json {} &#x60;&#x60;&#x60;  | 
 
 ### Return type
 

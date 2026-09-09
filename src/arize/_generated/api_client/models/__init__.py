@@ -45,6 +45,7 @@ from arize._generated.api_client.models.annotation_queue_completion_status impor
 from arize._generated.api_client.models.annotation_queue_example_record_input import AnnotationQueueExampleRecordInput
 from arize._generated.api_client.models.annotation_queue_record import AnnotationQueueRecord
 from arize._generated.api_client.models.annotation_queue_record_input import AnnotationQueueRecordInput
+from arize._generated.api_client.models.annotation_queue_session_record_input import AnnotationQueueSessionRecordInput
 from arize._generated.api_client.models.annotation_queue_source_type import AnnotationQueueSourceType
 from arize._generated.api_client.models.annotation_queue_span_record_input import AnnotationQueueSpanRecordInput
 from arize._generated.api_client.models.annotation_queue_trace_record_input import AnnotationQueueTraceRecordInput
@@ -100,6 +101,8 @@ from arize._generated.api_client.models.create_code_evaluator_version_request im
 from arize._generated.api_client.models.create_continuous_annotation_config_request import CreateContinuousAnnotationConfigRequest
 from arize._generated.api_client.models.create_custom_config import CreateCustomConfig
 from arize._generated.api_client.models.create_dataset_request import CreateDatasetRequest
+from arize._generated.api_client.models.create_evaluator_integration_config_input import CreateEvaluatorIntegrationConfigInput
+from arize._generated.api_client.models.create_evaluator_integration_request import CreateEvaluatorIntegrationRequest
 from arize._generated.api_client.models.create_evaluator_request import CreateEvaluatorRequest
 from arize._generated.api_client.models.create_evaluator_version_request import CreateEvaluatorVersionRequest
 from arize._generated.api_client.models.create_experiment_request import CreateExperimentRequest
@@ -115,6 +118,7 @@ from arize._generated.api_client.models.create_organization_request import Creat
 from arize._generated.api_client.models.create_project_request import CreateProjectRequest
 from arize._generated.api_client.models.create_prompt_request import CreatePromptRequest
 from arize._generated.api_client.models.create_prompt_version_request import CreatePromptVersionRequest
+from arize._generated.api_client.models.create_remote_evaluator_version_request import CreateRemoteEvaluatorVersionRequest
 from arize._generated.api_client.models.create_resource_restriction_request import CreateResourceRestrictionRequest
 from arize._generated.api_client.models.create_role_binding_request import CreateRoleBindingRequest
 from arize._generated.api_client.models.create_role_request import CreateRoleRequest
@@ -170,6 +174,8 @@ from arize._generated.api_client.models.dynamic_threshold_bound import DynamicTh
 from arize._generated.api_client.models.email_notification_config import EmailNotificationConfig
 from arize._generated.api_client.models.evaluation import Evaluation
 from arize._generated.api_client.models.evaluator import Evaluator
+from arize._generated.api_client.models.evaluator_integration import EvaluatorIntegration
+from arize._generated.api_client.models.evaluator_integration_config import EvaluatorIntegrationConfig
 from arize._generated.api_client.models.evaluator_llm_config import EvaluatorLlmConfig
 from arize._generated.api_client.models.evaluator_llm_config_request import EvaluatorLlmConfigRequest
 from arize._generated.api_client.models.evaluator_template import EvaluatorTemplate
@@ -296,6 +302,8 @@ from arize._generated.api_client.models.provider_params_request import ProviderP
 from arize._generated.api_client.models.record_granularity import RecordGranularity
 from arize._generated.api_client.models.refresh_api_key_request import RefreshApiKeyRequest
 from arize._generated.api_client.models.refresh_api_key_response import RefreshApiKeyResponse
+from arize._generated.api_client.models.remote_config import RemoteConfig
+from arize._generated.api_client.models.remote_config_input import RemoteConfigInput
 from arize._generated.api_client.models.remove_tags_request import RemoveTagsRequest
 from arize._generated.api_client.models.remove_tags_response import RemoveTagsResponse
 from arize._generated.api_client.models.resource_restriction import ResourceRestriction
@@ -379,6 +387,8 @@ from arize._generated.api_client.models.update_dataset_example_input import Upda
 from arize._generated.api_client.models.update_dataset_examples_request import UpdateDatasetExamplesRequest
 from arize._generated.api_client.models.update_dataset_request import UpdateDatasetRequest
 from arize._generated.api_client.models.update_evaluation_task_request import UpdateEvaluationTaskRequest
+from arize._generated.api_client.models.update_evaluator_integration_config_input import UpdateEvaluatorIntegrationConfigInput
+from arize._generated.api_client.models.update_evaluator_integration_request import UpdateEvaluatorIntegrationRequest
 from arize._generated.api_client.models.update_evaluator_request import UpdateEvaluatorRequest
 from arize._generated.api_client.models.update_freeform_annotation_config_request import UpdateFreeformAnnotationConfigRequest
 from arize._generated.api_client.models.update_integration_request import UpdateIntegrationRequest

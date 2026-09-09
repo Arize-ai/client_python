@@ -18,12 +18,13 @@ import pprint
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
 from typing import Any, List, Optional
 from arize._generated.api_client.models.agent_integration import AgentIntegration
+from arize._generated.api_client.models.evaluator_integration import EvaluatorIntegration
 from arize._generated.api_client.models.llm_integration import LlmIntegration
 from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-INTEGRATION_ONE_OF_SCHEMAS = ["AgentIntegration", "LlmIntegration"]
+INTEGRATION_ONE_OF_SCHEMAS = ["AgentIntegration", "EvaluatorIntegration", "LlmIntegration"]
 
 class Integration(BaseModel):
     """
@@ -33,8 +34,10 @@ class Integration(BaseModel):
     oneof_schema_1_validator: Optional[LlmIntegration] = None
     # data type: AgentIntegration
     oneof_schema_2_validator: Optional[AgentIntegration] = None
-    actual_instance: Optional[Union[AgentIntegration, LlmIntegration]] = None
-    one_of_schemas: Set[str] = { "AgentIntegration", "LlmIntegration" }
+    # data type: EvaluatorIntegration
+    oneof_schema_3_validator: Optional[EvaluatorIntegration] = None
+    actual_instance: Optional[Union[AgentIntegration, EvaluatorIntegration, LlmIntegration]] = None
+    one_of_schemas: Set[str] = { "AgentIntegration", "EvaluatorIntegration", "LlmIntegration" }
 
     model_config = ConfigDict(
         validate_assignment=True,
@@ -70,12 +73,17 @@ class Integration(BaseModel):
             error_messages.append(f"Error! Input type `{type(v)}` is not `AgentIntegration`")
         else:
             match += 1
+        # validate data type: EvaluatorIntegration
+        if not isinstance(v, EvaluatorIntegration):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `EvaluatorIntegration`")
+        else:
+            match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in Integration with oneOf schemas: AgentIntegration, LlmIntegration. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in Integration with oneOf schemas: AgentIntegration, EvaluatorIntegration, LlmIntegration. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in Integration with oneOf schemas: AgentIntegration, LlmIntegration. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in Integration with oneOf schemas: AgentIntegration, EvaluatorIntegration, LlmIntegration. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -102,13 +110,19 @@ class Integration(BaseModel):
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
+        # deserialize data into EvaluatorIntegration
+        try:
+            instance.actual_instance = EvaluatorIntegration.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into Integration with oneOf schemas: AgentIntegration, LlmIntegration. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into Integration with oneOf schemas: AgentIntegration, EvaluatorIntegration, LlmIntegration. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into Integration with oneOf schemas: AgentIntegration, LlmIntegration. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into Integration with oneOf schemas: AgentIntegration, EvaluatorIntegration, LlmIntegration. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -122,7 +136,7 @@ class Integration(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], AgentIntegration, LlmIntegration]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], AgentIntegration, EvaluatorIntegration, LlmIntegration]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

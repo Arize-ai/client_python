@@ -8,7 +8,9 @@ from typing import TYPE_CHECKING, Any
 from arize.annotation_queues.types import (
     AnnotationQueueExampleRecordInput,
     AnnotationQueueRecordInput,
+    AnnotationQueueSessionRecordInput,
     AnnotationQueueSpanRecordInput,
+    AnnotationQueueTraceRecordInput,
 )
 from arize.constants.config import DEFAULT_LIST_LIMIT
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
@@ -76,15 +78,17 @@ class AnnotationQueuesClient:
     def _coerce_record_source(
         item: AnnotationQueueRecordInput
         | AnnotationQueueExampleRecordInput
+        | AnnotationQueueSessionRecordInput
         | AnnotationQueueSpanRecordInput
+        | AnnotationQueueTraceRecordInput
         | dict,
     ) -> AnnotationQueueRecordInput:
         """Normalize a record source to a properly wrapped ``AnnotationQueueRecordInput``.
 
         Accepts:
         - An already-wrapped ``AnnotationQueueRecordInput`` (returned as-is).
-        - An unwrapped inner type (``AnnotationQueueExampleRecordInput`` or
-          ``AnnotationQueueSpanRecordInput``), which is wrapped automatically.
+        - Any supported unwrapped concrete record input, which is wrapped
+          automatically.
         - A plain ``dict`` whose keys match one of the inner schemas; parsed via
           ``AnnotationQueueRecordInput.from_dict``.
         """
@@ -92,15 +96,22 @@ class AnnotationQueuesClient:
             return item
         if isinstance(
             item,
-            (AnnotationQueueExampleRecordInput, AnnotationQueueSpanRecordInput),
+            (
+                AnnotationQueueExampleRecordInput,
+                AnnotationQueueSessionRecordInput,
+                AnnotationQueueSpanRecordInput,
+                AnnotationQueueTraceRecordInput,
+            ),
         ):
             return AnnotationQueueRecordInput(item)
         if isinstance(item, dict):
             return AnnotationQueueRecordInput.from_dict(item)
         raise TypeError(
             f"record_sources items must be AnnotationQueueRecordInput, "
-            f"AnnotationQueueExampleRecordInput, AnnotationQueueSpanRecordInput, "
-            f"or dict; got {type(item)!r}"
+            f"AnnotationQueueExampleRecordInput, "
+            f"AnnotationQueueSessionRecordInput, "
+            f"AnnotationQueueSpanRecordInput, "
+            f"AnnotationQueueTraceRecordInput, or dict; got {type(item)!r}"
         )
 
     # ------------------------------------------------------------------
@@ -186,7 +197,9 @@ class AnnotationQueuesClient:
         record_sources: builtins.list[
             AnnotationQueueRecordInput
             | AnnotationQueueExampleRecordInput
+            | AnnotationQueueSessionRecordInput
             | AnnotationQueueSpanRecordInput
+            | AnnotationQueueTraceRecordInput
             | dict
         ]
         | None = None,
@@ -206,7 +219,7 @@ class AnnotationQueuesClient:
             assignment_method: How records are assigned to annotators. Defaults to
                 ``ALL`` (every annotator sees every record).
             record_sources: Optional initial record sources to populate the queue
-                (at most 2 sources per request).
+                (at most 2 sources per request and 100 session IDs in total).
 
         Returns:
             The created annotation queue object as returned by the API.
@@ -394,14 +407,17 @@ class AnnotationQueuesClient:
         record_sources: builtins.list[
             AnnotationQueueRecordInput
             | AnnotationQueueExampleRecordInput
+            | AnnotationQueueSessionRecordInput
             | AnnotationQueueSpanRecordInput
+            | AnnotationQueueTraceRecordInput
             | dict
         ],
     ) -> CreateAnnotationQueueRecordResponse:
         """Add records to an annotation queue.
 
-        Records may come from spans (a project time range) or dataset examples.
-        At most 2 record sources and 500 total records may be added per request.
+        Records may come from spans, traces, sessions, or dataset examples. At
+        most 2 record sources and 500 total records may be added per request.
+        Session sources may contain at most 100 session IDs in total per request.
 
         Args:
             annotation_queue: Annotation queue ID or name. If a name is
@@ -410,8 +426,10 @@ class AnnotationQueuesClient:
                 name so it can be resolved to an ID.
             record_sources: List of record sources (1-2 sources). Each source is
                 an :class:`~arize.annotation_queues.types.AnnotationQueueRecordInput`
-                wrapping either an
-                :class:`~arize.annotation_queues.types.AnnotationQueueSpanRecordInput`
+                wrapping one of
+                :class:`~arize.annotation_queues.types.AnnotationQueueSessionRecordInput`,
+                :class:`~arize.annotation_queues.types.AnnotationQueueSpanRecordInput`,
+                :class:`~arize.annotation_queues.types.AnnotationQueueTraceRecordInput`,
                 or
                 :class:`~arize.annotation_queues.types.AnnotationQueueExampleRecordInput`.
 

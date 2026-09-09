@@ -26,7 +26,7 @@ from typing_extensions import Self
 
 class CreateEvaluatorRequest(BaseModel):
     """
-    Body containing evaluator creation parameters with an initial version.  Only `type: TEMPLATE` and `type: CODE` are currently accepted on creation. 
+    Body containing evaluator creation parameters with an initial version. 
     """ # noqa: E501
     space_id: StrictStr = Field(description="Space identifier (base64)")
     name: StrictStr = Field(description="Evaluator name (must be unique within the space)")

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from datetime import datetime, timezone
 from unittest.mock import Mock, create_autospec, patch
 
 import pytest
@@ -12,7 +13,11 @@ from arize._generated.api_client.models.assignment_method import (
     AssignmentMethod,
 )
 from arize.annotation_queues.client import AnnotationQueuesClient
-from arize.annotation_queues.types import AnnotationQueueRecordInput
+from arize.annotation_queues.types import (
+    AnnotationQueueRecordInput,
+    AnnotationQueueSessionRecordInput,
+    AnnotationQueueTraceRecordInput,
+)
 
 # Base64 IDs that pass is_resource_id() — decode to "Type:123"
 _QUEUE_ID = "QW5ub3RhdGlvblF1ZXVlOjEyMw=="  # AnnotationQueue:123
@@ -464,6 +469,50 @@ class TestAnnotationQueuesClientAddRecords:
             annotation_queue_id=_QUEUE_ID,
             add_annotation_queue_records_request=mock_body,
         )
+
+    def test_accepts_session_record_source(
+        self, annotation_queues_client: AnnotationQueuesClient, mock_api: Mock
+    ) -> None:
+        """add_records() should wrap an unwrapped session record source."""
+        session_source = AnnotationQueueSessionRecordInput(
+            record_type="SESSION",
+            project_id="TW9kZWw6MTIz",
+            start_time=datetime(2026, 8, 1, tzinfo=timezone.utc),
+            end_time=datetime(2026, 8, 2, tzinfo=timezone.utc),
+            session_ids=["session-1", "session-2"],
+        )
+
+        annotation_queues_client.add_records(
+            annotation_queue=_QUEUE_ID,
+            record_sources=[session_source],
+        )
+
+        request = mock_api.create_annotation_queue_record.call_args.kwargs[
+            "add_annotation_queue_records_request"
+        ]
+        assert request.record_sources[0].actual_instance is session_source
+
+    def test_accepts_trace_record_source(
+        self, annotation_queues_client: AnnotationQueuesClient, mock_api: Mock
+    ) -> None:
+        """add_records() should wrap an unwrapped trace record source."""
+        trace_source = AnnotationQueueTraceRecordInput(
+            record_type="TRACE",
+            project_id="TW9kZWw6MTIz",
+            start_time=datetime(2026, 8, 1, tzinfo=timezone.utc),
+            end_time=datetime(2026, 8, 2, tzinfo=timezone.utc),
+            trace_ids=["trace-1", "trace-2"],
+        )
+
+        annotation_queues_client.add_records(
+            annotation_queue=_QUEUE_ID,
+            record_sources=[trace_source],
+        )
+
+        request = mock_api.create_annotation_queue_record.call_args.kwargs[
+            "add_annotation_queue_records_request"
+        ]
+        assert request.record_sources[0].actual_instance is trace_source
 
     def test_returns_api_response(
         self, annotation_queues_client: AnnotationQueuesClient, mock_api: Mock

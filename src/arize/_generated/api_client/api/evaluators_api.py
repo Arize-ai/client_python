@@ -31,6 +31,8 @@ from arize._generated.api_client.models.list_evaluator_templates_response import
 from arize._generated.api_client.models.list_evaluator_versions_response import ListEvaluatorVersionsResponse
 from arize._generated.api_client.models.list_evaluators_response import ListEvaluatorsResponse
 from arize._generated.api_client.models.list_tags_response import ListTagsResponse
+from arize._generated.api_client.models.remove_tags_request import RemoveTagsRequest
+from arize._generated.api_client.models.remove_tags_response import RemoveTagsResponse
 from arize._generated.api_client.models.set_webhook_subscriptions_request import SetWebhookSubscriptionsRequest
 from arize._generated.api_client.models.update_evaluator_request import UpdateEvaluatorRequest
 from arize._generated.api_client.models.webhook_subscriptions import WebhookSubscriptions
@@ -364,7 +366,7 @@ class EvaluatorsApi:
     @validate_call
     def create_evaluator(
         self,
-        create_evaluator_request: Annotated[CreateEvaluatorRequest, Field(description="Body containing evaluator creation parameters with an initial version.  Only `type: TEMPLATE` and `type: CODE` are currently accepted on creation. ")],
+        create_evaluator_request: Annotated[CreateEvaluatorRequest, Field(description="Body containing evaluator creation parameters with an initial version.  `type: TEMPLATE`, `type: CODE`, and `type: REMOTE` are accepted on creation. ")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -380,9 +382,9 @@ class EvaluatorsApi:
     ) -> EvaluatorWithVersion:
         """Create evaluator
 
-        Creates a new evaluator with an initial version.  **Payload Requirements** - The evaluator `name` must be unique within the given space. - `type` (top-level) selects the evaluator kind: `TEMPLATE` or `CODE`.   With `TEMPLATE`, provide `version.template_config`.   With `CODE`, provide `version.code_config` — where `code_config.type` is `MANAGED` or `CUSTOM` (a separate discriminator *within* `code_config`, independent of the top-level `type: CODE`). - For template evaluators: `version.template_config.name` is the eval column name; must match `^[a-zA-Z0-9_\\s\\-&()]+$`. - For template evaluators: `version.template_config.template` is the prompt template; use `{variable}` for placeholders (f-string format, e.g. `{input}`, `{output}`). - For template evaluators: `version.template_config.classification_choices` is required and maps choice labels to numeric scores (e.g. `{\"relevant\": 1, \"irrelevant\": 0}`). - For code evaluators: see `CodeConfig` — managed evaluators (`code_config.type: MANAGED`) use `managed_evaluator` and `variables`; custom evaluators (`code_config.type: CUSTOM`) use `code`, optional `imports`, and `variables`. - System-managed fields (`id`, `created_at`, `updated_at`, `created_by_user_id`) are rejected on input.  **Valid example** (template evaluator) ```json {   \"name\": \"Hallucination Detector\",   \"space_id\": \"U3BhY2U6MTpWNEth\",   \"type\": \"TEMPLATE\",   \"version\": {     \"commit_message\": \"Initial version\",     \"template_config\": {       \"name\": \"hallucination\",       \"template\": \"Given the input: {input}\\nand the output: {output}\\nIs the output a hallucination?\",       \"include_explanations\": true,       \"use_function_calling\": true,       \"classification_choices\": {\"hallucinated\": 0, \"factual\": 1},       \"llm_config\": {         \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",         \"model_name\": \"gpt-4o\",         \"invocation_parameters\": {\"temperature\": 0},         \"provider_parameters\": {}       }     }   } } ```  **Invalid example** (type/config mismatch — `TEMPLATE` type with `code_config`) ```json {   \"name\": \"Bad Evaluator\",   \"space_id\": \"U3BhY2U6MTpWNEth\",   \"type\": \"TEMPLATE\",   \"version\": {     \"commit_message\": \"Wrong config\",     \"code_config\": {       \"type\": \"CUSTOM\",       \"name\": \"my_eval\",       \"code\": \"class Evaluator: ...\",       \"variables\": [\"input\"]     }   } } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Creates a new evaluator with an initial version.  **Payload Requirements** - The evaluator `name` must be unique within the given space. - `type` (top-level) selects the evaluator kind: `TEMPLATE`, `CODE`, or `REMOTE`.   With `TEMPLATE`, provide `version.template_config`.   With `CODE`, provide `version.code_config` — where `code_config.type` is `MANAGED` or `CUSTOM` (a separate discriminator *within* `code_config`, independent of the top-level `type: CODE`).   With `REMOTE`, provide `version.remote_config.integration_id` referencing an   accessible `EVALUATOR` integration. Remote evaluator creation requires the   remote evaluators feature to be enabled; otherwise the request returns `403`. - For template evaluators: `version.template_config.name` is the eval column name; must match `^[a-zA-Z0-9_\\s\\-&()]+$`. - For template evaluators: `version.template_config.template` is the prompt template; use `{variable}` for placeholders (f-string format, e.g. `{input}`, `{output}`). - For template evaluators: `version.template_config.classification_choices` is required and maps choice labels to numeric scores (e.g. `{\"relevant\": 1, \"irrelevant\": 0}`). - For code evaluators: see `CodeConfig` — managed evaluators (`code_config.type: MANAGED`) use `managed_evaluator` and `variables`; custom evaluators (`code_config.type: CUSTOM`) use `code`, optional `imports`, and `variables`. - System-managed fields (`id`, `created_at`, `updated_at`, `created_by_user_id`) are rejected on input.  **Valid example** (template evaluator) ```json {   \"name\": \"Hallucination Detector\",   \"space_id\": \"U3BhY2U6MTpWNEth\",   \"type\": \"TEMPLATE\",   \"version\": {     \"commit_message\": \"Initial version\",     \"template_config\": {       \"name\": \"hallucination\",       \"template\": \"Given the input: {input}\\nand the output: {output}\\nIs the output a hallucination?\",       \"include_explanations\": true,       \"use_function_calling\": true,       \"classification_choices\": {\"hallucinated\": 0, \"factual\": 1},       \"llm_config\": {         \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",         \"model_name\": \"gpt-4o\",         \"invocation_parameters\": {\"temperature\": 0},         \"provider_parameters\": {}       }     }   } } ```  **Invalid example** (type/config mismatch — `TEMPLATE` type with `code_config`) ```json {   \"name\": \"Bad Evaluator\",   \"space_id\": \"U3BhY2U6MTpWNEth\",   \"type\": \"TEMPLATE\",   \"version\": {     \"commit_message\": \"Wrong config\",     \"code_config\": {       \"type\": \"CUSTOM\",       \"name\": \"my_eval\",       \"code\": \"class Evaluator: ...\",       \"variables\": [\"input\"]     }   } } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param create_evaluator_request: Body containing evaluator creation parameters with an initial version.  Only `type: TEMPLATE` and `type: CODE` are currently accepted on creation.  (required)
+        :param create_evaluator_request: Body containing evaluator creation parameters with an initial version.  `type: TEMPLATE`, `type: CODE`, and `type: REMOTE` are accepted on creation.  (required)
         :type create_evaluator_request: CreateEvaluatorRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -438,7 +440,7 @@ class EvaluatorsApi:
     @validate_call
     def create_evaluator_with_http_info(
         self,
-        create_evaluator_request: Annotated[CreateEvaluatorRequest, Field(description="Body containing evaluator creation parameters with an initial version.  Only `type: TEMPLATE` and `type: CODE` are currently accepted on creation. ")],
+        create_evaluator_request: Annotated[CreateEvaluatorRequest, Field(description="Body containing evaluator creation parameters with an initial version.  `type: TEMPLATE`, `type: CODE`, and `type: REMOTE` are accepted on creation. ")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -454,9 +456,9 @@ class EvaluatorsApi:
     ) -> ApiResponse[EvaluatorWithVersion]:
         """Create evaluator
 
-        Creates a new evaluator with an initial version.  **Payload Requirements** - The evaluator `name` must be unique within the given space. - `type` (top-level) selects the evaluator kind: `TEMPLATE` or `CODE`.   With `TEMPLATE`, provide `version.template_config`.   With `CODE`, provide `version.code_config` — where `code_config.type` is `MANAGED` or `CUSTOM` (a separate discriminator *within* `code_config`, independent of the top-level `type: CODE`). - For template evaluators: `version.template_config.name` is the eval column name; must match `^[a-zA-Z0-9_\\s\\-&()]+$`. - For template evaluators: `version.template_config.template` is the prompt template; use `{variable}` for placeholders (f-string format, e.g. `{input}`, `{output}`). - For template evaluators: `version.template_config.classification_choices` is required and maps choice labels to numeric scores (e.g. `{\"relevant\": 1, \"irrelevant\": 0}`). - For code evaluators: see `CodeConfig` — managed evaluators (`code_config.type: MANAGED`) use `managed_evaluator` and `variables`; custom evaluators (`code_config.type: CUSTOM`) use `code`, optional `imports`, and `variables`. - System-managed fields (`id`, `created_at`, `updated_at`, `created_by_user_id`) are rejected on input.  **Valid example** (template evaluator) ```json {   \"name\": \"Hallucination Detector\",   \"space_id\": \"U3BhY2U6MTpWNEth\",   \"type\": \"TEMPLATE\",   \"version\": {     \"commit_message\": \"Initial version\",     \"template_config\": {       \"name\": \"hallucination\",       \"template\": \"Given the input: {input}\\nand the output: {output}\\nIs the output a hallucination?\",       \"include_explanations\": true,       \"use_function_calling\": true,       \"classification_choices\": {\"hallucinated\": 0, \"factual\": 1},       \"llm_config\": {         \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",         \"model_name\": \"gpt-4o\",         \"invocation_parameters\": {\"temperature\": 0},         \"provider_parameters\": {}       }     }   } } ```  **Invalid example** (type/config mismatch — `TEMPLATE` type with `code_config`) ```json {   \"name\": \"Bad Evaluator\",   \"space_id\": \"U3BhY2U6MTpWNEth\",   \"type\": \"TEMPLATE\",   \"version\": {     \"commit_message\": \"Wrong config\",     \"code_config\": {       \"type\": \"CUSTOM\",       \"name\": \"my_eval\",       \"code\": \"class Evaluator: ...\",       \"variables\": [\"input\"]     }   } } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Creates a new evaluator with an initial version.  **Payload Requirements** - The evaluator `name` must be unique within the given space. - `type` (top-level) selects the evaluator kind: `TEMPLATE`, `CODE`, or `REMOTE`.   With `TEMPLATE`, provide `version.template_config`.   With `CODE`, provide `version.code_config` — where `code_config.type` is `MANAGED` or `CUSTOM` (a separate discriminator *within* `code_config`, independent of the top-level `type: CODE`).   With `REMOTE`, provide `version.remote_config.integration_id` referencing an   accessible `EVALUATOR` integration. Remote evaluator creation requires the   remote evaluators feature to be enabled; otherwise the request returns `403`. - For template evaluators: `version.template_config.name` is the eval column name; must match `^[a-zA-Z0-9_\\s\\-&()]+$`. - For template evaluators: `version.template_config.template` is the prompt template; use `{variable}` for placeholders (f-string format, e.g. `{input}`, `{output}`). - For template evaluators: `version.template_config.classification_choices` is required and maps choice labels to numeric scores (e.g. `{\"relevant\": 1, \"irrelevant\": 0}`). - For code evaluators: see `CodeConfig` — managed evaluators (`code_config.type: MANAGED`) use `managed_evaluator` and `variables`; custom evaluators (`code_config.type: CUSTOM`) use `code`, optional `imports`, and `variables`. - System-managed fields (`id`, `created_at`, `updated_at`, `created_by_user_id`) are rejected on input.  **Valid example** (template evaluator) ```json {   \"name\": \"Hallucination Detector\",   \"space_id\": \"U3BhY2U6MTpWNEth\",   \"type\": \"TEMPLATE\",   \"version\": {     \"commit_message\": \"Initial version\",     \"template_config\": {       \"name\": \"hallucination\",       \"template\": \"Given the input: {input}\\nand the output: {output}\\nIs the output a hallucination?\",       \"include_explanations\": true,       \"use_function_calling\": true,       \"classification_choices\": {\"hallucinated\": 0, \"factual\": 1},       \"llm_config\": {         \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",         \"model_name\": \"gpt-4o\",         \"invocation_parameters\": {\"temperature\": 0},         \"provider_parameters\": {}       }     }   } } ```  **Invalid example** (type/config mismatch — `TEMPLATE` type with `code_config`) ```json {   \"name\": \"Bad Evaluator\",   \"space_id\": \"U3BhY2U6MTpWNEth\",   \"type\": \"TEMPLATE\",   \"version\": {     \"commit_message\": \"Wrong config\",     \"code_config\": {       \"type\": \"CUSTOM\",       \"name\": \"my_eval\",       \"code\": \"class Evaluator: ...\",       \"variables\": [\"input\"]     }   } } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param create_evaluator_request: Body containing evaluator creation parameters with an initial version.  Only `type: TEMPLATE` and `type: CODE` are currently accepted on creation.  (required)
+        :param create_evaluator_request: Body containing evaluator creation parameters with an initial version.  `type: TEMPLATE`, `type: CODE`, and `type: REMOTE` are accepted on creation.  (required)
         :type create_evaluator_request: CreateEvaluatorRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -512,7 +514,7 @@ class EvaluatorsApi:
     @validate_call
     def create_evaluator_without_preload_content(
         self,
-        create_evaluator_request: Annotated[CreateEvaluatorRequest, Field(description="Body containing evaluator creation parameters with an initial version.  Only `type: TEMPLATE` and `type: CODE` are currently accepted on creation. ")],
+        create_evaluator_request: Annotated[CreateEvaluatorRequest, Field(description="Body containing evaluator creation parameters with an initial version.  `type: TEMPLATE`, `type: CODE`, and `type: REMOTE` are accepted on creation. ")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -528,9 +530,9 @@ class EvaluatorsApi:
     ) -> RESTResponseType:
         """Create evaluator
 
-        Creates a new evaluator with an initial version.  **Payload Requirements** - The evaluator `name` must be unique within the given space. - `type` (top-level) selects the evaluator kind: `TEMPLATE` or `CODE`.   With `TEMPLATE`, provide `version.template_config`.   With `CODE`, provide `version.code_config` — where `code_config.type` is `MANAGED` or `CUSTOM` (a separate discriminator *within* `code_config`, independent of the top-level `type: CODE`). - For template evaluators: `version.template_config.name` is the eval column name; must match `^[a-zA-Z0-9_\\s\\-&()]+$`. - For template evaluators: `version.template_config.template` is the prompt template; use `{variable}` for placeholders (f-string format, e.g. `{input}`, `{output}`). - For template evaluators: `version.template_config.classification_choices` is required and maps choice labels to numeric scores (e.g. `{\"relevant\": 1, \"irrelevant\": 0}`). - For code evaluators: see `CodeConfig` — managed evaluators (`code_config.type: MANAGED`) use `managed_evaluator` and `variables`; custom evaluators (`code_config.type: CUSTOM`) use `code`, optional `imports`, and `variables`. - System-managed fields (`id`, `created_at`, `updated_at`, `created_by_user_id`) are rejected on input.  **Valid example** (template evaluator) ```json {   \"name\": \"Hallucination Detector\",   \"space_id\": \"U3BhY2U6MTpWNEth\",   \"type\": \"TEMPLATE\",   \"version\": {     \"commit_message\": \"Initial version\",     \"template_config\": {       \"name\": \"hallucination\",       \"template\": \"Given the input: {input}\\nand the output: {output}\\nIs the output a hallucination?\",       \"include_explanations\": true,       \"use_function_calling\": true,       \"classification_choices\": {\"hallucinated\": 0, \"factual\": 1},       \"llm_config\": {         \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",         \"model_name\": \"gpt-4o\",         \"invocation_parameters\": {\"temperature\": 0},         \"provider_parameters\": {}       }     }   } } ```  **Invalid example** (type/config mismatch — `TEMPLATE` type with `code_config`) ```json {   \"name\": \"Bad Evaluator\",   \"space_id\": \"U3BhY2U6MTpWNEth\",   \"type\": \"TEMPLATE\",   \"version\": {     \"commit_message\": \"Wrong config\",     \"code_config\": {       \"type\": \"CUSTOM\",       \"name\": \"my_eval\",       \"code\": \"class Evaluator: ...\",       \"variables\": [\"input\"]     }   } } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Creates a new evaluator with an initial version.  **Payload Requirements** - The evaluator `name` must be unique within the given space. - `type` (top-level) selects the evaluator kind: `TEMPLATE`, `CODE`, or `REMOTE`.   With `TEMPLATE`, provide `version.template_config`.   With `CODE`, provide `version.code_config` — where `code_config.type` is `MANAGED` or `CUSTOM` (a separate discriminator *within* `code_config`, independent of the top-level `type: CODE`).   With `REMOTE`, provide `version.remote_config.integration_id` referencing an   accessible `EVALUATOR` integration. Remote evaluator creation requires the   remote evaluators feature to be enabled; otherwise the request returns `403`. - For template evaluators: `version.template_config.name` is the eval column name; must match `^[a-zA-Z0-9_\\s\\-&()]+$`. - For template evaluators: `version.template_config.template` is the prompt template; use `{variable}` for placeholders (f-string format, e.g. `{input}`, `{output}`). - For template evaluators: `version.template_config.classification_choices` is required and maps choice labels to numeric scores (e.g. `{\"relevant\": 1, \"irrelevant\": 0}`). - For code evaluators: see `CodeConfig` — managed evaluators (`code_config.type: MANAGED`) use `managed_evaluator` and `variables`; custom evaluators (`code_config.type: CUSTOM`) use `code`, optional `imports`, and `variables`. - System-managed fields (`id`, `created_at`, `updated_at`, `created_by_user_id`) are rejected on input.  **Valid example** (template evaluator) ```json {   \"name\": \"Hallucination Detector\",   \"space_id\": \"U3BhY2U6MTpWNEth\",   \"type\": \"TEMPLATE\",   \"version\": {     \"commit_message\": \"Initial version\",     \"template_config\": {       \"name\": \"hallucination\",       \"template\": \"Given the input: {input}\\nand the output: {output}\\nIs the output a hallucination?\",       \"include_explanations\": true,       \"use_function_calling\": true,       \"classification_choices\": {\"hallucinated\": 0, \"factual\": 1},       \"llm_config\": {         \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",         \"model_name\": \"gpt-4o\",         \"invocation_parameters\": {\"temperature\": 0},         \"provider_parameters\": {}       }     }   } } ```  **Invalid example** (type/config mismatch — `TEMPLATE` type with `code_config`) ```json {   \"name\": \"Bad Evaluator\",   \"space_id\": \"U3BhY2U6MTpWNEth\",   \"type\": \"TEMPLATE\",   \"version\": {     \"commit_message\": \"Wrong config\",     \"code_config\": {       \"type\": \"CUSTOM\",       \"name\": \"my_eval\",       \"code\": \"class Evaluator: ...\",       \"variables\": [\"input\"]     }   } } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param create_evaluator_request: Body containing evaluator creation parameters with an initial version.  Only `type: TEMPLATE` and `type: CODE` are currently accepted on creation.  (required)
+        :param create_evaluator_request: Body containing evaluator creation parameters with an initial version.  `type: TEMPLATE`, `type: CODE`, and `type: REMOTE` are accepted on creation.  (required)
         :type create_evaluator_request: CreateEvaluatorRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -677,7 +679,7 @@ class EvaluatorsApi:
     ) -> EvaluatorVersion:
         """Create evaluator version
 
-        **Endpoint:** `POST /v2/evaluators/{evaluator_id}/versions`  Create a new version of an existing evaluator. The new version becomes the latest version immediately (versioning is append-only).  **Payload Requirements** - `commit_message` describes the changes in this version. - Provide either `template_config` or `code_config` to match the evaluator's `type`.   `code_config.type` is a separate inner discriminator (`MANAGED` or `CUSTOM`) and is unrelated to the top-level `type`.   Schema and constraints match Create Evaluator. - For a template version, `template_config.llm_config.ai_integration_id` must   reference an AI integration that exists and is accessible to the evaluator's   space; otherwise the request fails with `404`.  **Responses** - `201` — version created; returns the new `EvaluatorVersion`. - `400` — malformed request: `evaluator_id` fails ID-format validation, the   request body fails schema validation (e.g. malformed JSON), or   `type`/`config` mismatch a documented invalid shape. - `401` — missing or invalid credentials. - `403` — the evaluator is readable but the caller lacks permission to   create a version on it. - `404` — `evaluator_id` does not exist or is not readable by the caller   (`Evaluator not found`), or `template_config.llm_config.ai_integration_id`   does not exist or is not accessible to this space   (`LLM integration not found or not accessible to this space`). - `422` — the body is well-formed JSON but fails business validation   (e.g. missing `commit_message`, invalid template column name). - `429` — rate limit exceeded.  **Valid example** (template version) ```json {   \"commit_message\": \"Improve prompt template for better accuracy\",   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Given the input: {input}\\nand output: {output}\\nIs the output a hallucination? Explain your reasoning.\",     \"include_explanations\": true,     \"use_function_calling\": true,     \"classification_choices\": {\"hallucinated\": 0, \"factual\": 1},     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {\"temperature\": 0},       \"provider_parameters\": {}     }   } } ```  **Invalid example** (missing required `commit_message`) ```json {   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Is this a hallucination?\",     \"include_explanations\": false,     \"use_function_calling\": false,     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {},       \"provider_parameters\": {}     }   } } ``` Response `422`: ```json {   \"status\": 422,   \"title\": \"Unprocessable Entity\",   \"type\": \"https://arize.com/docs/ax/rest-reference/errors#validation-error\",   \"detail\": \"Invalid input\" } ```  **Invalid example** (`ai_integration_id` does not exist or is not accessible to this space) ```json {   \"commit_message\": \"Try a nonexistent integration\",   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Given {input} and {output}, is it a hallucination?\",     \"include_explanations\": true,     \"use_function_calling_if_available\": true,     \"classification_choices\": {\"hallucinated\": 0, \"factual\": 1},     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246OTk5OTk6ZmFrZQ==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {},       \"provider_parameters\": {}     }   } } ``` Response `404`: ```json {   \"status\": 404,   \"title\": \"Not Found\",   \"type\": \"https://arize.com/docs/ax/rest-reference/errors#resource-not-found\",   \"detail\": \"LLM integration not found or not accessible to this space\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        **Endpoint:** `POST /v2/evaluators/{evaluator_id}/versions`  Create a new version of an existing evaluator. The new version becomes the latest version immediately (versioning is append-only).  **Payload Requirements** - `commit_message` describes the changes in this version. - Provide exactly one of `template_config`, `code_config`, or `remote_config` to match the evaluator's `type`.   `code_config.type` is a separate inner discriminator (`MANAGED` or `CUSTOM`) and is unrelated to the top-level `type`.   Schema and constraints match Create Evaluator. - For a template version, `template_config.llm_config.ai_integration_id` must   reference an AI integration that exists and is accessible to the evaluator's   space; otherwise the request fails with `404`. - For `REMOTE` evaluators: `remote_config.integration_id` must reference an   `EVALUATOR` integration. Each version may reference a different integration;   editing an integration affects every version that references it. `type: REMOTE`   requires the remote evaluators feature to be enabled. **Responses** - `201` — version created; returns the new `EvaluatorVersion`. - `400` — malformed request: `evaluator_id` fails ID-format validation,   the body is missing, or the JSON is malformed. - `401` — missing or invalid credentials. - `403` — the evaluator is readable but the caller lacks permission to   create a version on it. - `404` — `evaluator_id` does not exist or is not readable by the caller   (`Evaluator not found`), or `template_config.llm_config.ai_integration_id`   does not exist or is not accessible to this space   (`LLM integration not found or not accessible to this space`), or   `remote_config.integration_id` does not exist or is not applicable to this   space (`Integration not found`). - `422` — the body is well-formed JSON but fails validation, for example a   missing `commit_message`, a config mismatch, an invalid template column   name, or a remote integration with the wrong type. - `429` — rate limit exceeded.  **Valid example** (template version) ```json {   \"commit_message\": \"Improve prompt template for better accuracy\",   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Given the input: {input}\\nand output: {output}\\nIs the output a hallucination? Explain your reasoning.\",     \"include_explanations\": true,     \"use_function_calling\": true,     \"classification_choices\": {\"hallucinated\": 0, \"factual\": 1},     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {\"temperature\": 0},       \"provider_parameters\": {}     }   } } ```  **Invalid example** (missing required `commit_message`) ```json {   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Is this a hallucination?\",     \"include_explanations\": false,     \"use_function_calling\": false,     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {},       \"provider_parameters\": {}     }   } } ``` Response `422`: ```json {   \"status\": 422,   \"title\": \"Unprocessable Entity\",   \"type\": \"https://arize.com/docs/ax/rest-reference/errors#validation-error\",   \"detail\": \"Invalid input\" } ```  **Invalid example** (`ai_integration_id` does not exist or is not accessible to this space) ```json {   \"commit_message\": \"Try a nonexistent integration\",   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Given {input} and {output}, is it a hallucination?\",     \"include_explanations\": true,     \"use_function_calling_if_available\": true,     \"classification_choices\": {\"hallucinated\": 0, \"factual\": 1},     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246OTk5OTk6ZmFrZQ==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {},       \"provider_parameters\": {}     }   } } ``` Response `404`: ```json {   \"status\": 404,   \"title\": \"Not Found\",   \"type\": \"https://arize.com/docs/ax/rest-reference/errors#resource-not-found\",   \"detail\": \"LLM integration not found or not accessible to this space\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param evaluator_id: The unique evaluator identifier (base64) (required)
         :type evaluator_id: str
@@ -754,7 +756,7 @@ class EvaluatorsApi:
     ) -> ApiResponse[EvaluatorVersion]:
         """Create evaluator version
 
-        **Endpoint:** `POST /v2/evaluators/{evaluator_id}/versions`  Create a new version of an existing evaluator. The new version becomes the latest version immediately (versioning is append-only).  **Payload Requirements** - `commit_message` describes the changes in this version. - Provide either `template_config` or `code_config` to match the evaluator's `type`.   `code_config.type` is a separate inner discriminator (`MANAGED` or `CUSTOM`) and is unrelated to the top-level `type`.   Schema and constraints match Create Evaluator. - For a template version, `template_config.llm_config.ai_integration_id` must   reference an AI integration that exists and is accessible to the evaluator's   space; otherwise the request fails with `404`.  **Responses** - `201` — version created; returns the new `EvaluatorVersion`. - `400` — malformed request: `evaluator_id` fails ID-format validation, the   request body fails schema validation (e.g. malformed JSON), or   `type`/`config` mismatch a documented invalid shape. - `401` — missing or invalid credentials. - `403` — the evaluator is readable but the caller lacks permission to   create a version on it. - `404` — `evaluator_id` does not exist or is not readable by the caller   (`Evaluator not found`), or `template_config.llm_config.ai_integration_id`   does not exist or is not accessible to this space   (`LLM integration not found or not accessible to this space`). - `422` — the body is well-formed JSON but fails business validation   (e.g. missing `commit_message`, invalid template column name). - `429` — rate limit exceeded.  **Valid example** (template version) ```json {   \"commit_message\": \"Improve prompt template for better accuracy\",   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Given the input: {input}\\nand output: {output}\\nIs the output a hallucination? Explain your reasoning.\",     \"include_explanations\": true,     \"use_function_calling\": true,     \"classification_choices\": {\"hallucinated\": 0, \"factual\": 1},     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {\"temperature\": 0},       \"provider_parameters\": {}     }   } } ```  **Invalid example** (missing required `commit_message`) ```json {   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Is this a hallucination?\",     \"include_explanations\": false,     \"use_function_calling\": false,     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {},       \"provider_parameters\": {}     }   } } ``` Response `422`: ```json {   \"status\": 422,   \"title\": \"Unprocessable Entity\",   \"type\": \"https://arize.com/docs/ax/rest-reference/errors#validation-error\",   \"detail\": \"Invalid input\" } ```  **Invalid example** (`ai_integration_id` does not exist or is not accessible to this space) ```json {   \"commit_message\": \"Try a nonexistent integration\",   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Given {input} and {output}, is it a hallucination?\",     \"include_explanations\": true,     \"use_function_calling_if_available\": true,     \"classification_choices\": {\"hallucinated\": 0, \"factual\": 1},     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246OTk5OTk6ZmFrZQ==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {},       \"provider_parameters\": {}     }   } } ``` Response `404`: ```json {   \"status\": 404,   \"title\": \"Not Found\",   \"type\": \"https://arize.com/docs/ax/rest-reference/errors#resource-not-found\",   \"detail\": \"LLM integration not found or not accessible to this space\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        **Endpoint:** `POST /v2/evaluators/{evaluator_id}/versions`  Create a new version of an existing evaluator. The new version becomes the latest version immediately (versioning is append-only).  **Payload Requirements** - `commit_message` describes the changes in this version. - Provide exactly one of `template_config`, `code_config`, or `remote_config` to match the evaluator's `type`.   `code_config.type` is a separate inner discriminator (`MANAGED` or `CUSTOM`) and is unrelated to the top-level `type`.   Schema and constraints match Create Evaluator. - For a template version, `template_config.llm_config.ai_integration_id` must   reference an AI integration that exists and is accessible to the evaluator's   space; otherwise the request fails with `404`. - For `REMOTE` evaluators: `remote_config.integration_id` must reference an   `EVALUATOR` integration. Each version may reference a different integration;   editing an integration affects every version that references it. `type: REMOTE`   requires the remote evaluators feature to be enabled. **Responses** - `201` — version created; returns the new `EvaluatorVersion`. - `400` — malformed request: `evaluator_id` fails ID-format validation,   the body is missing, or the JSON is malformed. - `401` — missing or invalid credentials. - `403` — the evaluator is readable but the caller lacks permission to   create a version on it. - `404` — `evaluator_id` does not exist or is not readable by the caller   (`Evaluator not found`), or `template_config.llm_config.ai_integration_id`   does not exist or is not accessible to this space   (`LLM integration not found or not accessible to this space`), or   `remote_config.integration_id` does not exist or is not applicable to this   space (`Integration not found`). - `422` — the body is well-formed JSON but fails validation, for example a   missing `commit_message`, a config mismatch, an invalid template column   name, or a remote integration with the wrong type. - `429` — rate limit exceeded.  **Valid example** (template version) ```json {   \"commit_message\": \"Improve prompt template for better accuracy\",   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Given the input: {input}\\nand output: {output}\\nIs the output a hallucination? Explain your reasoning.\",     \"include_explanations\": true,     \"use_function_calling\": true,     \"classification_choices\": {\"hallucinated\": 0, \"factual\": 1},     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {\"temperature\": 0},       \"provider_parameters\": {}     }   } } ```  **Invalid example** (missing required `commit_message`) ```json {   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Is this a hallucination?\",     \"include_explanations\": false,     \"use_function_calling\": false,     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {},       \"provider_parameters\": {}     }   } } ``` Response `422`: ```json {   \"status\": 422,   \"title\": \"Unprocessable Entity\",   \"type\": \"https://arize.com/docs/ax/rest-reference/errors#validation-error\",   \"detail\": \"Invalid input\" } ```  **Invalid example** (`ai_integration_id` does not exist or is not accessible to this space) ```json {   \"commit_message\": \"Try a nonexistent integration\",   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Given {input} and {output}, is it a hallucination?\",     \"include_explanations\": true,     \"use_function_calling_if_available\": true,     \"classification_choices\": {\"hallucinated\": 0, \"factual\": 1},     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246OTk5OTk6ZmFrZQ==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {},       \"provider_parameters\": {}     }   } } ``` Response `404`: ```json {   \"status\": 404,   \"title\": \"Not Found\",   \"type\": \"https://arize.com/docs/ax/rest-reference/errors#resource-not-found\",   \"detail\": \"LLM integration not found or not accessible to this space\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param evaluator_id: The unique evaluator identifier (base64) (required)
         :type evaluator_id: str
@@ -831,7 +833,7 @@ class EvaluatorsApi:
     ) -> RESTResponseType:
         """Create evaluator version
 
-        **Endpoint:** `POST /v2/evaluators/{evaluator_id}/versions`  Create a new version of an existing evaluator. The new version becomes the latest version immediately (versioning is append-only).  **Payload Requirements** - `commit_message` describes the changes in this version. - Provide either `template_config` or `code_config` to match the evaluator's `type`.   `code_config.type` is a separate inner discriminator (`MANAGED` or `CUSTOM`) and is unrelated to the top-level `type`.   Schema and constraints match Create Evaluator. - For a template version, `template_config.llm_config.ai_integration_id` must   reference an AI integration that exists and is accessible to the evaluator's   space; otherwise the request fails with `404`.  **Responses** - `201` — version created; returns the new `EvaluatorVersion`. - `400` — malformed request: `evaluator_id` fails ID-format validation, the   request body fails schema validation (e.g. malformed JSON), or   `type`/`config` mismatch a documented invalid shape. - `401` — missing or invalid credentials. - `403` — the evaluator is readable but the caller lacks permission to   create a version on it. - `404` — `evaluator_id` does not exist or is not readable by the caller   (`Evaluator not found`), or `template_config.llm_config.ai_integration_id`   does not exist or is not accessible to this space   (`LLM integration not found or not accessible to this space`). - `422` — the body is well-formed JSON but fails business validation   (e.g. missing `commit_message`, invalid template column name). - `429` — rate limit exceeded.  **Valid example** (template version) ```json {   \"commit_message\": \"Improve prompt template for better accuracy\",   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Given the input: {input}\\nand output: {output}\\nIs the output a hallucination? Explain your reasoning.\",     \"include_explanations\": true,     \"use_function_calling\": true,     \"classification_choices\": {\"hallucinated\": 0, \"factual\": 1},     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {\"temperature\": 0},       \"provider_parameters\": {}     }   } } ```  **Invalid example** (missing required `commit_message`) ```json {   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Is this a hallucination?\",     \"include_explanations\": false,     \"use_function_calling\": false,     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {},       \"provider_parameters\": {}     }   } } ``` Response `422`: ```json {   \"status\": 422,   \"title\": \"Unprocessable Entity\",   \"type\": \"https://arize.com/docs/ax/rest-reference/errors#validation-error\",   \"detail\": \"Invalid input\" } ```  **Invalid example** (`ai_integration_id` does not exist or is not accessible to this space) ```json {   \"commit_message\": \"Try a nonexistent integration\",   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Given {input} and {output}, is it a hallucination?\",     \"include_explanations\": true,     \"use_function_calling_if_available\": true,     \"classification_choices\": {\"hallucinated\": 0, \"factual\": 1},     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246OTk5OTk6ZmFrZQ==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {},       \"provider_parameters\": {}     }   } } ``` Response `404`: ```json {   \"status\": 404,   \"title\": \"Not Found\",   \"type\": \"https://arize.com/docs/ax/rest-reference/errors#resource-not-found\",   \"detail\": \"LLM integration not found or not accessible to this space\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        **Endpoint:** `POST /v2/evaluators/{evaluator_id}/versions`  Create a new version of an existing evaluator. The new version becomes the latest version immediately (versioning is append-only).  **Payload Requirements** - `commit_message` describes the changes in this version. - Provide exactly one of `template_config`, `code_config`, or `remote_config` to match the evaluator's `type`.   `code_config.type` is a separate inner discriminator (`MANAGED` or `CUSTOM`) and is unrelated to the top-level `type`.   Schema and constraints match Create Evaluator. - For a template version, `template_config.llm_config.ai_integration_id` must   reference an AI integration that exists and is accessible to the evaluator's   space; otherwise the request fails with `404`. - For `REMOTE` evaluators: `remote_config.integration_id` must reference an   `EVALUATOR` integration. Each version may reference a different integration;   editing an integration affects every version that references it. `type: REMOTE`   requires the remote evaluators feature to be enabled. **Responses** - `201` — version created; returns the new `EvaluatorVersion`. - `400` — malformed request: `evaluator_id` fails ID-format validation,   the body is missing, or the JSON is malformed. - `401` — missing or invalid credentials. - `403` — the evaluator is readable but the caller lacks permission to   create a version on it. - `404` — `evaluator_id` does not exist or is not readable by the caller   (`Evaluator not found`), or `template_config.llm_config.ai_integration_id`   does not exist or is not accessible to this space   (`LLM integration not found or not accessible to this space`), or   `remote_config.integration_id` does not exist or is not applicable to this   space (`Integration not found`). - `422` — the body is well-formed JSON but fails validation, for example a   missing `commit_message`, a config mismatch, an invalid template column   name, or a remote integration with the wrong type. - `429` — rate limit exceeded.  **Valid example** (template version) ```json {   \"commit_message\": \"Improve prompt template for better accuracy\",   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Given the input: {input}\\nand output: {output}\\nIs the output a hallucination? Explain your reasoning.\",     \"include_explanations\": true,     \"use_function_calling\": true,     \"classification_choices\": {\"hallucinated\": 0, \"factual\": 1},     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {\"temperature\": 0},       \"provider_parameters\": {}     }   } } ```  **Invalid example** (missing required `commit_message`) ```json {   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Is this a hallucination?\",     \"include_explanations\": false,     \"use_function_calling\": false,     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {},       \"provider_parameters\": {}     }   } } ``` Response `422`: ```json {   \"status\": 422,   \"title\": \"Unprocessable Entity\",   \"type\": \"https://arize.com/docs/ax/rest-reference/errors#validation-error\",   \"detail\": \"Invalid input\" } ```  **Invalid example** (`ai_integration_id` does not exist or is not accessible to this space) ```json {   \"commit_message\": \"Try a nonexistent integration\",   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Given {input} and {output}, is it a hallucination?\",     \"include_explanations\": true,     \"use_function_calling_if_available\": true,     \"classification_choices\": {\"hallucinated\": 0, \"factual\": 1},     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246OTk5OTk6ZmFrZQ==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {},       \"provider_parameters\": {}     }   } } ``` Response `404`: ```json {   \"status\": 404,   \"title\": \"Not Found\",   \"type\": \"https://arize.com/docs/ax/rest-reference/errors#resource-not-found\",   \"detail\": \"LLM integration not found or not accessible to this space\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param evaluator_id: The unique evaluator identifier (base64) (required)
         :type evaluator_id: str
@@ -3558,6 +3560,314 @@ class EvaluatorsApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/v2/evaluators',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def remove_evaluator_tags(
+        self,
+        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
+        remove_tags_request: Annotated[RemoveTagsRequest, Field(description="Body containing the IDs of the tags to detach from the resource")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RemoveTagsResponse:
+        """Detach tags from a evaluator
+
+        Detach one or more tags from a evaluator.  **Payload Requirements** - `tag_ids` is required and must contain between 1 and 100 tag IDs. - A tag ID that is not currently attached is reported in `not_deleted`   rather than causing the whole request to fail. - Unrecognized fields are rejected with `400`.  Returns a `200` with `completed`, `deleted`, and `not_deleted` for the requested tag IDs.  **Valid example** ```json {   \"tag_ids\": [\"VGFnOjEyMzQ1\", \"VGFnOjEyMzQ2\"] } ```  **Invalid example** (empty list) ```json {   \"tag_ids\": [] } ``` ```json {   \"type\": \"https://arize.com/docs/ax/rest-reference/errors#validation-error\",   \"title\": \"Unprocessable Entity\",   \"status\": 422,   \"detail\": \"tag_ids must contain at least 1 tag ID\",   \"request_id\": \"req_01HZY6X8E7\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param evaluator_id: The unique evaluator identifier (base64) (required)
+        :type evaluator_id: str
+        :param remove_tags_request: Body containing the IDs of the tags to detach from the resource (required)
+        :type remove_tags_request: RemoveTagsRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._remove_evaluator_tags_serialize(
+            evaluator_id=evaluator_id,
+            remove_tags_request=remove_tags_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "RemoveTagsResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def remove_evaluator_tags_with_http_info(
+        self,
+        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
+        remove_tags_request: Annotated[RemoveTagsRequest, Field(description="Body containing the IDs of the tags to detach from the resource")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[RemoveTagsResponse]:
+        """Detach tags from a evaluator
+
+        Detach one or more tags from a evaluator.  **Payload Requirements** - `tag_ids` is required and must contain between 1 and 100 tag IDs. - A tag ID that is not currently attached is reported in `not_deleted`   rather than causing the whole request to fail. - Unrecognized fields are rejected with `400`.  Returns a `200` with `completed`, `deleted`, and `not_deleted` for the requested tag IDs.  **Valid example** ```json {   \"tag_ids\": [\"VGFnOjEyMzQ1\", \"VGFnOjEyMzQ2\"] } ```  **Invalid example** (empty list) ```json {   \"tag_ids\": [] } ``` ```json {   \"type\": \"https://arize.com/docs/ax/rest-reference/errors#validation-error\",   \"title\": \"Unprocessable Entity\",   \"status\": 422,   \"detail\": \"tag_ids must contain at least 1 tag ID\",   \"request_id\": \"req_01HZY6X8E7\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param evaluator_id: The unique evaluator identifier (base64) (required)
+        :type evaluator_id: str
+        :param remove_tags_request: Body containing the IDs of the tags to detach from the resource (required)
+        :type remove_tags_request: RemoveTagsRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._remove_evaluator_tags_serialize(
+            evaluator_id=evaluator_id,
+            remove_tags_request=remove_tags_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "RemoveTagsResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def remove_evaluator_tags_without_preload_content(
+        self,
+        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
+        remove_tags_request: Annotated[RemoveTagsRequest, Field(description="Body containing the IDs of the tags to detach from the resource")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Detach tags from a evaluator
+
+        Detach one or more tags from a evaluator.  **Payload Requirements** - `tag_ids` is required and must contain between 1 and 100 tag IDs. - A tag ID that is not currently attached is reported in `not_deleted`   rather than causing the whole request to fail. - Unrecognized fields are rejected with `400`.  Returns a `200` with `completed`, `deleted`, and `not_deleted` for the requested tag IDs.  **Valid example** ```json {   \"tag_ids\": [\"VGFnOjEyMzQ1\", \"VGFnOjEyMzQ2\"] } ```  **Invalid example** (empty list) ```json {   \"tag_ids\": [] } ``` ```json {   \"type\": \"https://arize.com/docs/ax/rest-reference/errors#validation-error\",   \"title\": \"Unprocessable Entity\",   \"status\": 422,   \"detail\": \"tag_ids must contain at least 1 tag ID\",   \"request_id\": \"req_01HZY6X8E7\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param evaluator_id: The unique evaluator identifier (base64) (required)
+        :type evaluator_id: str
+        :param remove_tags_request: Body containing the IDs of the tags to detach from the resource (required)
+        :type remove_tags_request: RemoveTagsRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._remove_evaluator_tags_serialize(
+            evaluator_id=evaluator_id,
+            remove_tags_request=remove_tags_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "RemoveTagsResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _remove_evaluator_tags_serialize(
+        self,
+        evaluator_id,
+        remove_tags_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if evaluator_id is not None:
+            _path_params['evaluator_id'] = evaluator_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if remove_tags_request is not None:
+            _body_params = remove_tags_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='DELETE',
+            resource_path='/v2/evaluators/{evaluator_id}/tags',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

@@ -17,11 +17,17 @@ from arize._generated.api_client.models.annotation_queue_record import (
 from arize._generated.api_client.models.annotation_queue_record_input import (
     AnnotationQueueRecordInput,
 )
+from arize._generated.api_client.models.annotation_queue_session_record_input import (
+    AnnotationQueueSessionRecordInput,
+)
 from arize._generated.api_client.models.annotation_queue_source_type import (
     AnnotationQueueSourceType,
 )
 from arize._generated.api_client.models.annotation_queue_span_record_input import (
     AnnotationQueueSpanRecordInput,
+)
+from arize._generated.api_client.models.annotation_queue_trace_record_input import (
+    AnnotationQueueTraceRecordInput,
 )
 from arize._generated.api_client.models.assign_annotation_queue_record_response import (
     AssignAnnotationQueueRecordResponse,
@@ -50,8 +56,10 @@ __all__ = [
     "AnnotationQueueExampleRecordInput",
     "AnnotationQueueRecord",
     "AnnotationQueueRecordInput",
+    "AnnotationQueueSessionRecordInput",
     "AnnotationQueueSourceType",
     "AnnotationQueueSpanRecordInput",
+    "AnnotationQueueTraceRecordInput",
     "AssignAnnotationQueueRecordResponse",
     "AssignmentMethod",
     "CreateAnnotationQueueRecordResponse",

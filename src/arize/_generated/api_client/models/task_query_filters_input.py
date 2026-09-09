@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.task_query_filter_input import TaskQueryFilterInput
@@ -29,7 +29,7 @@ class TaskQueryFiltersInput(BaseModel):
     Combined named-query filters and boolean expression for create/update requests (trace/session shape). Supply this object OR `query_filter` (span shape) — not both. 
     """ # noqa: E501
     filters: Annotated[List[TaskQueryFilterInput], Field(min_length=1, max_length=5)] = Field(description="Named query filters (1-5 entries) with unique `A`-`E` ids. Each entry pairs a single-letter id with a filter expression. ")
-    expression: Optional[StrictStr] = Field(default=None, description="Boolean expression combining the `filters` ids (e.g. `A AND B`). Optional when exactly one filter is declared; required when two or more are declared. ")
+    expression: Optional[Annotated[str, Field(strict=True, max_length=512)]] = Field(default=None, description="Boolean expression combining the `filters` ids (e.g. `A AND B`). Optional when exactly one filter is declared; required when two or more are declared. ")
     __properties: ClassVar[List[str]] = ["filters", "expression"]
 
     model_config = ConfigDict(

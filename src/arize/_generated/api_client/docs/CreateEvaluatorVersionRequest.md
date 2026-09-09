@@ -1,6 +1,6 @@
 # CreateEvaluatorVersionRequest
 
-Payload for an evaluator version: exactly one of `template_config` or `code_config`. Used both when creating an evaluator (initial `version`) and when appending a version. 
+Payload for an evaluator version: exactly one of `template_config`, `code_config`, or `remote_config`. Used both when creating an evaluator (initial `version`) and when appending a version. 
 
 ## Properties
 
@@ -9,6 +9,7 @@ Name | Type | Description | Notes
 **commit_message** | **str** | Commit message describing the changes | 
 **template_config** | [**TemplateConfigInput**](TemplateConfigInput.md) |  | 
 **code_config** | [**CodeConfigRequest**](CodeConfigRequest.md) |  | 
+**remote_config** | [**RemoteConfigInput**](RemoteConfigInput.md) |  | 
 
 ## Example
 

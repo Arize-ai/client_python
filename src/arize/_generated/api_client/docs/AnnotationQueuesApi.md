@@ -424,7 +424,7 @@ Create a new annotation queue.
   "space_id": "spc_xyz789",
   "annotation_config_ids": ["ac_abc123"],
   "annotator_emails": ["reviewer@example.com"],
-  "records": [
+  "record_sources": [
     {"record_type": "SPAN", "project_id": "prj_abc", "start_time": "2024-01-15T00:00:00Z", "end_time": "2024-01-16T00:00:00Z", "span_ids": ["span_001"]},
     {"record_type": "EXAMPLE", "dataset_id": "ds_xyz", "example_ids": ["ex_001", "ex_002"]}
   ]
@@ -524,17 +524,19 @@ Name | Type | Description  | Notes
 
 Create annotation queue records
 
-Add new records from spans, traces, or dataset examples to an existing annotation queue.
+Add new records from spans, traces, sessions, or dataset examples to an existing annotation queue.
 
 **Payload Requirements**
   - At least one record source is required.
   - At most 2 record sources are allowed per request
-  - For span record source: `start_time` must be before `end_time`, and the range must not exceed 7 days.
+  - For project record sources: `start_time` must be before `end_time`, and the range must not exceed 7 days.
   - For dataset record source: all `example_ids` must be non-empty strings.
   - For project record source:
     - span records: all `span_ids` must be non-empty strings.
     - trace records: all `trace_ids` must be non-empty strings.
-  - At most 500 records total may be added in one request
+    - session records: all `session_ids` must be non-empty strings.
+  - At most 500 records total may be added in one request.
+  - At most 100 session records total may be added in one request.
 
 **Valid example (span record)**
 ```json
@@ -561,6 +563,21 @@ Add new records from spans, traces, or dataset examples to an existing annotatio
       "start_time": "2026-01-15T00:00:00Z",
       "end_time": "2026-01-16T00:00:00Z",
       "trace_ids": ["8fe3373f-0da4-4a8e-b57f-5c8878cfb747"]
+    }
+  ]
+}
+```
+
+**Valid example (session record)**
+```json
+{
+  "record_sources": [
+    {
+      "record_type": "SESSION",
+      "project_id": "TW9kZWw6MTIzOmFCY0Q=",
+      "start_time": "2026-01-15T00:00:00Z",
+      "end_time": "2026-01-16T00:00:00Z",
+      "session_ids": ["session-123"]
     }
   ]
 }

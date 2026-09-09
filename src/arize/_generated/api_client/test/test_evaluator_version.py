@@ -58,7 +58,9 @@ class TestEvaluatorVersion(unittest.TestCase):
                         model_name = '', 
                         invocation_parameters = { }, 
                         provider_parameters = { }, ), ),
-                code_config = None
+                code_config = None,
+                remote_config = arize._generated.api_client.models.remote_config.RemoteConfig(
+                    integration_id = '', )
             )
         else:
             return EvaluatorVersion(
@@ -86,6 +88,8 @@ class TestEvaluatorVersion(unittest.TestCase):
                         invocation_parameters = { }, 
                         provider_parameters = { }, ), ),
                 code_config = None,
+                remote_config = arize._generated.api_client.models.remote_config.RemoteConfig(
+                    integration_id = '', ),
         )
         """
 

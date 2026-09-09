@@ -18,12 +18,13 @@ import pprint
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
 from typing import Any, List, Optional
 from arize._generated.api_client.models.create_agent_integration_request import CreateAgentIntegrationRequest
+from arize._generated.api_client.models.create_evaluator_integration_request import CreateEvaluatorIntegrationRequest
 from arize._generated.api_client.models.create_llm_integration_request import CreateLlmIntegrationRequest
 from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-CREATEINTEGRATIONREQUEST_ONE_OF_SCHEMAS = ["CreateAgentIntegrationRequest", "CreateLlmIntegrationRequest"]
+CREATEINTEGRATIONREQUEST_ONE_OF_SCHEMAS = ["CreateAgentIntegrationRequest", "CreateEvaluatorIntegrationRequest", "CreateLlmIntegrationRequest"]
 
 class CreateIntegrationRequest(BaseModel):
     """
@@ -33,8 +34,10 @@ class CreateIntegrationRequest(BaseModel):
     oneof_schema_1_validator: Optional[CreateLlmIntegrationRequest] = None
     # data type: CreateAgentIntegrationRequest
     oneof_schema_2_validator: Optional[CreateAgentIntegrationRequest] = None
-    actual_instance: Optional[Union[CreateAgentIntegrationRequest, CreateLlmIntegrationRequest]] = None
-    one_of_schemas: Set[str] = { "CreateAgentIntegrationRequest", "CreateLlmIntegrationRequest" }
+    # data type: CreateEvaluatorIntegrationRequest
+    oneof_schema_3_validator: Optional[CreateEvaluatorIntegrationRequest] = None
+    actual_instance: Optional[Union[CreateAgentIntegrationRequest, CreateEvaluatorIntegrationRequest, CreateLlmIntegrationRequest]] = None
+    one_of_schemas: Set[str] = { "CreateAgentIntegrationRequest", "CreateEvaluatorIntegrationRequest", "CreateLlmIntegrationRequest" }
 
     model_config = ConfigDict(
         validate_assignment=True,
@@ -70,12 +73,17 @@ class CreateIntegrationRequest(BaseModel):
             error_messages.append(f"Error! Input type `{type(v)}` is not `CreateAgentIntegrationRequest`")
         else:
             match += 1
+        # validate data type: CreateEvaluatorIntegrationRequest
+        if not isinstance(v, CreateEvaluatorIntegrationRequest):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `CreateEvaluatorIntegrationRequest`")
+        else:
+            match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in CreateIntegrationRequest with oneOf schemas: CreateAgentIntegrationRequest, CreateLlmIntegrationRequest. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in CreateIntegrationRequest with oneOf schemas: CreateAgentIntegrationRequest, CreateEvaluatorIntegrationRequest, CreateLlmIntegrationRequest. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in CreateIntegrationRequest with oneOf schemas: CreateAgentIntegrationRequest, CreateLlmIntegrationRequest. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in CreateIntegrationRequest with oneOf schemas: CreateAgentIntegrationRequest, CreateEvaluatorIntegrationRequest, CreateLlmIntegrationRequest. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -102,13 +110,19 @@ class CreateIntegrationRequest(BaseModel):
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
+        # deserialize data into CreateEvaluatorIntegrationRequest
+        try:
+            instance.actual_instance = CreateEvaluatorIntegrationRequest.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into CreateIntegrationRequest with oneOf schemas: CreateAgentIntegrationRequest, CreateLlmIntegrationRequest. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into CreateIntegrationRequest with oneOf schemas: CreateAgentIntegrationRequest, CreateEvaluatorIntegrationRequest, CreateLlmIntegrationRequest. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into CreateIntegrationRequest with oneOf schemas: CreateAgentIntegrationRequest, CreateLlmIntegrationRequest. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into CreateIntegrationRequest with oneOf schemas: CreateAgentIntegrationRequest, CreateEvaluatorIntegrationRequest, CreateLlmIntegrationRequest. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -122,7 +136,7 @@ class CreateIntegrationRequest(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], CreateAgentIntegrationRequest, CreateLlmIntegrationRequest]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], CreateAgentIntegrationRequest, CreateEvaluatorIntegrationRequest, CreateLlmIntegrationRequest]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

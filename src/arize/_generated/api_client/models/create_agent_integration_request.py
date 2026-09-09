@@ -29,7 +29,7 @@ class CreateAgentIntegrationRequest(BaseModel):
     CreateAgentIntegrationRequest
     """ # noqa: E501
     type: StrictStr
-    name: StrictStr = Field(description="Integration name (unique within the account).")
+    name: StrictStr = Field(description="Integration name. Must be unique among active AGENT and EVALUATOR integrations in the account.")
     description: Optional[StrictStr] = None
     scopings: Optional[List[IntegrationScopingRequest]] = Field(default=None, description="Visibility scoping rules. Defaults to account-wide if omitted or empty. A scoping with `space_id` set MUST also set `organization_id`. ")
     config: CreateAgentConfig

@@ -20,12 +20,13 @@ import json
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
+from arize._generated.api_client.models.remote_config import RemoteConfig
 from typing import Optional, Set
 from typing_extensions import Self
 
 class EvaluatorVersionRemote(BaseModel):
     """
-    Evaluator version backed by a remote evaluation config. Only common version metadata (id, commit info, timestamps) is returned — the remote configuration is not yet accessible and will be a future addition. 
+    Evaluator version backed by a remote evaluator integration.
     """ # noqa: E501
     id: StrictStr = Field(description="The unique identifier for this version")
     evaluator_id: StrictStr = Field(description="The parent evaluator ID")
@@ -33,8 +34,9 @@ class EvaluatorVersionRemote(BaseModel):
     commit_message: Optional[StrictStr] = Field(description="A message describing the changes in this version")
     created_at: datetime = Field(description="When this version was created")
     created_by_user_id: Optional[StrictStr] = Field(description="The unique identifier for the user who created this version")
-    type: StrictStr = Field(description="Discriminator identifying this as a remote evaluator version.")
-    __properties: ClassVar[List[str]] = ["id", "evaluator_id", "commit_hash", "commit_message", "created_at", "created_by_user_id", "type"]
+    type: StrictStr = Field(description="Discriminator identifying this as a remote evaluator version. Always `REMOTE` for this variant.")
+    remote_config: RemoteConfig
+    __properties: ClassVar[List[str]] = ["id", "evaluator_id", "commit_hash", "commit_message", "created_at", "created_by_user_id", "type", "remote_config"]
 
     @field_validator('type')
     def type_validate_enum(cls, value):
@@ -82,6 +84,9 @@ class EvaluatorVersionRemote(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of remote_config
+        if self.remote_config:
+            _dict['remote_config'] = self.remote_config.to_dict()
         # set to None if commit_message (nullable) is None
         # and model_fields_set contains the field
         if self.commit_message is None and "commit_message" in self.model_fields_set:
@@ -111,7 +116,8 @@ class EvaluatorVersionRemote(BaseModel):
             "commit_message": obj.get("commit_message"),
             "created_at": obj.get("created_at"),
             "created_by_user_id": obj.get("created_by_user_id"),
-            "type": obj.get("type")
+            "type": obj.get("type"),
+            "remote_config": RemoteConfig.from_dict(obj["remote_config"]) if obj.get("remote_config") is not None else None
         })
         return _obj
 

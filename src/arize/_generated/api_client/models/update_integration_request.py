@@ -18,12 +18,13 @@ import pprint
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
 from typing import Any, List, Optional
 from arize._generated.api_client.models.update_agent_integration_request import UpdateAgentIntegrationRequest
+from arize._generated.api_client.models.update_evaluator_integration_request import UpdateEvaluatorIntegrationRequest
 from arize._generated.api_client.models.update_llm_integration_request import UpdateLlmIntegrationRequest
 from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-UPDATEINTEGRATIONREQUEST_ONE_OF_SCHEMAS = ["UpdateAgentIntegrationRequest", "UpdateLlmIntegrationRequest"]
+UPDATEINTEGRATIONREQUEST_ONE_OF_SCHEMAS = ["UpdateAgentIntegrationRequest", "UpdateEvaluatorIntegrationRequest", "UpdateLlmIntegrationRequest"]
 
 class UpdateIntegrationRequest(BaseModel):
     """
@@ -33,8 +34,10 @@ class UpdateIntegrationRequest(BaseModel):
     oneof_schema_1_validator: Optional[UpdateLlmIntegrationRequest] = None
     # data type: UpdateAgentIntegrationRequest
     oneof_schema_2_validator: Optional[UpdateAgentIntegrationRequest] = None
-    actual_instance: Optional[Union[UpdateAgentIntegrationRequest, UpdateLlmIntegrationRequest]] = None
-    one_of_schemas: Set[str] = { "UpdateAgentIntegrationRequest", "UpdateLlmIntegrationRequest" }
+    # data type: UpdateEvaluatorIntegrationRequest
+    oneof_schema_3_validator: Optional[UpdateEvaluatorIntegrationRequest] = None
+    actual_instance: Optional[Union[UpdateAgentIntegrationRequest, UpdateEvaluatorIntegrationRequest, UpdateLlmIntegrationRequest]] = None
+    one_of_schemas: Set[str] = { "UpdateAgentIntegrationRequest", "UpdateEvaluatorIntegrationRequest", "UpdateLlmIntegrationRequest" }
 
     model_config = ConfigDict(
         validate_assignment=True,
@@ -70,12 +73,17 @@ class UpdateIntegrationRequest(BaseModel):
             error_messages.append(f"Error! Input type `{type(v)}` is not `UpdateAgentIntegrationRequest`")
         else:
             match += 1
+        # validate data type: UpdateEvaluatorIntegrationRequest
+        if not isinstance(v, UpdateEvaluatorIntegrationRequest):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `UpdateEvaluatorIntegrationRequest`")
+        else:
+            match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in UpdateIntegrationRequest with oneOf schemas: UpdateAgentIntegrationRequest, UpdateLlmIntegrationRequest. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in UpdateIntegrationRequest with oneOf schemas: UpdateAgentIntegrationRequest, UpdateEvaluatorIntegrationRequest, UpdateLlmIntegrationRequest. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in UpdateIntegrationRequest with oneOf schemas: UpdateAgentIntegrationRequest, UpdateLlmIntegrationRequest. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in UpdateIntegrationRequest with oneOf schemas: UpdateAgentIntegrationRequest, UpdateEvaluatorIntegrationRequest, UpdateLlmIntegrationRequest. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -102,13 +110,19 @@ class UpdateIntegrationRequest(BaseModel):
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
+        # deserialize data into UpdateEvaluatorIntegrationRequest
+        try:
+            instance.actual_instance = UpdateEvaluatorIntegrationRequest.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into UpdateIntegrationRequest with oneOf schemas: UpdateAgentIntegrationRequest, UpdateLlmIntegrationRequest. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into UpdateIntegrationRequest with oneOf schemas: UpdateAgentIntegrationRequest, UpdateEvaluatorIntegrationRequest, UpdateLlmIntegrationRequest. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into UpdateIntegrationRequest with oneOf schemas: UpdateAgentIntegrationRequest, UpdateLlmIntegrationRequest. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into UpdateIntegrationRequest with oneOf schemas: UpdateAgentIntegrationRequest, UpdateEvaluatorIntegrationRequest, UpdateLlmIntegrationRequest. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -122,7 +136,7 @@ class UpdateIntegrationRequest(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], UpdateAgentIntegrationRequest, UpdateLlmIntegrationRequest]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], UpdateAgentIntegrationRequest, UpdateEvaluatorIntegrationRequest, UpdateLlmIntegrationRequest]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

@@ -1,6 +1,6 @@
 # CreateEvaluatorRequest
 
-Body containing evaluator creation parameters with an initial version.  Only `type: TEMPLATE` and `type: CODE` are currently accepted on creation. 
+Body containing evaluator creation parameters with an initial version. 
 
 ## Properties
 

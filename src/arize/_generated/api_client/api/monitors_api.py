@@ -29,6 +29,8 @@ from arize._generated.api_client.models.monitor import Monitor
 from arize._generated.api_client.models.monitor_status import MonitorStatus
 from arize._generated.api_client.models.monitor_type import MonitorType
 from arize._generated.api_client.models.performance_metric import PerformanceMetric
+from arize._generated.api_client.models.remove_tags_request import RemoveTagsRequest
+from arize._generated.api_client.models.remove_tags_response import RemoveTagsResponse
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
 from arize._generated.api_client.api_response import ApiResponse
@@ -1423,6 +1425,314 @@ class MonitorsApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/v2/monitors',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def remove_monitor_tags(
+        self,
+        monitor_id: Annotated[StrictStr, Field(description="The unique monitor identifier (base64)")],
+        remove_tags_request: Annotated[RemoveTagsRequest, Field(description="Body containing the IDs of the tags to detach from the resource")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RemoveTagsResponse:
+        """Detach tags from a monitor
+
+        Detach one or more tags from a monitor.  **Payload Requirements** - `tag_ids` is required and must contain between 1 and 100 tag IDs. - A tag ID that is not currently attached is reported in `not_deleted`   rather than causing the whole request to fail. - Unrecognized fields are rejected with `400`.  Returns a `200` with `completed`, `deleted`, and `not_deleted` for the requested tag IDs.  **Valid example** ```json {   \"tag_ids\": [\"VGFnOjEyMzQ1\", \"VGFnOjEyMzQ2\"] } ```  **Invalid example** (empty list) ```json {   \"tag_ids\": [] } ``` ```json {   \"type\": \"https://arize.com/docs/ax/rest-reference/errors#validation-error\",   \"title\": \"Unprocessable Entity\",   \"status\": 422,   \"detail\": \"tag_ids must contain at least 1 tag ID\",   \"request_id\": \"req_01HZY6X8E7\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param monitor_id: The unique monitor identifier (base64) (required)
+        :type monitor_id: str
+        :param remove_tags_request: Body containing the IDs of the tags to detach from the resource (required)
+        :type remove_tags_request: RemoveTagsRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._remove_monitor_tags_serialize(
+            monitor_id=monitor_id,
+            remove_tags_request=remove_tags_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "RemoveTagsResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def remove_monitor_tags_with_http_info(
+        self,
+        monitor_id: Annotated[StrictStr, Field(description="The unique monitor identifier (base64)")],
+        remove_tags_request: Annotated[RemoveTagsRequest, Field(description="Body containing the IDs of the tags to detach from the resource")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[RemoveTagsResponse]:
+        """Detach tags from a monitor
+
+        Detach one or more tags from a monitor.  **Payload Requirements** - `tag_ids` is required and must contain between 1 and 100 tag IDs. - A tag ID that is not currently attached is reported in `not_deleted`   rather than causing the whole request to fail. - Unrecognized fields are rejected with `400`.  Returns a `200` with `completed`, `deleted`, and `not_deleted` for the requested tag IDs.  **Valid example** ```json {   \"tag_ids\": [\"VGFnOjEyMzQ1\", \"VGFnOjEyMzQ2\"] } ```  **Invalid example** (empty list) ```json {   \"tag_ids\": [] } ``` ```json {   \"type\": \"https://arize.com/docs/ax/rest-reference/errors#validation-error\",   \"title\": \"Unprocessable Entity\",   \"status\": 422,   \"detail\": \"tag_ids must contain at least 1 tag ID\",   \"request_id\": \"req_01HZY6X8E7\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param monitor_id: The unique monitor identifier (base64) (required)
+        :type monitor_id: str
+        :param remove_tags_request: Body containing the IDs of the tags to detach from the resource (required)
+        :type remove_tags_request: RemoveTagsRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._remove_monitor_tags_serialize(
+            monitor_id=monitor_id,
+            remove_tags_request=remove_tags_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "RemoveTagsResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def remove_monitor_tags_without_preload_content(
+        self,
+        monitor_id: Annotated[StrictStr, Field(description="The unique monitor identifier (base64)")],
+        remove_tags_request: Annotated[RemoveTagsRequest, Field(description="Body containing the IDs of the tags to detach from the resource")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Detach tags from a monitor
+
+        Detach one or more tags from a monitor.  **Payload Requirements** - `tag_ids` is required and must contain between 1 and 100 tag IDs. - A tag ID that is not currently attached is reported in `not_deleted`   rather than causing the whole request to fail. - Unrecognized fields are rejected with `400`.  Returns a `200` with `completed`, `deleted`, and `not_deleted` for the requested tag IDs.  **Valid example** ```json {   \"tag_ids\": [\"VGFnOjEyMzQ1\", \"VGFnOjEyMzQ2\"] } ```  **Invalid example** (empty list) ```json {   \"tag_ids\": [] } ``` ```json {   \"type\": \"https://arize.com/docs/ax/rest-reference/errors#validation-error\",   \"title\": \"Unprocessable Entity\",   \"status\": 422,   \"detail\": \"tag_ids must contain at least 1 tag ID\",   \"request_id\": \"req_01HZY6X8E7\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param monitor_id: The unique monitor identifier (base64) (required)
+        :type monitor_id: str
+        :param remove_tags_request: Body containing the IDs of the tags to detach from the resource (required)
+        :type remove_tags_request: RemoveTagsRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._remove_monitor_tags_serialize(
+            monitor_id=monitor_id,
+            remove_tags_request=remove_tags_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "RemoveTagsResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _remove_monitor_tags_serialize(
+        self,
+        monitor_id,
+        remove_tags_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if monitor_id is not None:
+            _path_params['monitor_id'] = monitor_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if remove_tags_request is not None:
+            _body_params = remove_tags_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='DELETE',
+            resource_path='/v2/monitors/{monitor_id}/tags',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

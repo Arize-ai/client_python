@@ -27,7 +27,7 @@ from typing_extensions import Self
 
 class Webhook(BaseModel):
     """
-    A webhook is an organization-owned destination that receives event deliveries over HTTPS. Attach a webhook to prompts and evaluators through their webhook-subscription endpoints to choose which events it receives.  Credentials are write-only: the bearer token is never returned, and the HMAC signing secret is returned exactly once, in the create response — only its redacted hint is readable afterwards. 
+    A webhook is an organization-owned destination that receives event deliveries over HTTPS. Attach a webhook to prompts and evaluators through their webhook-subscription endpoints to choose which events it receives.  Credentials are write-only: the bearer token and custom header values are never returned, and the HMAC signing secret is returned exactly once, in the create response — only its redacted hint is readable afterwards. 
     """ # noqa: E501
     id: StrictStr = Field(description="Unique identifier for the webhook")
     organization_id: StrictStr = Field(description="The unique identifier of the organization that owns the webhook")
@@ -37,11 +37,10 @@ class Webhook(BaseModel):
     auth_type: WebhookAuthType = Field(description="How deliveries from this webhook are authenticated. Fixed at creation.")
     signing_secret_hint: Optional[StrictStr] = Field(default=None, description="Redacted hint of the signing secret (e.g. `whsec_…abcd`), useful for identifying which secret the webhook uses. Present only for `HMAC_SHA256` webhooks. The full secret is returned exactly once, in the create response, and cannot be retrieved afterwards. ")
     timeout_ms: Annotated[int, Field(le=60000, strict=True, ge=1000)] = Field(description="How long a delivery request may run before it is abandoned, in milliseconds. Defaults to 30000.")
-    headers: Dict[str, StrictStr] = Field(description="Custom HTTP headers sent with each delivery request")
     created_at: datetime = Field(description="Timestamp for when the webhook was created")
     updated_at: datetime = Field(description="Timestamp for when the webhook was last updated")
     created_by_user_id: Optional[StrictStr] = Field(default=None, description="The unique identifier of the user who created the webhook. Absent when that user has since been removed from the account.")
-    __properties: ClassVar[List[str]] = ["id", "organization_id", "name", "description", "url", "auth_type", "signing_secret_hint", "timeout_ms", "headers", "created_at", "updated_at", "created_by_user_id"]
+    __properties: ClassVar[List[str]] = ["id", "organization_id", "name", "description", "url", "auth_type", "signing_secret_hint", "timeout_ms", "created_at", "updated_at", "created_by_user_id"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -103,7 +102,6 @@ class Webhook(BaseModel):
             "auth_type": obj.get("auth_type"),
             "signing_secret_hint": obj.get("signing_secret_hint"),
             "timeout_ms": obj.get("timeout_ms"),
-            "headers": obj.get("headers"),
             "created_at": obj.get("created_at"),
             "updated_at": obj.get("updated_at"),
             "created_by_user_id": obj.get("created_by_user_id")

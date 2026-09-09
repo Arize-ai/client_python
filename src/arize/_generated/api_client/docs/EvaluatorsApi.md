@@ -16,6 +16,7 @@ Method | HTTP request | Description
 [**list_evaluator_templates**](EvaluatorsApi.md#list_evaluator_templates) | **GET** /v2/evaluator-templates | List evaluator templates
 [**list_evaluator_versions**](EvaluatorsApi.md#list_evaluator_versions) | **GET** /v2/evaluators/{evaluator_id}/versions | List evaluator versions
 [**list_evaluators**](EvaluatorsApi.md#list_evaluators) | **GET** /v2/evaluators | List evaluators
+[**remove_evaluator_tags**](EvaluatorsApi.md#remove_evaluator_tags) | **DELETE** /v2/evaluators/{evaluator_id}/tags | Detach tags from a evaluator
 [**set_evaluator_webhook_subscriptions**](EvaluatorsApi.md#set_evaluator_webhook_subscriptions) | **PUT** /v2/evaluators/{evaluator_id}/webhook-subscriptions | Set an evaluator&#39;s webhook subscriptions
 [**update_evaluator**](EvaluatorsApi.md#update_evaluator) | **PATCH** /v2/evaluators/{evaluator_id} | Update evaluator
 
@@ -153,9 +154,12 @@ Creates a new evaluator with an initial version.
 
 **Payload Requirements**
 - The evaluator `name` must be unique within the given space.
-- `type` (top-level) selects the evaluator kind: `TEMPLATE` or `CODE`.
+- `type` (top-level) selects the evaluator kind: `TEMPLATE`, `CODE`, or `REMOTE`.
   With `TEMPLATE`, provide `version.template_config`.
   With `CODE`, provide `version.code_config` — where `code_config.type` is `MANAGED` or `CUSTOM` (a separate discriminator *within* `code_config`, independent of the top-level `type: CODE`).
+  With `REMOTE`, provide `version.remote_config.integration_id` referencing an
+  accessible `EVALUATOR` integration. Remote evaluator creation requires the
+  remote evaluators feature to be enabled; otherwise the request returns `403`.
 - For template evaluators: `version.template_config.name` is the eval column name; must match `^[a-zA-Z0-9_\s\-&()]+$`.
 - For template evaluators: `version.template_config.template` is the prompt template; use `{variable}` for placeholders (f-string format, e.g. `{input}`, `{output}`).
 - For template evaluators: `version.template_config.classification_choices` is required and maps choice labels to numeric scores (e.g. `{"relevant": 1, "irrelevant": 0}`).
@@ -239,7 +243,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
-    create_evaluator_request = {"space_id":"U3BhY2U6NDkzOkJaSkc=","name":"Hallucination Eval","description":"Detects hallucinated content in LLM responses","type":"TEMPLATE","version":{"commit_message":"Initial version","template_config":{"name":"hallucination","template":"You are an evaluation assistant. Given the following input and output, determine if the output contains hallucinated content.\n\nInput: {input}\nOutput: {output}\nReference: {reference}","include_explanations":true,"use_function_calling":true,"classification_choices":{"hallucinated":0,"factual":1},"direction":"MAXIMIZE","data_granularity":"SPAN","llm_config":{"ai_integration_id":"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==","model_name":"gpt-4o","invocation_parameters":{"temperature":0},"provider_parameters":{}}}}} # CreateEvaluatorRequest | Body containing evaluator creation parameters with an initial version.  Only `type: TEMPLATE` and `type: CODE` are currently accepted on creation. 
+    create_evaluator_request = {"space_id":"U3BhY2U6NDkzOkJaSkc=","name":"Hallucination Eval","description":"Detects hallucinated content in LLM responses","type":"TEMPLATE","version":{"commit_message":"Initial version","template_config":{"name":"hallucination","template":"You are an evaluation assistant. Given the following input and output, determine if the output contains hallucinated content.\n\nInput: {input}\nOutput: {output}\nReference: {reference}","include_explanations":true,"use_function_calling":true,"classification_choices":{"hallucinated":0,"factual":1},"direction":"MAXIMIZE","data_granularity":"SPAN","llm_config":{"ai_integration_id":"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==","model_name":"gpt-4o","invocation_parameters":{"temperature":0},"provider_parameters":{}}}}} # CreateEvaluatorRequest | Body containing evaluator creation parameters with an initial version.  `type: TEMPLATE`, `type: CODE`, and `type: REMOTE` are accepted on creation. 
 
     try:
         # Create evaluator
@@ -257,7 +261,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **create_evaluator_request** | [**CreateEvaluatorRequest**](CreateEvaluatorRequest.md)| Body containing evaluator creation parameters with an initial version.  Only &#x60;type: TEMPLATE&#x60; and &#x60;type: CODE&#x60; are currently accepted on creation.  | 
+ **create_evaluator_request** | [**CreateEvaluatorRequest**](CreateEvaluatorRequest.md)| Body containing evaluator creation parameters with an initial version.  &#x60;type: TEMPLATE&#x60;, &#x60;type: CODE&#x60;, and &#x60;type: REMOTE&#x60; are accepted on creation.  | 
 
 ### Return type
 
@@ -299,27 +303,32 @@ version immediately (versioning is append-only).
 
 **Payload Requirements**
 - `commit_message` describes the changes in this version.
-- Provide either `template_config` or `code_config` to match the evaluator's `type`.
+- Provide exactly one of `template_config`, `code_config`, or `remote_config` to match the evaluator's `type`.
   `code_config.type` is a separate inner discriminator (`MANAGED` or `CUSTOM`) and is unrelated to the top-level `type`.
   Schema and constraints match Create Evaluator.
 - For a template version, `template_config.llm_config.ai_integration_id` must
   reference an AI integration that exists and is accessible to the evaluator's
   space; otherwise the request fails with `404`.
-
+- For `REMOTE` evaluators: `remote_config.integration_id` must reference an
+  `EVALUATOR` integration. Each version may reference a different integration;
+  editing an integration affects every version that references it. `type: REMOTE`
+  requires the remote evaluators feature to be enabled.
 **Responses**
 - `201` — version created; returns the new `EvaluatorVersion`.
-- `400` — malformed request: `evaluator_id` fails ID-format validation, the
-  request body fails schema validation (e.g. malformed JSON), or
-  `type`/`config` mismatch a documented invalid shape.
+- `400` — malformed request: `evaluator_id` fails ID-format validation,
+  the body is missing, or the JSON is malformed.
 - `401` — missing or invalid credentials.
 - `403` — the evaluator is readable but the caller lacks permission to
   create a version on it.
 - `404` — `evaluator_id` does not exist or is not readable by the caller
   (`Evaluator not found`), or `template_config.llm_config.ai_integration_id`
   does not exist or is not accessible to this space
-  (`LLM integration not found or not accessible to this space`).
-- `422` — the body is well-formed JSON but fails business validation
-  (e.g. missing `commit_message`, invalid template column name).
+  (`LLM integration not found or not accessible to this space`), or
+  `remote_config.integration_id` does not exist or is not applicable to this
+  space (`Integration not found`).
+- `422` — the body is well-formed JSON but fails validation, for example a
+  missing `commit_message`, a config mismatch, an invalid template column
+  name, or a remote integration with the wrong type.
 - `429` — rate limit exceeded.
 
 **Valid example** (template version)
@@ -1395,6 +1404,128 @@ Name | Type | Description  | Notes
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **remove_evaluator_tags**
+> RemoveTagsResponse remove_evaluator_tags(evaluator_id, remove_tags_request)
+
+Detach tags from a evaluator
+
+Detach one or more tags from a evaluator.
+
+**Payload Requirements**
+- `tag_ids` is required and must contain between 1 and 100 tag IDs.
+- A tag ID that is not currently attached is reported in `not_deleted`
+  rather than causing the whole request to fail.
+- Unrecognized fields are rejected with `400`.
+
+Returns a `200` with `completed`, `deleted`, and `not_deleted` for the
+requested tag IDs.
+
+**Valid example**
+```json
+{
+  "tag_ids": ["VGFnOjEyMzQ1", "VGFnOjEyMzQ2"]
+}
+```
+
+**Invalid example** (empty list)
+```json
+{
+  "tag_ids": []
+}
+```
+```json
+{
+  "type": "https://arize.com/docs/ax/rest-reference/errors#validation-error",
+  "title": "Unprocessable Entity",
+  "status": 422,
+  "detail": "tag_ids must contain at least 1 tag ID",
+  "request_id": "req_01HZY6X8E7"
+}
+```
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.remove_tags_request import RemoveTagsRequest
+from arize._generated.api_client.models.remove_tags_response import RemoveTagsResponse
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
+    evaluator_id = 'RXZhbHVhdG9yOjEyMzQ1' # str | The unique evaluator identifier (base64)
+    remove_tags_request = {"tag_ids":["VGFnOjEyMzQ1","VGFnOjEyMzQ2"]} # RemoveTagsRequest | Body containing the IDs of the tags to detach from the resource
+
+    try:
+        # Detach tags from a evaluator
+        api_response = api_instance.remove_evaluator_tags(evaluator_id, remove_tags_request)
+        print("The response of EvaluatorsApi->remove_evaluator_tags:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling EvaluatorsApi->remove_evaluator_tags: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **evaluator_id** | **str**| The unique evaluator identifier (base64) | 
+ **remove_tags_request** | [**RemoveTagsRequest**](RemoveTagsRequest.md)| Body containing the IDs of the tags to detach from the resource | 
+
+### Return type
+
+[**RemoveTagsResponse**](RemoveTagsResponse.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Reports which tags were detached and which were not attached |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

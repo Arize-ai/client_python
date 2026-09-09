@@ -1,5 +1,13 @@
 # Changelog
 
+## [8.52.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.51.0...arize-python-sdk/v8.52.0) (2026-09-09)
+
+
+### 🎁 New Features
+
+* **traces:** Add trace and session record support in annotation queues ([#85832](https://github.com/Arize-ai/arize/issues/85832)) ([567c045](https://github.com/Arize-ai/arize/commit/567c04561f57bad6453f251bd77df11fb76a5b9e))
+* **evaluators:** Add remote evaluator support ([#82177](https://github.com/Arize-ai/arize/issues/82177)) ([60f587b](https://github.com/Arize-ai/arize/commit/60f587bbad2fe01871fc5af53fb60673e141799d))
+
 ## [8.51.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.50.0...arize-python-sdk/v8.51.0) (2026-09-02)
 
 

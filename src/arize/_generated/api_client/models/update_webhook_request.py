@@ -32,7 +32,7 @@ class UpdateWebhookRequest(BaseModel):
     url: Optional[StrictStr] = Field(default=None, description="Updated HTTPS endpoint events are delivered to")
     auth_token: Optional[StrictStr] = Field(default=None, description="Replacement `Authorization` header value sent with each delivery request, e.g. `Bearer my-token`. Sent verbatim — include the `Bearer ` prefix if your endpoint expects one. Only valid when the webhook's `auth_type` is `BEARER`. Write-only: never returned in any response. ")
     timeout_ms: Optional[Annotated[int, Field(le=60000, strict=True, ge=1000)]] = Field(default=None, description="Updated delivery timeout in milliseconds")
-    headers: Optional[Dict[str, StrictStr]] = Field(default=None, description="Replacement custom HTTP headers, as a map of at most 20 header names to values. Replaces the whole header map; headers not included are removed. ")
+    headers: Optional[Dict[str, StrictStr]] = Field(default=None, description="Replacement custom HTTP headers, as a map of at most 20 header names to values. Replaces the whole header map; headers not included are removed. Write-only: never returned in any response. ")
     __properties: ClassVar[List[str]] = ["name", "description", "url", "auth_token", "timeout_ms", "headers"]
 
     model_config = ConfigDict(

@@ -10,7 +10,7 @@ Name | Type | Description | Notes
 **url** | **str** | Updated HTTPS endpoint events are delivered to | [optional] 
 **auth_token** | **str** | Replacement &#x60;Authorization&#x60; header value sent with each delivery request, e.g. &#x60;Bearer my-token&#x60;. Sent verbatim — include the &#x60;Bearer &#x60; prefix if your endpoint expects one. Only valid when the webhook&#39;s &#x60;auth_type&#x60; is &#x60;BEARER&#x60;. Write-only: never returned in any response.  | [optional] 
 **timeout_ms** | **int** | Updated delivery timeout in milliseconds | [optional] 
-**headers** | **Dict[str, str]** | Replacement custom HTTP headers, as a map of at most 20 header names to values. Replaces the whole header map; headers not included are removed.  | [optional] 
+**headers** | **Dict[str, str]** | Replacement custom HTTP headers, as a map of at most 20 header names to values. Replaces the whole header map; headers not included are removed. Write-only: never returned in any response.  | [optional] 
 
 ## Example
 

@@ -5,8 +5,9 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**removed** | **List[str]** | IDs of the tags that were attached and have been detached. | 
-**not_found** | **List[str]** | IDs from the request that were not attached to the resource. Not an error — detaching an already-detached tag is a no-op.  | 
+**completed** | **bool** | True when every requested tag ID was attached and has been detached. False when one or more requested IDs appear in &#x60;not_deleted&#x60;.  | 
+**deleted** | **List[str]** | IDs of the tags that were attached and have been detached. | 
+**not_deleted** | **List[str]** | IDs from the request that were not attached to the resource. Not an error — detaching an already-detached tag is a no-op.  | 
 
 ## Example
 
