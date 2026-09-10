@@ -17,8 +17,8 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from typing import Any, ClassVar, Dict, List
 from typing_extensions import Annotated
 from arize._generated.api_client.models.invite_mode import InviteMode
 from arize._generated.api_client.models.user_role_assignment_request import UserRoleAssignmentRequest
@@ -27,14 +27,13 @@ from typing_extensions import Self
 
 class CreateUserRequest(BaseModel):
     """
-    CreateUserRequest
+    User-level developer permissions are determined by the assigned account role.
     """ # noqa: E501
     name: Annotated[str, Field(min_length=1, strict=True, max_length=255)] = Field(description="Full name of the new user")
     email: StrictStr = Field(description="Email address of the user to invite")
     role: UserRoleAssignmentRequest
     invite_mode: InviteMode = Field(description="Controls whether and how an invitation is sent")
-    is_developer: Optional[StrictBool] = Field(default=None, description="Whether the user should have developer permissions (can use the Arize API). When omitted, developer access follows the account's default developer access setting for `MEMBER` roles. `ADMIN` users always receive developer access regardless of this field. `ANNOTATOR` users never receive developer access regardless of this field. ")
-    __properties: ClassVar[List[str]] = ["name", "email", "role", "invite_mode", "is_developer"]
+    __properties: ClassVar[List[str]] = ["name", "email", "role", "invite_mode"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -98,8 +97,7 @@ class CreateUserRequest(BaseModel):
             "name": obj.get("name"),
             "email": obj.get("email"),
             "role": UserRoleAssignmentRequest.from_dict(obj["role"]) if obj.get("role") is not None else None,
-            "invite_mode": obj.get("invite_mode"),
-            "is_developer": obj.get("is_developer")
+            "invite_mode": obj.get("invite_mode")
         })
         return _obj
 

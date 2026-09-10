@@ -147,7 +147,6 @@ class UsersClient:
         email: str,
         role: PredefinedUserRole | CustomUserRole,
         invite_mode: InviteMode,
-        is_developer: bool | None = None,
     ) -> CreateUserResponse:
         """Create a new user.
 
@@ -160,10 +159,6 @@ class UsersClient:
                 ``CustomUserRole(id="<role-id>")`` for custom RBAC roles.
             invite_mode: Invite mode (``"NONE"``, ``"EMAIL_LINK"``, or
                 ``"TEMPORARY_PASSWORD"``).
-            is_developer: Whether the user should have developer permissions
-                (can create GraphQL API keys). Defaults to ``True`` for
-                ``ADMIN`` and ``MEMBER`` roles, and ``False`` for
-                ``ANNOTATOR``.
 
         Returns:
             The created user, including ``temporary_password`` when
@@ -173,10 +168,6 @@ class UsersClient:
             ApiException: If the API request fails.
         """
         from arize._generated import api_client as gen
-
-        kwargs = {}
-        if is_developer is not None:
-            kwargs["is_developer"] = is_developer
 
         body = gen.CreateUserRequest(
             name=name,
@@ -196,7 +187,6 @@ class UsersClient:
                 )
             ),
             invite_mode=invite_mode,
-            **kwargs,
         )
         raw = self._api.create_user(create_user_request=body)
         # The 200 idempotency-hit path returns the bare generated `User`

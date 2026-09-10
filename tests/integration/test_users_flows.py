@@ -75,8 +75,8 @@ class TestUsersCRUD:
         finally:
             users_client.delete(user_id=user.id)
 
-    def test_create_with_is_developer(self, users_client) -> None:
-        """Create a user with is_developer=False and verify the field is set."""
+    def test_create_uses_role_developer_access(self, users_client) -> None:
+        """Create a user and verify developer access follows its role."""
         name = _unique("sdk-test-user")
         email = f"{uuid.uuid4().hex[:8]}@sdk-test.arize.com"
         user = users_client.create(
@@ -84,12 +84,11 @@ class TestUsersCRUD:
             email=email,
             role=_MEMBER_ROLE,
             invite_mode="NONE",
-            is_developer=False,
         )
         try:
-            assert user.is_developer is False
+            assert user.is_developer is True
             fetched = users_client.get(user=user.id)
-            assert fetched.is_developer is False
+            assert fetched.is_developer is True
         finally:
             users_client.delete(user_id=user.id)
 
@@ -108,13 +107,15 @@ class TestUsersCRUD:
             updated = users_client.update(
                 user_id=user.id,
                 name=updated_name,
-                is_developer=True,
+                is_developer=False,
             )
             assert updated.id == user.id
             assert updated.name == updated_name
+            assert updated.is_developer is False
 
             fetched = users_client.get(user=user.id)
             assert fetched.name == updated_name
+            assert fetched.is_developer is False
         finally:
             users_client.delete(user_id=user.id)
 

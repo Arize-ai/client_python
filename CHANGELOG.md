@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.52.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.52.0...arize-python-sdk/v8.52.1) (2026-09-10)
+
+
+### 🐛 Bug Fixes
+
+* **users:** Remove is_developer from user creation ([#85680](https://github.com/Arize-ai/arize/issues/85680)) ([5b342c3](https://github.com/Arize-ai/arize/commit/5b342c38e48cf2540a968e1fefc04725a8761352))
+
 ## [8.52.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.51.0...arize-python-sdk/v8.52.0) (2026-09-09)
 
 

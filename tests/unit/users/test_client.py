@@ -362,68 +362,6 @@ class TestUsersClientCreate:
             create_user_request=mock_body
         )
 
-    def test_create_forwards_is_developer_when_provided(
-        self, users_client: UsersClient, mock_api: Mock
-    ) -> None:
-        """create() should include is_developer in CreateUserRequest when provided."""
-        role = PredefinedUserRole(name=UserRole.MEMBER)
-        with (
-            patch(
-                "arize._generated.api_client.CreateUserRequest"
-            ) as mock_request_cls,
-            patch(
-                "arize._generated.api_client.UserRoleAssignmentRequest"
-            ) as mock_role_cls,
-        ):
-            mock_role = Mock()
-            mock_role_cls.return_value = mock_role
-
-            users_client.create(
-                name="Jane Smith",
-                email="jane@example.com",
-                role=role,
-                invite_mode="EMAIL_LINK",
-                is_developer=True,
-            )
-
-        mock_request_cls.assert_called_once_with(
-            name="Jane Smith",
-            email="jane@example.com",
-            role=mock_role,
-            invite_mode="EMAIL_LINK",
-            is_developer=True,
-        )
-
-    def test_create_omits_is_developer_when_none(
-        self, users_client: UsersClient, mock_api: Mock
-    ) -> None:
-        """create() should omit is_developer from CreateUserRequest when not provided."""
-        role = PredefinedUserRole(name=UserRole.MEMBER)
-        with (
-            patch(
-                "arize._generated.api_client.CreateUserRequest"
-            ) as mock_request_cls,
-            patch(
-                "arize._generated.api_client.UserRoleAssignmentRequest"
-            ) as mock_role_cls,
-        ):
-            mock_role = Mock()
-            mock_role_cls.return_value = mock_role
-
-            users_client.create(
-                name="Jane Smith",
-                email="jane@example.com",
-                role=role,
-                invite_mode="EMAIL_LINK",
-            )
-
-        mock_request_cls.assert_called_once_with(
-            name="Jane Smith",
-            email="jane@example.com",
-            role=mock_role,
-            invite_mode="EMAIL_LINK",
-        )
-
     def test_create_returns_domain_create_user_response(
         self, users_client: UsersClient, mock_api: Mock
     ) -> None:
