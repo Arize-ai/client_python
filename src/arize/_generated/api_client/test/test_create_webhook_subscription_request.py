@@ -14,10 +14,10 @@
 
 import unittest
 
-from arize._generated.api_client.models.webhook_subscription_input import WebhookSubscriptionInput
+from arize._generated.api_client.models.create_webhook_subscription_request import CreateWebhookSubscriptionRequest
 
-class TestWebhookSubscriptionInput(unittest.TestCase):
-    """WebhookSubscriptionInput unit test stubs"""
+class TestCreateWebhookSubscriptionRequest(unittest.TestCase):
+    """CreateWebhookSubscriptionRequest unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,32 +25,32 @@ class TestWebhookSubscriptionInput(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> WebhookSubscriptionInput:
-        """Test WebhookSubscriptionInput
+    def make_instance(self, include_optional) -> CreateWebhookSubscriptionRequest:
+        """Test CreateWebhookSubscriptionRequest
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `WebhookSubscriptionInput`
+        # uncomment below to create an instance of `CreateWebhookSubscriptionRequest`
         """
-        model = WebhookSubscriptionInput()
+        model = CreateWebhookSubscriptionRequest()
         if include_optional:
-            return WebhookSubscriptionInput(
+            return CreateWebhookSubscriptionRequest(
                 webhook_id = 'RW50aXR5OjEyMzQ1',
-                subscribed_events = [
-                    'PROMPT_VERSION_CREATED'
-                    ]
+                source_type = 'PROMPT',
+                source_id = 'RW50aXR5OjEyMzQ1',
+                event = 'PROMPT_VERSION_CREATED'
             )
         else:
-            return WebhookSubscriptionInput(
+            return CreateWebhookSubscriptionRequest(
                 webhook_id = 'RW50aXR5OjEyMzQ1',
-                subscribed_events = [
-                    'PROMPT_VERSION_CREATED'
-                    ],
+                source_type = 'PROMPT',
+                source_id = 'RW50aXR5OjEyMzQ1',
+                event = 'PROMPT_VERSION_CREATED',
         )
         """
 
-    def testWebhookSubscriptionInput(self):
-        """Test WebhookSubscriptionInput"""
+    def testCreateWebhookSubscriptionRequest(self):
+        """Test CreateWebhookSubscriptionRequest"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

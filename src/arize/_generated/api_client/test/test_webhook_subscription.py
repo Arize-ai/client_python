@@ -35,19 +35,21 @@ class TestWebhookSubscription(unittest.TestCase):
         model = WebhookSubscription()
         if include_optional:
             return WebhookSubscription(
+                id = 'RW50aXR5OjEyMzQ1',
                 webhook_id = 'RW50aXR5OjEyMzQ1',
-                webhook_name = '',
-                subscribed_events = [
-                    'PROMPT_VERSION_CREATED'
-                    ]
+                source_type = 'PROMPT',
+                source_id = 'RW50aXR5OjEyMzQ1',
+                event = 'PROMPT_VERSION_CREATED',
+                created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f')
             )
         else:
             return WebhookSubscription(
+                id = 'RW50aXR5OjEyMzQ1',
                 webhook_id = 'RW50aXR5OjEyMzQ1',
-                webhook_name = '',
-                subscribed_events = [
-                    'PROMPT_VERSION_CREATED'
-                    ],
+                source_type = 'PROMPT',
+                source_id = 'RW50aXR5OjEyMzQ1',
+                event = 'PROMPT_VERSION_CREATED',
+                created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
         )
         """
 

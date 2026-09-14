@@ -135,6 +135,7 @@ from arize._generated.api_client.models.create_user_response import CreateUserRe
 from arize._generated.api_client.models.create_vertex_ai_config import CreateVertexAiConfig
 from arize._generated.api_client.models.create_webhook_request import CreateWebhookRequest
 from arize._generated.api_client.models.create_webhook_response import CreateWebhookResponse
+from arize._generated.api_client.models.create_webhook_subscription_request import CreateWebhookSubscriptionRequest
 from arize._generated.api_client.models.created_service_api_key import CreatedServiceApiKey
 from arize._generated.api_client.models.created_user_api_key import CreatedUserApiKey
 from arize._generated.api_client.models.custom_baseline_config import CustomBaselineConfig
@@ -245,6 +246,7 @@ from arize._generated.api_client.models.list_traces_request import ListTracesReq
 from arize._generated.api_client.models.list_traces_response import ListTracesResponse
 from arize._generated.api_client.models.list_users_response import ListUsersResponse
 from arize._generated.api_client.models.list_webhook_delivery_attempts_response import ListWebhookDeliveryAttemptsResponse
+from arize._generated.api_client.models.list_webhook_subscriptions_response import ListWebhookSubscriptionsResponse
 from arize._generated.api_client.models.list_webhooks_response import ListWebhooksResponse
 from arize._generated.api_client.models.lite_llm_config import LiteLlmConfig
 from arize._generated.api_client.models.llm_config import LlmConfig
@@ -323,7 +325,6 @@ from arize._generated.api_client.models.service_key_bot_user_space_assignment im
 from arize._generated.api_client.models.service_key_org_assignment import ServiceKeyOrgAssignment
 from arize._generated.api_client.models.service_key_space_assignment import ServiceKeySpaceAssignment
 from arize._generated.api_client.models.set_prompt_version_labels_request import SetPromptVersionLabelsRequest
-from arize._generated.api_client.models.set_webhook_subscriptions_request import SetWebhookSubscriptionsRequest
 from arize._generated.api_client.models.space import Space
 from arize._generated.api_client.models.space_membership import SpaceMembership
 from arize._generated.api_client.models.space_role_assignment import SpaceRoleAssignment
@@ -418,7 +419,6 @@ from arize._generated.api_client.models.webhook_auth_type import WebhookAuthType
 from arize._generated.api_client.models.webhook_delivery_attempt import WebhookDeliveryAttempt
 from arize._generated.api_client.models.webhook_event_type import WebhookEventType
 from arize._generated.api_client.models.webhook_notification_config import WebhookNotificationConfig
+from arize._generated.api_client.models.webhook_source_type import WebhookSourceType
 from arize._generated.api_client.models.webhook_subscription import WebhookSubscription
-from arize._generated.api_client.models.webhook_subscription_input import WebhookSubscriptionInput
-from arize._generated.api_client.models.webhook_subscriptions import WebhookSubscriptions
 

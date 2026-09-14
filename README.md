@@ -371,6 +371,20 @@ df = client.spans.export_to_df(
 )
 ```
 
+To export a random sample of traces instead of everything, pass `sample_rate`
+(a fraction in `[1e-6, 1]`). Sampling happens server-side by trace id, so whole
+traces are kept together and re-running the export returns the same sample:
+
+```python
+df = client.spans.export_to_df(
+    space_id=SPACE_ID,
+    project_name=PROJECT_NAME,
+    start_time=start_time,
+    end_time=end_time,
+    sample_rate=0.1,  # export ~10% of traces
+)
+```
+
 ## Traces
 
 Use `client.traces` to list traces for a project. Each returned trace carries

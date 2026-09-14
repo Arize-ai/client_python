@@ -6,12 +6,13 @@ import pandas as pd
 import pyarrow.parquet as pq
 from google.protobuf import json_format
 from google.protobuf.timestamp_pb2 import Timestamp
-from google.protobuf.wrappers_pb2 import Int64Value
+from google.protobuf.wrappers_pb2 import DoubleValue, Int64Value
 from pyarrow import flight
 from tqdm import tqdm
 
 from arize._exporter.validation import (
     validate_input_type,
+    validate_sample_rate,
     validate_start_end_time,
 )
 from arize._generated.protocol.flight import flight_pb2
@@ -40,6 +41,7 @@ class ArizeExportClient:
         batch_id: str = "",
         include_actuals: bool = False,
         stream_chunk_size: int | None = None,
+        sample_rate: float | None = None,
     ) -> pd.DataFrame:
         """Exports data of a specific model in the Arize platform to a pandas dataframe.
 
@@ -80,6 +82,10 @@ class ArizeExportClient:
                 but in extreme cases where individual records are large enough to cause issues that result
                 in export stream error, setting this to a very low value (e.g. 10) could help.
                 The maximum value accepted by the server is 5000. Defaults to None.
+            sample_rate (float, optional): Fraction of traces to export, in the range [1e-6, 1].
+                Sampled server-side by trace id, so whole traces are kept together
+                and re-runs return the same sample. Tracing environment only.
+                None or 1.0 exports everything. Defaults to None.
 
         Returns:
             A pandas dataframe
@@ -98,6 +104,7 @@ class ArizeExportClient:
             similarity_search_params=similarity_search_params,
             columns=columns,
             stream_chunk_size=stream_chunk_size,
+            sample_rate=sample_rate,
         )
         if stream_reader is None:
             return pd.DataFrame()
@@ -144,6 +151,7 @@ class ArizeExportClient:
         batch_id: str = "",
         include_actuals: bool = False,
         stream_chunk_size: int | None = None,
+        sample_rate: float | None = None,
     ) -> None:
         """Exports data of a specific model in the Arize platform to a parquet file.
 
@@ -186,6 +194,10 @@ class ArizeExportClient:
                 but in extreme cases where individual records are large enough to cause issues that result
                 in export stream error, setting this to a very low value (e.g. 10) could help.
                 The maximum value accepted by the server is 5000. Defaults to None.
+            sample_rate (float, optional): Fraction of traces to export, in the range [1e-6, 1].
+                Sampled server-side by trace id, so whole traces are kept together
+                and re-runs return the same sample. Tracing environment only.
+                None or 1.0 exports everything. Defaults to None.
 
 
         Returns:
@@ -206,6 +218,7 @@ class ArizeExportClient:
             similarity_search_params=similarity_search_params,
             columns=columns,
             stream_chunk_size=stream_chunk_size,
+            sample_rate=sample_rate,
         )
         if stream_reader is None:
             return
@@ -235,6 +248,7 @@ class ArizeExportClient:
         similarity_search_params: SimilaritySearchParams | None = None,
         columns: list | None = None,
         stream_chunk_size: int | None = None,
+        sample_rate: float | None = None,
     ) -> tuple[flight.FlightStreamReader | None, int]:
         # Validate inputs first before creating logging context
         validate_input_type(space_id, "space_id", str)
@@ -250,6 +264,7 @@ class ArizeExportClient:
         validate_input_type(
             stream_chunk_size, "stream_chunk_size", int, allow_none=True
         )
+        validate_sample_rate(sample_rate, environment)
         validate_start_end_time(start_time, end_time)
 
         # Bind common context for this operation
@@ -268,6 +283,7 @@ class ArizeExportClient:
                 "columns": columns,
                 "similarity_search_params": similarity_search_params,
                 "stream_chunk_size": stream_chunk_size,
+                "sample_rate": sample_rate,
                 "start_time": start_time,
                 "end_time": end_time,
             },
@@ -294,6 +310,11 @@ class ArizeExportClient:
             stream_chunk_size=(
                 Int64Value(value=stream_chunk_size)
                 if stream_chunk_size is not None
+                else None
+            ),
+            sample_rate=(
+                DoubleValue(value=sample_rate)
+                if sample_rate is not None
                 else None
             ),
         )

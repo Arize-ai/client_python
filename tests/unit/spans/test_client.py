@@ -15,6 +15,8 @@ from arize._generated.protocol.flight import flight_pb2
 from arize.spans.client import SpansClient, _log_flight_update_summary
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     import pandas as pd
 
 # Base64 ID that passes is_resource_id() — decodes to "Project:123"
@@ -49,6 +51,27 @@ def spans_client(mock_sdk_config: Mock, mock_api: Mock) -> SpansClient:
             sdk_config=mock_sdk_config,
             generated_client=Mock(),
         )
+
+
+@pytest.fixture
+def mock_flight_exporter() -> Mock:
+    """Patch the spans-client flight stack; yields the mocked ArizeExportClient."""
+    import pandas as pd
+
+    mock_flight = MagicMock()
+    mock_flight.__enter__ = Mock(return_value=mock_flight)
+    mock_flight.__exit__ = Mock(return_value=False)
+
+    mock_exporter = Mock()
+    mock_exporter.export_to_df.return_value = pd.DataFrame()
+
+    with (
+        patch("arize.spans.client.ArizeFlightClient", return_value=mock_flight),
+        patch(
+            "arize.spans.client.ArizeExportClient", return_value=mock_exporter
+        ),
+    ):
+        yield mock_exporter
 
 
 # ---------------------------------------------------------------------------
@@ -806,6 +829,47 @@ class TestSpansClientExportToDfDeprecated:
             project_name="my-project",
             start_time=datetime(2024, 1, 1, tzinfo=timezone.utc),
             end_time=datetime(2024, 1, 8, tzinfo=timezone.utc),
+        )
+
+
+@pytest.mark.unit
+class TestSpansClientExportSampleRate:
+    """Tests that export methods forward sample_rate to the exporter."""
+
+    def test_export_to_df_forwards_sample_rate(
+        self, spans_client: SpansClient, mock_flight_exporter: Mock
+    ) -> None:
+        spans_client.export_to_df(
+            space_id="space-1",
+            project_name="my-project",
+            start_time=datetime(2024, 1, 1, tzinfo=timezone.utc),
+            end_time=datetime(2024, 1, 8, tzinfo=timezone.utc),
+            sample_rate=0.1,
+        )
+        assert (
+            mock_flight_exporter.export_to_df.call_args.kwargs["sample_rate"]
+            == 0.1
+        )
+
+    def test_export_to_parquet_forwards_sample_rate(
+        self,
+        spans_client: SpansClient,
+        mock_flight_exporter: Mock,
+        tmp_path: Path,
+    ) -> None:
+        spans_client.export_to_parquet(
+            path=str(tmp_path / "out.parquet"),
+            space_id="space-1",
+            project_name="my-project",
+            start_time=datetime(2024, 1, 1, tzinfo=timezone.utc),
+            end_time=datetime(2024, 1, 8, tzinfo=timezone.utc),
+            sample_rate=0.25,
+        )
+        assert (
+            mock_flight_exporter.export_to_parquet.call_args.kwargs[
+                "sample_rate"
+            ]
+            == 0.25
         )
 
 

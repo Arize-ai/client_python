@@ -1259,12 +1259,25 @@ class SpansClient:
         where: str = "",
         columns: builtins.list | None = None,
         stream_chunk_size: int | None = None,
+        sample_rate: float | None = None,
     ) -> pd.DataFrame:
         """Export span data from Arize to a :class:`pandas.DataFrame`.
 
         Retrieves trace/span data from the specified project within a time range
         and returns it as a :class:`pandas.DataFrame`. Supports filtering with SQL-like
         WHERE clauses and similarity search for semantic retrieval.
+
+        Args:
+            space_id: The space ID where the project resides.
+            project_name: The name of the project to export span data from.
+            start_time: Start of the time range (inclusive) as a datetime object.
+            end_time: End of the time range (exclusive) as a datetime object.
+            where: Optional SQL-like WHERE clause to filter rows (e.g., "span.status_code = 'ERROR'").
+            columns: Optional list of column names to include. If None, all columns are returned.
+            stream_chunk_size: Optional chunk size for streaming large result sets.
+            sample_rate: Optional fraction of traces to export, in the range [1e-6, 1]. Sampled
+                server-side by trace id, so whole traces are kept together and re-runs
+                return the same sample. None or 1.0 exports everything.
 
         Returns:
             :class:`pandas.DataFrame`: DataFrame containing the requested span data with columns
@@ -1283,6 +1296,7 @@ class SpansClient:
                 where=where,
                 columns=columns,
                 stream_chunk_size=stream_chunk_size,
+                sample_rate=sample_rate,
             )
 
     def export_to_parquet(
@@ -1296,6 +1310,7 @@ class SpansClient:
         where: str = "",
         columns: builtins.list | None = None,
         stream_chunk_size: int | None = None,
+        sample_rate: float | None = None,
     ) -> None:
         """Export span data from Arize to a Parquet file.
 
@@ -1313,6 +1328,9 @@ class SpansClient:
             where: Optional SQL-like WHERE clause to filter rows (e.g., "span.status_code = 'ERROR'").
             columns: Optional list of column names to include. If None, all columns are returned.
             stream_chunk_size: Optional chunk size for streaming large result sets.
+            sample_rate: Optional fraction of traces to export, in the range [1e-6, 1]. Sampled
+                server-side by trace id, so whole traces are kept together and re-runs
+                return the same sample. None or 1.0 exports everything.
 
         Raises:
             RuntimeError: If the Flight client request fails or returns no response.
@@ -1336,6 +1354,7 @@ class SpansClient:
                 where=where,
                 columns=columns,
                 stream_chunk_size=stream_chunk_size,
+                sample_rate=sample_rate,
             )
 
 

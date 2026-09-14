@@ -33,10 +33,24 @@ class TestWebhooksApi(unittest.TestCase):
         """
         pass
 
+    def test_create_webhook_subscription(self) -> None:
+        """Test case for create_webhook_subscription
+
+        Create a webhook subscription
+        """
+        pass
+
     def test_delete_webhook(self) -> None:
         """Test case for delete_webhook
 
         Delete a webhook
+        """
+        pass
+
+    def test_delete_webhook_subscription(self) -> None:
+        """Test case for delete_webhook_subscription
+
+        Delete a webhook subscription
         """
         pass
 
@@ -47,10 +61,24 @@ class TestWebhooksApi(unittest.TestCase):
         """
         pass
 
+    def test_get_webhook_subscription(self) -> None:
+        """Test case for get_webhook_subscription
+
+        Get a webhook subscription
+        """
+        pass
+
     def test_list_webhook_delivery_attempts(self) -> None:
         """Test case for list_webhook_delivery_attempts
 
         List a webhook's delivery attempts
+        """
+        pass
+
+    def test_list_webhook_subscriptions(self) -> None:
+        """Test case for list_webhook_subscriptions
+
+        List webhook subscriptions
         """
         pass
 

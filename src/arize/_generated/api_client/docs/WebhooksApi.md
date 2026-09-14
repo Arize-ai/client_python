@@ -5,9 +5,13 @@ All URIs are relative to *https://api.arize.com*
 Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**create_webhook**](WebhooksApi.md#create_webhook) | **POST** /v2/webhooks | Create a webhook
+[**create_webhook_subscription**](WebhooksApi.md#create_webhook_subscription) | **POST** /v2/webhook-subscriptions | Create a webhook subscription
 [**delete_webhook**](WebhooksApi.md#delete_webhook) | **DELETE** /v2/webhooks/{webhook_id} | Delete a webhook
+[**delete_webhook_subscription**](WebhooksApi.md#delete_webhook_subscription) | **DELETE** /v2/webhook-subscriptions/{subscription_id} | Delete a webhook subscription
 [**get_webhook**](WebhooksApi.md#get_webhook) | **GET** /v2/webhooks/{webhook_id} | Get a webhook
+[**get_webhook_subscription**](WebhooksApi.md#get_webhook_subscription) | **GET** /v2/webhook-subscriptions/{subscription_id} | Get a webhook subscription
 [**list_webhook_delivery_attempts**](WebhooksApi.md#list_webhook_delivery_attempts) | **GET** /v2/webhooks/{webhook_id}/delivery-attempts | List a webhook&#39;s delivery attempts
+[**list_webhook_subscriptions**](WebhooksApi.md#list_webhook_subscriptions) | **GET** /v2/webhook-subscriptions | List webhook subscriptions
 [**list_webhooks**](WebhooksApi.md#list_webhooks) | **GET** /v2/webhooks | List webhooks
 [**test_webhook**](WebhooksApi.md#test_webhook) | **POST** /v2/webhooks/{webhook_id}/test | Send a test event to a webhook
 [**update_webhook**](WebhooksApi.md#update_webhook) | **PATCH** /v2/webhooks/{webhook_id} | Update a webhook
@@ -122,6 +126,113 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **create_webhook_subscription**
+> WebhookSubscription create_webhook_subscription(create_webhook_subscription_request)
+
+Create a webhook subscription
+
+Subscribe a webhook to one event on a prompt or evaluator. To deliver
+several events to the same webhook, create one subscription per event.
+
+**Payload Requirements**
+- `webhook_id`, `source_type`, `source_id`, and `event` are required.
+- `webhook_id` must be a webhook in the source's organization; unknown
+  webhooks yield a 404.
+- `event` must belong to the source type: prompt events for `PROMPT`
+  sources and evaluator events for `EVALUATOR` sources.
+  Other combinations are rejected with a 422.
+- A webhook can subscribe to a given event on a given source only once
+  (409 on conflict).
+- At most 200 webhooks may subscribe to the same event on a source;
+  requests that would exceed this limit are rejected with a 422.
+
+Creating a subscription requires `PROMPT_UPDATE` for a prompt source or
+`EVALUATOR_UPDATE` for an evaluator source. Callers with the matching
+`PROMPT_READ` or `EVALUATOR_READ` permission but not the required update
+permission receive a 403; sources the caller cannot read yield a 404.
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.create_webhook_subscription_request import CreateWebhookSubscriptionRequest
+from arize._generated.api_client.models.webhook_subscription import WebhookSubscription
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.WebhooksApi(api_client)
+    create_webhook_subscription_request = {"webhook_id":"V2ViaG9vazoxMjM0NQ==","source_type":"PROMPT","source_id":"UHJvbXB0OjEyMzQ1","event":"PROMPT_VERSION_LABELED"} # CreateWebhookSubscriptionRequest | Body containing the webhook, the source to attach it to, and the event to deliver
+
+    try:
+        # Create a webhook subscription
+        api_response = api_instance.create_webhook_subscription(create_webhook_subscription_request)
+        print("The response of WebhooksApi->create_webhook_subscription:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling WebhooksApi->create_webhook_subscription: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **create_webhook_subscription_request** | [**CreateWebhookSubscriptionRequest**](CreateWebhookSubscriptionRequest.md)| Body containing the webhook, the source to attach it to, and the event to deliver | 
+
+### Return type
+
+[**WebhookSubscription**](WebhookSubscription.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**201** | The created webhook subscription |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
+**409** | Resource conflict |  -  |
+**422** | Unprocessable entity |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **delete_webhook**
 > delete_webhook(webhook_id)
 
@@ -199,6 +310,96 @@ void (empty response body)
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **204** | Webhook successfully deleted |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **delete_webhook_subscription**
+> delete_webhook_subscription(subscription_id)
+
+Delete a webhook subscription
+
+Delete a webhook subscription by its ID. The webhook stops receiving
+that event from the source. Other subscriptions on the source and the
+webhook itself are unaffected.
+
+Deleting a subscription requires `PROMPT_UPDATE` for a prompt source or
+`EVALUATOR_UPDATE` for an evaluator source. Callers with the matching
+`PROMPT_READ` or `EVALUATOR_READ` permission but not the required update
+permission receive a 403; sources the caller cannot read yield a 404.
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.WebhooksApi(api_client)
+    subscription_id = 'V2ViaG9va1N1YnNjcmlwdGlvbjoxMjM0NQ==' # str | The unique webhook subscription identifier (base64)
+
+    try:
+        # Delete a webhook subscription
+        api_instance.delete_webhook_subscription(subscription_id)
+    except Exception as e:
+        print("Exception when calling WebhooksApi->delete_webhook_subscription: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **subscription_id** | **str**| The unique webhook subscription identifier (base64) | 
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**204** | Webhook subscription successfully deleted |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
@@ -292,6 +493,93 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **get_webhook_subscription**
+> WebhookSubscription get_webhook_subscription(subscription_id)
+
+Get a webhook subscription
+
+Get a specific webhook subscription by its ID. A 404 is returned when
+the subscription does not exist, its source is not readable, or its
+webhook has since been deleted.
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.webhook_subscription import WebhookSubscription
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.WebhooksApi(api_client)
+    subscription_id = 'V2ViaG9va1N1YnNjcmlwdGlvbjoxMjM0NQ==' # str | The unique webhook subscription identifier (base64)
+
+    try:
+        # Get a webhook subscription
+        api_response = api_instance.get_webhook_subscription(subscription_id)
+        print("The response of WebhooksApi->get_webhook_subscription:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling WebhooksApi->get_webhook_subscription: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **subscription_id** | **str**| The unique webhook subscription identifier (base64) | 
+
+### Return type
+
+[**WebhookSubscription**](WebhookSubscription.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | A webhook subscription object |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**404** | Not found |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **list_webhook_delivery_attempts**
 > ListWebhookDeliveryAttemptsResponse list_webhook_delivery_attempts(webhook_id, limit=limit, cursor=cursor)
 
@@ -375,6 +663,113 @@ Name | Type | Description  | Notes
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | Returns a list of delivery attempts, most recent first |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **list_webhook_subscriptions**
+> ListWebhookSubscriptionsResponse list_webhook_subscriptions(source_type=source_type, source_id=source_id, limit=limit, cursor=cursor)
+
+List webhook subscriptions
+
+List webhook subscriptions attached to prompts and evaluators the caller
+can read, most recently created first. To list one source, provide both
+`source_type` and `source_id`; providing only one returns a 400. An
+unfiltered list returns a 403 when the caller can read no prompt or
+evaluator at all.
+
+Each subscription delivers one event to one webhook, so a webhook that
+receives several events from the source appears once per event.
+Subscriptions whose webhook has since been deleted are omitted after
+the page is read, so a page may hold fewer than `limit` items, or none,
+while `has_more` is still `true`. Keep paging until `has_more` is
+`false`.
+
+When filtering by source, a 404 is returned when the source does not
+exist or is not readable.
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.list_webhook_subscriptions_response import ListWebhookSubscriptionsResponse
+from arize._generated.api_client.models.webhook_source_type import WebhookSourceType
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.WebhooksApi(api_client)
+    source_type = arize._generated.api_client.WebhookSourceType() # WebhookSourceType | Filter subscriptions to one kind of source. Must be paired with `source_id`. When both filters are omitted, subscriptions from every supported source type are returned.  (optional)
+    source_id = 'UHJvbXB0OjEyMzQ1' # str | Filter subscriptions to one prompt or evaluator. Must be paired with `source_type`. When both filters are omitted, subscriptions from every readable supported source are returned.  (optional)
+    limit = 50 # int | Maximum items to return. Defaults to 50 if omitted; maximum is 100. (optional) (default to 50)
+    cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
+
+    try:
+        # List webhook subscriptions
+        api_response = api_instance.list_webhook_subscriptions(source_type=source_type, source_id=source_id, limit=limit, cursor=cursor)
+        print("The response of WebhooksApi->list_webhook_subscriptions:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling WebhooksApi->list_webhook_subscriptions: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **source_type** | [**WebhookSourceType**](.md)| Filter subscriptions to one kind of source. Must be paired with &#x60;source_id&#x60;. When both filters are omitted, subscriptions from every supported source type are returned.  | [optional] 
+ **source_id** | **str**| Filter subscriptions to one prompt or evaluator. Must be paired with &#x60;source_type&#x60;. When both filters are omitted, subscriptions from every readable supported source are returned.  | [optional] 
+ **limit** | **int**| Maximum items to return. Defaults to 50 if omitted; maximum is 100. | [optional] [default to 50]
+ **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
+
+### Return type
+
+[**ListWebhookSubscriptionsResponse**](ListWebhookSubscriptionsResponse.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Returns a list of webhook subscriptions, most recently created first |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |

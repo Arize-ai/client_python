@@ -20,7 +20,7 @@ from typing_extensions import Self
 
 class WebhookEventType(str, Enum):
     """
-    An event that a webhook can subscribe to. - `PROMPT_VERSION_CREATED` — a new version of the prompt was created. - `PROMPT_VERSION_LABELED` — a label was added to a version of the prompt. - `PROMPT_VERSION_UNLABELED` — a label was removed from a version of the prompt. - `EVALUATOR_VERSION_CREATED` — a new version of the evaluator was created.  Prompt events are valid only for prompt subscriptions, and `EVALUATOR_VERSION_CREATED` only for evaluator subscriptions. 
+    An event that a webhook can subscribe to. - `PROMPT_VERSION_CREATED` — a new version of the prompt was created. - `PROMPT_VERSION_LABELED` — a label was added to a version of the prompt. - `PROMPT_VERSION_UNLABELED` — a label was removed from a version of the prompt. - `EVALUATOR_VERSION_CREATED` — a new version of the evaluator was created.  Prompt events are valid only for `PROMPT` sources, and evaluator events only for `EVALUATOR` sources. 
     """
 
     """

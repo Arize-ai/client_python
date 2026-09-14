@@ -7,6 +7,7 @@ import time
 import uuid
 from typing import TYPE_CHECKING, Any, cast
 
+import numpy as np
 import pandas as pd
 import pyarrow as pa
 
@@ -43,6 +44,39 @@ if TYPE_CHECKING:
     )
 
 logger = logging.getLogger(__name__)
+
+
+def _normalize_example_value(value: object) -> object:
+    """Convert NumPy containers and scalars to JSON-compatible Python values."""
+    if isinstance(value, np.datetime64):
+        return None if np.isnat(value) else np.datetime_as_string(value)
+    if isinstance(value, np.ndarray):
+        if np.issubdtype(value.dtype, np.datetime64):
+            normalized = np.datetime_as_string(value).astype(object)
+            normalized[np.isnat(value)] = None
+            return normalized.tolist()
+        return _normalize_example_value(value.tolist())
+    if isinstance(value, np.generic):
+        return _normalize_example_value(value.item())
+    if isinstance(value, dict):
+        return {
+            key: _normalize_example_value(item) for key, item in value.items()
+        }
+    if isinstance(value, (list, tuple)):
+        return [_normalize_example_value(item) for item in value]
+    return value
+
+
+def _dataset_examples_from_dataframe(
+    dataset_df: pd.DataFrame,
+) -> list[models.DatasetExample]:
+    """Convert DataFrame rows to dataset examples with JSON-compatible values."""
+    examples = []
+    for row in dataset_df.to_dict(orient="records"):
+        normalized_row = cast("dict[str, Any]", _normalize_example_value(row))
+        if example := models.DatasetExample.from_dict(normalized_row):
+            examples.append(example)
+    return examples
 
 
 class DatasetsClient:
@@ -370,16 +404,7 @@ class DatasetsClient:
                 resource_updated_at=dataset_updated_at,
             )
         if dataset_df is not None:
-            examples = [
-                obj
-                for example in dataset_df.to_dict(orient="records")
-                if (
-                    obj := models.DatasetExample.from_dict(
-                        cast("dict[str, Any]", example)
-                    )
-                )
-                is not None
-            ]
+            examples = _dataset_examples_from_dataframe(dataset_df)
             return models.ListDatasetExamplesResponse(
                 examples=examples,
                 pagination=models.PaginationMetadata(
@@ -415,16 +440,7 @@ class DatasetsClient:
                 resource_data=dataset_df,
             )
 
-        examples = [
-            obj
-            for example in dataset_df.to_dict(orient="records")
-            if (
-                obj := models.DatasetExample.from_dict(
-                    cast("dict[str, Any]", example)
-                )
-            )
-            is not None
-        ]
+        examples = _dataset_examples_from_dataframe(dataset_df)
         return models.ListDatasetExamplesResponse(
             examples=examples,
             pagination=models.PaginationMetadata(

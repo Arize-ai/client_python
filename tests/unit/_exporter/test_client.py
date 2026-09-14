@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from datetime import datetime
 from typing import TYPE_CHECKING
 from unittest.mock import Mock, call, patch
@@ -94,6 +95,115 @@ class TestGetStreamReader:
             export_client._get_stream_reader(
                 **valid_export_params, stream_chunk_size="100"
             )  # type: ignore[arg-type]
+
+    @pytest.mark.parametrize(
+        "invalid_value,error_type,error_pattern",
+        [
+            ("0.5", TypeError, r"sample_rate.*must be a float"),
+            (True, TypeError, r"sample_rate.*must be a float"),
+            (0, ValueError, r"sample_rate.*must be in the range"),
+            (0.0, ValueError, r"sample_rate.*must be in the range"),
+            (-0.1, ValueError, r"sample_rate.*must be in the range"),
+            (1.5, ValueError, r"sample_rate.*must be in the range"),
+            (9e-7, ValueError, r"sample_rate.*must be in the range"),
+            (1e-12, ValueError, r"sample_rate.*must be in the range"),
+        ],
+    )
+    def test_validates_sample_rate(
+        self,
+        export_client: ArizeExportClient,
+        valid_export_params: dict,
+        invalid_value: object,
+        error_type: type[Exception],
+        error_pattern: str,
+    ) -> None:
+        """Test that sample_rate is validated."""
+        params = valid_export_params.copy()
+        params["environment"] = Environments.TRACING
+        with pytest.raises(error_type, match=error_pattern):
+            export_client._get_stream_reader(
+                **params,
+                sample_rate=invalid_value,  # type: ignore[arg-type]
+            )
+
+    def test_sample_rate_requires_tracing_environment(
+        self, export_client: ArizeExportClient, valid_export_params: dict
+    ) -> None:
+        """Test that sample_rate is rejected outside the Tracing environment."""
+        with pytest.raises(
+            ValueError,
+            match="sample_rate is only supported for the Tracing environment",
+        ):
+            export_client._get_stream_reader(
+                **valid_export_params, sample_rate=0.1
+            )
+
+    @pytest.mark.parametrize(
+        "valid_value,environment",
+        [
+            (0.5, Environments.TRACING),
+            (1.0, Environments.TRACING),
+            (1, Environments.TRACING),  # int convenience for the boundary
+            (1e-6, Environments.TRACING),  # the floor itself
+            (1.0, Environments.PRODUCTION),  # 1.0 is a no-op anywhere
+        ],
+    )
+    def test_accepts_valid_sample_rate(
+        self,
+        export_client: ArizeExportClient,
+        valid_export_params: dict,
+        valid_value: float,
+        environment: Environments,
+    ) -> None:
+        """Test that in-range sample_rate values pass validation."""
+        mock_flight_info = Mock()
+        mock_flight_info.total_records = 10
+        mock_flight_info.endpoints = [Mock()]
+        export_client.flight_client.get_flight_info.return_value = (
+            mock_flight_info
+        )
+        export_client.flight_client.do_get.return_value = Mock()
+
+        params = valid_export_params.copy()
+        params["environment"] = environment
+        export_client._get_stream_reader(**params, sample_rate=valid_value)
+
+    def test_sample_rate_included_in_query_descriptor(
+        self, export_client: ArizeExportClient, valid_export_params: dict
+    ) -> None:
+        """Test that sample_rate is sent to the server in the descriptor."""
+        mock_flight_info = Mock()
+        mock_flight_info.total_records = 10
+        mock_flight_info.endpoints = [Mock()]
+        export_client.flight_client.get_flight_info.return_value = (
+            mock_flight_info
+        )
+        export_client.flight_client.do_get.return_value = Mock()
+
+        params = valid_export_params.copy()
+        params["environment"] = Environments.TRACING
+        export_client._get_stream_reader(**params, sample_rate=0.1)
+
+        descriptor = export_client.flight_client.get_flight_info.call_args[0][0]
+        # camelCase key matches the protojson serialization of sample_rate
+        assert json.loads(descriptor.command)["sampleRate"] == 0.1
+
+    def test_sample_rate_omitted_from_query_descriptor_when_unset(
+        self, export_client: ArizeExportClient, valid_export_params: dict
+    ) -> None:
+        """Test that an unset sample_rate is not sent to the server."""
+        mock_flight_info = Mock()
+        mock_flight_info.total_records = 10
+        mock_flight_info.endpoints = [Mock()]
+        export_client.flight_client.get_flight_info.return_value = (
+            mock_flight_info
+        )
+        export_client.flight_client.do_get.return_value = Mock()
+
+        export_client._get_stream_reader(**valid_export_params)
+
+        descriptor = export_client.flight_client.get_flight_info.call_args[0][0]
+        assert "sampleRate" not in json.loads(descriptor.command)
 
     def test_returns_stream_reader_and_record_count(
         self, export_client: ArizeExportClient, valid_export_params: dict

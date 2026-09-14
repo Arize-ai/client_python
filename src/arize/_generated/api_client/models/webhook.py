@@ -27,7 +27,7 @@ from typing_extensions import Self
 
 class Webhook(BaseModel):
     """
-    A webhook is an organization-owned destination that receives event deliveries over HTTPS. Attach a webhook to prompts and evaluators through their webhook-subscription endpoints to choose which events it receives.  Credentials are write-only: the bearer token and custom header values are never returned, and the HMAC signing secret is returned exactly once, in the create response — only its redacted hint is readable afterwards. 
+    A webhook is an organization-owned destination that receives event deliveries over HTTPS. Create webhook subscriptions to choose which prompt and evaluator events it receives.  Credentials are write-only: the bearer token and custom header values are never returned, and the HMAC signing secret is returned exactly once, in the create response — only its redacted hint is readable afterwards. 
     """ # noqa: E501
     id: StrictStr = Field(description="Unique identifier for the webhook")
     organization_id: StrictStr = Field(description="The unique identifier of the organization that owns the webhook")

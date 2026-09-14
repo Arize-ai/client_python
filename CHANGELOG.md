@@ -1,5 +1,17 @@
 # Changelog
 
+## [8.53.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.52.1...arize-python-sdk/v8.53.0) (2026-09-11)
+
+
+### 🎁 New Features
+
+* **spans:** sample traces server-side on export ([#84676](https://github.com/Arize-ai/arize/issues/84676)) ([2c7d620](https://github.com/Arize-ai/arize/commit/2c7d620aa19fb57a9ac8b5f843924d10900caf60))
+
+
+### 🐛 Bug Fixes
+
+* **dataset-examples:** normalize Flight dataset example values ([#86118](https://github.com/Arize-ai/arize/issues/86118)) ([3b72270](https://github.com/Arize-ai/arize/commit/3b72270bc7aad5d0e33d7d14ac40b2dc25a02820)), closes [#85972](https://github.com/Arize-ai/arize/issues/85972)
+
 ## [8.52.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.52.0...arize-python-sdk/v8.52.1) (2026-09-10)
 
 

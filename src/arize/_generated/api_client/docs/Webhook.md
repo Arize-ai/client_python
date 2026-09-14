@@ -1,6 +1,6 @@
 # Webhook
 
-A webhook is an organization-owned destination that receives event deliveries over HTTPS. Attach a webhook to prompts and evaluators through their webhook-subscription endpoints to choose which events it receives.  Credentials are write-only: the bearer token and custom header values are never returned, and the HMAC signing secret is returned exactly once, in the create response — only its redacted hint is readable afterwards. 
+A webhook is an organization-owned destination that receives event deliveries over HTTPS. Create webhook subscriptions to choose which prompt and evaluator events it receives.  Credentials are write-only: the bearer token and custom header values are never returned, and the HMAC signing secret is returned exactly once, in the create response — only its redacted hint is readable afterwards. 
 
 ## Properties
 

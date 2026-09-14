@@ -19,17 +19,18 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List
-from typing_extensions import Annotated
-from arize._generated.api_client.models.webhook_subscription_input import WebhookSubscriptionInput
+from arize._generated.api_client.models.pagination_metadata import PaginationMetadata
+from arize._generated.api_client.models.webhook_subscription import WebhookSubscription
 from typing import Optional, Set
 from typing_extensions import Self
 
-class SetWebhookSubscriptionsRequest(BaseModel):
+class ListWebhookSubscriptionsResponse(BaseModel):
     """
-    SetWebhookSubscriptionsRequest
+    ListWebhookSubscriptionsResponse
     """ # noqa: E501
-    subscriptions: Annotated[List[WebhookSubscriptionInput], Field(min_length=0)] = Field(description="The complete set of webhook subscriptions for the resource, with at most one entry per `webhook_id`. Replaces all existing subscriptions: subscriptions not included in the request are removed, and an empty array detaches every webhook from the resource. At most 200 webhooks may subscribe to the same event on a resource; requests that would exceed this limit are rejected. ")
-    __properties: ClassVar[List[str]] = ["subscriptions"]
+    subscriptions: List[WebhookSubscription] = Field(description="A list of webhook subscriptions, most recently created first")
+    pagination: PaginationMetadata
+    __properties: ClassVar[List[str]] = ["subscriptions", "pagination"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -49,7 +50,7 @@ class SetWebhookSubscriptionsRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of SetWebhookSubscriptionsRequest from a JSON string"""
+        """Create an instance of ListWebhookSubscriptionsResponse from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -77,24 +78,24 @@ class SetWebhookSubscriptionsRequest(BaseModel):
                 if _item_subscriptions:
                     _items.append(_item_subscriptions.to_dict())
             _dict['subscriptions'] = _items
+        # override the default output from pydantic by calling `to_dict()` of pagination
+        if self.pagination:
+            _dict['pagination'] = self.pagination.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of SetWebhookSubscriptionsRequest from a dict"""
+        """Create an instance of ListWebhookSubscriptionsResponse from a dict"""
         if obj is None:
             return None
 
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        # raise errors for additional fields in the input
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in SetWebhookSubscriptionsRequest) in the input: " + _key)
 
         _obj = cls.model_validate({
-            "subscriptions": [WebhookSubscriptionInput.from_dict(_item) for _item in obj["subscriptions"]] if obj.get("subscriptions") is not None else None
+            "subscriptions": [WebhookSubscription.from_dict(_item) for _item in obj["subscriptions"]] if obj.get("subscriptions") is not None else None,
+            "pagination": PaginationMetadata.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None
         })
         return _obj
 

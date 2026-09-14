@@ -17,21 +17,25 @@ import pprint
 import re  # noqa: F401
 import json
 
+from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List
-from typing_extensions import Annotated
 from arize._generated.api_client.models.webhook_event_type import WebhookEventType
+from arize._generated.api_client.models.webhook_source_type import WebhookSourceType
 from typing import Optional, Set
 from typing_extensions import Self
 
 class WebhookSubscription(BaseModel):
     """
-    A webhook attached to a resource and the events it receives.
+    A subscription delivers one event from one prompt or evaluator to one webhook. A webhook that should receive several events from the same resource has one subscription per event. 
     """ # noqa: E501
-    webhook_id: StrictStr = Field(description="The unique identifier of the subscribed webhook")
-    webhook_name: StrictStr = Field(description="Name of the subscribed webhook")
-    subscribed_events: Annotated[List[WebhookEventType], Field(min_length=1)] = Field(description="The events delivered to the webhook")
-    __properties: ClassVar[List[str]] = ["webhook_id", "webhook_name", "subscribed_events"]
+    id: StrictStr = Field(description="Unique identifier for the subscription")
+    webhook_id: StrictStr = Field(description="The unique identifier of the webhook that receives the event")
+    source_type: WebhookSourceType = Field(description="The kind of resource the subscription is attached to")
+    source_id: StrictStr = Field(description="The unique identifier of the prompt or evaluator the subscription is attached to")
+    event: WebhookEventType = Field(description="The event delivered to the webhook")
+    created_at: datetime = Field(description="Timestamp for when the subscription was created")
+    __properties: ClassVar[List[str]] = ["id", "webhook_id", "source_type", "source_id", "event", "created_at"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -85,9 +89,12 @@ class WebhookSubscription(BaseModel):
 
 
         _obj = cls.model_validate({
+            "id": obj.get("id"),
             "webhook_id": obj.get("webhook_id"),
-            "webhook_name": obj.get("webhook_name"),
-            "subscribed_events": obj.get("subscribed_events")
+            "source_type": obj.get("source_type"),
+            "source_id": obj.get("source_id"),
+            "event": obj.get("event"),
+            "created_at": obj.get("created_at")
         })
         return _obj
 

@@ -11,13 +11,11 @@ Method | HTTP request | Description
 [**delete_evaluator_versions**](EvaluatorsApi.md#delete_evaluator_versions) | **DELETE** /v2/evaluators/{evaluator_id}/versions | Delete evaluator versions
 [**get_evaluator**](EvaluatorsApi.md#get_evaluator) | **GET** /v2/evaluators/{evaluator_id} | Get evaluator
 [**get_evaluator_version**](EvaluatorsApi.md#get_evaluator_version) | **GET** /v2/evaluator-versions/{version_id} | Get evaluator version
-[**get_evaluator_webhook_subscriptions**](EvaluatorsApi.md#get_evaluator_webhook_subscriptions) | **GET** /v2/evaluators/{evaluator_id}/webhook-subscriptions | Get an evaluator&#39;s webhook subscriptions
 [**list_evaluator_tags**](EvaluatorsApi.md#list_evaluator_tags) | **GET** /v2/evaluators/{evaluator_id}/tags | List tags on an evaluator
 [**list_evaluator_templates**](EvaluatorsApi.md#list_evaluator_templates) | **GET** /v2/evaluator-templates | List evaluator templates
 [**list_evaluator_versions**](EvaluatorsApi.md#list_evaluator_versions) | **GET** /v2/evaluators/{evaluator_id}/versions | List evaluator versions
 [**list_evaluators**](EvaluatorsApi.md#list_evaluators) | **GET** /v2/evaluators | List evaluators
 [**remove_evaluator_tags**](EvaluatorsApi.md#remove_evaluator_tags) | **DELETE** /v2/evaluators/{evaluator_id}/tags | Detach tags from a evaluator
-[**set_evaluator_webhook_subscriptions**](EvaluatorsApi.md#set_evaluator_webhook_subscriptions) | **PUT** /v2/evaluators/{evaluator_id}/webhook-subscriptions | Set an evaluator&#39;s webhook subscriptions
 [**update_evaluator**](EvaluatorsApi.md#update_evaluator) | **PATCH** /v2/evaluators/{evaluator_id} | Update evaluator
 
 
@@ -901,91 +899,6 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **get_evaluator_webhook_subscriptions**
-> WebhookSubscriptions get_evaluator_webhook_subscriptions(evaluator_id)
-
-Get an evaluator's webhook subscriptions
-
-Get the webhooks attached to an evaluator and the events each receives.
-
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
-
-
-### Example
-
-* Bearer (<api-key>) Authentication (bearerAuth):
-
-```python
-import arize._generated.api_client
-from arize._generated.api_client.models.webhook_subscriptions import WebhookSubscriptions
-from arize._generated.api_client.rest import ApiException
-from pprint import pprint
-
-# Defining the host is optional and defaults to https://api.arize.com
-# See configuration.py for a list of all supported configuration parameters.
-configuration = arize._generated.api_client.Configuration(
-    host = "https://api.arize.com"
-)
-
-# The client must configure the authentication and authorization parameters
-# in accordance with the API server security policy.
-# Examples for each auth method are provided below, use the example that
-# satisfies your auth use case.
-
-# Configure Bearer authorization (<api-key>): bearerAuth
-configuration = arize._generated.api_client.Configuration(
-    access_token = os.environ["BEARER_TOKEN"]
-)
-
-# Enter a context with an instance of the API client
-with arize._generated.api_client.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
-    evaluator_id = 'RXZhbHVhdG9yOjEyMzQ1' # str | The unique evaluator identifier (base64)
-
-    try:
-        # Get an evaluator's webhook subscriptions
-        api_response = api_instance.get_evaluator_webhook_subscriptions(evaluator_id)
-        print("The response of EvaluatorsApi->get_evaluator_webhook_subscriptions:\n")
-        pprint(api_response)
-    except Exception as e:
-        print("Exception when calling EvaluatorsApi->get_evaluator_webhook_subscriptions: %s\n" % e)
-```
-
-
-
-### Parameters
-
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **evaluator_id** | **str**| The unique evaluator identifier (base64) | 
-
-### Return type
-
-[**WebhookSubscriptions**](WebhookSubscriptions.md)
-
-### Authorization
-
-[bearerAuth](../README.md#bearerAuth)
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
- - **Accept**: application/json, application/problem+json
-
-### HTTP response details
-
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-**200** | The complete set of webhook subscriptions attached to the resource |  -  |
-**400** | Invalid request |  -  |
-**401** | Authentication is required |  -  |
-**404** | Not found |  -  |
-**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
 # **list_evaluator_tags**
 > ListTagsResponse list_evaluator_tags(evaluator_id)
 
@@ -1521,110 +1434,6 @@ Name | Type | Description  | Notes
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | Reports which tags were detached and which were not attached |  -  |
-**400** | Invalid request |  -  |
-**401** | Authentication is required |  -  |
-**403** | Insufficient permissions to access this resource |  -  |
-**404** | Not found |  -  |
-**422** | Unprocessable entity |  -  |
-**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **set_evaluator_webhook_subscriptions**
-> WebhookSubscriptions set_evaluator_webhook_subscriptions(evaluator_id, set_webhook_subscriptions_request)
-
-Set an evaluator's webhook subscriptions
-
-Set (replace) all webhook subscriptions on an evaluator. This is an
-idempotent operation.
-
-**Payload Requirements**
-- `subscriptions` is required, with at most one entry per `webhook_id`.
-- Each entry must subscribe to at least one evaluator event
-  (`EVALUATOR_VERSION_CREATED`); other events are rejected with a 422.
-- Each `webhook_id` must be a webhook in the evaluator's organization;
-  unknown webhooks yield a 404.
-- At most 200 webhooks may subscribe to the same event on an
-  evaluator; requests that would exceed this limit are rejected with a
-  422.
-
-Subscriptions not included in the request are removed. Pass an empty
-array to detach every webhook from the evaluator.
-
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
-
-
-### Example
-
-* Bearer (<api-key>) Authentication (bearerAuth):
-
-```python
-import arize._generated.api_client
-from arize._generated.api_client.models.set_webhook_subscriptions_request import SetWebhookSubscriptionsRequest
-from arize._generated.api_client.models.webhook_subscriptions import WebhookSubscriptions
-from arize._generated.api_client.rest import ApiException
-from pprint import pprint
-
-# Defining the host is optional and defaults to https://api.arize.com
-# See configuration.py for a list of all supported configuration parameters.
-configuration = arize._generated.api_client.Configuration(
-    host = "https://api.arize.com"
-)
-
-# The client must configure the authentication and authorization parameters
-# in accordance with the API server security policy.
-# Examples for each auth method are provided below, use the example that
-# satisfies your auth use case.
-
-# Configure Bearer authorization (<api-key>): bearerAuth
-configuration = arize._generated.api_client.Configuration(
-    access_token = os.environ["BEARER_TOKEN"]
-)
-
-# Enter a context with an instance of the API client
-with arize._generated.api_client.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
-    evaluator_id = 'RXZhbHVhdG9yOjEyMzQ1' # str | The unique evaluator identifier (base64)
-    set_webhook_subscriptions_request = {"subscriptions":[{"webhook_id":"V2ViaG9vazoxMjM0NQ==","subscribed_events":["PROMPT_VERSION_CREATED","PROMPT_VERSION_LABELED"]}]} # SetWebhookSubscriptionsRequest | Body containing the complete set of webhook subscriptions for the resource
-
-    try:
-        # Set an evaluator's webhook subscriptions
-        api_response = api_instance.set_evaluator_webhook_subscriptions(evaluator_id, set_webhook_subscriptions_request)
-        print("The response of EvaluatorsApi->set_evaluator_webhook_subscriptions:\n")
-        pprint(api_response)
-    except Exception as e:
-        print("Exception when calling EvaluatorsApi->set_evaluator_webhook_subscriptions: %s\n" % e)
-```
-
-
-
-### Parameters
-
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **evaluator_id** | **str**| The unique evaluator identifier (base64) | 
- **set_webhook_subscriptions_request** | [**SetWebhookSubscriptionsRequest**](SetWebhookSubscriptionsRequest.md)| Body containing the complete set of webhook subscriptions for the resource | 
-
-### Return type
-
-[**WebhookSubscriptions**](WebhookSubscriptions.md)
-
-### Authorization
-
-[bearerAuth](../README.md#bearerAuth)
-
-### HTTP request headers
-
- - **Content-Type**: application/json
- - **Accept**: application/json, application/problem+json
-
-### HTTP response details
-
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-**200** | The complete set of webhook subscriptions attached to the resource |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |

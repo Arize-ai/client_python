@@ -154,6 +154,7 @@ arize/_generated/api_client/docs/CreateUserResponse.md
 arize/_generated/api_client/docs/CreateVertexAiConfig.md
 arize/_generated/api_client/docs/CreateWebhookRequest.md
 arize/_generated/api_client/docs/CreateWebhookResponse.md
+arize/_generated/api_client/docs/CreateWebhookSubscriptionRequest.md
 arize/_generated/api_client/docs/CreatedServiceApiKey.md
 arize/_generated/api_client/docs/CreatedUserApiKey.md
 arize/_generated/api_client/docs/CustomBaselineConfig.md
@@ -268,6 +269,7 @@ arize/_generated/api_client/docs/ListTracesRequest.md
 arize/_generated/api_client/docs/ListTracesResponse.md
 arize/_generated/api_client/docs/ListUsersResponse.md
 arize/_generated/api_client/docs/ListWebhookDeliveryAttemptsResponse.md
+arize/_generated/api_client/docs/ListWebhookSubscriptionsResponse.md
 arize/_generated/api_client/docs/ListWebhooksResponse.md
 arize/_generated/api_client/docs/LiteLlmConfig.md
 arize/_generated/api_client/docs/LlmConfig.md
@@ -353,7 +355,6 @@ arize/_generated/api_client/docs/ServiceKeyBotUserSpaceAssignment.md
 arize/_generated/api_client/docs/ServiceKeyOrgAssignment.md
 arize/_generated/api_client/docs/ServiceKeySpaceAssignment.md
 arize/_generated/api_client/docs/SetPromptVersionLabelsRequest.md
-arize/_generated/api_client/docs/SetWebhookSubscriptionsRequest.md
 arize/_generated/api_client/docs/Space.md
 arize/_generated/api_client/docs/SpaceMembership.md
 arize/_generated/api_client/docs/SpaceRoleAssignment.md
@@ -454,9 +455,8 @@ arize/_generated/api_client/docs/WebhookAuthType.md
 arize/_generated/api_client/docs/WebhookDeliveryAttempt.md
 arize/_generated/api_client/docs/WebhookEventType.md
 arize/_generated/api_client/docs/WebhookNotificationConfig.md
+arize/_generated/api_client/docs/WebhookSourceType.md
 arize/_generated/api_client/docs/WebhookSubscription.md
-arize/_generated/api_client/docs/WebhookSubscriptionInput.md
-arize/_generated/api_client/docs/WebhookSubscriptions.md
 arize/_generated/api_client/docs/WebhooksApi.md
 arize/_generated/api_client/exceptions.py
 arize/_generated/api_client/models/__init__.py
@@ -582,6 +582,7 @@ arize/_generated/api_client/models/create_user_response.py
 arize/_generated/api_client/models/create_vertex_ai_config.py
 arize/_generated/api_client/models/create_webhook_request.py
 arize/_generated/api_client/models/create_webhook_response.py
+arize/_generated/api_client/models/create_webhook_subscription_request.py
 arize/_generated/api_client/models/created_service_api_key.py
 arize/_generated/api_client/models/created_user_api_key.py
 arize/_generated/api_client/models/custom_baseline_config.py
@@ -690,6 +691,7 @@ arize/_generated/api_client/models/list_traces_request.py
 arize/_generated/api_client/models/list_traces_response.py
 arize/_generated/api_client/models/list_users_response.py
 arize/_generated/api_client/models/list_webhook_delivery_attempts_response.py
+arize/_generated/api_client/models/list_webhook_subscriptions_response.py
 arize/_generated/api_client/models/list_webhooks_response.py
 arize/_generated/api_client/models/lite_llm_config.py
 arize/_generated/api_client/models/llm_config.py
@@ -770,7 +772,6 @@ arize/_generated/api_client/models/service_key_bot_user_space_assignment.py
 arize/_generated/api_client/models/service_key_org_assignment.py
 arize/_generated/api_client/models/service_key_space_assignment.py
 arize/_generated/api_client/models/set_prompt_version_labels_request.py
-arize/_generated/api_client/models/set_webhook_subscriptions_request.py
 arize/_generated/api_client/models/space.py
 arize/_generated/api_client/models/space_membership.py
 arize/_generated/api_client/models/space_role_assignment.py
@@ -865,9 +866,8 @@ arize/_generated/api_client/models/webhook_auth_type.py
 arize/_generated/api_client/models/webhook_delivery_attempt.py
 arize/_generated/api_client/models/webhook_event_type.py
 arize/_generated/api_client/models/webhook_notification_config.py
+arize/_generated/api_client/models/webhook_source_type.py
 arize/_generated/api_client/models/webhook_subscription.py
-arize/_generated/api_client/models/webhook_subscription_input.py
-arize/_generated/api_client/models/webhook_subscriptions.py
 arize/_generated/api_client/rest.py
 arize/_generated/api_client/test/__init__.py
 arize/_generated/api_client/test/test_add_tags_request.py
@@ -915,6 +915,7 @@ arize/_generated/api_client/test/test_create_tag_request.py
 arize/_generated/api_client/test/test_create_user_api_key_request.py
 arize/_generated/api_client/test/test_create_webhook_request.py
 arize/_generated/api_client/test/test_create_webhook_response.py
+arize/_generated/api_client/test/test_create_webhook_subscription_request.py
 arize/_generated/api_client/test/test_created_service_api_key.py
 arize/_generated/api_client/test/test_created_user_api_key.py
 arize/_generated/api_client/test/test_custom_code_config.py
@@ -946,6 +947,7 @@ arize/_generated/api_client/test/test_list_spans_request.py
 arize/_generated/api_client/test/test_list_tags_response.py
 arize/_generated/api_client/test/test_list_traces_request.py
 arize/_generated/api_client/test/test_list_webhook_delivery_attempts_response.py
+arize/_generated/api_client/test/test_list_webhook_subscriptions_response.py
 arize/_generated/api_client/test/test_list_webhooks_response.py
 arize/_generated/api_client/test/test_lite_llm_config.py
 arize/_generated/api_client/test/test_llm_config.py
@@ -981,7 +983,6 @@ arize/_generated/api_client/test/test_service_key_bot_user_org_assignment.py
 arize/_generated/api_client/test/test_service_key_bot_user_space_assignment.py
 arize/_generated/api_client/test/test_service_key_org_assignment.py
 arize/_generated/api_client/test/test_service_key_space_assignment.py
-arize/_generated/api_client/test/test_set_webhook_subscriptions_request.py
 arize/_generated/api_client/test/test_span_evaluator_input.py
 arize/_generated/api_client/test/test_span_status_code.py
 arize/_generated/api_client/test/test_static_param.py
@@ -1019,8 +1020,7 @@ arize/_generated/api_client/test/test_webhook.py
 arize/_generated/api_client/test/test_webhook_auth_type.py
 arize/_generated/api_client/test/test_webhook_delivery_attempt.py
 arize/_generated/api_client/test/test_webhook_event_type.py
+arize/_generated/api_client/test/test_webhook_source_type.py
 arize/_generated/api_client/test/test_webhook_subscription.py
-arize/_generated/api_client/test/test_webhook_subscription_input.py
-arize/_generated/api_client/test/test_webhook_subscriptions.py
 arize/_generated/api_client/test/test_webhooks_api.py
 arize/_generated/api_client_README.md

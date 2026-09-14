@@ -122,13 +122,11 @@ Class | Method | HTTP request | Description
 *EvaluatorsApi* | [**delete_evaluator_versions**](arize/_generated/api_client/docs/EvaluatorsApi.md#delete_evaluator_versions) | **DELETE** /v2/evaluators/{evaluator_id}/versions | Delete evaluator versions
 *EvaluatorsApi* | [**get_evaluator**](arize/_generated/api_client/docs/EvaluatorsApi.md#get_evaluator) | **GET** /v2/evaluators/{evaluator_id} | Get evaluator
 *EvaluatorsApi* | [**get_evaluator_version**](arize/_generated/api_client/docs/EvaluatorsApi.md#get_evaluator_version) | **GET** /v2/evaluator-versions/{version_id} | Get evaluator version
-*EvaluatorsApi* | [**get_evaluator_webhook_subscriptions**](arize/_generated/api_client/docs/EvaluatorsApi.md#get_evaluator_webhook_subscriptions) | **GET** /v2/evaluators/{evaluator_id}/webhook-subscriptions | Get an evaluator&#39;s webhook subscriptions
 *EvaluatorsApi* | [**list_evaluator_tags**](arize/_generated/api_client/docs/EvaluatorsApi.md#list_evaluator_tags) | **GET** /v2/evaluators/{evaluator_id}/tags | List tags on an evaluator
 *EvaluatorsApi* | [**list_evaluator_templates**](arize/_generated/api_client/docs/EvaluatorsApi.md#list_evaluator_templates) | **GET** /v2/evaluator-templates | List evaluator templates
 *EvaluatorsApi* | [**list_evaluator_versions**](arize/_generated/api_client/docs/EvaluatorsApi.md#list_evaluator_versions) | **GET** /v2/evaluators/{evaluator_id}/versions | List evaluator versions
 *EvaluatorsApi* | [**list_evaluators**](arize/_generated/api_client/docs/EvaluatorsApi.md#list_evaluators) | **GET** /v2/evaluators | List evaluators
 *EvaluatorsApi* | [**remove_evaluator_tags**](arize/_generated/api_client/docs/EvaluatorsApi.md#remove_evaluator_tags) | **DELETE** /v2/evaluators/{evaluator_id}/tags | Detach tags from a evaluator
-*EvaluatorsApi* | [**set_evaluator_webhook_subscriptions**](arize/_generated/api_client/docs/EvaluatorsApi.md#set_evaluator_webhook_subscriptions) | **PUT** /v2/evaluators/{evaluator_id}/webhook-subscriptions | Set an evaluator&#39;s webhook subscriptions
 *EvaluatorsApi* | [**update_evaluator**](arize/_generated/api_client/docs/EvaluatorsApi.md#update_evaluator) | **PATCH** /v2/evaluators/{evaluator_id} | Update evaluator
 *ExperimentsApi* | [**add_experiment_tags**](arize/_generated/api_client/docs/ExperimentsApi.md#add_experiment_tags) | **POST** /v2/experiments/{experiment_id}/tags | Attach tags to a experiment
 *ExperimentsApi* | [**annotate_experiment_runs**](arize/_generated/api_client/docs/ExperimentsApi.md#annotate_experiment_runs) | **POST** /v2/experiments/{experiment_id}/runs/annotate | Annotate a batch of experiment runs
@@ -172,13 +170,11 @@ Class | Method | HTTP request | Description
 *PromptsApi* | [**get_prompt**](arize/_generated/api_client/docs/PromptsApi.md#get_prompt) | **GET** /v2/prompts/{prompt_id} | Get a prompt
 *PromptsApi* | [**get_prompt_label**](arize/_generated/api_client/docs/PromptsApi.md#get_prompt_label) | **GET** /v2/prompts/{prompt_id}/labels/{label_name} | Resolve a label to a prompt version
 *PromptsApi* | [**get_prompt_version**](arize/_generated/api_client/docs/PromptsApi.md#get_prompt_version) | **GET** /v2/prompt-versions/{version_id} | Get a prompt version
-*PromptsApi* | [**get_prompt_webhook_subscriptions**](arize/_generated/api_client/docs/PromptsApi.md#get_prompt_webhook_subscriptions) | **GET** /v2/prompts/{prompt_id}/webhook-subscriptions | Get a prompt&#39;s webhook subscriptions
 *PromptsApi* | [**list_prompt_tags**](arize/_generated/api_client/docs/PromptsApi.md#list_prompt_tags) | **GET** /v2/prompts/{prompt_id}/tags | List tags on a prompt
 *PromptsApi* | [**list_prompt_versions**](arize/_generated/api_client/docs/PromptsApi.md#list_prompt_versions) | **GET** /v2/prompts/{prompt_id}/versions | List prompt versions
 *PromptsApi* | [**list_prompts**](arize/_generated/api_client/docs/PromptsApi.md#list_prompts) | **GET** /v2/prompts | List prompts
 *PromptsApi* | [**remove_prompt_tags**](arize/_generated/api_client/docs/PromptsApi.md#remove_prompt_tags) | **DELETE** /v2/prompts/{prompt_id}/tags | Detach tags from a prompt
 *PromptsApi* | [**set_prompt_version_label**](arize/_generated/api_client/docs/PromptsApi.md#set_prompt_version_label) | **PUT** /v2/prompt-versions/{version_id}/labels | Set labels on a prompt version
-*PromptsApi* | [**set_prompt_webhook_subscriptions**](arize/_generated/api_client/docs/PromptsApi.md#set_prompt_webhook_subscriptions) | **PUT** /v2/prompts/{prompt_id}/webhook-subscriptions | Set a prompt&#39;s webhook subscriptions
 *PromptsApi* | [**update_prompt**](arize/_generated/api_client/docs/PromptsApi.md#update_prompt) | **PATCH** /v2/prompts/{prompt_id} | Update a prompt
 *ResourceRestrictionsApi* | [**create_resource_restriction**](arize/_generated/api_client/docs/ResourceRestrictionsApi.md#create_resource_restriction) | **POST** /v2/resource-restrictions | Restrict a resource
 *ResourceRestrictionsApi* | [**delete_resource_restriction**](arize/_generated/api_client/docs/ResourceRestrictionsApi.md#delete_resource_restriction) | **DELETE** /v2/resource-restrictions/{resource_id} | Unrestrict a resource
@@ -224,9 +220,13 @@ Class | Method | HTTP request | Description
 *UsersApi* | [**reset_user_password**](arize/_generated/api_client/docs/UsersApi.md#reset_user_password) | **POST** /v2/users/{user_id}/reset-password | Trigger a password-reset email for a user
 *UsersApi* | [**update_user**](arize/_generated/api_client/docs/UsersApi.md#update_user) | **PATCH** /v2/users/{user_id} | Update a user
 *WebhooksApi* | [**create_webhook**](arize/_generated/api_client/docs/WebhooksApi.md#create_webhook) | **POST** /v2/webhooks | Create a webhook
+*WebhooksApi* | [**create_webhook_subscription**](arize/_generated/api_client/docs/WebhooksApi.md#create_webhook_subscription) | **POST** /v2/webhook-subscriptions | Create a webhook subscription
 *WebhooksApi* | [**delete_webhook**](arize/_generated/api_client/docs/WebhooksApi.md#delete_webhook) | **DELETE** /v2/webhooks/{webhook_id} | Delete a webhook
+*WebhooksApi* | [**delete_webhook_subscription**](arize/_generated/api_client/docs/WebhooksApi.md#delete_webhook_subscription) | **DELETE** /v2/webhook-subscriptions/{subscription_id} | Delete a webhook subscription
 *WebhooksApi* | [**get_webhook**](arize/_generated/api_client/docs/WebhooksApi.md#get_webhook) | **GET** /v2/webhooks/{webhook_id} | Get a webhook
+*WebhooksApi* | [**get_webhook_subscription**](arize/_generated/api_client/docs/WebhooksApi.md#get_webhook_subscription) | **GET** /v2/webhook-subscriptions/{subscription_id} | Get a webhook subscription
 *WebhooksApi* | [**list_webhook_delivery_attempts**](arize/_generated/api_client/docs/WebhooksApi.md#list_webhook_delivery_attempts) | **GET** /v2/webhooks/{webhook_id}/delivery-attempts | List a webhook&#39;s delivery attempts
+*WebhooksApi* | [**list_webhook_subscriptions**](arize/_generated/api_client/docs/WebhooksApi.md#list_webhook_subscriptions) | **GET** /v2/webhook-subscriptions | List webhook subscriptions
 *WebhooksApi* | [**list_webhooks**](arize/_generated/api_client/docs/WebhooksApi.md#list_webhooks) | **GET** /v2/webhooks | List webhooks
 *WebhooksApi* | [**test_webhook**](arize/_generated/api_client/docs/WebhooksApi.md#test_webhook) | **POST** /v2/webhooks/{webhook_id}/test | Send a test event to a webhook
 *WebhooksApi* | [**update_webhook**](arize/_generated/api_client/docs/WebhooksApi.md#update_webhook) | **PATCH** /v2/webhooks/{webhook_id} | Update a webhook
@@ -356,6 +356,7 @@ Class | Method | HTTP request | Description
  - [CreateVertexAiConfig](arize/_generated/api_client/docs/CreateVertexAiConfig.md)
  - [CreateWebhookRequest](arize/_generated/api_client/docs/CreateWebhookRequest.md)
  - [CreateWebhookResponse](arize/_generated/api_client/docs/CreateWebhookResponse.md)
+ - [CreateWebhookSubscriptionRequest](arize/_generated/api_client/docs/CreateWebhookSubscriptionRequest.md)
  - [CreatedServiceApiKey](arize/_generated/api_client/docs/CreatedServiceApiKey.md)
  - [CreatedUserApiKey](arize/_generated/api_client/docs/CreatedUserApiKey.md)
  - [CustomBaselineConfig](arize/_generated/api_client/docs/CustomBaselineConfig.md)
@@ -466,6 +467,7 @@ Class | Method | HTTP request | Description
  - [ListTracesResponse](arize/_generated/api_client/docs/ListTracesResponse.md)
  - [ListUsersResponse](arize/_generated/api_client/docs/ListUsersResponse.md)
  - [ListWebhookDeliveryAttemptsResponse](arize/_generated/api_client/docs/ListWebhookDeliveryAttemptsResponse.md)
+ - [ListWebhookSubscriptionsResponse](arize/_generated/api_client/docs/ListWebhookSubscriptionsResponse.md)
  - [ListWebhooksResponse](arize/_generated/api_client/docs/ListWebhooksResponse.md)
  - [LiteLlmConfig](arize/_generated/api_client/docs/LiteLlmConfig.md)
  - [LlmConfig](arize/_generated/api_client/docs/LlmConfig.md)
@@ -544,7 +546,6 @@ Class | Method | HTTP request | Description
  - [ServiceKeyOrgAssignment](arize/_generated/api_client/docs/ServiceKeyOrgAssignment.md)
  - [ServiceKeySpaceAssignment](arize/_generated/api_client/docs/ServiceKeySpaceAssignment.md)
  - [SetPromptVersionLabelsRequest](arize/_generated/api_client/docs/SetPromptVersionLabelsRequest.md)
- - [SetWebhookSubscriptionsRequest](arize/_generated/api_client/docs/SetWebhookSubscriptionsRequest.md)
  - [Space](arize/_generated/api_client/docs/Space.md)
  - [SpaceMembership](arize/_generated/api_client/docs/SpaceMembership.md)
  - [SpaceRoleAssignment](arize/_generated/api_client/docs/SpaceRoleAssignment.md)
@@ -639,9 +640,8 @@ Class | Method | HTTP request | Description
  - [WebhookDeliveryAttempt](arize/_generated/api_client/docs/WebhookDeliveryAttempt.md)
  - [WebhookEventType](arize/_generated/api_client/docs/WebhookEventType.md)
  - [WebhookNotificationConfig](arize/_generated/api_client/docs/WebhookNotificationConfig.md)
+ - [WebhookSourceType](arize/_generated/api_client/docs/WebhookSourceType.md)
  - [WebhookSubscription](arize/_generated/api_client/docs/WebhookSubscription.md)
- - [WebhookSubscriptionInput](arize/_generated/api_client/docs/WebhookSubscriptionInput.md)
- - [WebhookSubscriptions](arize/_generated/api_client/docs/WebhookSubscriptions.md)
 
 
 <a id="documentation-for-authorization"></a>

@@ -2,10 +2,14 @@
 
 from __future__ import annotations
 
+import json
 import logging
+from datetime import datetime, timezone
 from unittest.mock import MagicMock, Mock, create_autospec, patch
 
+import numpy as np
 import pandas as pd
+import pyarrow as pa
 import pytest
 
 from arize._generated.api_client import DatasetsApi
@@ -408,3 +412,88 @@ class TestDatasetsClientListExamplesCaching:
             client.list_examples(dataset="RGF0YXNldDoxMjM6YWJj", all=True)
 
         mock_cache_write.assert_called_once()
+
+    @pytest.mark.parametrize("from_cache", [False, True])
+    def test_all_normalizes_numpy_values(
+        self,
+        mock_sdk_config: Mock,
+        from_cache: bool,
+    ) -> None:
+        """Flight and cached examples must contain JSON-compatible values."""
+        client = self._make_client(mock_sdk_config, enable_caching=from_cache)
+        dataset_obj = Mock(
+            updated_at="2024-01-01T00:00:00Z",
+            space_id="space-123",
+        )
+        now = datetime.now(tz=timezone.utc)
+        timestamps = (
+            pa.table(
+                {
+                    "timestamps": pa.array(
+                        [[datetime(2024, 1, 1), None]],
+                        type=pa.list_(pa.timestamp("ns")),
+                    )
+                }
+            )
+            .to_pandas()["timestamps"]
+            .iloc[0]
+        )
+        dataset_df = pd.DataFrame(
+            {
+                "id": ["example-1"],
+                "created_at": [now],
+                "updated_at": [now],
+                "expected_tool_names": [np.array(["search", "lookup"])],
+                "timestamps": [timestamps],
+                "output": [
+                    {
+                        "expected_tool_calls": np.array(
+                            [{"name": "search"}], dtype=object
+                        ),
+                        "expected_tool_count": np.int64(1),
+                    }
+                ],
+            }
+        )
+
+        with (
+            patch.object(client, "get", return_value=dataset_obj),
+            patch(
+                "arize.datasets.client.load_cached_resource",
+                return_value=dataset_df if from_cache else None,
+            ),
+            patch("arize.datasets.client.cache_resource"),
+            patch("arize.datasets.client.ArizeFlightClient") as flight_cls,
+        ):
+            flight_client = MagicMock()
+            flight_client.__enter__ = Mock(return_value=flight_client)
+            flight_client.__exit__ = Mock(return_value=False)
+            flight_client.get_dataset_examples.return_value = dataset_df
+            flight_cls.return_value = flight_client
+
+            response = client.list_examples(
+                dataset="RGF0YXNldDoxMjM6YWJj", all=True
+            )
+
+        example = response.examples[0]
+        assert example.additional_properties["expected_tool_names"] == [
+            "search",
+            "lookup",
+        ]
+        assert example.additional_properties["output"] == {
+            "expected_tool_calls": [{"name": "search"}],
+            "expected_tool_count": 1,
+        }
+        assert example.additional_properties["timestamps"] == [
+            "2024-01-01T00:00:00.000000000",
+            None,
+        ]
+        model_dump = response.model_dump(mode="json")
+        assert model_dump["examples"][0]["additional_properties"][
+            "expected_tool_names"
+        ] == ["search", "lookup"]
+        serialized = json.loads(response.to_json())
+        assert serialized["examples"][0]["expected_tool_names"] == [
+            "search",
+            "lookup",
+        ]

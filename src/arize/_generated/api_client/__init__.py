@@ -172,6 +172,7 @@ __all__ = [
     "CreateVertexAiConfig",
     "CreateWebhookRequest",
     "CreateWebhookResponse",
+    "CreateWebhookSubscriptionRequest",
     "CreatedServiceApiKey",
     "CreatedUserApiKey",
     "CustomBaselineConfig",
@@ -282,6 +283,7 @@ __all__ = [
     "ListTracesResponse",
     "ListUsersResponse",
     "ListWebhookDeliveryAttemptsResponse",
+    "ListWebhookSubscriptionsResponse",
     "ListWebhooksResponse",
     "LiteLlmConfig",
     "LlmConfig",
@@ -360,7 +362,6 @@ __all__ = [
     "ServiceKeyOrgAssignment",
     "ServiceKeySpaceAssignment",
     "SetPromptVersionLabelsRequest",
-    "SetWebhookSubscriptionsRequest",
     "Space",
     "SpaceMembership",
     "SpaceRoleAssignment",
@@ -455,9 +456,8 @@ __all__ = [
     "WebhookDeliveryAttempt",
     "WebhookEventType",
     "WebhookNotificationConfig",
+    "WebhookSourceType",
     "WebhookSubscription",
-    "WebhookSubscriptionInput",
-    "WebhookSubscriptions",
 ]
 
 # import apis into sdk package
@@ -619,6 +619,7 @@ from arize._generated.api_client.models.create_user_response import CreateUserRe
 from arize._generated.api_client.models.create_vertex_ai_config import CreateVertexAiConfig as CreateVertexAiConfig
 from arize._generated.api_client.models.create_webhook_request import CreateWebhookRequest as CreateWebhookRequest
 from arize._generated.api_client.models.create_webhook_response import CreateWebhookResponse as CreateWebhookResponse
+from arize._generated.api_client.models.create_webhook_subscription_request import CreateWebhookSubscriptionRequest as CreateWebhookSubscriptionRequest
 from arize._generated.api_client.models.created_service_api_key import CreatedServiceApiKey as CreatedServiceApiKey
 from arize._generated.api_client.models.created_user_api_key import CreatedUserApiKey as CreatedUserApiKey
 from arize._generated.api_client.models.custom_baseline_config import CustomBaselineConfig as CustomBaselineConfig
@@ -729,6 +730,7 @@ from arize._generated.api_client.models.list_traces_request import ListTracesReq
 from arize._generated.api_client.models.list_traces_response import ListTracesResponse as ListTracesResponse
 from arize._generated.api_client.models.list_users_response import ListUsersResponse as ListUsersResponse
 from arize._generated.api_client.models.list_webhook_delivery_attempts_response import ListWebhookDeliveryAttemptsResponse as ListWebhookDeliveryAttemptsResponse
+from arize._generated.api_client.models.list_webhook_subscriptions_response import ListWebhookSubscriptionsResponse as ListWebhookSubscriptionsResponse
 from arize._generated.api_client.models.list_webhooks_response import ListWebhooksResponse as ListWebhooksResponse
 from arize._generated.api_client.models.lite_llm_config import LiteLlmConfig as LiteLlmConfig
 from arize._generated.api_client.models.llm_config import LlmConfig as LlmConfig
@@ -807,7 +809,6 @@ from arize._generated.api_client.models.service_key_bot_user_space_assignment im
 from arize._generated.api_client.models.service_key_org_assignment import ServiceKeyOrgAssignment as ServiceKeyOrgAssignment
 from arize._generated.api_client.models.service_key_space_assignment import ServiceKeySpaceAssignment as ServiceKeySpaceAssignment
 from arize._generated.api_client.models.set_prompt_version_labels_request import SetPromptVersionLabelsRequest as SetPromptVersionLabelsRequest
-from arize._generated.api_client.models.set_webhook_subscriptions_request import SetWebhookSubscriptionsRequest as SetWebhookSubscriptionsRequest
 from arize._generated.api_client.models.space import Space as Space
 from arize._generated.api_client.models.space_membership import SpaceMembership as SpaceMembership
 from arize._generated.api_client.models.space_role_assignment import SpaceRoleAssignment as SpaceRoleAssignment
@@ -902,7 +903,6 @@ from arize._generated.api_client.models.webhook_auth_type import WebhookAuthType
 from arize._generated.api_client.models.webhook_delivery_attempt import WebhookDeliveryAttempt as WebhookDeliveryAttempt
 from arize._generated.api_client.models.webhook_event_type import WebhookEventType as WebhookEventType
 from arize._generated.api_client.models.webhook_notification_config import WebhookNotificationConfig as WebhookNotificationConfig
+from arize._generated.api_client.models.webhook_source_type import WebhookSourceType as WebhookSourceType
 from arize._generated.api_client.models.webhook_subscription import WebhookSubscription as WebhookSubscription
-from arize._generated.api_client.models.webhook_subscription_input import WebhookSubscriptionInput as WebhookSubscriptionInput
-from arize._generated.api_client.models.webhook_subscriptions import WebhookSubscriptions as WebhookSubscriptions
 
