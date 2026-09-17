@@ -61,7 +61,7 @@ class RolesApi:
     ) -> Role:
         """Create a role
 
-        Create a new custom role for the authenticated user's account.  **Payload Requirements** - `name` is required and must be unique within the account. - `permissions` is required and must contain at least one valid permission   identifier (e.g. `PROJECT_READ`, `DATASET_CREATE`). - System-managed fields (`id`, `created_at`, `updated_at`, `is_predefined`)   are rejected if provided.  **Valid example** ```json {   \"name\": \"Data Scientist\",   \"description\": \"Can read and create datasets and experiments.\",   \"permissions\": [\"PROJECT_READ\", \"DATASET_READ\", \"DATASET_CREATE\"] } ```  **Invalid example** (missing required `permissions`) ```json {   \"name\": \"Data Scientist\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Create a new custom role for the authenticated user's account.  **Payload Requirements** - `name` is required and must be unique within the account. - `permissions` is required and must contain at least one valid permission   identifier (e.g. `PROJECT_READ`, `DATASET_CREATE`). - System-managed fields (`id`, `created_at`, `updated_at`, `is_predefined`)   are rejected if provided.  **Valid example** ```json {   \"name\": \"Data Scientist\",   \"description\": \"Can read and create datasets and experiments.\",   \"permissions\": [\"PROJECT_READ\", \"DATASET_READ\", \"DATASET_CREATE\"] } ```  **Invalid example** (missing required `permissions`) ```json {   \"name\": \"Data Scientist\" } ``` 
 
         :param create_role_request: Body containing role creation parameters. (required)
         :type create_role_request: CreateRoleRequest
@@ -135,7 +135,7 @@ class RolesApi:
     ) -> ApiResponse[Role]:
         """Create a role
 
-        Create a new custom role for the authenticated user's account.  **Payload Requirements** - `name` is required and must be unique within the account. - `permissions` is required and must contain at least one valid permission   identifier (e.g. `PROJECT_READ`, `DATASET_CREATE`). - System-managed fields (`id`, `created_at`, `updated_at`, `is_predefined`)   are rejected if provided.  **Valid example** ```json {   \"name\": \"Data Scientist\",   \"description\": \"Can read and create datasets and experiments.\",   \"permissions\": [\"PROJECT_READ\", \"DATASET_READ\", \"DATASET_CREATE\"] } ```  **Invalid example** (missing required `permissions`) ```json {   \"name\": \"Data Scientist\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Create a new custom role for the authenticated user's account.  **Payload Requirements** - `name` is required and must be unique within the account. - `permissions` is required and must contain at least one valid permission   identifier (e.g. `PROJECT_READ`, `DATASET_CREATE`). - System-managed fields (`id`, `created_at`, `updated_at`, `is_predefined`)   are rejected if provided.  **Valid example** ```json {   \"name\": \"Data Scientist\",   \"description\": \"Can read and create datasets and experiments.\",   \"permissions\": [\"PROJECT_READ\", \"DATASET_READ\", \"DATASET_CREATE\"] } ```  **Invalid example** (missing required `permissions`) ```json {   \"name\": \"Data Scientist\" } ``` 
 
         :param create_role_request: Body containing role creation parameters. (required)
         :type create_role_request: CreateRoleRequest
@@ -209,7 +209,7 @@ class RolesApi:
     ) -> RESTResponseType:
         """Create a role
 
-        Create a new custom role for the authenticated user's account.  **Payload Requirements** - `name` is required and must be unique within the account. - `permissions` is required and must contain at least one valid permission   identifier (e.g. `PROJECT_READ`, `DATASET_CREATE`). - System-managed fields (`id`, `created_at`, `updated_at`, `is_predefined`)   are rejected if provided.  **Valid example** ```json {   \"name\": \"Data Scientist\",   \"description\": \"Can read and create datasets and experiments.\",   \"permissions\": [\"PROJECT_READ\", \"DATASET_READ\", \"DATASET_CREATE\"] } ```  **Invalid example** (missing required `permissions`) ```json {   \"name\": \"Data Scientist\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Create a new custom role for the authenticated user's account.  **Payload Requirements** - `name` is required and must be unique within the account. - `permissions` is required and must contain at least one valid permission   identifier (e.g. `PROJECT_READ`, `DATASET_CREATE`). - System-managed fields (`id`, `created_at`, `updated_at`, `is_predefined`)   are rejected if provided.  **Valid example** ```json {   \"name\": \"Data Scientist\",   \"description\": \"Can read and create datasets and experiments.\",   \"permissions\": [\"PROJECT_READ\", \"DATASET_READ\", \"DATASET_CREATE\"] } ```  **Invalid example** (missing required `permissions`) ```json {   \"name\": \"Data Scientist\" } ``` 
 
         :param create_role_request: Body containing role creation parameters. (required)
         :type create_role_request: CreateRoleRequest
@@ -357,7 +357,7 @@ class RolesApi:
     ) -> None:
         """Delete a role
 
-        Delete a custom role by its ID (soft-delete). Predefined roles cannot be deleted.  A role cannot be deleted while it still has role bindings — remove every binding for this role first, then delete the role.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Delete a custom role by its ID (soft-delete). Predefined roles cannot be deleted.  A role cannot be deleted while it still has role bindings — remove every binding for this role first, then delete the role. 
 
         :param role_id: The unique role identifier (base64) (required)
         :type role_id: str
@@ -430,7 +430,7 @@ class RolesApi:
     ) -> ApiResponse[None]:
         """Delete a role
 
-        Delete a custom role by its ID (soft-delete). Predefined roles cannot be deleted.  A role cannot be deleted while it still has role bindings — remove every binding for this role first, then delete the role.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Delete a custom role by its ID (soft-delete). Predefined roles cannot be deleted.  A role cannot be deleted while it still has role bindings — remove every binding for this role first, then delete the role. 
 
         :param role_id: The unique role identifier (base64) (required)
         :type role_id: str
@@ -503,7 +503,7 @@ class RolesApi:
     ) -> RESTResponseType:
         """Delete a role
 
-        Delete a custom role by its ID (soft-delete). Predefined roles cannot be deleted.  A role cannot be deleted while it still has role bindings — remove every binding for this role first, then delete the role.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Delete a custom role by its ID (soft-delete). Predefined roles cannot be deleted.  A role cannot be deleted while it still has role bindings — remove every binding for this role first, then delete the role. 
 
         :param role_id: The unique role identifier (base64) (required)
         :type role_id: str
@@ -636,7 +636,7 @@ class RolesApi:
     ) -> Role:
         """Get a role
 
-        Get a role by its ID.  Requires `ROLE_READ`  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Get a role by its ID.  Requires `ROLE_READ` 
 
         :param role_id: The unique role identifier (base64) (required)
         :type role_id: str
@@ -708,7 +708,7 @@ class RolesApi:
     ) -> ApiResponse[Role]:
         """Get a role
 
-        Get a role by its ID.  Requires `ROLE_READ`  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Get a role by its ID.  Requires `ROLE_READ` 
 
         :param role_id: The unique role identifier (base64) (required)
         :type role_id: str
@@ -780,7 +780,7 @@ class RolesApi:
     ) -> RESTResponseType:
         """Get a role
 
-        Get a role by its ID.  Requires `ROLE_READ`  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Get a role by its ID.  Requires `ROLE_READ` 
 
         :param role_id: The unique role identifier (base64) (required)
         :type role_id: str
@@ -915,7 +915,7 @@ class RolesApi:
     ) -> ListRolesResponse:
         """List roles
 
-        List custom and predefined roles for the authenticated user's account. Results are paginated; use `limit` and `cursor` for subsequent pages.  Account admins, members, and other callers with `ROLE_READ` receive each role's full permission list. Callers without `ROLE_READ` are rejected with 403.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List custom and predefined roles for the authenticated user's account. Results are paginated; use `limit` and `cursor` for subsequent pages.  Account admins, members, and other callers with `ROLE_READ` receive each role's full permission list. Callers without `ROLE_READ` are rejected with 403. 
 
         :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
@@ -994,7 +994,7 @@ class RolesApi:
     ) -> ApiResponse[ListRolesResponse]:
         """List roles
 
-        List custom and predefined roles for the authenticated user's account. Results are paginated; use `limit` and `cursor` for subsequent pages.  Account admins, members, and other callers with `ROLE_READ` receive each role's full permission list. Callers without `ROLE_READ` are rejected with 403.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List custom and predefined roles for the authenticated user's account. Results are paginated; use `limit` and `cursor` for subsequent pages.  Account admins, members, and other callers with `ROLE_READ` receive each role's full permission list. Callers without `ROLE_READ` are rejected with 403. 
 
         :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
@@ -1073,7 +1073,7 @@ class RolesApi:
     ) -> RESTResponseType:
         """List roles
 
-        List custom and predefined roles for the authenticated user's account. Results are paginated; use `limit` and `cursor` for subsequent pages.  Account admins, members, and other callers with `ROLE_READ` receive each role's full permission list. Callers without `ROLE_READ` are rejected with 403.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List custom and predefined roles for the authenticated user's account. Results are paginated; use `limit` and `cursor` for subsequent pages.  Account admins, members, and other callers with `ROLE_READ` receive each role's full permission list. Callers without `ROLE_READ` are rejected with 403. 
 
         :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
@@ -1224,7 +1224,7 @@ class RolesApi:
     ) -> Role:
         """Update a role
 
-        Update a custom role by its ID. At least one field must be provided. Predefined roles cannot be updated.  **Payload Requirements** - At least one of `name`, `description`, or `permissions` must be provided. - When `permissions` is provided, the existing permissions are fully replaced with the new set. - `name`, if provided, must be unique within the account. - System-managed fields (`id`, `created_at`, `updated_at`, `is_predefined`) cannot be modified.  **Valid example** ```json {   \"name\": \"Senior Data Scientist\",   \"permissions\": [\"PROJECT_READ\", \"DATASET_READ\", \"DATASET_CREATE\", \"DATASET_DELETE\"] } ```  **Invalid example** (no fields provided) ```json {} ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Update a custom role by its ID. At least one field must be provided. Predefined roles cannot be updated.  **Payload Requirements** - At least one of `name`, `description`, or `permissions` must be provided. - When `permissions` is provided, the existing permissions are fully replaced with the new set. - `name`, if provided, must be unique within the account. - System-managed fields (`id`, `created_at`, `updated_at`, `is_predefined`) cannot be modified.  **Valid example** ```json {   \"name\": \"Senior Data Scientist\",   \"permissions\": [\"PROJECT_READ\", \"DATASET_READ\", \"DATASET_CREATE\", \"DATASET_DELETE\"] } ```  **Invalid example** (no fields provided) ```json {} ``` 
 
         :param role_id: The unique role identifier (base64) (required)
         :type role_id: str
@@ -1302,7 +1302,7 @@ class RolesApi:
     ) -> ApiResponse[Role]:
         """Update a role
 
-        Update a custom role by its ID. At least one field must be provided. Predefined roles cannot be updated.  **Payload Requirements** - At least one of `name`, `description`, or `permissions` must be provided. - When `permissions` is provided, the existing permissions are fully replaced with the new set. - `name`, if provided, must be unique within the account. - System-managed fields (`id`, `created_at`, `updated_at`, `is_predefined`) cannot be modified.  **Valid example** ```json {   \"name\": \"Senior Data Scientist\",   \"permissions\": [\"PROJECT_READ\", \"DATASET_READ\", \"DATASET_CREATE\", \"DATASET_DELETE\"] } ```  **Invalid example** (no fields provided) ```json {} ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Update a custom role by its ID. At least one field must be provided. Predefined roles cannot be updated.  **Payload Requirements** - At least one of `name`, `description`, or `permissions` must be provided. - When `permissions` is provided, the existing permissions are fully replaced with the new set. - `name`, if provided, must be unique within the account. - System-managed fields (`id`, `created_at`, `updated_at`, `is_predefined`) cannot be modified.  **Valid example** ```json {   \"name\": \"Senior Data Scientist\",   \"permissions\": [\"PROJECT_READ\", \"DATASET_READ\", \"DATASET_CREATE\", \"DATASET_DELETE\"] } ```  **Invalid example** (no fields provided) ```json {} ``` 
 
         :param role_id: The unique role identifier (base64) (required)
         :type role_id: str
@@ -1380,7 +1380,7 @@ class RolesApi:
     ) -> RESTResponseType:
         """Update a role
 
-        Update a custom role by its ID. At least one field must be provided. Predefined roles cannot be updated.  **Payload Requirements** - At least one of `name`, `description`, or `permissions` must be provided. - When `permissions` is provided, the existing permissions are fully replaced with the new set. - `name`, if provided, must be unique within the account. - System-managed fields (`id`, `created_at`, `updated_at`, `is_predefined`) cannot be modified.  **Valid example** ```json {   \"name\": \"Senior Data Scientist\",   \"permissions\": [\"PROJECT_READ\", \"DATASET_READ\", \"DATASET_CREATE\", \"DATASET_DELETE\"] } ```  **Invalid example** (no fields provided) ```json {} ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Update a custom role by its ID. At least one field must be provided. Predefined roles cannot be updated.  **Payload Requirements** - At least one of `name`, `description`, or `permissions` must be provided. - When `permissions` is provided, the existing permissions are fully replaced with the new set. - `name`, if provided, must be unique within the account. - System-managed fields (`id`, `created_at`, `updated_at`, `is_predefined`) cannot be modified.  **Valid example** ```json {   \"name\": \"Senior Data Scientist\",   \"permissions\": [\"PROJECT_READ\", \"DATASET_READ\", \"DATASET_CREATE\", \"DATASET_DELETE\"] } ```  **Invalid example** (no fields provided) ```json {} ``` 
 
         :param role_id: The unique role identifier (base64) (required)
         :type role_id: str

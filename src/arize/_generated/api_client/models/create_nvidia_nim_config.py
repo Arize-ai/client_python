@@ -27,7 +27,7 @@ class CreateNvidiaNimConfig(BaseModel):
     Create config for an NVIDIA NIM integration. Every connection field is optional: omit `base_url` to use the provider default endpoint, or set it to a self-hosted NIM endpoint (validated server-side). `api_key` and `headers` are write-only (never returned; headers surface as `header_names` on read). The integration must have at least one model source: enable `is_default_models_enabled` or provide at least one entry in `model_names`, otherwise the request is rejected with 422.
     """ # noqa: E501
     is_function_calling_enabled: Optional[StrictBool] = Field(default=None, description="Enable function/tool calling. Defaults to true.")
-    provider: StrictStr
+    provider: StrictStr = Field(description="Discriminator identifying the NVIDIA NIM provider.")
     base_url: Optional[StrictStr] = Field(default=None, description="Self-hosted NIM endpoint URL (HTTPS). Defaults to the provider default endpoint.")
     api_key: Optional[StrictStr] = Field(default=None, description="API key for the endpoint (write-only, never returned).")
     headers: Optional[Dict[str, StrictStr]] = Field(default=None, description="Custom request headers sent to the endpoint, as a name-to-value map. Write-only: values are never returned; names are exposed as `header_names` on read. Defaults to no headers. The serialized header map must not exceed 8,175 bytes.")

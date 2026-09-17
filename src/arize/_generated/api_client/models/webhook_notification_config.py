@@ -26,7 +26,7 @@ class WebhookNotificationConfig(BaseModel):
     """
     WebhookNotificationConfig
     """ # noqa: E501
-    type: StrictStr
+    type: StrictStr = Field(description="Identifies this notification channel as a webhook.")
     id: StrictStr = Field(description="The webhook to notify (base64 global ID).")
     url: Optional[StrictStr] = Field(default=None, description="The webhook endpoint URL.")
     __properties: ClassVar[List[str]] = ["type", "id", "url"]

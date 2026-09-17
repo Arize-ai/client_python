@@ -27,7 +27,7 @@ class CreateAwsBedrockConfig(BaseModel):
     """
     Create config for an AWS Bedrock LLM integration. `auth` selects one of three auth modes via `auth_type`. The integration must have at least one model available: enable `is_default_models_enabled` or provide at least one entry in `model_names`, otherwise the request is rejected with 422.
     """ # noqa: E501
-    provider: StrictStr
+    provider: StrictStr = Field(description="Discriminator identifying the AWS Bedrock provider.")
     auth: CreateAwsBedrockAuth
     is_default_models_enabled: Optional[StrictBool] = Field(default=None, description="Enable Arize's default Bedrock model catalog. Defaults to false.")
     model_names: Optional[List[StrictStr]] = Field(default=None, description="Custom model names to make available. Defaults to none.")

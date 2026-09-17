@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | **str** |  | 
+**type** | **str** | Identifies this threshold as a manually-set lower/upper bound range. | 
 **lower** | [**ManualThresholdBound**](ManualThresholdBound.md) | The lower bound of the range. Its operator must be &#x60;GREATER_THAN&#x60; or &#x60;GREATER_THAN_OR_EQUAL&#x60;.  | 
 **upper** | [**ManualThresholdBound**](ManualThresholdBound.md) | The upper bound of the range. Its &#x60;operator&#x60; must be &#x60;LESS_THAN&#x60; or &#x60;LESS_THAN_OR_EQUAL&#x60;.  | 
 

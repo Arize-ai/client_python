@@ -38,7 +38,7 @@ class DriftMonitor(BaseModel):
     """ # noqa: E501
     id: StrictStr = Field(description="Unique identifier for the monitor (base64 global ID).")
     name: StrictStr = Field(description="Human-readable name of the monitor.")
-    type: StrictStr
+    type: StrictStr = Field(description="Identifies this monitor as a drift monitor.")
     project_id: StrictStr = Field(description="The project that the monitor belongs to (base64 global ID). ")
     uri: StrictStr = Field(description="The UI deep link to the monitor.")
     status: MonitorStatus = Field(description="Current evaluation state. Read-only.")

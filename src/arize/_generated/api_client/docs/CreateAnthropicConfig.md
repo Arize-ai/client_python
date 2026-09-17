@@ -7,7 +7,7 @@ Create config for an Anthropic LLM integration. `api_key` is required and is wri
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **is_function_calling_enabled** | **bool** | Enable function/tool calling. Defaults to true. | [optional] 
-**provider** | **str** |  | 
+**provider** | **str** | Discriminator identifying the Anthropic provider. | 
 **api_key** | **str** | API key for the provider (write-only, never returned). | 
 **base_url** | **str** | Endpoint URL (HTTPS) serving the Anthropic Messages API, including the version path (e.g. &#x60;https://api.anthropic.com/v1&#x60;). Do not include &#x60;/messages&#x60;, which is appended automatically. Defaults to the public Anthropic API. | [optional] 
 

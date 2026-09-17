@@ -11,6 +11,7 @@ from arize.integrations.types import (
     CreateAnthropicConfig,
     CreateAwsBedrockConfig,
     CreateCustomConfig,
+    CreateFireworksConfig,
     CreateGeminiConfig,
     CreateLiteLlmConfig,
     CreateLlmConfig,
@@ -47,7 +48,7 @@ if TYPE_CHECKING:
 
 # The provider-discriminated config accepted by ``create_llm``. Callers
 # construct the generated per-provider config for the provider they want
-# (all 7 are supported); a pre-wrapped ``CreateLlmConfig`` is also accepted.
+# (all 9 are supported); a pre-wrapped ``CreateLlmConfig`` is also accepted.
 # Declared at runtime (not under TYPE_CHECKING) so downstream consumers such as
 # the ax CLI can import and reference it.
 CreateLlmConfigInput = (
@@ -59,6 +60,7 @@ CreateLlmConfigInput = (
     | CreateVertexAiConfig
     | CreateNvidiaNimConfig
     | CreateLiteLlmConfig
+    | CreateFireworksConfig
     | CreateLlmConfig
 )
 
@@ -78,9 +80,9 @@ class IntegrationsClient:
 
     Integrations are polymorphic: ``LLM`` integrations configure a model
     provider (``OPEN_AI``, ``ANTHROPIC``, ``GEMINI``, ``AWS_BEDROCK``,
-    ``CUSTOM``, ``VERTEX_AI``, ``NVIDIA_NIM``, or ``LITELLM``), while ``AGENT``
-    integrations
-    connect a customer-hosted agent exposed at an HTTP endpoint. The integration
+    ``CUSTOM``, ``VERTEX_AI``, ``NVIDIA_NIM``, ``LITELLM``, or ``FIREWORKS``),
+    while ``AGENT`` integrations connect a customer-hosted agent exposed at an
+    HTTP endpoint. The integration
     :class:`~arize.integrations.types.IntegrationType` selects the config shape.
     """
 
@@ -198,7 +200,7 @@ class IntegrationsClient:
         """Create an LLM integration.
 
         LLM integrations configure access to a model provider for use within
-        the Arize platform. All 7 providers are supported; construct the
+        the Arize platform. All 9 providers are supported; construct the
         matching generated config for the ``config`` argument:
 
         - ``OPEN_AI`` — :class:`~arize.integrations.types.CreateOpenAiConfig`
@@ -211,12 +213,13 @@ class IntegrationsClient:
         - ``VERTEX_AI`` — :class:`~arize.integrations.types.CreateVertexAiConfig`
         - ``NVIDIA_NIM`` — :class:`~arize.integrations.types.CreateNvidiaNimConfig`
         - ``LITELLM`` — :class:`~arize.integrations.types.CreateLiteLlmConfig`
+        - ``FIREWORKS`` — :class:`~arize.integrations.types.CreateFireworksConfig`
 
         Integration names must be unique within the account for the ``LLM`` type.
 
         Args:
             name: Integration name (must be unique within the account per type).
-            config: The provider-specific config. Accepts any of the 8 generated
+            config: The provider-specific config. Accepts any of the 9 generated
                 per-provider ``Create*Config`` objects, or a pre-wrapped
                 :class:`~arize.integrations.types.CreateLlmConfig` union.
             scopings: Visibility scoping rules. Defaults to account-wide if omitted.
@@ -337,10 +340,10 @@ class IntegrationsClient:
         - ``auth`` — ``AWS_BEDROCK`` only; replaces the stored auth wholesale.
         - ``base_url``, ``headers`` — ``CUSTOM``, ``NVIDIA_NIM``, and
           ``LITELLM`` only.
-        - ``is_default_models_enabled`` — ``AWS_BEDROCK``, ``CUSTOM``, and
-          ``NVIDIA_NIM`` only.
-        - ``model_names`` — ``AWS_BEDROCK``, ``CUSTOM``, ``NVIDIA_NIM``, and
-          ``LITELLM`` only.
+        - ``is_default_models_enabled`` — ``AWS_BEDROCK``, ``CUSTOM``,
+          ``NVIDIA_NIM``, and ``FIREWORKS`` only.
+        - ``model_names`` — ``AWS_BEDROCK``, ``CUSTOM``, ``NVIDIA_NIM``,
+          ``LITELLM``, and ``FIREWORKS`` only.
         - ``project_id``, ``location``, ``project_access_label`` —
           ``VERTEX_AI`` only.
 

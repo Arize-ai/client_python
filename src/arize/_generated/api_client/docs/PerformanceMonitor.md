@@ -7,7 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **str** | Unique identifier for the monitor (base64 global ID). | 
 **name** | **str** | Human-readable name of the monitor. | 
-**type** | **str** |  | 
+**type** | **str** | Identifies this monitor as a performance monitor. | 
 **project_id** | **str** | The project that the monitor belongs to (base64 global ID).  | 
 **uri** | **str** | The UI deep link to the monitor. | [readonly] 
 **status** | [**MonitorStatus**](MonitorStatus.md) | Current evaluation state. Read-only. | 

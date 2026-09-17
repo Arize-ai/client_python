@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | **str** |  | 
+**type** | **str** | Identifies this threshold as a single, manually-set value. | 
 **operator** | [**ThresholdOperator**](ThresholdOperator.md) |  | 
 **value** | **float** | The threshold value the computed metric is compared against. | 
 

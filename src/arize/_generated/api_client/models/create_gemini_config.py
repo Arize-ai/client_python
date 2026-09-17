@@ -27,7 +27,7 @@ class CreateGeminiConfig(BaseModel):
     Create config for a Google Gemini LLM integration. `api_key` is required and is write-only (never returned in responses).
     """ # noqa: E501
     is_function_calling_enabled: Optional[StrictBool] = Field(default=None, description="Enable function/tool calling. Defaults to true.")
-    provider: StrictStr
+    provider: StrictStr = Field(description="Discriminator identifying the Gemini provider.")
     api_key: StrictStr = Field(description="API key for the provider (write-only, never returned).")
     __properties: ClassVar[List[str]] = ["is_function_calling_enabled", "provider", "api_key"]
 

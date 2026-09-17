@@ -26,7 +26,7 @@ class CreateVertexAiConfig(BaseModel):
     """
     Create config for a Google Vertex AI integration. No credentials are stored: Arize accesses Vertex through the configured GCP project. `project_id`, `location`, and `project_access_label` are all required.
     """ # noqa: E501
-    provider: StrictStr
+    provider: StrictStr = Field(description="Discriminator identifying the Vertex AI provider.")
     project_id: StrictStr = Field(description="GCP project ID Arize accesses Vertex through.")
     location: StrictStr = Field(description="GCP region (e.g. us-central1).")
     project_access_label: StrictStr = Field(description="Label used to verify Arize's access to the GCP project.")

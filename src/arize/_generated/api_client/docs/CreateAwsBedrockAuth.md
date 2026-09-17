@@ -6,7 +6,7 @@ AWS Bedrock auth settings for create and update, discriminated by `auth_type`. O
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**auth_type** | **str** |  | 
+**auth_type** | **str** | Discriminator identifying proxy auth. | 
 **role_arn** | **str** | AWS IAM role ARN Arize assumes for cross-account access. | 
 **external_id** | **str** | External ID on the assume-role policy. Defaults to not set. | [optional] 
 **base_url** | **str** | Proxy URL requests are forwarded to (HTTPS). | 

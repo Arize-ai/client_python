@@ -6,7 +6,7 @@ The custom comparison window. The `type` field determines whether the window is 
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | **str** |  | 
+**type** | **str** | Identifies this comparison window as a fixed date range. | 
 **fixed_start_date** | **datetime** | The start of the fixed comparison window. | 
 **fixed_end_date** | **datetime** | The end of the fixed comparison window. | 
 **moving_window_seconds** | **int** | The length of the moving comparison window, in seconds. | 

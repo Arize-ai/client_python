@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | **str** |  | 
+**type** | **str** | Identifies this notification channel as a webhook. | 
 **id** | **str** | The webhook to notify (base64 global ID). | 
 **url** | **str** | The webhook endpoint URL. | [optional] 
 

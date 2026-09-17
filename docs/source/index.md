@@ -34,6 +34,7 @@ spans
 tasks
 traces
 users
+webhooks
 ```
 
 ```{toctree}

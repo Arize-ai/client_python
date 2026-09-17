@@ -6,8 +6,8 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **is_function_calling_enabled** | **bool** | Enable function/tool calling. Defaults to true. | [optional] 
-**provider** | **str** |  | 
-**api_key** | **str** | LiteLLM virtual key (write-only, never returned). | 
+**provider** | **str** | Discriminator identifying the Fireworks AI provider. | 
+**api_key** | **str** | Fireworks AI API key (write-only, never returned). | 
 **base_url** | **str** | LiteLLM endpoint URL requests are sent to (HTTPS). | 
 **auth** | [**CreateAwsBedrockAuth**](CreateAwsBedrockAuth.md) |  | 
 **is_default_models_enabled** | **bool** | Enable Arize&#39;s default model catalog. Defaults to false. | [optional] 

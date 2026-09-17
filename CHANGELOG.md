@@ -1,5 +1,18 @@
 # Changelog
 
+## [8.54.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.53.0...arize-python-sdk/v8.54.0) (2026-09-17)
+
+
+### 🎁 New Features
+
+* **integrations:** fireworks support in the hand-written integration subclients ([#86647](https://github.com/Arize-ai/arize/issues/86647)) ([c1311a6](https://github.com/Arize-ai/arize/commit/c1311a6d7ade406f95648b8e12b99a0182c68d4e))
+* **webhooks:** Add full support for webhooks ([#86719](https://github.com/Arize-ai/arize/issues/86719)) ([61c3b44](https://github.com/Arize-ai/arize/commit/61c3b443cd849152019486a323249bb126ef1914)), closes [#86680](https://github.com/Arize-ai/arize/issues/86680)
+
+
+### 🐛 Bug Fixes
+
+* align SDK stage label, remove dead code ([#86595](https://github.com/Arize-ai/arize/issues/86595)) ([4f4941d](https://github.com/Arize-ai/arize/commit/4f4941d85f9062e1649eff6ce33447d0f07824fc))
+
 ## [8.53.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.52.1...arize-python-sdk/v8.53.0) (2026-09-11)
 
 

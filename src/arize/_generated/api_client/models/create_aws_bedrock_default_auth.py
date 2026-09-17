@@ -26,7 +26,7 @@ class CreateAwsBedrockDefaultAuth(BaseModel):
     """
     Create role-assumption auth. `role_arn` is required.
     """ # noqa: E501
-    auth_type: StrictStr
+    auth_type: StrictStr = Field(description="Discriminator identifying role-assumption auth.")
     role_arn: StrictStr = Field(description="AWS IAM role ARN Arize assumes for cross-account access.")
     external_id: Optional[StrictStr] = Field(default=None, description="External ID on the assume-role policy. Defaults to not set.")
     base_url: Optional[StrictStr] = Field(default=None, description="Custom Bedrock endpoint URL. Defaults to the provider default endpoint.")

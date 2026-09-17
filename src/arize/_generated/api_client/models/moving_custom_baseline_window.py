@@ -26,7 +26,7 @@ class MovingCustomBaselineWindow(BaseModel):
     """
     A custom comparison dataset using a moving window defined in seconds.
     """ # noqa: E501
-    type: StrictStr
+    type: StrictStr = Field(description="Identifies this comparison window as a moving window relative to now.")
     moving_window_seconds: StrictInt = Field(description="The length of the moving comparison window, in seconds.")
     moving_window_delay_seconds: StrictInt = Field(description="The delay before the moving comparison window, in seconds.")
     __properties: ClassVar[List[str]] = ["type", "moving_window_seconds", "moving_window_delay_seconds"]

@@ -27,7 +27,7 @@ class CreateAnthropicConfig(BaseModel):
     Create config for an Anthropic LLM integration. `api_key` is required and is write-only (never returned in responses). `base_url` is optional; omit it to use the public Anthropic API.
     """ # noqa: E501
     is_function_calling_enabled: Optional[StrictBool] = Field(default=None, description="Enable function/tool calling. Defaults to true.")
-    provider: StrictStr
+    provider: StrictStr = Field(description="Discriminator identifying the Anthropic provider.")
     api_key: StrictStr = Field(description="API key for the provider (write-only, never returned).")
     base_url: Optional[StrictStr] = Field(default=None, description="Endpoint URL (HTTPS) serving the Anthropic Messages API, including the version path (e.g. `https://api.anthropic.com/v1`). Do not include `/messages`, which is appended automatically. Defaults to the public Anthropic API.")
     __properties: ClassVar[List[str]] = ["is_function_calling_enabled", "provider", "api_key", "base_url"]

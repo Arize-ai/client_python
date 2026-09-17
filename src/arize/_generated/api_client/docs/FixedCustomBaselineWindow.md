@@ -6,7 +6,7 @@ A custom comparison dataset using data between a fixed start and end date.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | **str** |  | 
+**type** | **str** | Identifies this comparison window as a fixed date range. | 
 **fixed_start_date** | **datetime** | The start of the fixed comparison window. | 
 **fixed_end_date** | **datetime** | The end of the fixed comparison window. | 
 

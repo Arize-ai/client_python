@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | **str** |  | 
+**type** | **str** | Identifies this threshold as a single value derived from a statistical calculation. | 
 **calculation** | [**ThresholdCalculation**](ThresholdCalculation.md) |  | 
 **operator** | [**ThresholdOperator**](ThresholdOperator.md) |  | 
 **multiplier** | **float** | The multiplier applied to the calculation (e.g. number of standard deviations) to derive the threshold.  | 

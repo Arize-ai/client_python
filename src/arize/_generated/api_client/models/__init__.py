@@ -106,6 +106,7 @@ from arize._generated.api_client.models.create_evaluator_integration_request imp
 from arize._generated.api_client.models.create_evaluator_request import CreateEvaluatorRequest
 from arize._generated.api_client.models.create_evaluator_version_request import CreateEvaluatorVersionRequest
 from arize._generated.api_client.models.create_experiment_request import CreateExperimentRequest
+from arize._generated.api_client.models.create_fireworks_config import CreateFireworksConfig
 from arize._generated.api_client.models.create_freeform_annotation_config_request import CreateFreeformAnnotationConfigRequest
 from arize._generated.api_client.models.create_gemini_config import CreateGeminiConfig
 from arize._generated.api_client.models.create_integration_request import CreateIntegrationRequest
@@ -193,6 +194,7 @@ from arize._generated.api_client.models.experiment_run import ExperimentRun
 from arize._generated.api_client.models.experiment_run_input import ExperimentRunInput
 from arize._generated.api_client.models.experiment_with_run_ids import ExperimentWithRunIds
 from arize._generated.api_client.models.filter_operator import FilterOperator
+from arize._generated.api_client.models.fireworks_config import FireworksConfig
 from arize._generated.api_client.models.fixed_custom_baseline_window import FixedCustomBaselineWindow
 from arize._generated.api_client.models.freeform_annotation_config import FreeformAnnotationConfig
 from arize._generated.api_client.models.gcp_provider_metadata import GcpProviderMetadata

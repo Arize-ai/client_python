@@ -41,8 +41,6 @@ Create a new custom role for the authenticated user's account.
 }
 ```
 
-<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
-
 
 ### Example
 
@@ -134,8 +132,6 @@ be deleted.
 A role cannot be deleted while it still has role bindings — remove every
 binding for this role first, then delete the role.
 
-<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
-
 
 ### Example
 
@@ -219,8 +215,6 @@ Get a role
 Get a role by its ID.
 
 Requires `ROLE_READ`
-
-<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -309,8 +303,6 @@ Results are paginated; use `limit` and `cursor` for subsequent pages.
 
 Account admins, members, and other callers with `ROLE_READ` receive each
 role's full permission list. Callers without `ROLE_READ` are rejected with 403.
-
-<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -418,8 +410,6 @@ Predefined roles cannot be updated.
 ```json
 {}
 ```
-
-<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example

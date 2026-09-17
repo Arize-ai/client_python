@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | **str** |  | 
+**type** | **str** | Identifies this notification channel as an email address. | 
 **email_address** | **str** | Email address notified on a triggered transition. | 
 **integration_id** | **str** | The integration to notify (base64 global ID). | 
 **id** | **str** | The webhook to notify (base64 global ID). | 

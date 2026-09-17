@@ -10,8 +10,8 @@ Name | Type | Description | Notes
 **name** | **str** | Preset name (unique within the integration). Length 1-255. | 
 **description** | **str** | Optional preset description (length 0-1024). | [optional] 
 **config** | **Dict[str, object]** | Partial request body. Validated against the parent integration&#39;s &#x60;input_schema&#x60; with &#x60;required&#x60; dropped.  | 
-**created_at** | **datetime** |  | [optional] [readonly] 
-**updated_at** | **datetime** |  | [optional] [readonly] 
+**created_at** | **datetime** | When the preset was created. Read-only. | [optional] [readonly] 
+**updated_at** | **datetime** | When the preset was last updated. Read-only. | [optional] [readonly] 
 
 ## Example
 

@@ -26,7 +26,7 @@ class IntegrationNotificationConfig(BaseModel):
     """
     IntegrationNotificationConfig
     """ # noqa: E501
-    type: StrictStr
+    type: StrictStr = Field(description="Identifies this notification channel as a connected integration.")
     integration_id: StrictStr = Field(description="The integration to notify (base64 global ID).")
     __properties: ClassVar[List[str]] = ["type", "integration_id"]
 

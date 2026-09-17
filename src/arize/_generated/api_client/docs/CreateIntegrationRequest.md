@@ -5,11 +5,11 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | **str** |  | 
+**type** | **str** | Discriminator identifying this request as an LLM integration. | 
 **name** | **str** | Integration name. Must be unique among active AGENT and EVALUATOR integrations in the account. | 
 **scopings** | [**List[IntegrationScopingRequest]**](IntegrationScopingRequest.md) | Visibility scoping rules. Defaults to account-wide if omitted or empty. A scoping with &#x60;space_id&#x60; set MUST also set &#x60;organization_id&#x60;.  | [optional] 
 **config** | [**CreateEvaluatorIntegrationConfigInput**](CreateEvaluatorIntegrationConfigInput.md) |  | 
-**description** | **str** |  | [optional] 
+**description** | **str** | Optional human-readable description of the integration. | [optional] 
 
 ## Example
 

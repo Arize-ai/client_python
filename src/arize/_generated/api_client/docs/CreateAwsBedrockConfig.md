@@ -6,7 +6,7 @@ Create config for an AWS Bedrock LLM integration. `auth` selects one of three au
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**provider** | **str** |  | 
+**provider** | **str** | Discriminator identifying the AWS Bedrock provider. | 
 **auth** | [**CreateAwsBedrockAuth**](CreateAwsBedrockAuth.md) |  | 
 **is_default_models_enabled** | **bool** | Enable Arize&#39;s default Bedrock model catalog. Defaults to false. | [optional] 
 **model_names** | **List[str]** | Custom model names to make available. Defaults to none. | [optional] 

@@ -28,7 +28,7 @@ class UpdateAgentConfig(BaseModel):
     """
     Partial agent config for PATCH. All collection fields are replace-on-provide. 
     """ # noqa: E501
-    endpoint: Optional[Annotated[str, Field(strict=True, max_length=2048)]] = None
+    endpoint: Optional[Annotated[str, Field(strict=True, max_length=2048)]] = Field(default=None, description="New HTTPS endpoint URL. Validated server-side and must resolve to a public address.")
     headers: Optional[Dict[str, StrictStr]] = Field(default=None, description="Replace-on-provide. Pass `null` (or `{}`) to clear all headers. Encrypted at rest; never returned in responses. ")
     input_schema: Optional[Dict[str, Any]] = Field(default=None, description="New JSON Schema for the request payload shape.")
     request_presets: Optional[List[UpdateAgentRequestPresetInput]] = Field(default=None, description="Replace-on-provide preset list, matched by `name`: existing names update in place (preserving id/timestamps), new names insert, removed names delete. ")

@@ -27,7 +27,7 @@ class CreateLiteLlmConfig(BaseModel):
     Create config for a LiteLLM integration. `base_url` is required and points at the LiteLLM endpoint (validated server-side); LiteLLM is self-hosted, so there is no default endpoint. `api_key` is required: the virtual key scopes the models Arize can resolve and call. `api_key` and `headers` are write-only (never returned; headers surface as `header_names` on read).
     """ # noqa: E501
     is_function_calling_enabled: Optional[StrictBool] = Field(default=None, description="Enable function/tool calling. Defaults to true.")
-    provider: StrictStr
+    provider: StrictStr = Field(description="Discriminator identifying the LiteLLM provider.")
     base_url: StrictStr = Field(description="LiteLLM endpoint URL requests are sent to (HTTPS).")
     api_key: StrictStr = Field(description="LiteLLM virtual key (write-only, never returned).")
     headers: Optional[Dict[str, StrictStr]] = Field(default=None, description="Custom request headers sent to the endpoint, as a name-to-value map. Write-only: values are never returned; names are exposed as `header_names` on read. Defaults to no headers. The serialized header map must not exceed 8,175 bytes.")

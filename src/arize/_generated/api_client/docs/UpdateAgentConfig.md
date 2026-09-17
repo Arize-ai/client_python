@@ -6,7 +6,7 @@ Partial agent config for PATCH. All collection fields are replace-on-provide.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**endpoint** | **str** |  | [optional] 
+**endpoint** | **str** | New HTTPS endpoint URL. Validated server-side and must resolve to a public address. | [optional] 
 **headers** | **Dict[str, str]** | Replace-on-provide. Pass &#x60;null&#x60; (or &#x60;{}&#x60;) to clear all headers. Encrypted at rest; never returned in responses.  | [optional] 
 **input_schema** | **Dict[str, object]** | New JSON Schema for the request payload shape. | [optional] 
 **request_presets** | [**List[UpdateAgentRequestPresetInput]**](UpdateAgentRequestPresetInput.md) | Replace-on-provide preset list, matched by &#x60;name&#x60;: existing names update in place (preserving id/timestamps), new names insert, removed names delete.  | [optional] 

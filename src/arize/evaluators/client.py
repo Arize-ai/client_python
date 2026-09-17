@@ -346,7 +346,7 @@ class EvaluatorsClient:
         return EvaluatorWithVersion.model_validate(result, from_attributes=True)
 
     @prerelease_endpoint(
-        key="evaluators.create_remote", stage=ReleaseStage.ALPHA
+        key="evaluators.create_remote", stage=ReleaseStage.BETA
     )
     def create_remote_evaluator(
         self,
@@ -721,7 +721,7 @@ class EvaluatorsClient:
         )
 
     @prerelease_endpoint(
-        key="evaluators.create_remote_version", stage=ReleaseStage.ALPHA
+        key="evaluators.create_remote_version", stage=ReleaseStage.BETA
     )
     def create_remote_version(
         self,

@@ -6,7 +6,7 @@ Create role-assumption auth. `role_arn` is required.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**auth_type** | **str** |  | 
+**auth_type** | **str** | Discriminator identifying role-assumption auth. | 
 **role_arn** | **str** | AWS IAM role ARN Arize assumes for cross-account access. | 
 **external_id** | **str** | External ID on the assume-role policy. Defaults to not set. | [optional] 
 **base_url** | **str** | Custom Bedrock endpoint URL. Defaults to the provider default endpoint. | [optional] 

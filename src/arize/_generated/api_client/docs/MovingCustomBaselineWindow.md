@@ -6,7 +6,7 @@ A custom comparison dataset using a moving window defined in seconds.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | **str** |  | 
+**type** | **str** | Identifies this comparison window as a moving window relative to now. | 
 **moving_window_seconds** | **int** | The length of the moving comparison window, in seconds. | 
 **moving_window_delay_seconds** | **int** | The delay before the moving comparison window, in seconds. | 
 

@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | **str** |  | 
+**type** | **str** | Discriminator identifying this request as an LLM integration. | 
 **name** | **str** | Integration name. Unique per (account, type). | 
 **scopings** | [**List[IntegrationScopingRequest]**](IntegrationScopingRequest.md) | Visibility scoping rules. Defaults to account-wide. | [optional] 
 **config** | [**CreateLlmConfig**](CreateLlmConfig.md) |  | 

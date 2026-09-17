@@ -6,7 +6,7 @@ Uses a custom fixed or moving window as the comparison dataset.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | **str** |  | 
+**type** | **str** | Identifies this comparison dataset as a custom fixed or moving window. | 
 **filters** | [**List[MonitorFilter]**](MonitorFilter.md) | Filters applied to the comparison dataset. An empty array means no comparison dataset filters are configured.  | 
 **model_versions** | **List[str]** | Model versions included in the comparison dataset. An empty array means all model versions.  | 
 **window** | [**CustomBaselineWindow**](CustomBaselineWindow.md) |  | 

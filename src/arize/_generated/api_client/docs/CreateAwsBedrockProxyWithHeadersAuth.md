@@ -6,7 +6,7 @@ Create proxy auth. `base_url` is required. `headers` is write-only; names are re
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**auth_type** | **str** |  | 
+**auth_type** | **str** | Discriminator identifying proxy auth. | 
 **base_url** | **str** | Proxy URL requests are forwarded to (HTTPS). | 
 **headers** | **Dict[str, str]** | Custom request headers sent to the proxy, as a name-to-value map. Write-only: values are never returned; names are exposed as &#x60;header_names&#x60; on read. Defaults to no headers. The serialized header map must not exceed 8,175 bytes. | [optional] 
 

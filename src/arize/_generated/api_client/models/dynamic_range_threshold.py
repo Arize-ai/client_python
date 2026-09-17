@@ -28,7 +28,7 @@ class DynamicRangeThreshold(BaseModel):
     """
     DynamicRangeThreshold
     """ # noqa: E501
-    type: StrictStr
+    type: StrictStr = Field(description="Identifies this threshold as a lower/upper bound range derived from a statistical calculation.")
     calculation: ThresholdCalculation
     lower: DynamicThresholdBound = Field(description="The lower bound of the range. Its `operator` must be `GREATER_THAN` or `GREATER_THAN_OR_EQUAL`. ")
     upper: DynamicThresholdBound = Field(description="The upper bound of the range. Its `operator` must be `LESS_THAN` or `LESS_THAN_OR_EQUAL`. ")

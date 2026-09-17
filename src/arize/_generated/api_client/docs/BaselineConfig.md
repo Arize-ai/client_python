@@ -6,7 +6,7 @@ The comparison dataset configuration used by drift and comparison-based data qua
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | **str** |  | 
+**type** | **str** | Identifies this comparison dataset as the model&#39;s primary baseline. | 
 **filters** | [**List[MonitorFilter]**](MonitorFilter.md) | Filters applied to the comparison dataset. An empty array means no comparison dataset filters are configured.  | 
 **model_versions** | **List[str]** | Model versions included in the comparison dataset. An empty array means all model versions.  | 
 **window** | [**CustomBaselineWindow**](CustomBaselineWindow.md) |  | 

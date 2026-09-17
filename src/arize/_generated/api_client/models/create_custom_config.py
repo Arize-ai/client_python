@@ -27,7 +27,7 @@ class CreateCustomConfig(BaseModel):
     Create config for a custom OpenAI-compatible endpoint integration. `base_url` is required and must implement the OpenAI API shape (it is validated server-side and must resolve to a public address). `api_key` and `headers` are write-only (never returned; headers surface as `header_names` on read). The integration must have at least one model source: enable `is_default_models_enabled` or provide at least one entry in `model_names`, otherwise the request is rejected with 422.
     """ # noqa: E501
     is_function_calling_enabled: Optional[StrictBool] = Field(default=None, description="Enable function/tool calling. Defaults to true.")
-    provider: StrictStr
+    provider: StrictStr = Field(description="Discriminator identifying a custom OpenAI-compatible endpoint.")
     base_url: StrictStr = Field(description="Endpoint URL requests are sent to (HTTPS).")
     api_key: Optional[StrictStr] = Field(default=None, description="API key for the endpoint (write-only, never returned).")
     headers: Optional[Dict[str, StrictStr]] = Field(default=None, description="Custom request headers sent to the endpoint, as a name-to-value map. Write-only: values are never returned; names are exposed as `header_names` on read. Defaults to no headers. The serialized header map must not exceed 8,175 bytes.")

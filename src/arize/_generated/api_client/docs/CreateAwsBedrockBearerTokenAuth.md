@@ -6,7 +6,7 @@ Create bearer-token auth. `api_key` is required and write-only (never returned; 
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**auth_type** | **str** |  | 
+**auth_type** | **str** | Discriminator identifying bearer-token auth. | 
 **api_key** | **str** | Bearer token for Bedrock (write-only, never returned). | 
 **base_url** | **str** | Custom Bedrock endpoint URL. Defaults to the provider default endpoint. | [optional] 
 

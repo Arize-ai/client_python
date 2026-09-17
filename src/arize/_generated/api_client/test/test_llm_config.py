@@ -36,7 +36,7 @@ class TestLlmConfig(unittest.TestCase):
         if include_optional:
             return LlmConfig(
                 is_function_calling_enabled = True,
-                provider = 'LITELLM',
+                provider = 'FIREWORKS',
                 has_api_key = True,
                 base_url = '',
                 is_default_models_enabled = True,
@@ -54,7 +54,7 @@ class TestLlmConfig(unittest.TestCase):
         else:
             return LlmConfig(
                 is_function_calling_enabled = True,
-                provider = 'LITELLM',
+                provider = 'FIREWORKS',
                 has_api_key = True,
                 base_url = '',
                 is_default_models_enabled = True,

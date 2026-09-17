@@ -27,7 +27,7 @@ class ManualSingleThreshold(BaseModel):
     """
     ManualSingleThreshold
     """ # noqa: E501
-    type: StrictStr
+    type: StrictStr = Field(description="Identifies this threshold as a single, manually-set value.")
     operator: ThresholdOperator
     value: Union[StrictFloat, StrictInt] = Field(description="The threshold value the computed metric is compared against.")
     __properties: ClassVar[List[str]] = ["type", "operator", "value"]

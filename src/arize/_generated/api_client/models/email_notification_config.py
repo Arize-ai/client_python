@@ -26,7 +26,7 @@ class EmailNotificationConfig(BaseModel):
     """
     EmailNotificationConfig
     """ # noqa: E501
-    type: StrictStr
+    type: StrictStr = Field(description="Identifies this notification channel as an email address.")
     email_address: StrictStr = Field(description="Email address notified on a triggered transition.")
     __properties: ClassVar[List[str]] = ["type", "email_address"]
 

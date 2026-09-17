@@ -7,10 +7,10 @@ Partial update of an integration, discriminated by `type` (immutable). The `type
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **type** | **str** | Discriminator. Immutable; must match the integration&#39;s type. | 
-**name** | **str** |  | [optional] 
+**name** | **str** | New integration name. Must be unique among active AGENT and EVALUATOR integrations in the account. | [optional] 
 **scopings** | [**List[IntegrationScopingRequest]**](IntegrationScopingRequest.md) | Replace-on-provide. Empty array reverts to account-wide. | [optional] 
 **config** | [**UpdateEvaluatorIntegrationConfigInput**](UpdateEvaluatorIntegrationConfigInput.md) |  | [optional] 
-**description** | **str** |  | [optional] 
+**description** | **str** | New human-readable description of the integration. Pass null to clear it. | [optional] 
 
 ## Example
 

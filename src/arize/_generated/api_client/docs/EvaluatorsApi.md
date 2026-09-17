@@ -679,7 +679,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
     evaluator_id = 'RXZhbHVhdG9yOjEyMzQ1' # str | The unique evaluator identifier (base64)
-    delete_evaluator_versions_request = arize._generated.api_client.DeleteEvaluatorVersionsRequest() # DeleteEvaluatorVersionsRequest | 
+    delete_evaluator_versions_request = {"version_ids":["RXZhbHVhdG9yVmVyc2lvbjo5NzphQmNE","RXZhbHVhdG9yVmVyc2lvbjo5ODphQmNE"]} # DeleteEvaluatorVersionsRequest | 
 
     try:
         # Delete evaluator versions

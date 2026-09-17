@@ -375,7 +375,7 @@ class ExperimentsApi:
     ) -> None:
         """Annotate a batch of experiment runs
 
-        Write human annotations to a batch of runs in an experiment.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same run overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval. No response body is returned.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing run in the experiment, the annotation for that record is silently ignored. No error is returned.  **Payload Requirements** - `experiment_id` is the path parameter for the target experiment. - `annotations` is a list of per-run annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the experiment's space. - Up to 1000 runs may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"quality\", \"label\": \"good\"}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Write human annotations to a batch of runs in an experiment.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same run overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval. No response body is returned.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing run in the experiment, the annotation for that record is silently ignored. No error is returned.  **Payload Requirements** - `experiment_id` is the path parameter for the target experiment. - `annotations` is a list of per-run annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the experiment's space. - Up to 1000 runs may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"quality\", \"label\": \"good\"}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ``` 
 
         :param experiment_id: The unique experiment identifier (base64) (required)
         :type experiment_id: str
@@ -452,7 +452,7 @@ class ExperimentsApi:
     ) -> ApiResponse[None]:
         """Annotate a batch of experiment runs
 
-        Write human annotations to a batch of runs in an experiment.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same run overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval. No response body is returned.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing run in the experiment, the annotation for that record is silently ignored. No error is returned.  **Payload Requirements** - `experiment_id` is the path parameter for the target experiment. - `annotations` is a list of per-run annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the experiment's space. - Up to 1000 runs may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"quality\", \"label\": \"good\"}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Write human annotations to a batch of runs in an experiment.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same run overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval. No response body is returned.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing run in the experiment, the annotation for that record is silently ignored. No error is returned.  **Payload Requirements** - `experiment_id` is the path parameter for the target experiment. - `annotations` is a list of per-run annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the experiment's space. - Up to 1000 runs may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"quality\", \"label\": \"good\"}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ``` 
 
         :param experiment_id: The unique experiment identifier (base64) (required)
         :type experiment_id: str
@@ -529,7 +529,7 @@ class ExperimentsApi:
     ) -> RESTResponseType:
         """Annotate a batch of experiment runs
 
-        Write human annotations to a batch of runs in an experiment.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same run overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval. No response body is returned.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing run in the experiment, the annotation for that record is silently ignored. No error is returned.  **Payload Requirements** - `experiment_id` is the path parameter for the target experiment. - `annotations` is a list of per-run annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the experiment's space. - Up to 1000 runs may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"quality\", \"label\": \"good\"}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Write human annotations to a batch of runs in an experiment.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same run overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval. No response body is returned.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing run in the experiment, the annotation for that record is silently ignored. No error is returned.  **Payload Requirements** - `experiment_id` is the path parameter for the target experiment. - `annotations` is a list of per-run annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the experiment's space. - Up to 1000 runs may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"quality\", \"label\": \"good\"}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ``` 
 
         :param experiment_id: The unique experiment identifier (base64) (required)
         :type experiment_id: str
@@ -681,7 +681,7 @@ class ExperimentsApi:
     ) -> Experiment:
         """Create an experiment
 
-        Create a new experiment. Empty experiments are not allowed.  An experiment belongs to a space and may optionally be associated with a dataset.  Experiments are composed of \"runs\". Each experiment run (JSON object) must include an `output` field containing the task's output. When the experiment is associated with a dataset, each run must also include an `example_id` referencing an example in that dataset.  Payload Requirements - Provide exactly one of `dataset_id` or `space_id`. - The `name` must be unique within the dataset it's associated with, or   within the space when it isn't associated with a dataset, and must not   contain double quotes (`\"`) or backslashes (`\\`). - Provide at least one run in `experiment_runs`. - Each run must include:   - `output` -- model/task output for the run   - `example_id` -- a correlation ID linking this run to a dataset example.   Required only when the experiment is associated with a dataset; its   existence in the dataset is never validated.   - You may include any additional fields per run that can be used for   analysis or filtering. For example: `model`, `latency_ms`,   `temperature`, `prompt`, `tool_calls`, etc.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Create a new experiment. Empty experiments are not allowed.  An experiment belongs to a space and may optionally be associated with a dataset.  Experiments are composed of \"runs\". Each experiment run (JSON object) must include an `output` field containing the task's output. When the experiment is associated with a dataset, each run must also include an `example_id` referencing an example in that dataset.  Payload Requirements - Provide exactly one of `dataset_id` or `space_id`. - The `name` must be unique within the dataset it's associated with, or   within the space when it isn't associated with a dataset, and must not   contain double quotes (`\"`) or backslashes (`\\`). - Provide at least one run in `experiment_runs`. - Each run must include:   - `output` -- model/task output for the run   - `example_id` -- a correlation ID linking this run to a dataset example.   Required only when the experiment is associated with a dataset; its   existence in the dataset is never validated.   - You may include any additional fields per run that can be used for   analysis or filtering. For example: `model`, `latency_ms`,   `temperature`, `prompt`, `tool_calls`, etc. 
 
         :param create_experiment_request: Body containing experiment creation parameters (required)
         :type create_experiment_request: CreateExperimentRequest
@@ -755,7 +755,7 @@ class ExperimentsApi:
     ) -> ApiResponse[Experiment]:
         """Create an experiment
 
-        Create a new experiment. Empty experiments are not allowed.  An experiment belongs to a space and may optionally be associated with a dataset.  Experiments are composed of \"runs\". Each experiment run (JSON object) must include an `output` field containing the task's output. When the experiment is associated with a dataset, each run must also include an `example_id` referencing an example in that dataset.  Payload Requirements - Provide exactly one of `dataset_id` or `space_id`. - The `name` must be unique within the dataset it's associated with, or   within the space when it isn't associated with a dataset, and must not   contain double quotes (`\"`) or backslashes (`\\`). - Provide at least one run in `experiment_runs`. - Each run must include:   - `output` -- model/task output for the run   - `example_id` -- a correlation ID linking this run to a dataset example.   Required only when the experiment is associated with a dataset; its   existence in the dataset is never validated.   - You may include any additional fields per run that can be used for   analysis or filtering. For example: `model`, `latency_ms`,   `temperature`, `prompt`, `tool_calls`, etc.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Create a new experiment. Empty experiments are not allowed.  An experiment belongs to a space and may optionally be associated with a dataset.  Experiments are composed of \"runs\". Each experiment run (JSON object) must include an `output` field containing the task's output. When the experiment is associated with a dataset, each run must also include an `example_id` referencing an example in that dataset.  Payload Requirements - Provide exactly one of `dataset_id` or `space_id`. - The `name` must be unique within the dataset it's associated with, or   within the space when it isn't associated with a dataset, and must not   contain double quotes (`\"`) or backslashes (`\\`). - Provide at least one run in `experiment_runs`. - Each run must include:   - `output` -- model/task output for the run   - `example_id` -- a correlation ID linking this run to a dataset example.   Required only when the experiment is associated with a dataset; its   existence in the dataset is never validated.   - You may include any additional fields per run that can be used for   analysis or filtering. For example: `model`, `latency_ms`,   `temperature`, `prompt`, `tool_calls`, etc. 
 
         :param create_experiment_request: Body containing experiment creation parameters (required)
         :type create_experiment_request: CreateExperimentRequest
@@ -829,7 +829,7 @@ class ExperimentsApi:
     ) -> RESTResponseType:
         """Create an experiment
 
-        Create a new experiment. Empty experiments are not allowed.  An experiment belongs to a space and may optionally be associated with a dataset.  Experiments are composed of \"runs\". Each experiment run (JSON object) must include an `output` field containing the task's output. When the experiment is associated with a dataset, each run must also include an `example_id` referencing an example in that dataset.  Payload Requirements - Provide exactly one of `dataset_id` or `space_id`. - The `name` must be unique within the dataset it's associated with, or   within the space when it isn't associated with a dataset, and must not   contain double quotes (`\"`) or backslashes (`\\`). - Provide at least one run in `experiment_runs`. - Each run must include:   - `output` -- model/task output for the run   - `example_id` -- a correlation ID linking this run to a dataset example.   Required only when the experiment is associated with a dataset; its   existence in the dataset is never validated.   - You may include any additional fields per run that can be used for   analysis or filtering. For example: `model`, `latency_ms`,   `temperature`, `prompt`, `tool_calls`, etc.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Create a new experiment. Empty experiments are not allowed.  An experiment belongs to a space and may optionally be associated with a dataset.  Experiments are composed of \"runs\". Each experiment run (JSON object) must include an `output` field containing the task's output. When the experiment is associated with a dataset, each run must also include an `example_id` referencing an example in that dataset.  Payload Requirements - Provide exactly one of `dataset_id` or `space_id`. - The `name` must be unique within the dataset it's associated with, or   within the space when it isn't associated with a dataset, and must not   contain double quotes (`\"`) or backslashes (`\\`). - Provide at least one run in `experiment_runs`. - Each run must include:   - `output` -- model/task output for the run   - `example_id` -- a correlation ID linking this run to a dataset example.   Required only when the experiment is associated with a dataset; its   existence in the dataset is never validated.   - You may include any additional fields per run that can be used for   analysis or filtering. For example: `model`, `latency_ms`,   `temperature`, `prompt`, `tool_calls`, etc. 
 
         :param create_experiment_request: Body containing experiment creation parameters (required)
         :type create_experiment_request: CreateExperimentRequest
@@ -977,7 +977,7 @@ class ExperimentsApi:
     ) -> None:
         """Delete an experiment
 
-        Delete an experiment by its ID. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Delete an experiment by its ID. This operation is irreversible. 
 
         :param experiment_id: The unique experiment identifier (base64) (required)
         :type experiment_id: str
@@ -1049,7 +1049,7 @@ class ExperimentsApi:
     ) -> ApiResponse[None]:
         """Delete an experiment
 
-        Delete an experiment by its ID. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Delete an experiment by its ID. This operation is irreversible. 
 
         :param experiment_id: The unique experiment identifier (base64) (required)
         :type experiment_id: str
@@ -1121,7 +1121,7 @@ class ExperimentsApi:
     ) -> RESTResponseType:
         """Delete an experiment
 
-        Delete an experiment by its ID. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Delete an experiment by its ID. This operation is irreversible. 
 
         :param experiment_id: The unique experiment identifier (base64) (required)
         :type experiment_id: str
@@ -1253,7 +1253,7 @@ class ExperimentsApi:
     ) -> Experiment:
         """Get an experiment
 
-        Get an experiment object by its ID.  The response does not include the experiment's runs. To get the runs of a specific experiment, use the List Experiment Runs endpoint.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Get an experiment object by its ID.  The response does not include the experiment's runs. To get the runs of a specific experiment, use the List Experiment Runs endpoint. 
 
         :param experiment_id: The unique experiment identifier (base64) (required)
         :type experiment_id: str
@@ -1324,7 +1324,7 @@ class ExperimentsApi:
     ) -> ApiResponse[Experiment]:
         """Get an experiment
 
-        Get an experiment object by its ID.  The response does not include the experiment's runs. To get the runs of a specific experiment, use the List Experiment Runs endpoint.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Get an experiment object by its ID.  The response does not include the experiment's runs. To get the runs of a specific experiment, use the List Experiment Runs endpoint. 
 
         :param experiment_id: The unique experiment identifier (base64) (required)
         :type experiment_id: str
@@ -1395,7 +1395,7 @@ class ExperimentsApi:
     ) -> RESTResponseType:
         """Get an experiment
 
-        Get an experiment object by its ID.  The response does not include the experiment's runs. To get the runs of a specific experiment, use the List Experiment Runs endpoint.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Get an experiment object by its ID.  The response does not include the experiment's runs. To get the runs of a specific experiment, use the List Experiment Runs endpoint. 
 
         :param experiment_id: The unique experiment identifier (base64) (required)
         :type experiment_id: str
@@ -1528,7 +1528,7 @@ class ExperimentsApi:
     ) -> ExperimentWithRunIds:
         """Append runs to an experiment
 
-        Append new runs to an existing experiment.  **Payload Requirements** - Provide between 1 and 1000 runs in `experiment_runs`. - Each run must include:   - `output` -- model/task output for the run   - `example_id` -- a correlation ID linking this run to a dataset example.   Required only when the experiment is associated with a dataset; its   existence in the dataset is never validated.   - You may include any additional fields per run that can be used for   analysis or filtering. For example: `model`, `latency_ms`,   `temperature`, `prompt`, `tool_calls`, etc.  **Valid example** ```json {   \"experiment_runs\": [     {\"example_id\": \"example_001\", \"output\": \"4\", \"model\": \"gpt-4o-mini\"}   ] } ```  **Invalid example** (missing required output field) ```json {   \"experiment_runs\": [     {\"example_id\": \"example_001\"}   ] } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Append new runs to an existing experiment.  **Payload Requirements** - Provide between 1 and 1000 runs in `experiment_runs`. - Each run must include:   - `output` -- model/task output for the run   - `example_id` -- a correlation ID linking this run to a dataset example.   Required only when the experiment is associated with a dataset; its   existence in the dataset is never validated.   - You may include any additional fields per run that can be used for   analysis or filtering. For example: `model`, `latency_ms`,   `temperature`, `prompt`, `tool_calls`, etc.  **Valid example** ```json {   \"experiment_runs\": [     {\"example_id\": \"example_001\", \"output\": \"4\", \"model\": \"gpt-4o-mini\"}   ] } ```  **Invalid example** (missing required output field) ```json {   \"experiment_runs\": [     {\"example_id\": \"example_001\"}   ] } ``` 
 
         :param experiment_id: The unique experiment identifier (base64) (required)
         :type experiment_id: str
@@ -1605,7 +1605,7 @@ class ExperimentsApi:
     ) -> ApiResponse[ExperimentWithRunIds]:
         """Append runs to an experiment
 
-        Append new runs to an existing experiment.  **Payload Requirements** - Provide between 1 and 1000 runs in `experiment_runs`. - Each run must include:   - `output` -- model/task output for the run   - `example_id` -- a correlation ID linking this run to a dataset example.   Required only when the experiment is associated with a dataset; its   existence in the dataset is never validated.   - You may include any additional fields per run that can be used for   analysis or filtering. For example: `model`, `latency_ms`,   `temperature`, `prompt`, `tool_calls`, etc.  **Valid example** ```json {   \"experiment_runs\": [     {\"example_id\": \"example_001\", \"output\": \"4\", \"model\": \"gpt-4o-mini\"}   ] } ```  **Invalid example** (missing required output field) ```json {   \"experiment_runs\": [     {\"example_id\": \"example_001\"}   ] } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Append new runs to an existing experiment.  **Payload Requirements** - Provide between 1 and 1000 runs in `experiment_runs`. - Each run must include:   - `output` -- model/task output for the run   - `example_id` -- a correlation ID linking this run to a dataset example.   Required only when the experiment is associated with a dataset; its   existence in the dataset is never validated.   - You may include any additional fields per run that can be used for   analysis or filtering. For example: `model`, `latency_ms`,   `temperature`, `prompt`, `tool_calls`, etc.  **Valid example** ```json {   \"experiment_runs\": [     {\"example_id\": \"example_001\", \"output\": \"4\", \"model\": \"gpt-4o-mini\"}   ] } ```  **Invalid example** (missing required output field) ```json {   \"experiment_runs\": [     {\"example_id\": \"example_001\"}   ] } ``` 
 
         :param experiment_id: The unique experiment identifier (base64) (required)
         :type experiment_id: str
@@ -1682,7 +1682,7 @@ class ExperimentsApi:
     ) -> RESTResponseType:
         """Append runs to an experiment
 
-        Append new runs to an existing experiment.  **Payload Requirements** - Provide between 1 and 1000 runs in `experiment_runs`. - Each run must include:   - `output` -- model/task output for the run   - `example_id` -- a correlation ID linking this run to a dataset example.   Required only when the experiment is associated with a dataset; its   existence in the dataset is never validated.   - You may include any additional fields per run that can be used for   analysis or filtering. For example: `model`, `latency_ms`,   `temperature`, `prompt`, `tool_calls`, etc.  **Valid example** ```json {   \"experiment_runs\": [     {\"example_id\": \"example_001\", \"output\": \"4\", \"model\": \"gpt-4o-mini\"}   ] } ```  **Invalid example** (missing required output field) ```json {   \"experiment_runs\": [     {\"example_id\": \"example_001\"}   ] } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Append new runs to an existing experiment.  **Payload Requirements** - Provide between 1 and 1000 runs in `experiment_runs`. - Each run must include:   - `output` -- model/task output for the run   - `example_id` -- a correlation ID linking this run to a dataset example.   Required only when the experiment is associated with a dataset; its   existence in the dataset is never validated.   - You may include any additional fields per run that can be used for   analysis or filtering. For example: `model`, `latency_ms`,   `temperature`, `prompt`, `tool_calls`, etc.  **Valid example** ```json {   \"experiment_runs\": [     {\"example_id\": \"example_001\", \"output\": \"4\", \"model\": \"gpt-4o-mini\"}   ] } ```  **Invalid example** (missing required output field) ```json {   \"experiment_runs\": [     {\"example_id\": \"example_001\"}   ] } ``` 
 
         :param experiment_id: The unique experiment identifier (base64) (required)
         :type experiment_id: str
@@ -1837,7 +1837,7 @@ class ExperimentsApi:
     ) -> ListExperimentRunsResponse:
         """List experiment runs
 
-        List runs for a given experiment.  The runs are returned in a stable insertion order.  **Human annotations**: returned in the structured `annotations` array on each run. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` with `has_more` and `next_cursor`. - Use cursor-based pagination by passing the returned `next_cursor` value as the `cursor` query parameter in subsequent requests.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List runs for a given experiment.  The runs are returned in a stable insertion order.  **Human annotations**: returned in the structured `annotations` array on each run. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` with `has_more` and `next_cursor`. - Use cursor-based pagination by passing the returned `next_cursor` value as the `cursor` query parameter in subsequent requests. 
 
         :param experiment_id: The unique experiment identifier (base64) (required)
         :type experiment_id: str
@@ -1917,7 +1917,7 @@ class ExperimentsApi:
     ) -> ApiResponse[ListExperimentRunsResponse]:
         """List experiment runs
 
-        List runs for a given experiment.  The runs are returned in a stable insertion order.  **Human annotations**: returned in the structured `annotations` array on each run. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` with `has_more` and `next_cursor`. - Use cursor-based pagination by passing the returned `next_cursor` value as the `cursor` query parameter in subsequent requests.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List runs for a given experiment.  The runs are returned in a stable insertion order.  **Human annotations**: returned in the structured `annotations` array on each run. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` with `has_more` and `next_cursor`. - Use cursor-based pagination by passing the returned `next_cursor` value as the `cursor` query parameter in subsequent requests. 
 
         :param experiment_id: The unique experiment identifier (base64) (required)
         :type experiment_id: str
@@ -1997,7 +1997,7 @@ class ExperimentsApi:
     ) -> RESTResponseType:
         """List experiment runs
 
-        List runs for a given experiment.  The runs are returned in a stable insertion order.  **Human annotations**: returned in the structured `annotations` array on each run. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` with `has_more` and `next_cursor`. - Use cursor-based pagination by passing the returned `next_cursor` value as the `cursor` query parameter in subsequent requests.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List runs for a given experiment.  The runs are returned in a stable insertion order.  **Human annotations**: returned in the structured `annotations` array on each run. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` with `has_more` and `next_cursor`. - Use cursor-based pagination by passing the returned `next_cursor` value as the `cursor` query parameter in subsequent requests. 
 
         :param experiment_id: The unique experiment identifier (base64) (required)
         :type experiment_id: str
@@ -2424,7 +2424,7 @@ class ExperimentsApi:
     ) -> ListExperimentsResponse:
         """List experiments
 
-        List experiments a user has access to.  By default, lists every accessible experiment across all spaces the caller can read, including experiments that are not associated with a dataset.  To narrow the results, provide at most one of: - `dataset_id` — only experiments run on that dataset. - `space_id` — only experiments in that space (with or without a dataset).  Providing both `dataset_id` and `space_id` is a validation error.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List experiments a user has access to.  By default, lists every accessible experiment across all spaces the caller can read, including experiments that are not associated with a dataset.  To narrow the results, provide at most one of: - `dataset_id` — only experiments run on that dataset. - `space_id` — only experiments in that space (with or without a dataset).  Providing both `dataset_id` and `space_id` is a validation error. 
 
         :param dataset_id: Filter to a specific dataset (base64 identifier (base64))
         :type dataset_id: str
@@ -2512,7 +2512,7 @@ class ExperimentsApi:
     ) -> ApiResponse[ListExperimentsResponse]:
         """List experiments
 
-        List experiments a user has access to.  By default, lists every accessible experiment across all spaces the caller can read, including experiments that are not associated with a dataset.  To narrow the results, provide at most one of: - `dataset_id` — only experiments run on that dataset. - `space_id` — only experiments in that space (with or without a dataset).  Providing both `dataset_id` and `space_id` is a validation error.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List experiments a user has access to.  By default, lists every accessible experiment across all spaces the caller can read, including experiments that are not associated with a dataset.  To narrow the results, provide at most one of: - `dataset_id` — only experiments run on that dataset. - `space_id` — only experiments in that space (with or without a dataset).  Providing both `dataset_id` and `space_id` is a validation error. 
 
         :param dataset_id: Filter to a specific dataset (base64 identifier (base64))
         :type dataset_id: str
@@ -2600,7 +2600,7 @@ class ExperimentsApi:
     ) -> RESTResponseType:
         """List experiments
 
-        List experiments a user has access to.  By default, lists every accessible experiment across all spaces the caller can read, including experiments that are not associated with a dataset.  To narrow the results, provide at most one of: - `dataset_id` — only experiments run on that dataset. - `space_id` — only experiments in that space (with or without a dataset).  Providing both `dataset_id` and `space_id` is a validation error.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List experiments a user has access to.  By default, lists every accessible experiment across all spaces the caller can read, including experiments that are not associated with a dataset.  To narrow the results, provide at most one of: - `dataset_id` — only experiments run on that dataset. - `space_id` — only experiments in that space (with or without a dataset).  Providing both `dataset_id` and `space_id` is a validation error. 
 
         :param dataset_id: Filter to a specific dataset (base64 identifier (base64))
         :type dataset_id: str

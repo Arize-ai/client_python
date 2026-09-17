@@ -28,7 +28,7 @@ class CreateLlmIntegrationRequest(BaseModel):
     """
     CreateLlmIntegrationRequest
     """ # noqa: E501
-    type: StrictStr
+    type: StrictStr = Field(description="Discriminator identifying this request as an LLM integration.")
     name: StrictStr = Field(description="Integration name. Unique per (account, type).")
     scopings: Optional[List[IntegrationScopingRequest]] = Field(default=None, description="Visibility scoping rules. Defaults to account-wide.")
     config: CreateLlmConfig

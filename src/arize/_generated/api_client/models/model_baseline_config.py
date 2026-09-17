@@ -27,7 +27,7 @@ class ModelBaselineConfig(BaseModel):
     """
     Uses the model's primary baseline as the comparison dataset. 
     """ # noqa: E501
-    type: StrictStr
+    type: StrictStr = Field(description="Identifies this comparison dataset as the model's primary baseline.")
     filters: List[MonitorFilter] = Field(description="Filters applied to the comparison dataset. An empty array means no comparison dataset filters are configured. ")
     __properties: ClassVar[List[str]] = ["type", "filters"]
 

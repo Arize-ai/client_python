@@ -182,8 +182,6 @@ No error is returned.
 }
 ```
 
-<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
-
 
 ### Example
 
@@ -292,8 +290,6 @@ Payload Requirements
   analysis or filtering. For example: `model`, `latency_ms`,
   `temperature`, `prompt`, `tool_calls`, etc.
 
-<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
-
 
 ### Example
 
@@ -381,8 +377,6 @@ Delete an experiment
 
 Delete an experiment by its ID. This operation is irreversible.
 
-<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
-
 
 ### Example
 
@@ -466,8 +460,6 @@ Get an experiment object by its ID.
 
 The response does not include the experiment's runs. To get the runs of
 a specific experiment, use the List Experiment Runs endpoint.
-
-<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -581,8 +573,6 @@ Append new runs to an existing experiment.
 }
 ```
 
-<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
-
 
 ### Example
 
@@ -682,8 +672,6 @@ annotations.
 - Response includes `pagination` with `has_more` and `next_cursor`.
 - Use cursor-based pagination by passing the returned `next_cursor`
 value as the `cursor` query parameter in subsequent requests.
-
-<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -873,8 +861,6 @@ To narrow the results, provide at most one of:
 - `space_id` — only experiments in that space (with or without a dataset).
 
 Providing both `dataset_id` and `space_id` is a validation error.
-
-<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example

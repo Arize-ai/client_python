@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | **str** |  | 
+**type** | **str** | Identifies this notification channel as a connected integration. | 
 **integration_id** | **str** | The integration to notify (base64 global ID). | 
 
 ## Example

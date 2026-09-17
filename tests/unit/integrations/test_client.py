@@ -368,6 +368,26 @@ class TestIntegrationsClientCreateLlm:
         assert forwarded.base_url == "https://litellm.internal:4000"
         assert forwarded.model_names == ["team-gpt-4o"]
 
+    def test_create_fireworks_builds_request(
+        self, integrations_client: IntegrationsClient, mock_api: Mock
+    ) -> None:
+        """create_llm(FIREWORKS) should forward the Fireworks config."""
+        config = gen.CreateFireworksConfig(
+            provider="FIREWORKS",
+            api_key="fw-key-x",
+            model_names=["accounts/fireworks/models/llama-v3p1-8b-instruct"],
+            is_default_models_enabled=True,
+        )
+        integrations_client.create_llm(name="Fireworks", config=config)
+
+        forwarded = _created_llm_config(mock_api)
+        assert isinstance(forwarded, gen.CreateFireworksConfig)
+        assert forwarded.api_key == "fw-key-x"
+        assert forwarded.model_names == [
+            "accounts/fireworks/models/llama-v3p1-8b-instruct"
+        ]
+        assert forwarded.is_default_models_enabled is True
+
     def test_create_bedrock_default_auth(
         self, integrations_client: IntegrationsClient, mock_api: Mock
     ) -> None:

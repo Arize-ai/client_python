@@ -7,7 +7,7 @@ Create config for a LiteLLM integration. `base_url` is required and points at th
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **is_function_calling_enabled** | **bool** | Enable function/tool calling. Defaults to true. | [optional] 
-**provider** | **str** |  | 
+**provider** | **str** | Discriminator identifying the LiteLLM provider. | 
 **base_url** | **str** | LiteLLM endpoint URL requests are sent to (HTTPS). | 
 **api_key** | **str** | LiteLLM virtual key (write-only, never returned). | 
 **headers** | **Dict[str, str]** | Custom request headers sent to the endpoint, as a name-to-value map. Write-only: values are never returned; names are exposed as &#x60;header_names&#x60; on read. Defaults to no headers. The serialized header map must not exceed 8,175 bytes. | [optional] 

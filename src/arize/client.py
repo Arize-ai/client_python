@@ -33,6 +33,7 @@ if TYPE_CHECKING:
     from arize.tasks.client import TasksClient
     from arize.traces.client import TracesClient
     from arize.users.client import UsersClient
+    from arize.webhooks.client import WebhooksClient
 
 logger = logging.getLogger(__name__)
 
@@ -165,6 +166,10 @@ class ArizeClient(LazySubclientsMixin):
         "users": (
             "arize.users.client",
             "UsersClient",
+        ),
+        "webhooks": (
+            "arize.webhooks.client",
+            "WebhooksClient",
         ),
     }
     # DISABLED: Optional dependency gating system
@@ -490,6 +495,11 @@ class ArizeClient(LazySubclientsMixin):
     def users(self) -> UsersClient:
         """Access the users client for user management operations (lazy-loaded)."""
         return cast("UsersClient", self.__getattr__("users"))
+
+    @property
+    def webhooks(self) -> WebhooksClient:
+        """Access the webhooks client for webhook and subscription operations (lazy-loaded)."""
+        return cast("WebhooksClient", self.__getattr__("webhooks"))
 
     def __repr__(self) -> str:
         """Return a string representation of the Arize client configuration."""

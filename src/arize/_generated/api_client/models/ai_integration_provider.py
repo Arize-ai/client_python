@@ -35,6 +35,7 @@ class AiIntegrationProvider(str, Enum):
     NVIDIA_NIM = 'NVIDIA_NIM'
     GEMINI = 'GEMINI'
     LITELLM = 'LITELLM'
+    FIREWORKS = 'FIREWORKS'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

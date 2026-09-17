@@ -6,7 +6,7 @@ Create config for a Google Vertex AI integration. No credentials are stored: Ari
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**provider** | **str** |  | 
+**provider** | **str** | Discriminator identifying the Vertex AI provider. | 
 **project_id** | **str** | GCP project ID Arize accesses Vertex through. | 
 **location** | **str** | GCP region (e.g. us-central1). | 
 **project_access_label** | **str** | Label used to verify Arize&#39;s access to the GCP project. | 

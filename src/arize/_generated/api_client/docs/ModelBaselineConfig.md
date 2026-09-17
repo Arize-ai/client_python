@@ -6,7 +6,7 @@ Uses the model's primary baseline as the comparison dataset.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | **str** |  | 
+**type** | **str** | Identifies this comparison dataset as the model&#39;s primary baseline. | 
 **filters** | [**List[MonitorFilter]**](MonitorFilter.md) | Filters applied to the comparison dataset. An empty array means no comparison dataset filters are configured.  | 
 
 ## Example

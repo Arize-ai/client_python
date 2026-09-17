@@ -28,7 +28,7 @@ class CustomBaselineConfig(BaseModel):
     """
     Uses a custom fixed or moving window as the comparison dataset. 
     """ # noqa: E501
-    type: StrictStr
+    type: StrictStr = Field(description="Identifies this comparison dataset as a custom fixed or moving window.")
     filters: List[MonitorFilter] = Field(description="Filters applied to the comparison dataset. An empty array means no comparison dataset filters are configured. ")
     model_versions: List[StrictStr] = Field(description="Model versions included in the comparison dataset. An empty array means all model versions. ")
     window: CustomBaselineWindow

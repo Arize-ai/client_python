@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | **str** |  | 
+**type** | **str** | Identifies this threshold as a lower/upper bound range derived from a statistical calculation. | 
 **calculation** | [**ThresholdCalculation**](ThresholdCalculation.md) |  | 
 **lower** | [**DynamicThresholdBound**](DynamicThresholdBound.md) | The lower bound of the range. Its &#x60;operator&#x60; must be &#x60;GREATER_THAN&#x60; or &#x60;GREATER_THAN_OR_EQUAL&#x60;.  | 
 **upper** | [**DynamicThresholdBound**](DynamicThresholdBound.md) | The upper bound of the range. Its &#x60;operator&#x60; must be &#x60;LESS_THAN&#x60; or &#x60;LESS_THAN_OR_EQUAL&#x60;.  | 

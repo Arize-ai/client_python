@@ -28,9 +28,9 @@ class CreateEvaluatorIntegrationRequest(BaseModel):
     """
     CreateEvaluatorIntegrationRequest
     """ # noqa: E501
-    type: StrictStr
+    type: StrictStr = Field(description="Discriminator identifying this request as an evaluator integration.")
     name: StrictStr = Field(description="Integration name. Must be unique among active AGENT and EVALUATOR integrations in the account.")
-    description: Optional[StrictStr] = None
+    description: Optional[StrictStr] = Field(default=None, description="Optional human-readable description of the integration.")
     scopings: Optional[List[IntegrationScopingRequest]] = Field(default=None, description="Visibility scoping rules. Defaults to account-wide if omitted or empty. A scoping with `space_id` set MUST also set `organization_id`. ")
     config: CreateEvaluatorIntegrationConfigInput
     __properties: ClassVar[List[str]] = ["type", "name", "description", "scopings", "config"]

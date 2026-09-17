@@ -125,6 +125,7 @@ arize/_generated/api_client/docs/CreateEvaluatorIntegrationRequest.md
 arize/_generated/api_client/docs/CreateEvaluatorRequest.md
 arize/_generated/api_client/docs/CreateEvaluatorVersionRequest.md
 arize/_generated/api_client/docs/CreateExperimentRequest.md
+arize/_generated/api_client/docs/CreateFireworksConfig.md
 arize/_generated/api_client/docs/CreateFreeformAnnotationConfigRequest.md
 arize/_generated/api_client/docs/CreateGeminiConfig.md
 arize/_generated/api_client/docs/CreateIntegrationRequest.md
@@ -215,6 +216,7 @@ arize/_generated/api_client/docs/ExperimentRunInput.md
 arize/_generated/api_client/docs/ExperimentWithRunIds.md
 arize/_generated/api_client/docs/ExperimentsApi.md
 arize/_generated/api_client/docs/FilterOperator.md
+arize/_generated/api_client/docs/FireworksConfig.md
 arize/_generated/api_client/docs/FixedCustomBaselineWindow.md
 arize/_generated/api_client/docs/FreeformAnnotationConfig.md
 arize/_generated/api_client/docs/GcpProviderMetadata.md
@@ -553,6 +555,7 @@ arize/_generated/api_client/models/create_evaluator_integration_request.py
 arize/_generated/api_client/models/create_evaluator_request.py
 arize/_generated/api_client/models/create_evaluator_version_request.py
 arize/_generated/api_client/models/create_experiment_request.py
+arize/_generated/api_client/models/create_fireworks_config.py
 arize/_generated/api_client/models/create_freeform_annotation_config_request.py
 arize/_generated/api_client/models/create_gemini_config.py
 arize/_generated/api_client/models/create_integration_request.py
@@ -640,6 +643,7 @@ arize/_generated/api_client/models/experiment_run.py
 arize/_generated/api_client/models/experiment_run_input.py
 arize/_generated/api_client/models/experiment_with_run_ids.py
 arize/_generated/api_client/models/filter_operator.py
+arize/_generated/api_client/models/fireworks_config.py
 arize/_generated/api_client/models/fixed_custom_baseline_window.py
 arize/_generated/api_client/models/freeform_annotation_config.py
 arize/_generated/api_client/models/gcp_provider_metadata.py
@@ -906,6 +910,7 @@ arize/_generated/api_client/test/test_code_config.py
 arize/_generated/api_client/test/test_continuous_annotation_config.py
 arize/_generated/api_client/test/test_create_anthropic_config.py
 arize/_generated/api_client/test/test_create_api_key_response.py
+arize/_generated/api_client/test/test_create_fireworks_config.py
 arize/_generated/api_client/test/test_create_lite_llm_config.py
 arize/_generated/api_client/test/test_create_llm_config.py
 arize/_generated/api_client/test/test_create_llm_integration_request.py
@@ -937,6 +942,7 @@ arize/_generated/api_client/test/test_evaluator_version_template.py
 arize/_generated/api_client/test/test_evaluator_with_version.py
 arize/_generated/api_client/test/test_experiment.py
 arize/_generated/api_client/test/test_experiment_with_run_ids.py
+arize/_generated/api_client/test/test_fireworks_config.py
 arize/_generated/api_client/test/test_gcp_provider_metadata_kind.py
 arize/_generated/api_client/test/test_integration_scoping.py
 arize/_generated/api_client/test/test_integration_type.py

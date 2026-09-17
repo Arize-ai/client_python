@@ -25,6 +25,7 @@ if TYPE_CHECKING:
         SpacesApi,
         TasksApi,
         UsersApi,
+        WebhooksApi,
     )
     from arize._generated.api_client.models.integration_type import (
         IntegrationType,
@@ -927,6 +928,67 @@ def _find_organization_id(api: OrganizationsApi, organization: str) -> str:
             break
 
     raise NotFoundError("organization", organization, available)
+
+
+def _find_webhook_id(
+    api: WebhooksApi,
+    organizations_api: OrganizationsApi,
+    webhook: str,
+    organization: str | None,
+) -> str:
+    """Resolve a webhook by ID or name and return its unique ID.
+
+    Args:
+        api: WebhooksApi instance.
+        organizations_api: OrganizationsApi instance, used to resolve an
+            organization name to an exact ID before the list call.
+        webhook: Webhook ID or name.
+        organization: Organization ID or name used to scope the lookup.
+            Required when *webhook* is a name, since names are unique only
+            within an organization.
+
+    Returns:
+        The resolved webhook ID.
+
+    Raises:
+        NotFoundError: If the webhook name or ID cannot be found, or if a
+            name is given without an organization.
+    """
+    if is_resource_id(webhook):
+        return webhook
+
+    if organization is None:
+        raise NotFoundError(
+            "webhook",
+            webhook,
+            hint=(
+                "Provide 'organization' so the webhook name can be resolved, "
+                "or provide the webhook ID instead of the name."
+            ),
+        )
+
+    org_id = _find_organization_id(organizations_api, organization)
+
+    available: list[str] = []
+    cursor: str | None = None
+
+    while True:
+        response = api.list_webhooks(
+            org_id=org_id,
+            name=webhook,
+            limit=_LIST_PAGE_SIZE,
+            cursor=cursor,
+        )
+        for w in response.webhooks:
+            if w.name == webhook:
+                logger.debug("Resolved webhook '%s' → %s", webhook, w.id)
+                return w.id
+            available.append(w.name)
+        cursor = getattr(response.pagination, "next_cursor", None)
+        if not cursor:
+            break
+
+    raise NotFoundError("webhook", webhook, available)
 
 
 def _find_role_id(api: RolesApi, role: str) -> str:

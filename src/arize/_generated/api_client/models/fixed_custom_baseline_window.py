@@ -27,7 +27,7 @@ class FixedCustomBaselineWindow(BaseModel):
     """
     A custom comparison dataset using data between a fixed start and end date.
     """ # noqa: E501
-    type: StrictStr
+    type: StrictStr = Field(description="Identifies this comparison window as a fixed date range.")
     fixed_start_date: datetime = Field(description="The start of the fixed comparison window.")
     fixed_end_date: datetime = Field(description="The end of the fixed comparison window.")
     __properties: ClassVar[List[str]] = ["type", "fixed_start_date", "fixed_end_date"]

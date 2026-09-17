@@ -32,8 +32,8 @@ class AgentRequestPreset(BaseModel):
     name: Annotated[str, Field(min_length=1, strict=True, max_length=255)] = Field(description="Preset name (unique within the integration). Length 1-255.")
     description: Optional[Annotated[str, Field(strict=True, max_length=1024)]] = Field(default=None, description="Optional preset description (length 0-1024).")
     config: Dict[str, Any] = Field(description="Partial request body. Validated against the parent integration's `input_schema` with `required` dropped. ")
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
+    created_at: Optional[datetime] = Field(default=None, description="When the preset was created. Read-only.")
+    updated_at: Optional[datetime] = Field(default=None, description="When the preset was last updated. Read-only.")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["id", "name", "description", "config", "created_at", "updated_at"]
 

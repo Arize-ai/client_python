@@ -47,6 +47,9 @@ from arize._generated.api_client.models.create_aws_bedrock_proxy_with_headers_au
 from arize._generated.api_client.models.create_custom_config import (
     CreateCustomConfig,
 )
+from arize._generated.api_client.models.create_fireworks_config import (
+    CreateFireworksConfig,
+)
 from arize._generated.api_client.models.create_gemini_config import (
     CreateGeminiConfig,
 )
@@ -64,6 +67,7 @@ from arize._generated.api_client.models.create_vertex_ai_config import (
     CreateVertexAiConfig,
 )
 from arize._generated.api_client.models.custom_config import CustomConfig
+from arize._generated.api_client.models.fireworks_config import FireworksConfig
 from arize._generated.api_client.models.gemini_config import GeminiConfig
 from arize._generated.api_client.models.integration import Integration
 from arize._generated.api_client.models.integration_scoping import (
@@ -136,6 +140,7 @@ __all__ = [
     "CreateAwsBedrockDefaultAuth",
     "CreateAwsBedrockProxyWithHeadersAuth",
     "CreateCustomConfig",
+    "CreateFireworksConfig",
     "CreateGeminiConfig",
     "CreateLiteLlmConfig",
     "CreateLlmConfig",
@@ -143,6 +148,7 @@ __all__ = [
     "CreateOpenAiConfig",
     "CreateVertexAiConfig",
     "CustomConfig",
+    "FireworksConfig",
     "GeminiConfig",
     "IntegrationScoping",
     "IntegrationType",

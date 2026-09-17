@@ -28,7 +28,7 @@ class DynamicSingleThreshold(BaseModel):
     """
     DynamicSingleThreshold
     """ # noqa: E501
-    type: StrictStr
+    type: StrictStr = Field(description="Identifies this threshold as a single value derived from a statistical calculation.")
     calculation: ThresholdCalculation
     operator: ThresholdOperator
     multiplier: Union[StrictFloat, StrictInt] = Field(description="The multiplier applied to the calculation (e.g. number of standard deviations) to derive the threshold. ")

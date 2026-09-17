@@ -11,6 +11,7 @@ from arize.utils.resolve import (
     NotFoundError,
     _find_dataset_id,
     _find_project_id,
+    _find_webhook_id,
 )
 
 # A valid base64 identifier (decodes to "Space:9050:1JkR")
@@ -21,6 +22,12 @@ _PROJECT_ID = "UHJvamVjdDoxMjM="
 
 # A valid base64 identifier (decodes to "Dataset:123")
 _DATASET_ID = "RGF0YXNldDoxMjM="
+
+# A valid base64 identifier (decodes to "Webhook:123")
+_WEBHOOK_ID = "V2ViaG9vazoxMjM="
+
+# A valid base64 identifier (decodes to "Organization:123")
+_ORG_ID = "T3JnYW5pemF0aW9uOjEyMw=="
 
 
 # ---------------------------------------------------------------------------
@@ -235,3 +242,134 @@ class TestFindDatasetIdSpaceResolution:
         assert result == _DATASET_ID
         spaces_api.list_spaces.assert_not_called()
         datasets_api.list_datasets.assert_not_called()
+
+
+# ---------------------------------------------------------------------------
+# _find_webhook_id
+# ---------------------------------------------------------------------------
+
+
+def _make_organizations_api(org_name: str, org_id: str) -> MagicMock:
+    """Return an OrganizationsApi mock that resolves *org_name* to *org_id*."""
+    org = MagicMock()
+    org.name = org_name
+    org.id = org_id
+
+    resp = MagicMock()
+    resp.organizations = [org]
+    resp.pagination.next_cursor = None
+
+    api = MagicMock()
+    api.list_organizations.return_value = resp
+    return api
+
+
+def _make_webhooks_api(pages: list[list[tuple[str, str]]]) -> MagicMock:
+    """Return a WebhooksApi mock whose list_webhooks yields *pages* in order.
+
+    Each page is a list of ``(name, id)`` tuples. Every page but the last
+    carries a ``next_cursor``.
+    """
+    responses = []
+    for i, page in enumerate(pages):
+        resp = MagicMock()
+        resp.webhooks = []
+        for name, wid in page:
+            w = MagicMock()
+            w.name = name
+            w.id = wid
+            resp.webhooks.append(w)
+        resp.pagination.next_cursor = (
+            f"cursor-{i + 1}" if i < len(pages) - 1 else None
+        )
+        responses.append(resp)
+
+    api = MagicMock()
+    api.list_webhooks.side_effect = responses
+    return api
+
+
+@pytest.mark.unit
+class TestFindWebhookId:
+    """Tests for _find_webhook_id."""
+
+    def test_returns_id_unchanged_without_lookup(self) -> None:
+        """A base64 webhook ID short-circuits every API call."""
+        webhooks_api = MagicMock()
+        orgs_api = MagicMock()
+
+        result = _find_webhook_id(webhooks_api, orgs_api, _WEBHOOK_ID, None)
+
+        assert result == _WEBHOOK_ID
+        webhooks_api.list_webhooks.assert_not_called()
+        orgs_api.list_organizations.assert_not_called()
+
+    def test_name_without_organization_raises(self) -> None:
+        """A name needs an organization to scope the lookup."""
+        webhooks_api = MagicMock()
+
+        with pytest.raises(NotFoundError) as excinfo:
+            _find_webhook_id(webhooks_api, MagicMock(), "deploy", None)
+
+        assert "Provide 'organization'" in str(excinfo.value)
+        webhooks_api.list_webhooks.assert_not_called()
+
+    def test_resolves_name_with_organization_id(self) -> None:
+        """An organization ID is used directly as the org_id filter."""
+        webhooks_api = _make_webhooks_api([[("deploy", _WEBHOOK_ID)]])
+        orgs_api = MagicMock()
+
+        result = _find_webhook_id(webhooks_api, orgs_api, "deploy", _ORG_ID)
+
+        assert result == _WEBHOOK_ID
+        orgs_api.list_organizations.assert_not_called()
+        webhooks_api.list_webhooks.assert_called_once_with(
+            org_id=_ORG_ID, name="deploy", limit=100, cursor=None
+        )
+
+    def test_resolves_organization_name_first(self) -> None:
+        """An organization name is resolved to an ID before listing."""
+        webhooks_api = _make_webhooks_api([[("deploy", _WEBHOOK_ID)]])
+        orgs_api = _make_organizations_api("my-org", _ORG_ID)
+
+        result = _find_webhook_id(webhooks_api, orgs_api, "deploy", "my-org")
+
+        assert result == _WEBHOOK_ID
+        assert webhooks_api.list_webhooks.call_args.kwargs["org_id"] == _ORG_ID
+
+    def test_exact_match_skips_substring_matches(self) -> None:
+        """The substring filter may return near misses; only exact wins."""
+        webhooks_api = _make_webhooks_api(
+            [[("deploy-staging", "other"), ("deploy", _WEBHOOK_ID)]]
+        )
+
+        result = _find_webhook_id(webhooks_api, MagicMock(), "deploy", _ORG_ID)
+
+        assert result == _WEBHOOK_ID
+
+    def test_pages_until_match(self) -> None:
+        """Resolution follows next_cursor across pages."""
+        webhooks_api = _make_webhooks_api(
+            [[("deploy-a", "a")], [("deploy", _WEBHOOK_ID)]]
+        )
+
+        result = _find_webhook_id(webhooks_api, MagicMock(), "deploy", _ORG_ID)
+
+        assert result == _WEBHOOK_ID
+        assert webhooks_api.list_webhooks.call_count == 2
+        assert (
+            webhooks_api.list_webhooks.call_args_list[1].kwargs["cursor"]
+            == "cursor-1"
+        )
+
+    def test_not_found_lists_available_names(self) -> None:
+        """A miss raises NotFoundError carrying the names seen."""
+        webhooks_api = _make_webhooks_api(
+            [[("deploy-a", "a")], [("deploy-b", "b")]]
+        )
+
+        with pytest.raises(NotFoundError) as excinfo:
+            _find_webhook_id(webhooks_api, MagicMock(), "deploy", _ORG_ID)
+
+        assert excinfo.value.resource_type == "webhook"
+        assert excinfo.value.available_names == ["deploy-a", "deploy-b"]

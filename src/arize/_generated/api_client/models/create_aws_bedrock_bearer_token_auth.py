@@ -26,7 +26,7 @@ class CreateAwsBedrockBearerTokenAuth(BaseModel):
     """
     Create bearer-token auth. `api_key` is required and write-only (never returned; surfaces as `has_api_key` on read).
     """ # noqa: E501
-    auth_type: StrictStr
+    auth_type: StrictStr = Field(description="Discriminator identifying bearer-token auth.")
     api_key: StrictStr = Field(description="Bearer token for Bedrock (write-only, never returned).")
     base_url: Optional[StrictStr] = Field(default=None, description="Custom Bedrock endpoint URL. Defaults to the provider default endpoint.")
     __properties: ClassVar[List[str]] = ["auth_type", "api_key", "base_url"]

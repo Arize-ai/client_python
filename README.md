@@ -1995,7 +1995,7 @@ integration = client.integrations.get(
 
 ### Create an LLM Integration
 
-LLM integrations configure access to a model provider. Construct the generated config that matches the provider you want — all 8 are supported: `CreateOpenAiConfig`, `CreateAnthropicConfig`, `CreateGeminiConfig`, `CreateAwsBedrockConfig`, `CreateCustomConfig`, `CreateVertexAiConfig`, `CreateNvidiaNimConfig`, and `CreateLiteLlmConfig`.
+LLM integrations configure access to a model provider. Construct the generated config that matches the provider you want — all 9 are supported: `CreateOpenAiConfig`, `CreateAnthropicConfig`, `CreateGeminiConfig`, `CreateAwsBedrockConfig`, `CreateCustomConfig`, `CreateVertexAiConfig`, `CreateNvidiaNimConfig`, `CreateLiteLlmConfig`, and `CreateFireworksConfig`.
 
 ```python
 from arize.integrations.types import CreateOpenAiConfig

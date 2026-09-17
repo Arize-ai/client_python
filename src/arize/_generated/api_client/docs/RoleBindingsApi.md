@@ -61,8 +61,6 @@ caller's account, the endpoint returns `404` after store validation.
 Use `PATCH /v2/role-bindings/{binding_id}` to change the assigned role
 for an existing binding.
 
-<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
-
 
 ### Example
 
@@ -155,8 +153,6 @@ Requires `ROLE_BINDING_DELETE` permission on the binding's resource. If
 the binding does not exist, belongs to another account, or the caller
 lacks this permission, the endpoint returns `404`.
 
-<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
-
 
 ### Example
 
@@ -241,8 +237,6 @@ Get a single role binding by its ID.
 Requires `ROLE_BINDING_READ` permission on the binding's resource. If
 the binding does not exist, belongs to another account, or the caller
 lacks this permission, the endpoint returns `404`.
-
-<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -342,8 +336,6 @@ endpoint returns `200` with an empty list rather than `403`.
 
 Returns `404` if `user_id` is supplied and does not correspond to a
 user in the account.
-
-  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -465,8 +457,6 @@ on the binding's resource. Together, these permissions grant
 administrator-level authority on the resource. If the binding does not
 exist, belongs to another account, or the caller lacks either permission,
 the endpoint returns `404`.
-
-<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example

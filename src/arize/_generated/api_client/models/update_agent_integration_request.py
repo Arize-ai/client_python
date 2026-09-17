@@ -29,8 +29,8 @@ class UpdateAgentIntegrationRequest(BaseModel):
     Partial update body for `type=AGENT`. `type` is immutable; if present it must equal `AGENT` (422 otherwise). 
     """ # noqa: E501
     type: StrictStr = Field(description="Discriminator. Immutable; must match the integration's type.")
-    name: Optional[StrictStr] = None
-    description: Optional[StrictStr] = None
+    name: Optional[StrictStr] = Field(default=None, description="New integration name. Must be unique among active AGENT and EVALUATOR integrations in the account.")
+    description: Optional[StrictStr] = Field(default=None, description="New human-readable description of the integration. Pass null to clear it.")
     scopings: Optional[List[IntegrationScopingRequest]] = Field(default=None, description="Replace-on-provide. Empty array reverts to account-wide.")
     config: Optional[UpdateAgentConfig] = None
     __properties: ClassVar[List[str]] = ["type", "name", "description", "scopings", "config"]

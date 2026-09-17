@@ -27,7 +27,7 @@ class ManualRangeThreshold(BaseModel):
     """
     ManualRangeThreshold
     """ # noqa: E501
-    type: StrictStr
+    type: StrictStr = Field(description="Identifies this threshold as a manually-set lower/upper bound range.")
     lower: ManualThresholdBound = Field(description="The lower bound of the range. Its operator must be `GREATER_THAN` or `GREATER_THAN_OR_EQUAL`. ")
     upper: ManualThresholdBound = Field(description="The upper bound of the range. Its `operator` must be `LESS_THAN` or `LESS_THAN_OR_EQUAL`. ")
     __properties: ClassVar[List[str]] = ["type", "lower", "upper"]
