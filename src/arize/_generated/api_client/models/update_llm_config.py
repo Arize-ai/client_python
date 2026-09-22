@@ -19,23 +19,23 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
-from arize._generated.api_client.models.create_aws_bedrock_auth import CreateAwsBedrockAuth
 from arize._generated.api_client.models.llm_integration_provider import LlmIntegrationProvider
+from arize._generated.api_client.models.update_llm_auth import UpdateLlmAuth
 from typing import Optional, Set
 from typing_extensions import Self
 
 class UpdateLlmConfig(BaseModel):
     """
-    Partial LLM config for PATCH. `provider` is immutable; if present it must match the stored value. Invalid provider/field combinations return 422.  Provider-specific fields: - `api_key`, `is_function_calling_enabled`: all except `AWS_BEDROCK`, `VERTEX_AI` - `auth`: `AWS_BEDROCK` only - `base_url`: `ANTHROPIC`, `CUSTOM`, `LITELLM`, `NVIDIA_NIM` - `headers`: `CUSTOM`, `LITELLM`, `NVIDIA_NIM` - `is_default_models_enabled`: `AWS_BEDROCK`, `CUSTOM`, `FIREWORKS`, `NVIDIA_NIM` - `model_names`: `AWS_BEDROCK`, `CUSTOM`, `FIREWORKS`, `LITELLM`, `NVIDIA_NIM` - `project_id`, `location`, `project_access_label`: `VERTEX_AI` only 
+    Partial LLM config for PATCH. `provider` is immutable; if present it must match the stored value. Invalid provider/field combinations return 422.  Provider-specific fields: - `api_key`, `is_function_calling_enabled`: all except `AWS_BEDROCK`, `VERTEX_AI` - `auth`: `AWS_BEDROCK`, `CUSTOM` - `base_url`: `ANTHROPIC`, `CUSTOM`, `LITELLM`, `NVIDIA_NIM` - `headers`: `CUSTOM`, `LITELLM`, `NVIDIA_NIM` - `is_default_models_enabled`: `AWS_BEDROCK`, `CUSTOM`, `FIREWORKS`, `NVIDIA_NIM`, `TOGETHER_AI` - `model_names`: `AWS_BEDROCK`, `CUSTOM`, `FIREWORKS`, `LITELLM`, `NVIDIA_NIM`, `TOGETHER_AI` - `project_id`, `location`, `project_access_label`: `VERTEX_AI` only 
     """ # noqa: E501
     provider: Optional[LlmIntegrationProvider] = None
-    api_key: Optional[StrictStr] = Field(default=None, description="Rotate the API key. Pass null to clear it. Omit to keep unchanged. Not valid for `AWS_BEDROCK` (bearer tokens are rotated via `auth`) or `VERTEX_AI`.")
+    api_key: Optional[StrictStr] = Field(default=None, description="Rotate the API key. Pass null to clear it. Omit to keep unchanged. Not valid for `AWS_BEDROCK` (bearer tokens are rotated via `auth`) or `VERTEX_AI`. For `CUSTOM` it cannot be combined with `auth` in the same request; use one or the other.")
     is_function_calling_enabled: Optional[StrictBool] = Field(default=None, description="Enable or disable function/tool calling. Omit to keep unchanged. Not valid for `AWS_BEDROCK` or `VERTEX_AI`.")
-    auth: Optional[CreateAwsBedrockAuth] = None
+    auth: Optional[UpdateLlmAuth] = None
     base_url: Optional[StrictStr] = Field(default=None, description="(`CUSTOM`, `NVIDIA_NIM`, `LITELLM`, and `ANTHROPIC` only) New endpoint URL. For `NVIDIA_NIM` and `ANTHROPIC` the field is optional on the resource, so null clears it (falling back to the provider default endpoint). For `CUSTOM` and `LITELLM` it is required on the resource — null is rejected with 422. Omit to keep unchanged.")
     headers: Optional[Dict[str, StrictStr]] = Field(default=None, description="(`CUSTOM`, `NVIDIA_NIM`, and `LITELLM` only) Replaces the configured custom request headers: the provided map becomes the full header set. Pass null to clear all headers. Omit to keep unchanged. Write-only; names are exposed as `header_names` on read. The serialized header map must not exceed 8,175 bytes.")
-    is_default_models_enabled: Optional[StrictBool] = Field(default=None, description="(`AWS_BEDROCK`, `CUSTOM`, `FIREWORKS`, and `NVIDIA_NIM` only) Enable or disable Arize's default model catalog. For `AWS_BEDROCK`, `CUSTOM`, and `NVIDIA_NIM` the effective config must keep at least one model source or the request is rejected with 422. Omit to keep unchanged.")
-    model_names: Optional[List[StrictStr]] = Field(default=None, description="(`AWS_BEDROCK`, `CUSTOM`, `FIREWORKS`, `NVIDIA_NIM`, and `LITELLM` only) Replaces the custom model list. For `AWS_BEDROCK`, `CUSTOM`, and `NVIDIA_NIM` the effective config must keep at least one model source or the request is rejected with 422; `FIREWORKS` and `LITELLM` resolve models from the provider, so the list may be emptied. Omit to keep unchanged.")
+    is_default_models_enabled: Optional[StrictBool] = Field(default=None, description="(`AWS_BEDROCK`, `CUSTOM`, `FIREWORKS`, `NVIDIA_NIM`, and `TOGETHER_AI` only) Enable or disable Arize's default model catalog. For `AWS_BEDROCK`, `CUSTOM`, and `NVIDIA_NIM` the effective config must keep at least one model source or the request is rejected with 422. Omit to keep unchanged.")
+    model_names: Optional[List[StrictStr]] = Field(default=None, description="(`AWS_BEDROCK`, `CUSTOM`, `FIREWORKS`, `NVIDIA_NIM`, `LITELLM`, and `TOGETHER_AI` only) Replaces the custom model list. For `AWS_BEDROCK`, `CUSTOM`, and `NVIDIA_NIM` the effective config must keep at least one model source or the request is rejected with 422; `FIREWORKS`, `LITELLM`, and `TOGETHER_AI` resolve models from the provider, so the list may be emptied. Omit to keep unchanged.")
     project_id: Optional[StrictStr] = Field(default=None, description="(`VERTEX_AI` only) New GCP project ID. Required on the resource, so it may be changed but never cleared; omitted fields keep their stored values (per-scalar deep-merge).")
     location: Optional[StrictStr] = Field(default=None, description="(`VERTEX_AI` only) New GCP region. Required on the resource, so it may be changed but never cleared; omitted fields keep their stored values (per-scalar deep-merge).")
     project_access_label: Optional[StrictStr] = Field(default=None, description="(`VERTEX_AI` only) New project-access label. Required on the resource, so it may be changed but never cleared; omitted fields keep their stored values (per-scalar deep-merge).")
@@ -118,7 +118,7 @@ class UpdateLlmConfig(BaseModel):
             "provider": obj.get("provider"),
             "api_key": obj.get("api_key"),
             "is_function_calling_enabled": obj.get("is_function_calling_enabled"),
-            "auth": CreateAwsBedrockAuth.from_dict(obj["auth"]) if obj.get("auth") is not None else None,
+            "auth": UpdateLlmAuth.from_dict(obj["auth"]) if obj.get("auth") is not None else None,
             "base_url": obj.get("base_url"),
             "headers": obj.get("headers"),
             "is_default_models_enabled": obj.get("is_default_models_enabled"),

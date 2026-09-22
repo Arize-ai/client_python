@@ -28,6 +28,7 @@ from arize.experiments.functions import (
     run_experiment,
     transform_to_experiment_format,
 )
+from arize.experiments.tracing import LLMSpanMetricsCollector
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.utils.cache import cache_resource, load_cached_resource
 from arize.utils.openinference_conversion import (
@@ -814,7 +815,7 @@ class ExperimentsClient:
             dataset_df = dataset_df.head(dry_run_count)
 
         # --- Phase 3: run experiment locally ---
-        tracer, resource = _get_tracer_resource(
+        tracer, resource, metrics_collector = _get_tracer_resource(
             project_name=trace_project_name,
             space_id=space_id,
             api_key=self._sdk_config.api_key,
@@ -841,6 +842,7 @@ class ExperimentsClient:
             task=task,
             tracer=tracer,
             resource=resource,
+            metrics_collector=metrics_collector,
             evaluators=evaluators,
             concurrency=concurrency,
             exit_on_error=exit_on_error,
@@ -1040,8 +1042,8 @@ def _get_tracer_resource(
     dry_run: bool = False,
     set_global_tracer_provider: bool = False,
     ssl_ca_cert: str = "",
-) -> tuple[Tracer, Resource]:
-    """Initialize and return an OpenTelemetry tracer and resource for experiment tracing."""
+) -> tuple[Tracer, Resource, LLMSpanMetricsCollector]:
+    """Initialize the OpenTelemetry tracer, resource, and LLM metrics collector for experiment tracing."""
     resource = Resource(
         {
             ResourceAttributes.PROJECT_NAME: project_name,
@@ -1079,8 +1081,10 @@ def _get_tracer_resource(
             endpoint=endpoint, insecure=insecure, headers=headers
         )
     tracer_provider.add_span_processor(SimpleSpanProcessor(exporter))
+    metrics_collector = LLMSpanMetricsCollector()
+    tracer_provider.add_span_processor(metrics_collector)
 
     if set_global_tracer_provider:
         trace.set_tracer_provider(tracer_provider)
 
-    return tracer_provider.get_tracer(__name__), resource
+    return tracer_provider.get_tracer(__name__), resource, metrics_collector

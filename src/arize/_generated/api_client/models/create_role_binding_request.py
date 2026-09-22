@@ -28,7 +28,7 @@ class CreateRoleBindingRequest(BaseModel):
     CreateRoleBindingRequest
     """ # noqa: E501
     role_id: StrictStr = Field(description="A universally unique identifier (base64-encoded opaque string).")
-    user_id: StrictStr = Field(description="A universally unique identifier (base64-encoded opaque string).")
+    user_id: StrictStr = Field(description="ID of the user to bind the role to.  For a **service key**, this is the ID of the key's bot user — not the ID of the person who created the key. Read it from `bot_user.id` on the `POST /v2/api-keys` response, or from `bot_user.id` on the matching service key entry returned by `GET /v2/api-keys`. ")
     resource_type: RoleBindingResourceType
     resource_id: StrictStr = Field(description="A universally unique identifier (base64-encoded opaque string).")
     __properties: ClassVar[List[str]] = ["role_id", "user_id", "resource_type", "resource_id"]

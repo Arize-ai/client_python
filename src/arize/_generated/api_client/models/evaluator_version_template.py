@@ -20,6 +20,7 @@ import json
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
 from arize._generated.api_client.models.template_config import TemplateConfig
 from typing import Optional, Set
 from typing_extensions import Self
@@ -31,7 +32,7 @@ class EvaluatorVersionTemplate(BaseModel):
     id: StrictStr = Field(description="The unique identifier for this version")
     evaluator_id: StrictStr = Field(description="The parent evaluator ID")
     commit_hash: StrictStr = Field(description="A unique hash identifying this version")
-    commit_message: Optional[StrictStr] = Field(description="A message describing the changes in this version")
+    commit_message: Optional[Annotated[str, Field(strict=True, max_length=1000)]] = Field(description="A message describing the changes in this version")
     created_at: datetime = Field(description="When this version was created")
     created_by_user_id: Optional[StrictStr] = Field(description="The unique identifier for the user who created this version")
     type: StrictStr = Field(description="Discriminator identifying this as a template evaluator version. Always `TEMPLATE` for this variant.")

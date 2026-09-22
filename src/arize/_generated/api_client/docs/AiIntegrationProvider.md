@@ -24,6 +24,8 @@ The AI provider for this integration
 
 * `FIREWORKS` (value: `'FIREWORKS'`)
 
+* `TOGETHER_AI` (value: `'TOGETHER_AI'`)
+
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 
 

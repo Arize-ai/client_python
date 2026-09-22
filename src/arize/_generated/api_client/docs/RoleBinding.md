@@ -7,7 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **str** | Unique identifier for the role binding. | 
 **role_id** | **str** | A universally unique identifier (base64-encoded opaque string). | 
-**user_id** | **str** | A universally unique identifier (base64-encoded opaque string). | 
+**user_id** | **str** | ID of the user this binding assigns the role to.  For a **service key**, this is the ID of the key&#39;s bot user — not the ID of the person who created the key. Read it from &#x60;bot_user.id&#x60; on the &#x60;POST /v2/api-keys&#x60; response, or from &#x60;bot_user.id&#x60; on the matching service key entry returned by &#x60;GET /v2/api-keys&#x60;.  | 
 **resource_type** | [**RoleBindingResourceType**](RoleBindingResourceType.md) |  | 
 **resource_id** | **str** | A universally unique identifier (base64-encoded opaque string). | 
 **created_at** | **datetime** | Timestamp when the binding was created. | 

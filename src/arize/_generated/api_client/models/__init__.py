@@ -99,7 +99,10 @@ from arize._generated.api_client.models.create_categorical_annotation_config_req
 from arize._generated.api_client.models.create_code_evaluation_task_request import CreateCodeEvaluationTaskRequest
 from arize._generated.api_client.models.create_code_evaluator_version_request import CreateCodeEvaluatorVersionRequest
 from arize._generated.api_client.models.create_continuous_annotation_config_request import CreateContinuousAnnotationConfigRequest
+from arize._generated.api_client.models.create_custom_auth import CreateCustomAuth
 from arize._generated.api_client.models.create_custom_config import CreateCustomConfig
+from arize._generated.api_client.models.create_custom_default_auth import CreateCustomDefaultAuth
+from arize._generated.api_client.models.create_custom_oauth2_client_credentials_auth import CreateCustomOauth2ClientCredentialsAuth
 from arize._generated.api_client.models.create_dataset_request import CreateDatasetRequest
 from arize._generated.api_client.models.create_evaluator_integration_config_input import CreateEvaluatorIntegrationConfigInput
 from arize._generated.api_client.models.create_evaluator_integration_request import CreateEvaluatorIntegrationRequest
@@ -130,6 +133,7 @@ from arize._generated.api_client.models.create_tag_request import CreateTagReque
 from arize._generated.api_client.models.create_task_request import CreateTaskRequest
 from arize._generated.api_client.models.create_template_evaluation_task_request import CreateTemplateEvaluationTaskRequest
 from arize._generated.api_client.models.create_template_evaluator_version_request import CreateTemplateEvaluatorVersionRequest
+from arize._generated.api_client.models.create_together_ai_config import CreateTogetherAiConfig
 from arize._generated.api_client.models.create_user_api_key_request import CreateUserApiKeyRequest
 from arize._generated.api_client.models.create_user_request import CreateUserRequest
 from arize._generated.api_client.models.create_user_response import CreateUserResponse
@@ -139,12 +143,15 @@ from arize._generated.api_client.models.create_webhook_response import CreateWeb
 from arize._generated.api_client.models.create_webhook_subscription_request import CreateWebhookSubscriptionRequest
 from arize._generated.api_client.models.created_service_api_key import CreatedServiceApiKey
 from arize._generated.api_client.models.created_user_api_key import CreatedUserApiKey
+from arize._generated.api_client.models.custom_auth import CustomAuth
 from arize._generated.api_client.models.custom_baseline_config import CustomBaselineConfig
 from arize._generated.api_client.models.custom_baseline_window import CustomBaselineWindow
 from arize._generated.api_client.models.custom_code_config import CustomCodeConfig
 from arize._generated.api_client.models.custom_code_config_request import CustomCodeConfigRequest
 from arize._generated.api_client.models.custom_config import CustomConfig
+from arize._generated.api_client.models.custom_default_auth import CustomDefaultAuth
 from arize._generated.api_client.models.custom_metric_monitor import CustomMetricMonitor
+from arize._generated.api_client.models.custom_oauth2_client_credentials_auth import CustomOauth2ClientCredentialsAuth
 from arize._generated.api_client.models.custom_role_assignment import CustomRoleAssignment
 from arize._generated.api_client.models.custom_role_assignment_request import CustomRoleAssignmentRequest
 from arize._generated.api_client.models.custom_user_role_assignment import CustomUserRoleAssignment
@@ -364,6 +371,7 @@ from arize._generated.api_client.models.test_webhook_response import TestWebhook
 from arize._generated.api_client.models.threshold_calculation import ThresholdCalculation
 from arize._generated.api_client.models.threshold_config import ThresholdConfig
 from arize._generated.api_client.models.threshold_operator import ThresholdOperator
+from arize._generated.api_client.models.together_ai_config import TogetherAiConfig
 from arize._generated.api_client.models.tool_call import ToolCall
 from arize._generated.api_client.models.tool_call_function import ToolCallFunction
 from arize._generated.api_client.models.tool_call_function_request import ToolCallFunctionRequest
@@ -395,6 +403,7 @@ from arize._generated.api_client.models.update_evaluator_integration_request imp
 from arize._generated.api_client.models.update_evaluator_request import UpdateEvaluatorRequest
 from arize._generated.api_client.models.update_freeform_annotation_config_request import UpdateFreeformAnnotationConfigRequest
 from arize._generated.api_client.models.update_integration_request import UpdateIntegrationRequest
+from arize._generated.api_client.models.update_llm_auth import UpdateLlmAuth
 from arize._generated.api_client.models.update_llm_config import UpdateLlmConfig
 from arize._generated.api_client.models.update_llm_integration_request import UpdateLlmIntegrationRequest
 from arize._generated.api_client.models.update_organization_request import UpdateOrganizationRequest

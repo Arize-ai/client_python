@@ -22,6 +22,11 @@ Create a new role binding that assigns a role to a user on a resource.
 - `role_id`, `user_id`, `resource_type`, and `resource_id` are required.
 - `resource_type` must be `SPACE` or `PROJECT`.
 - `resource_id` must be a unique identifier for the selected `resource_type`.
+- `user_id` is the ID of the user to bind the role to. For a **service
+  key**, this is the ID of the key's bot user — not the ID of the person
+  who created the key. Read it from `bot_user.id` on the
+  `POST /v2/api-keys` response, or from `bot_user.id` on the matching
+  service key entry returned by `GET /v2/api-keys`.
 - Only one binding per user and resource is allowed. If the target user
   already has any binding on the resource, the request returns
   `409 Conflict`.
@@ -37,6 +42,18 @@ Create a new role binding that assigns a role to a user on a resource.
   "resource_id": "TW9kZWw6MTpGdmxM"
 }
 ```
+
+**Valid example — binding a service key's bot user**
+```json
+{
+  "role_id": "Um9sZToxOlY0S2E=",
+  "user_id": "VXNlcjo0MzpiT3RV",
+  "resource_type": "PROJECT",
+  "resource_id": "TW9kZWw6MTpGdmxM"
+}
+```
+`user_id` here is the bot user's ID from the service key's creation
+response, not the caller's own ID.
 
 **Invalid example**
 ```json
@@ -327,7 +344,8 @@ The `resource_type` query parameter is **required** and must be one of
 `SPACE` or `PROJECT`. Results include only bindings for spaces where the
 caller has the `ROLE_BINDING_READ` permission. If the caller has no
 authorized spaces, the response contains an empty list. Use `user_id` to
-narrow to a specific user.
+narrow to a specific user — including a service key's bot user, whose ID
+is returned as `bot_user.id` from `POST /v2/api-keys` or `GET /v2/api-keys`.
 
 **Authorization**
 Results are limited to bindings on spaces where the caller has
@@ -372,7 +390,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     resource_type = arize._generated.api_client.RoleBindingResourceType() # RoleBindingResourceType | Filter role bindings by resource type. - `SPACE` — Return only space-level bindings. - `PROJECT` — Return only project-level bindings. 
     limit = 50 # int | Maximum items to return. Defaults to 50 if omitted; maximum is 100. (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
-    user_id = 'VXNlcjoxOmxQZzI=' # str | Filter role bindings by user. When provided, only bindings assigned to this user are returned. Must be a valid global user ID.  (optional)
+    user_id = 'VXNlcjoxOmxQZzI=' # str | Filter role bindings by user. When provided, only bindings assigned to this user are returned. Must be a valid global user ID.  For a service key, pass its bot user's ID (`bot_user.id` from `POST /v2/api-keys` or `GET /v2/api-keys`) to list that key's bindings.  (optional)
 
     try:
         # List role bindings
@@ -393,7 +411,7 @@ Name | Type | Description  | Notes
  **resource_type** | [**RoleBindingResourceType**](.md)| Filter role bindings by resource type. - &#x60;SPACE&#x60; — Return only space-level bindings. - &#x60;PROJECT&#x60; — Return only project-level bindings.  | 
  **limit** | **int**| Maximum items to return. Defaults to 50 if omitted; maximum is 100. | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
- **user_id** | **str**| Filter role bindings by user. When provided, only bindings assigned to this user are returned. Must be a valid global user ID.  | [optional] 
+ **user_id** | **str**| Filter role bindings by user. When provided, only bindings assigned to this user are returned. Must be a valid global user ID.  For a service key, pass its bot user&#39;s ID (&#x60;bot_user.id&#x60; from &#x60;POST /v2/api-keys&#x60; or &#x60;GET /v2/api-keys&#x60;) to list that key&#39;s bindings.  | [optional] 
 
 ### Return type
 

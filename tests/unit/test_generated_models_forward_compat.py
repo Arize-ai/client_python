@@ -166,6 +166,7 @@ _CUSTOM_CONFIG = {
     "header_names": [],
     "is_default_models_enabled": False,
     "model_names": [],
+    "auth": {"auth_type": "DEFAULT", "has_api_key": False},
 }
 
 _NVIDIA_NIM_CONFIG = {

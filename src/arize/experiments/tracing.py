@@ -16,8 +16,12 @@ from typing import (
 
 import numpy as np
 from openinference.semconv import trace
-from openinference.semconv.trace import DocumentAttributes, SpanAttributes
-from opentelemetry.sdk.trace import ReadableSpan
+from openinference.semconv.trace import (
+    DocumentAttributes,
+    OpenInferenceSpanKindValues,
+    SpanAttributes,
+)
+from opentelemetry.sdk.trace import ReadableSpan, SpanProcessor
 from opentelemetry.trace import INVALID_TRACE_ID
 from typing_extensions import assert_never
 from wrapt import apply_patch, resolve_path, wrap_function_wrapper
@@ -49,6 +53,78 @@ class SpanModifier:
         if (ctx := span._context) is None or ctx.span_id == INVALID_TRACE_ID:
             return
         span._resource = span._resource.merge(self._resource)
+
+
+class LLMSpanMetricsCollector(SpanProcessor):
+    """Aggregates token count and cost from LLM-kind spans, keyed by trace id.
+
+    Each experiment task run starts a fresh trace, so every LLM child span
+    created by the task's own instrumentation shares that trace's id. This
+    lets concurrent task executions accumulate metrics under distinct keys
+    without any extra correlation logic.
+    """
+
+    def __init__(self) -> None:
+        """Initialize an empty, thread-safe metrics accumulator."""
+        self._lock = Lock()
+        self._by_trace_id: dict[int, tuple[int | None, float | None]] = {}
+
+    def on_end(self, span: ReadableSpan) -> None:
+        """Accumulate token count/cost from a finished LLM-kind span."""
+        attributes = span.attributes or {}
+        if (
+            attributes.get(SpanAttributes.OPENINFERENCE_SPAN_KIND)
+            != OpenInferenceSpanKindValues.LLM.value
+        ):
+            return
+
+        token_count: int | None = None
+        raw_total = attributes.get(SpanAttributes.LLM_TOKEN_COUNT_TOTAL)
+        if isinstance(raw_total, (int, float)):
+            token_count = int(raw_total)
+        else:
+            raw_prompt = attributes.get(SpanAttributes.LLM_TOKEN_COUNT_PROMPT)
+            raw_completion = attributes.get(
+                SpanAttributes.LLM_TOKEN_COUNT_COMPLETION
+            )
+            prompt_tokens = (
+                raw_prompt if isinstance(raw_prompt, (int, float)) else 0
+            )
+            completion_tokens = (
+                raw_completion
+                if isinstance(raw_completion, (int, float))
+                else 0
+            )
+            if raw_prompt is not None or raw_completion is not None:
+                token_count = int(prompt_tokens) + int(completion_tokens)
+
+        cost: float | None = None
+        raw_cost = attributes.get(SpanAttributes.LLM_COST_TOTAL)
+        if isinstance(raw_cost, (int, float)):
+            cost = float(raw_cost)
+
+        if token_count is None and cost is None:
+            return
+
+        context = span.get_span_context()
+        if context is None:
+            return
+        trace_id = context.trace_id
+        with self._lock:
+            prev_tokens, prev_cost = self._by_trace_id.get(
+                trace_id, (None, None)
+            )
+            self._by_trace_id[trace_id] = (
+                (prev_tokens or 0) + token_count
+                if token_count is not None
+                else prev_tokens,
+                (prev_cost or 0.0) + cost if cost is not None else prev_cost,
+            )
+
+    def pop(self, trace_id: int) -> tuple[int | None, float | None]:
+        """Return and clear the accumulated (token_count, total_cost) for a trace."""
+        with self._lock:
+            return self._by_trace_id.pop(trace_id, (None, None))
 
 
 _ACTIVE_MODIFIER: ContextVar[SpanModifier | None] = ContextVar(

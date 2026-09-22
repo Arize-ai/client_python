@@ -63,6 +63,9 @@ from arize._generated.api_client.models.create_nvidia_nim_config import (
 from arize._generated.api_client.models.create_open_ai_config import (
     CreateOpenAiConfig,
 )
+from arize._generated.api_client.models.create_together_ai_config import (
+    CreateTogetherAiConfig,
+)
 from arize._generated.api_client.models.create_vertex_ai_config import (
     CreateVertexAiConfig,
 )
@@ -84,6 +87,9 @@ from arize._generated.api_client.models.nvidia_nim_config import NvidiaNimConfig
 from arize._generated.api_client.models.open_ai_config import OpenAiConfig
 from arize._generated.api_client.models.pagination_metadata import (
     PaginationMetadata,
+)
+from arize._generated.api_client.models.together_ai_config import (
+    TogetherAiConfig,
 )
 from arize._generated.api_client.models.update_agent_request_preset_input import (
     UpdateAgentRequestPresetInput,
@@ -146,6 +152,7 @@ __all__ = [
     "CreateLlmConfig",
     "CreateNvidiaNimConfig",
     "CreateOpenAiConfig",
+    "CreateTogetherAiConfig",
     "CreateVertexAiConfig",
     "CustomConfig",
     "FireworksConfig",
@@ -160,6 +167,7 @@ __all__ = [
     "NvidiaNimConfig",
     "OpenAiConfig",
     "PaginationMetadata",
+    "TogetherAiConfig",
     "UpdateAgentRequestPresetInput",
     "UpdateLlmConfig",
     "VertexAiConfig",

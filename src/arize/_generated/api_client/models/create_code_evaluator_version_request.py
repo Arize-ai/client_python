@@ -17,8 +17,9 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List
+from typing_extensions import Annotated
 from arize._generated.api_client.models.code_config_request import CodeConfigRequest
 from typing import Optional, Set
 from typing_extensions import Self
@@ -27,7 +28,7 @@ class CreateCodeEvaluatorVersionRequest(BaseModel):
     """
     CreateCodeEvaluatorVersionRequest
     """ # noqa: E501
-    commit_message: StrictStr = Field(description="Commit message describing the changes")
+    commit_message: Annotated[str, Field(strict=True, max_length=1000)] = Field(description="Commit message describing the changes")
     code_config: CodeConfigRequest
     __properties: ClassVar[List[str]] = ["commit_message", "code_config"]
 

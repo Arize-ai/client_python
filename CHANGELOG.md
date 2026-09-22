@@ -1,5 +1,23 @@
 # Changelog
 
+## [8.55.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.54.0...arize-python-sdk/v8.55.0) (2026-09-22)
+
+
+### 🎁 New Features
+
+* **integrations:** OAuth 2.0 client credentials for custom endpoints ([#86343](https://github.com/Arize-ai/arize/issues/86343)) ([0822632](https://github.com/Arize-ai/arize/commit/0822632f73cd70545c69c5baef0038f7fae4fbc4))
+* **integrations:** Together AI support in the hand-written integration subclients ([#87636](https://github.com/Arize-ai/arize/issues/87636)) ([01a4555](https://github.com/Arize-ai/arize/commit/01a4555549a4cbd9a287f624373a6b924dc7f7bc))
+
+
+### 🐛 Bug Fixes
+
+* **experiments:** populate operational metrics on SDK-run experiments ([#87008](https://github.com/Arize-ai/arize/issues/87008)) ([802f346](https://github.com/Arize-ai/arize/commit/802f346ef905e14eaa3fcc4f93fb6c07ca58057c))
+
+
+### 📚 Documentation
+
+* **role-bindings:** document that user_id is a service key's bot user ([#85760](https://github.com/Arize-ai/arize/issues/85760)) ([8e8ccc8](https://github.com/Arize-ai/arize/commit/8e8ccc82c19f281a9f7f18d6ee02d8d6951256a2))
+
 ## [8.54.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.53.0...arize-python-sdk/v8.54.0) (2026-09-17)
 
 

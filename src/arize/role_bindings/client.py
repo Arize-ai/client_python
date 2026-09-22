@@ -74,7 +74,10 @@ class RoleBindingsClient:
                 enforces an upper bound of 100.
             cursor: Opaque pagination cursor from a previous response.
             user_id: Global ID of the user to filter by. When provided, only
-                bindings assigned to this user are returned.
+                bindings assigned to this user are returned. For a service
+                key, pass its bot user's ID (``bot_user.id`` from
+                ``api_keys.create`` or ``api_keys.list``) to list that key's
+                bindings.
 
         Returns:
             A paginated role binding list response from the Arize REST API.
@@ -115,7 +118,12 @@ class RoleBindingsClient:
         # "role-456"
 
         Args:
-            user_id: Unique identifier of the user to bind the role to.
+            user_id: Unique identifier of the user to bind the role to. For
+                a service key, this is the ID of the key's bot user — not
+                the ID of the person who created the key. Read it from
+                ``bot_user.id`` on the object returned by
+                ``api_keys.create_service_key``, or on the matching service
+                key entry returned by ``api_keys.list``.
             role_id: Unique identifier of the role to assign.
             resource_type: Type of resource to bind the role on
                 (``RoleBindingResourceType.SPACE`` or

@@ -55,6 +55,7 @@ class TestIntegrationsTypes:
             "NvidiaNimConfig",
             "LiteLlmConfig",
             "FireworksConfig",
+            "TogetherAiConfig",
         ):
             assert name in types_module.__all__
 
@@ -70,6 +71,7 @@ class TestIntegrationsTypes:
             "CreateNvidiaNimConfig",
             "CreateLiteLlmConfig",
             "CreateFireworksConfig",
+            "CreateTogetherAiConfig",
             "CreateLlmConfig",
             "UpdateLlmConfig",
             "AwsBedrockAuth",

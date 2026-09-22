@@ -1,6 +1,6 @@
 # CustomConfig
 
-Config for a custom OpenAI-compatible endpoint integration. `base_url` is the endpoint Arize sends requests to; it must implement the OpenAI API shape. Secrets are write-only: the API key surfaces as `has_api_key` and custom request headers surface as `header_names` (names only).
+Config for a custom OpenAI-compatible endpoint integration. `base_url` is the endpoint Arize sends requests to; it must implement the OpenAI API shape. Secrets are write-only: the API key surfaces as `has_api_key` and custom request headers surface as `header_names` (names only). `auth` is how the endpoint is authenticated.
 
 ## Properties
 
@@ -8,11 +8,12 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **is_function_calling_enabled** | **bool** | Whether function/tool calling is enabled. | 
 **provider** | **str** | Discriminator identifying a custom OpenAI-compatible endpoint. | 
-**has_api_key** | **bool** | Whether an API key is configured (the key itself is never returned). | 
+**has_api_key** | **bool** | Whether an API key is configured (the key itself is never returned). An API key and OAuth credentials are mutually exclusive, and switching to &#x60;OAUTH2_CLIENT_CREDENTIALS&#x60; clears any stored key, so this reads false on an integration authenticated that way. | 
 **base_url** | **str** | Endpoint URL requests are sent to. | 
 **header_names** | **List[str]** | Names of the custom request headers configured on this integration. Empty when none are configured. Header values are write-only and never returned. | 
 **is_default_models_enabled** | **bool** | Whether Arize&#39;s default model catalog is enabled. | 
 **model_names** | **List[str]** | Custom model names configured on this integration. Empty when none. | 
+**auth** | [**CustomAuth**](CustomAuth.md) |  | 
 
 ## Example
 

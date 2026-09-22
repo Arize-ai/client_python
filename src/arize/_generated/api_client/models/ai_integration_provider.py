@@ -36,6 +36,7 @@ class AiIntegrationProvider(str, Enum):
     GEMINI = 'GEMINI'
     LITELLM = 'LITELLM'
     FIREWORKS = 'FIREWORKS'
+    TOGETHER_AI = 'TOGETHER_AI'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

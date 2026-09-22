@@ -223,6 +223,10 @@ class ExperimentRun:
         error: The error message if the experiment run failed.
         id: The unique identifier for the experiment run.
         trace_id: The trace identifier for the experiment run.
+        token_count: Total LLM token count aggregated from the run's LLM
+            child spans, if any were produced.
+        total_cost: Total LLM cost aggregated from the run's LLM child
+            spans, if any were produced.
     """
 
     start_time: datetime
@@ -234,6 +238,8 @@ class ExperimentRun:
     error: str | None = None
     id: ExperimentRunId = field(default_factory=_exp_id)
     trace_id: TraceId | None = None
+    token_count: int | None = None
+    total_cost: float | None = None
 
     @classmethod
     def from_dict(cls, obj: Mapping[str, object]) -> ExperimentRun:
@@ -248,6 +254,8 @@ class ExperimentRun:
             error=cast("str | None", obj.get("error")),
             id=cast("str", obj["id"]),
             trace_id=cast("str | None", obj.get("trace_id")),
+            token_count=cast("int | None", obj.get("token_count")),
+            total_cost=cast("float | None", obj.get("total_cost")),
         )
 
     def __post_init__(self) -> None:

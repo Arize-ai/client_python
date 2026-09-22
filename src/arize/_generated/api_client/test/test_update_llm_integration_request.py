@@ -46,7 +46,7 @@ class TestUpdateLlmIntegrationRequest(unittest.TestCase):
                     provider = 'OPEN_AI', 
                     api_key = '', 
                     is_function_calling_enabled = True, 
-                    auth = arize._generated.api_client.models.create_aws_bedrock_auth.CreateAwsBedrockAuth(), 
+                    auth = null, 
                     base_url = '', 
                     headers = {
                         'key' : ''

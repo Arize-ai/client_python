@@ -19,6 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
+from arize._generated.api_client.models.create_custom_auth import CreateCustomAuth
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -29,11 +30,12 @@ class CreateCustomConfig(BaseModel):
     is_function_calling_enabled: Optional[StrictBool] = Field(default=None, description="Enable function/tool calling. Defaults to true.")
     provider: StrictStr = Field(description="Discriminator identifying a custom OpenAI-compatible endpoint.")
     base_url: StrictStr = Field(description="Endpoint URL requests are sent to (HTTPS).")
-    api_key: Optional[StrictStr] = Field(default=None, description="API key for the endpoint (write-only, never returned).")
+    api_key: Optional[StrictStr] = Field(default=None, description="API key for the endpoint (write-only, never returned). Equivalent to an `auth` block with `auth_type: DEFAULT`; supplying both this and `auth` is rejected with 422.")
     headers: Optional[Dict[str, StrictStr]] = Field(default=None, description="Custom request headers sent to the endpoint, as a name-to-value map. Write-only: values are never returned; names are exposed as `header_names` on read. Defaults to no headers. The serialized header map must not exceed 8,175 bytes.")
     is_default_models_enabled: Optional[StrictBool] = Field(default=None, description="Enable Arize's default model catalog. Defaults to false.")
     model_names: Optional[List[StrictStr]] = Field(default=None, description="Custom model names to make available. Defaults to none.")
-    __properties: ClassVar[List[str]] = ["is_function_calling_enabled", "provider", "base_url", "api_key", "headers", "is_default_models_enabled", "model_names"]
+    auth: Optional[CreateCustomAuth] = None
+    __properties: ClassVar[List[str]] = ["is_function_calling_enabled", "provider", "base_url", "api_key", "headers", "is_default_models_enabled", "model_names", "auth"]
 
     @field_validator('provider')
     def provider_validate_enum(cls, value):
@@ -81,6 +83,9 @@ class CreateCustomConfig(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of auth
+        if self.auth:
+            _dict['auth'] = self.auth.to_dict()
         return _dict
 
     @classmethod
@@ -104,7 +109,8 @@ class CreateCustomConfig(BaseModel):
             "api_key": obj.get("api_key"),
             "headers": obj.get("headers"),
             "is_default_models_enabled": obj.get("is_default_models_enabled"),
-            "model_names": obj.get("model_names")
+            "model_names": obj.get("model_names"),
+            "auth": CreateCustomAuth.from_dict(obj["auth"]) if obj.get("auth") is not None else None
         })
         return _obj
 

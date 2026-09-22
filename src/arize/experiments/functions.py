@@ -23,7 +23,6 @@ from enum import Enum
 from itertools import product
 from pathlib import Path
 from typing import (
-    TYPE_CHECKING,
     Any,
     Literal,
     TypeAlias,
@@ -43,10 +42,8 @@ from openinference.semconv.trace import (
 )
 from opentelemetry.context import Context
 from opentelemetry.sdk.resources import Resource
+from opentelemetry.sdk.trace import Span
 from opentelemetry.trace import NoOpTracer, Status, StatusCode, Tracer
-
-if TYPE_CHECKING:
-    from opentelemetry.sdk.trace import Span
 
 from arize.experiments.evaluators.base import Evaluator, Evaluators
 from arize.experiments.evaluators.executors import (
@@ -60,7 +57,11 @@ from arize.experiments.evaluators.types import (
     JSONSerializable,
 )
 from arize.experiments.evaluators.utils import create_evaluator
-from arize.experiments.tracing import capture_spans, flatten
+from arize.experiments.tracing import (
+    LLMSpanMetricsCollector,
+    capture_spans,
+    flatten,
+)
 from arize.experiments.types import (
     Example,
     ExperimentEvaluationRun,
@@ -104,6 +105,7 @@ def run_experiment(
     task: ExperimentTask,
     tracer: Tracer,
     resource: Resource,
+    metrics_collector: LLMSpanMetricsCollector,
     rate_limit_errors: RateLimitErrors | None = None,
     evaluators: Evaluators | None = None,
     metadata: ExperimentMetadata | dict[str, str] | None = None,
@@ -120,6 +122,8 @@ def run_experiment(
         task (ExperimentTask): The task to be executed on the dataset.
         tracer (Tracer): Tracer for tracing the experiment.
         resource (Resource): The resource for tracing the experiment.
+        metrics_collector (LLMSpanMetricsCollector): Collector that aggregates
+            token count and cost from each task run's LLM child spans.
         rate_limit_errors (RateLimitErrors | :obj:`None`): Optional rate limit errors.
         evaluators (Evaluators | :obj:`None`): Optional evaluators to assess the task.
         metadata (ExperimentMetadata | dict[str, str] | :obj:`None`): Optional metadata
@@ -158,6 +162,18 @@ def run_experiment(
         output = None
         error: BaseException | None = None
         status = Status(StatusCode.OK)
+        llm_metrics: tuple[int | None, float | None] = (None, None)
+
+        def _pop_llm_metrics(span: Span) -> None:
+            # Registered as an ExitStack callback so it always runs when the
+            # span's `with` block unwinds, even when the task re-raises
+            # (`exit_on_error=True`) — otherwise the collector would leak an
+            # entry for this trace id forever.
+            nonlocal llm_metrics
+            llm_metrics = metrics_collector.pop(
+                span.get_span_context().trace_id
+            )
+
         with ExitStack() as stack:
             # Type ignore: OpenTelemetry interface vs implementation type mismatch
             span: Span = stack.enter_context(  # type: ignore[assignment]
@@ -165,6 +181,7 @@ def run_experiment(
                     name=root_span_name, context=Context()
                 )
             )
+            stack.callback(_pop_llm_metrics, span)
             stack.enter_context(capture_spans(resource))
             span.set_attribute(METADATA, json.dumps(md, ensure_ascii=False))
             try:
@@ -232,6 +249,7 @@ def run_experiment(
                 f"Output must be JSON serializable, got {type(output).__name__}"
             )
 
+        token_count, total_cost = llm_metrics
         return ExperimentRun(
             experiment_id=experiment_name,
             repetition_number=1,
@@ -245,12 +263,26 @@ def run_experiment(
             output=output,
             error=repr(error) if error else None,
             trace_id=_str_trace_id(span.get_span_context().trace_id),
+            token_count=token_count,
+            total_cost=total_cost,
         )
 
     async def async_run_experiment(example: Example) -> ExperimentRun:
         output = None
         error: BaseException | None = None
         status = Status(StatusCode.OK)
+        llm_metrics: tuple[int | None, float | None] = (None, None)
+
+        def _pop_llm_metrics(span: Span) -> None:
+            # Registered as an ExitStack callback so it always runs when the
+            # span's `with` block unwinds, even when the task re-raises
+            # (`exit_on_error=True`) — otherwise the collector would leak an
+            # entry for this trace id forever.
+            nonlocal llm_metrics
+            llm_metrics = metrics_collector.pop(
+                span.get_span_context().trace_id
+            )
+
         with ExitStack() as stack:
             # Type ignore: OpenTelemetry interface vs implementation type mismatch
             span: Span = stack.enter_context(  # type: ignore[assignment]
@@ -258,6 +290,7 @@ def run_experiment(
                     name=root_span_name, context=Context()
                 )
             )
+            stack.callback(_pop_llm_metrics, span)
             stack.enter_context(capture_spans(resource))
             span.set_attribute(METADATA, json.dumps(md, ensure_ascii=False))
             try:
@@ -310,6 +343,7 @@ def run_experiment(
                 f"Output must be JSON serializable, got {type(output).__name__}"
             )
 
+        token_count, total_cost = llm_metrics
         return ExperimentRun(
             experiment_id=experiment_name,
             repetition_number=1,
@@ -323,6 +357,8 @@ def run_experiment(
             output=output,
             error=repr(error) if error else None,
             trace_id=_str_trace_id(span.get_span_context().trace_id),
+            token_count=token_count,
+            total_cost=total_cost,
         )
 
     _errors: tuple[type[BaseException], ...]
@@ -382,6 +418,18 @@ def run_experiment(
     out_df["result.trace.timestamp"] = [
         int(run.start_time.timestamp() * 1e3) for run in runs_filtered
     ]
+    out_df["latency"] = [
+        (run.end_time - run.start_time).total_seconds() * 1000
+        for run in runs_filtered
+    ]
+    out_df["token_count"] = pd.array(
+        [run.token_count for run in runs_filtered], dtype=pd.Int64Dtype()
+    )
+    out_df["total_cost"] = [run.total_cost for run in runs_filtered]
+    out_df["execution_status"] = [
+        "FAILED" if run.error else "COMPLETED" for run in runs_filtered
+    ]
+    out_df["exceptions"] = [run.error or "" for run in runs_filtered]
     out_df.set_index("id", inplace=True)
     logger.info(f"✅ Task runs completed.\n{task_summary}")
 

@@ -17,8 +17,9 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List
+from typing_extensions import Annotated
 from arize._generated.api_client.models.template_config_input import TemplateConfigInput
 from typing import Optional, Set
 from typing_extensions import Self
@@ -27,7 +28,7 @@ class CreateTemplateEvaluatorVersionRequest(BaseModel):
     """
     CreateTemplateEvaluatorVersionRequest
     """ # noqa: E501
-    commit_message: StrictStr = Field(description="Commit message describing the changes")
+    commit_message: Annotated[str, Field(strict=True, max_length=1000)] = Field(description="Commit message describing the changes")
     template_config: TemplateConfigInput
     __properties: ClassVar[List[str]] = ["commit_message", "template_config"]
 

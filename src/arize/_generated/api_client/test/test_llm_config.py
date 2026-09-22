@@ -36,14 +36,14 @@ class TestLlmConfig(unittest.TestCase):
         if include_optional:
             return LlmConfig(
                 is_function_calling_enabled = True,
-                provider = 'FIREWORKS',
+                provider = 'TOGETHER_AI',
                 has_api_key = True,
                 base_url = '',
                 is_default_models_enabled = True,
                 model_names = [
                     ''
                     ],
-                auth = arize._generated.api_client.models.aws_bedrock_auth.AwsBedrockAuth(),
+                auth = arize._generated.api_client.models.custom_auth.CustomAuth(),
                 header_names = [
                     ''
                     ],
@@ -54,14 +54,14 @@ class TestLlmConfig(unittest.TestCase):
         else:
             return LlmConfig(
                 is_function_calling_enabled = True,
-                provider = 'FIREWORKS',
+                provider = 'TOGETHER_AI',
                 has_api_key = True,
                 base_url = '',
                 is_default_models_enabled = True,
                 model_names = [
                     ''
                     ],
-                auth = arize._generated.api_client.models.aws_bedrock_auth.AwsBedrockAuth(),
+                auth = arize._generated.api_client.models.custom_auth.CustomAuth(),
                 header_names = [
                     ''
                     ],

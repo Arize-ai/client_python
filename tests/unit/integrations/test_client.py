@@ -388,6 +388,26 @@ class TestIntegrationsClientCreateLlm:
         ]
         assert forwarded.is_default_models_enabled is True
 
+    def test_create_together_ai_builds_request(
+        self, integrations_client: IntegrationsClient, mock_api: Mock
+    ) -> None:
+        """create_llm(TOGETHER_AI) should forward the Together AI config."""
+        config = gen.CreateTogetherAiConfig(
+            provider="TOGETHER_AI",
+            api_key="together-key-x",
+            model_names=["meta-llama/Llama-3.3-70B-Instruct-Turbo"],
+            is_default_models_enabled=True,
+        )
+        integrations_client.create_llm(name="TogetherAI", config=config)
+
+        forwarded = _created_llm_config(mock_api)
+        assert isinstance(forwarded, gen.CreateTogetherAiConfig)
+        assert forwarded.api_key == "together-key-x"
+        assert forwarded.model_names == [
+            "meta-llama/Llama-3.3-70B-Instruct-Turbo"
+        ]
+        assert forwarded.is_default_models_enabled is True
+
     def test_create_bedrock_default_auth(
         self, integrations_client: IntegrationsClient, mock_api: Mock
     ) -> None:
@@ -634,7 +654,7 @@ class TestIntegrationsClientUpdateLlm:
     def test_update_bedrock_auth(
         self, integrations_client: IntegrationsClient, mock_api: Mock
     ) -> None:
-        """update_llm() should build a config from a replacement Bedrock auth."""
+        """update_llm() should wrap a replacement Bedrock auth in the union."""
         auth = gen.CreateAwsBedrockAuth(
             actual_instance=gen.CreateAwsBedrockDefaultAuth(
                 auth_type="DEFAULT", role_arn="arn:aws:iam::123:role/r"
@@ -655,7 +675,7 @@ class TestIntegrationsClientUpdateLlm:
             )
 
         mock_cfg_cls.assert_called_once_with(
-            auth=auth,
+            auth=gen.UpdateLlmAuth(auth),
             is_default_models_enabled=True,
             model_names=["anthropic.claude"],
         )

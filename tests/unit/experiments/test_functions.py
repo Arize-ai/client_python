@@ -3,10 +3,14 @@
 from __future__ import annotations
 
 import json
+from concurrent.futures import ThreadPoolExecutor
 
 import pandas as pd
 import pytest
-from openinference.semconv.trace import SpanAttributes
+from openinference.semconv.trace import (
+    OpenInferenceSpanKindValues,
+    SpanAttributes,
+)
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import SimpleSpanProcessor
@@ -19,6 +23,7 @@ from arize.experiments.functions import (
     run_experiment,
     transform_to_experiment_format,
 )
+from arize.experiments.tracing import LLMSpanMetricsCollector
 from arize.experiments.types import ExperimentTaskFieldNames
 
 METADATA = SpanAttributes.METADATA
@@ -211,6 +216,7 @@ class TestRunExperimentSpanMetadata:
             task=lambda row: row["input"],
             tracer=tracer,
             resource=resource,
+            metrics_collector=LLMSpanMetricsCollector(),
             metadata={
                 "dataset_id": "ds-123",
                 "dataset_name": "my-dataset",
@@ -247,6 +253,7 @@ class TestRunExperimentSpanMetadata:
             task=lambda row: row["input"],
             tracer=tracer,
             resource=resource,
+            metrics_collector=LLMSpanMetricsCollector(),
         )
 
         spans = exporter.get_finished_spans()
@@ -276,6 +283,7 @@ class TestRunExperimentSpanMetadata:
             task=lambda row: row["input"],
             tracer=tracer,
             resource=resource,
+            metrics_collector=LLMSpanMetricsCollector(),
             metadata={
                 "user_id": "user-123",
                 "user_name": "Jane Doe",
@@ -308,6 +316,7 @@ class TestRunExperimentSpanMetadata:
             task=lambda row: row["input"],
             tracer=tracer,
             resource=resource,
+            metrics_collector=LLMSpanMetricsCollector(),
         )
 
         spans = exporter.get_finished_spans()
@@ -319,3 +328,114 @@ class TestRunExperimentSpanMetadata:
         assert "user_id" not in md
         assert "user_name" not in md
         assert "user_email" not in md
+
+
+LLM_KIND = OpenInferenceSpanKindValues.LLM.value
+
+
+@pytest.mark.unit
+class TestRunExperimentOperationalMetrics:
+    """Tests that run_experiment populates the Druid operational-metric columns."""
+
+    def _make_tracer_and_collector(
+        self,
+    ) -> tuple[TracerProvider, LLMSpanMetricsCollector]:
+        collector = LLMSpanMetricsCollector()
+        provider = TracerProvider()
+        provider.add_span_processor(collector)
+        return provider, collector
+
+    def test_successful_run_populates_latency_tokens_cost_and_status(
+        self,
+    ) -> None:
+        provider, collector = self._make_tracer_and_collector()
+        tracer = provider.get_tracer(__name__)
+        resource = Resource.create({})
+
+        def task(row: pd.Series) -> str:
+            with tracer.start_as_current_span("llm-call") as llm_span:
+                llm_span.set_attribute(
+                    SpanAttributes.OPENINFERENCE_SPAN_KIND, LLM_KIND
+                )
+                llm_span.set_attribute(SpanAttributes.LLM_TOKEN_COUNT_TOTAL, 42)
+                llm_span.set_attribute(SpanAttributes.LLM_COST_TOTAL, 0.01)
+            return row["input"]
+
+        dataset = pd.DataFrame({"id": ["ex1"], "input": ["hello"]})
+        result = run_experiment(
+            experiment_name="my-experiment",
+            experiment_id="exp-abc",
+            dataset=dataset,
+            task=task,
+            tracer=tracer,
+            resource=resource,
+            metrics_collector=collector,
+        )
+
+        row = result.iloc[0]
+        assert row["token_count"] == 42
+        assert row["total_cost"] == pytest.approx(0.01)
+        assert row["execution_status"] == "COMPLETED"
+        assert row["exceptions"] == ""
+        assert row["latency"] >= 0
+
+    def test_failed_run_sets_failed_status_and_exceptions(self) -> None:
+        provider, collector = self._make_tracer_and_collector()
+        tracer = provider.get_tracer(__name__)
+        resource = Resource.create({})
+
+        def task(row: pd.Series) -> str:
+            raise ValueError("boom")
+
+        dataset = pd.DataFrame({"id": ["ex1"], "input": ["hello"]})
+        result = run_experiment(
+            experiment_name="my-experiment",
+            experiment_id="exp-abc",
+            dataset=dataset,
+            task=task,
+            tracer=tracer,
+            resource=resource,
+            metrics_collector=collector,
+        )
+
+        row = result.iloc[0]
+        assert row["execution_status"] == "FAILED"
+        assert "boom" in row["exceptions"]
+        assert pd.isna(row["token_count"])
+        assert pd.isna(row["total_cost"])
+
+    def test_sync_path_from_non_main_thread_populates_metrics(self) -> None:
+        """`get_executor_on_sync_context` falls back to `sync_run_experiment`
+        (rather than the default async path) when not called from the main
+        thread, so run this from a worker thread to cover that code path.
+        """
+        provider, collector = self._make_tracer_and_collector()
+        tracer = provider.get_tracer(__name__)
+        resource = Resource.create({})
+
+        def task(row: pd.Series) -> str:
+            with tracer.start_as_current_span("llm-call") as llm_span:
+                llm_span.set_attribute(
+                    SpanAttributes.OPENINFERENCE_SPAN_KIND, LLM_KIND
+                )
+                llm_span.set_attribute(SpanAttributes.LLM_TOKEN_COUNT_TOTAL, 7)
+                llm_span.set_attribute(SpanAttributes.LLM_COST_TOTAL, 0.005)
+            return row["input"]
+
+        dataset = pd.DataFrame({"id": ["ex1"], "input": ["hello"]})
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            result = pool.submit(
+                run_experiment,
+                experiment_name="my-experiment",
+                experiment_id="exp-abc",
+                dataset=dataset,
+                task=task,
+                tracer=tracer,
+                resource=resource,
+                metrics_collector=collector,
+            ).result()
+
+        row = result.iloc[0]
+        assert row["token_count"] == 7
+        assert row["total_cost"] == pytest.approx(0.005)
+        assert row["execution_status"] == "COMPLETED"
