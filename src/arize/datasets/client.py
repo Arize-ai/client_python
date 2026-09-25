@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 import time
-import uuid
 from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
@@ -14,14 +13,23 @@ import pyarrow as pa
 from arize._flight.client import ArizeFlightClient
 from arize._generated.api_client import models
 from arize.constants.config import DEFAULT_LIST_LIMIT
+from arize.datasets.errors import EmptyDatasetError
+from arize.datasets.upload import (
+    check_unique_ids,
+    flight_schema,
+    iter_flight_batches,
+    prepare_examples_df,
+    source_type,
+)
 from arize.datasets.validation import validate_dataset_df
 from arize.exceptions.base import INVALID_ARROW_CONVERSION_MSG
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.utils.cache import cache_resource, load_cached_resource
-from arize.utils.openinference_conversion import (
-    convert_boolean_columns_to_str,
-    convert_datetime_columns_to_int,
-    convert_default_columns_to_json_str,
+from arize.utils.file_sources import (
+    is_path_input,
+    open_source,
+    resolve_files,
+    unified_source_schema,
 )
 from arize.utils.resolve import (
     _find_dataset_id,
@@ -34,6 +42,8 @@ if TYPE_CHECKING:
     # builtins is needed to use builtins.list in type annotations because
     # the class has a list() method that shadows the built-in list type
     import builtins
+    import os
+    from collections.abc import Sequence
 
     from arize._generated.api_client.api_client import ApiClient
     from arize.config import SDKConfiguration
@@ -154,10 +164,14 @@ class DatasetsClient:
         *,
         name: str,
         space: str,
-        examples: builtins.list[dict[str, object]] | pd.DataFrame,
+        examples: builtins.list[dict[str, object]]
+        | pd.DataFrame
+        | str
+        | os.PathLike[str]
+        | Sequence[str | os.PathLike[str]],
         force_http: bool = False,
     ) -> Dataset:
-        """Create a dataset with JSON examples.
+        """Create a dataset from JSON examples, a DataFrame, or data files.
 
         Empty datasets are not allowed.
 
@@ -169,16 +183,23 @@ class DatasetsClient:
             - Each example must contain at least one property (i.e. `{}` is invalid).
 
         Transport selection:
-            - If the payload is below the configured REST payload threshold (or
-              `force_http=True`), this method uploads via REST.
-            - Otherwise, it attempts a more efficient upload path via gRPC + Flight.
+            - Lists and DataFrames below the configured REST payload threshold (or
+              with `force_http=True`) upload via REST; larger ones upload via
+              gRPC + Flight.
+            - File paths always stream via gRPC + Flight one record batch at a
+              time, so the dataset is never fully loaded in memory.
+              `force_http=True` raises ValueError for path input.
 
         Args:
             name: Dataset name (must be unique within the target space).
             space: Space ID or name to create the dataset in.
             examples: Dataset examples either as:
-                - a list of JSON-like dicts, or
-                - a :class:`pandas.DataFrame` (will be converted to records for REST).
+                - a list of JSON-like dicts,
+                - a :class:`pandas.DataFrame` (will be converted to records for REST), or
+                - a path to a Parquet or Arrow IPC file (`.parquet`, `.arrow`,
+                  `.feather`), a directory of such files (searched recursively),
+                  or a list of such paths. All files must share a compatible
+                  schema; columns missing from some files are filled with nulls.
             force_http: If True, force REST upload even if the payload exceeds the
                 configured REST payload threshold.
 
@@ -186,12 +207,32 @@ class DatasetsClient:
             The created dataset object as returned by the API.
 
         Raises:
-            TypeError: If `examples` is not a list of dicts or a :class:`pandas.DataFrame`.
+            TypeError: If `examples` is a list mixing dicts and file paths.
+            ValueError: If `examples` is empty, if `force_http=True` is combined
+                with file paths, if no data files are found, if a file has an
+                unsupported suffix, or if the files' schemas are incompatible.
+            FileNotFoundError: If a given path does not exist.
+            BinaryColumnError: If a data file has a bytes column.
+            EmptyDatasetError: If the data files hold no rows.
+            IDColumnUniqueConstraintError: If the data files repeat an `id`.
             RuntimeError: If the Flight upload path is selected and the Flight request
                 fails.
             ApiException: If the REST API
                 returns an error response (e.g. 400/401/403/409/429).
         """
+        if is_path_input(examples):
+            if force_http:
+                raise ValueError(
+                    "force_http=True cannot be used with file paths; "
+                    "files are always streamed via gRPC + Flight"
+                )
+            space_id = _find_space_id(self._spaces_api, space)
+            return self._create_dataset_from_files(
+                name=name, space_id=space_id, examples=examples
+            )
+        examples = cast(
+            "builtins.list[dict[str, object]] | pd.DataFrame", examples
+        )
         space_id = _find_space_id(self._spaces_api, space)
         if len(examples) == 0:
             raise ValueError("Cannot create an empty dataset")
@@ -226,7 +267,7 @@ class DatasetsClient:
         )
         if not isinstance(examples, pd.DataFrame):
             examples = pd.DataFrame(examples)
-        return self._create_dataset_via_flight(
+        return self._create_dataset_from_dataframe(
             name=name,
             space_id=space_id,
             examples=examples,
@@ -691,19 +732,14 @@ class DatasetsClient:
             delete_dataset_examples_request=body,
         )
 
-    def _create_dataset_via_flight(
+    def _create_dataset_from_dataframe(
         self,
         name: str,
         space_id: str,
         examples: pd.DataFrame,
     ) -> Dataset:
         """Internal method to create a dataset using Flight protocol for large example sets."""
-        data = examples.copy()
-        # Convert datetime columns to int64 (ms since epoch)
-        data = convert_datetime_columns_to_int(data)
-        data = convert_boolean_columns_to_str(data)
-        data = _set_default_columns_for_dataset(data)
-        data = convert_default_columns_to_json_str(data)
+        data = prepare_examples_df(examples.copy(), int(time.time() * 1000))
 
         validation_errors = validate_dataset_df(data)
         if validation_errors:
@@ -722,13 +758,65 @@ class DatasetsClient:
             logger.exception("Unexpected error creating Arrow table")
             raise
 
+        return self._create_dataset_via_flight(
+            name=name,
+            space_id=space_id,
+            reader=pa_table.to_reader(
+                max_chunksize=self._sdk_config.pyarrow_max_chunksize
+            ),
+        )
+
+    def _create_dataset_from_files(
+        self,
+        name: str,
+        space_id: str,
+        examples: str | os.PathLike[str] | Sequence[str | os.PathLike[str]],
+    ) -> Dataset:
+        """Stream data files through Flight without loading them into memory.
+
+        Every check that can fail runs before the stream opens: a failure
+        mid-stream would leave a partially populated dataset behind.
+        """
+        files = resolve_files(examples)
+        sources = [open_source(path) for path in files]
+        source_schema = unified_source_schema(sources, source_type)
+        schema = flight_schema(source_schema)
+        total_rows = sum(source.num_rows for source in sources)
+        if total_rows == 0:
+            raise EmptyDatasetError()
+        batch_rows = self._sdk_config.pyarrow_max_chunksize
+        if "id" in source_schema.names:
+            check_unique_ids(sources, batch_rows)
+
+        size_mb = sum(p.stat().st_size for p in files) / (1024 * 1024)
+        logger.info(
+            f"Streaming {total_rows} examples from {len(files)} file(s) "
+            f"({size_mb:.1f} MB on disk) via gRPC + Flight."
+        )
+        return self._create_dataset_via_flight(
+            name=name,
+            space_id=space_id,
+            reader=pa.RecordBatchReader.from_batches(
+                schema,
+                iter_flight_batches(
+                    sources, schema, batch_rows, int(time.time() * 1000)
+                ),
+            ),
+        )
+
+    def _create_dataset_via_flight(
+        self,
+        name: str,
+        space_id: str,
+        reader: pa.RecordBatchReader,
+    ) -> Dataset:
         response = None
         with ArizeFlightClient(sdk_config=self._sdk_config) as flight_client:
             try:
                 response = flight_client.create_dataset(
                     space_id=space_id,
                     dataset_name=name,
-                    pa_table=pa_table,
+                    reader=reader,
                 )
             except Exception as e:
                 msg = f"Error during create request: {e!s}"
@@ -743,29 +831,3 @@ class DatasetsClient:
         # The response from flightserver is the dataset ID. To return the dataset
         # object we make a GET query
         return self.get(dataset=response)
-
-
-def _set_default_columns_for_dataset(df: pd.DataFrame) -> pd.DataFrame:
-    """Set default values for created_at and updated_at columns if missing or null."""
-    current_time = int(time.time() * 1000)
-    if "created_at" in df.columns:
-        if df["created_at"].isnull().any():
-            df["created_at"].fillna(current_time, inplace=True)
-    else:
-        df["created_at"] = current_time
-
-    if "updated_at" in df.columns:
-        if df["updated_at"].isnull().any():
-            df["updated_at"].fillna(current_time, inplace=True)
-    else:
-        df["updated_at"] = current_time
-
-    if "id" in df.columns:
-        if df["id"].isnull().any():
-            df["id"] = df["id"].apply(
-                lambda x: str(uuid.uuid4()) if pd.isnull(x) else x
-            )
-    else:
-        df["id"] = [str(uuid.uuid4()) for _ in range(len(df))]
-
-    return df

@@ -29,8 +29,19 @@ from arize.experiments.functions import (
     transform_to_experiment_format,
 )
 from arize.experiments.tracing import LLMSpanMetricsCollector
+from arize.experiments.upload import (
+    flight_schema,
+    iter_flight_batches,
+    source_type,
+)
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.utils.cache import cache_resource, load_cached_resource
+from arize.utils.file_sources import (
+    is_path_input,
+    open_source,
+    resolve_files,
+    unified_source_schema,
+)
 from arize.utils.openinference_conversion import (
     convert_boolean_columns_to_str,
     convert_default_columns_to_json_str,
@@ -46,6 +57,8 @@ if TYPE_CHECKING:
     # builtins is needed to use builtins.list in type annotations because
     # the class has a list() method that shadows the built-in list type
     import builtins
+    import os
+    from collections.abc import Sequence
 
     from opentelemetry.trace import Tracer
 
@@ -65,6 +78,18 @@ if TYPE_CHECKING:
     )
 
 logger = logging.getLogger(__name__)
+
+
+def _experiment_table(experiment_df: pd.DataFrame) -> pa.Table:
+    try:
+        logger.debug("Converting data to Arrow format")
+        return pa.Table.from_pandas(experiment_df, preserve_index=False)
+    except pa.ArrowInvalid as e:
+        logger.exception(INVALID_ARROW_CONVERSION_MSG)
+        raise pa.ArrowInvalid(f"Error converting to Arrow format: {e!s}") from e
+    except Exception:
+        logger.exception("Unexpected error creating Arrow table")
+        raise
 
 
 class ExperimentsClient:
@@ -162,12 +187,16 @@ class ExperimentsClient:
         name: str,
         dataset: str | None = None,
         space: str | None = None,
-        experiment_runs: builtins.list[dict[str, object]] | pd.DataFrame,
+        experiment_runs: builtins.list[dict[str, object]]
+        | pd.DataFrame
+        | str
+        | os.PathLike[str]
+        | Sequence[str | os.PathLike[str]],
         task_fields: ExperimentTaskFieldNames,
         evaluator_columns: dict[str, EvaluationResultFieldNames] | None = None,
         force_http: bool = False,
     ) -> Experiment:
-        """Create an experiment with one or more experiment runs.
+        """Create an experiment from runs given inline or as data files.
 
         An experiment belongs to a space and may optionally be associated
         with a dataset. Provide exactly one of:
@@ -193,6 +222,9 @@ class ExperimentsClient:
             - Otherwise, it attempts a more efficient upload path via gRPC + Flight.
               Experiments not associated with a dataset always upload via REST, since
               the gRPC + Flight path only supports dataset-associated experiments.
+            - File paths always stream via gRPC + Flight one record batch at a
+              time, so the runs are never fully loaded in memory. They require
+              `dataset`, and `force_http=True` raises ValueError.
 
         Args:
             name: Experiment name. Must be unique within the target dataset
@@ -204,8 +236,12 @@ class ExperimentsClient:
                 not associated with a dataset, the space name or ID to create it in;
                 required when `dataset` is not provided.
             experiment_runs: Experiment runs either as:
-                - a list of JSON-like dicts, or
-                - a :class:`pandas.DataFrame`.
+                - a list of JSON-like dicts,
+                - a :class:`pandas.DataFrame`, or
+                - a path to a Parquet or Arrow IPC file (`.parquet`, `.arrow`,
+                  `.feather`), a directory of such files (searched recursively),
+                  or a list of such paths. All files must share a compatible
+                  schema; columns missing from some files are filled with nulls.
             task_fields: Mapping that identifies the columns/fields containing the
                 task results (e.g. `example_id`, output fields).
             evaluator_columns: Optional mapping describing evaluator result columns.
@@ -216,13 +252,42 @@ class ExperimentsClient:
             The created experiment object.
 
         Raises:
-            ValueError: If neither `dataset` nor `space` is provided.
-            TypeError: If `experiment_runs` is not a list of dicts or a DataFrame.
+            ValueError: If neither `dataset` nor `space` is provided, if a column
+                named by `task_fields` is missing, or, for file paths, if
+                `dataset` is not provided, `force_http=True`, no data files are
+                found, the files hold no rows, or their schemas are incompatible.
+            TypeError: If `experiment_runs` is not a list of dicts, a DataFrame,
+                or file paths, or is a list mixing dicts and paths.
+            FileNotFoundError: If a given path does not exist.
             RuntimeError: If the Flight upload path is selected and the Flight request
                 fails.
             ApiException: If the REST API
                 returns an error response (e.g. 400/401/403/409/429).
         """
+        if is_path_input(experiment_runs):
+            if force_http:
+                raise ValueError(
+                    "force_http=True cannot be used with file paths; "
+                    "files are always streamed via gRPC + Flight"
+                )
+            if dataset is None:
+                raise ValueError(
+                    "file paths require `dataset`; experiments without a "
+                    "dataset upload via REST only"
+                )
+            return self._create_from_files(
+                name=name,
+                dataset_id=_find_dataset_id(
+                    api=self._datasets_api,
+                    spaces_api=self._spaces_api,
+                    dataset=dataset,
+                    space=space,
+                ),
+                experiment_runs=experiment_runs,
+                task_fields=task_fields,
+                evaluator_columns=evaluator_columns,
+            )
+
         space_id: str | None = None
         if dataset is not None:
             dataset_id: str | None = _find_dataset_id(
@@ -240,7 +305,6 @@ class ExperimentsClient:
                 "create an experiment associated with a dataset, or 'space' "
                 "to create a standalone experiment."
             )
-
         if not isinstance(experiment_runs, list | pd.DataFrame):
             raise TypeError(
                 "Experiment runs must be a list of dicts or a pandas DataFrame"
@@ -284,11 +348,51 @@ class ExperimentsClient:
             "Trying for more efficient upload via gRPC + Flight."
         )
 
-        # TODO(Kiko): Space ID should not be needed,
-        # should work on server tech debt to remove this
-        dataset_obj = self._datasets_api.get_dataset(dataset_id=dataset_id)
-        space_id = dataset_obj.space_id
+        space_id = self._dataset_space_id(dataset_id)
+        self._init_experiment_via_flight(
+            space_id=space_id,
+            dataset_id=dataset_id,
+            experiment_name=name,
+        )
+        pa_table = _experiment_table(experiment_df)
+        return self._post_experiment_runs_via_flight(
+            name=name,
+            dataset_id=dataset_id,
+            space_id=space_id,
+            reader=pa_table.to_reader(
+                max_chunksize=self._sdk_config.pyarrow_max_chunksize
+            ),
+        )
 
+    def _create_from_files(
+        self,
+        name: str,
+        dataset_id: str,
+        experiment_runs: str
+        | os.PathLike[str]
+        | Sequence[str | os.PathLike[str]],
+        task_fields: ExperimentTaskFieldNames,
+        evaluator_columns: dict[str, EvaluationResultFieldNames] | None,
+    ) -> Experiment:
+        """Stream run files through Flight without loading them into memory.
+
+        Every check that can fail runs before the experiment is initialized
+        and the stream opens.
+        """
+        files = resolve_files(experiment_runs)
+        sources = [open_source(path) for path in files]
+        source_schema = unified_source_schema(sources, source_type)
+        schema = flight_schema(source_schema, task_fields, evaluator_columns)
+        total_rows = sum(source.num_rows for source in sources)
+        if total_rows == 0:
+            raise ValueError("experiment run files contain no rows")
+
+        size_mb = sum(p.stat().st_size for p in files) / (1024 * 1024)
+        logger.info(
+            f"Streaming {total_rows} experiment runs from {len(files)} "
+            f"file(s) ({size_mb:.1f} MB on disk) via gRPC + Flight."
+        )
+        space_id = self._dataset_space_id(dataset_id)
         self._init_experiment_via_flight(
             space_id=space_id,
             dataset_id=dataset_id,
@@ -298,7 +402,17 @@ class ExperimentsClient:
             name=name,
             dataset_id=dataset_id,
             space_id=space_id,
-            experiment_df=experiment_df,
+            reader=pa.RecordBatchReader.from_batches(
+                schema,
+                iter_flight_batches(
+                    sources,
+                    source_schema,
+                    schema,
+                    self._sdk_config.pyarrow_max_chunksize,
+                    task_fields,
+                    evaluator_columns,
+                ),
+            ),
         )
 
     @prerelease_endpoint(key="experiments.get", stage=ReleaseStage.BETA)
@@ -863,11 +977,14 @@ class ExperimentsClient:
                 dataset_id=dataset_id,
                 experiment_df=output_df,
             ), output_df
+        pa_table = _experiment_table(output_df)
         return self._post_experiment_runs_via_flight(
             name=name,
             dataset_id=dataset_id,
             space_id=space_id,
-            experiment_df=output_df,
+            reader=pa_table.to_reader(
+                max_chunksize=self._sdk_config.pyarrow_max_chunksize
+            ),
         ), output_df
 
     # def _init_experiment_via_http(
@@ -987,34 +1104,27 @@ class ExperimentsClient:
         )
         return self._api.create_experiment(create_experiment_request=body)
 
+    def _dataset_space_id(self, dataset_id: str) -> str:
+        # TODO(Kiko): Space ID should not be needed,
+        # should work on server tech debt to remove this
+        dataset_obj = self._datasets_api.get_dataset(dataset_id=dataset_id)
+        return cast("str", dataset_obj.space_id)
+
     def _post_experiment_runs_via_flight(
         self,
         name: str,
         dataset_id: str,
         space_id: str,
-        experiment_df: pd.DataFrame,
+        reader: pa.RecordBatchReader,
     ) -> Experiment:
-        """Internal method to create an experiment using Flight protocol for large datasets."""
-        # Convert to Arrow table
-        try:
-            logger.debug("Converting data to Arrow format")
-            pa_table = pa.Table.from_pandas(experiment_df, preserve_index=False)
-        except pa.ArrowInvalid as e:
-            logger.exception(INVALID_ARROW_CONVERSION_MSG)
-            raise pa.ArrowInvalid(
-                f"Error converting to Arrow format: {e!s}"
-            ) from e
-        except Exception:
-            logger.exception("Unexpected error creating Arrow table")
-            raise
-
+        """Stream the runs of an already-initialized experiment over Flight."""
         request_type = FlightRequestType.LOG_EXPERIMENT_DATA
         with ArizeFlightClient(sdk_config=self._sdk_config) as flight_client:
             post_resp = None
             try:
                 post_resp = flight_client.log_arrow_table(
                     space_id=space_id,
-                    pa_table=pa_table,
+                    reader=reader,
                     dataset_id=dataset_id,
                     experiment_name=name,
                     request_type=request_type,

@@ -33,6 +33,9 @@ Create a new API key for the authenticated user.
 - **Service keys:** Requires the `SERVICE_KEY_CREATE` permission in the target space (space
   member or above).
 
+When developer access is disabled for an account, users cannot create user keys or service
+keys. Existing service keys remain active with their assigned roles.
+
 The full API key value (`key`) is **only returned once** in the creation response.
 Store it securely — it cannot be retrieved again. Use the `redacted_key` field on
 subsequent reads.
@@ -242,6 +245,9 @@ metadata (name, description, and key type).
 The old key is invalidated and the new key is activated in a single transaction —
 there is no window where neither key is valid. The full new key value (`key`) is
 **only returned once** in the response. Store it securely.
+
+When developer access is disabled for an account, refreshing a user key or service key
+returns `403`.
 
 **Authorization:**
 - **User keys:** The creator or an account admin may refresh the key.

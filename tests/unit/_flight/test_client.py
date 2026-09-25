@@ -594,14 +594,14 @@ class TestLogArrowTable:
         result = flight_client.log_arrow_table(
             space_id="test_space",
             request_type=request_type,
-            pa_table=sample_pa_table,
+            reader=sample_pa_table.to_reader(),
             **extra_kwargs,
         )
 
         # Verify
         assert isinstance(result, response_class)
         assert getattr(result, response_field) == expected_value
-        mock_writer.write_table.assert_called_once()
+        mock_writer.write_batch.assert_called_once()
         mock_writer.done_writing.assert_called_once()
 
         # Verify schema mock was called for tracing requests
@@ -627,7 +627,7 @@ class TestLogArrowTable:
             flight_client.log_arrow_table(
                 space_id="test_space",
                 request_type=request_type,
-                pa_table=sample_pa_table,
+                reader=sample_pa_table.to_reader(),
                 project_name=None,
             )
 
@@ -656,7 +656,7 @@ class TestLogArrowTable:
         result = flight_client.log_arrow_table(
             space_id="test_space",
             request_type=FlightRequestType.EVALUATION,
-            pa_table=sample_pa_table,
+            reader=sample_pa_table.to_reader(),
             project_name="test_project",
         )
 
@@ -687,20 +687,20 @@ class TestLogArrowTable:
             flight_client.log_arrow_table(
                 space_id="test_space",
                 request_type=FlightRequestType.EVALUATION,
-                pa_table=sample_pa_table,
+                reader=sample_pa_table.to_reader(),
                 project_name="test_project",
             )
 
     @patch("arize._flight.client.ArizeFlightClient.do_put")
     @patch("arize._flight.client.get_pb_schema_tracing")
-    def test_log_arrow_table_uses_max_chunksize(
+    def test_log_arrow_table_writes_every_batch(
         self,
         mock_get_schema: Mock,
         mock_do_put: Mock,
         flight_client: ArizeFlightClient,
         sample_pa_table_large: pa.Table,
     ) -> None:
-        """Test that max_chunksize is passed to write_table."""
+        """Test that each batch is written before done_writing."""
         # Setup mocks
         mock_schema = Mock()
         mock_schema.SerializeToString.return_value = b"schema_bytes"
@@ -721,13 +721,20 @@ class TestLogArrowTable:
         flight_client.log_arrow_table(
             space_id="test_space",
             request_type=FlightRequestType.EVALUATION,
-            pa_table=sample_pa_table_large,
+            reader=sample_pa_table_large.to_reader(max_chunksize=30),
             project_name="test_project",
         )
 
-        # Verify max_chunksize was used
-        call_args = mock_writer.write_table.call_args
-        assert call_args[0][1] == 1000  # max_chunksize
+        written = [
+            call.args[0]
+            for call in mock_writer.method_calls
+            if call[0] == "write_batch"
+        ]
+        assert [b.num_rows for b in written] == [30, 30, 30, 10]
+        method_names = [call[0] for call in mock_writer.method_calls]
+        assert method_names.index("done_writing") > max(
+            i for i, n in enumerate(method_names) if n == "write_batch"
+        )
 
     @patch("arize._flight.client.ArizeFlightClient.do_put")
     @patch("arize._flight.client.get_pb_schema_tracing")
@@ -763,7 +770,7 @@ class TestLogArrowTable:
         flight_client.log_arrow_table(
             space_id="test_space",
             request_type=FlightRequestType.EVALUATION,
-            pa_table=sample_pa_table,
+            reader=sample_pa_table.to_reader(),
             project_name="test_project",
         )
 
@@ -801,12 +808,12 @@ class TestCreateDataset:
         result = flight_client.create_dataset(
             space_id="test_space",
             dataset_name="test_dataset",
-            pa_table=sample_pa_table,
+            reader=sample_pa_table.to_reader(),
         )
 
         # Verify
         assert result == "dataset_12345"
-        mock_writer.write_table.assert_called_once()
+        mock_writer.write_batch.assert_called_once()
         mock_writer.done_writing.assert_called_once()
 
     @patch("arize._flight.client.ArizeFlightClient.do_put")
@@ -833,12 +840,13 @@ class TestCreateDataset:
         flight_client.create_dataset(
             space_id="test_space",
             dataset_name="test_dataset",
-            pa_table=sample_pa_table,
+            reader=sample_pa_table.to_reader(),
         )
 
         # Verify descriptor was created correctly
         call_args = mock_do_put.call_args
         descriptor = call_args[0][0]
+        assert call_args[0][1] == sample_pa_table.schema
 
         # Decode and verify the descriptor contains CreateDatasetRequest
         descriptor_json = json.loads(descriptor.command.decode("utf-8"))
@@ -865,7 +873,7 @@ class TestCreateDataset:
         result = flight_client.create_dataset(
             space_id="test_space",
             dataset_name="test_dataset",
-            pa_table=sample_pa_table,
+            reader=sample_pa_table.to_reader(),
         )
 
         # Verify
@@ -888,7 +896,7 @@ class TestCreateDataset:
             flight_client.create_dataset(
                 space_id="test_space",
                 dataset_name="test_dataset",
-                pa_table=sample_pa_table,
+                reader=sample_pa_table.to_reader(),
             )
 
     @patch("arize._flight.client.ArizeFlightClient.do_put")
@@ -896,9 +904,9 @@ class TestCreateDataset:
         self,
         mock_do_put: Mock,
         flight_client: ArizeFlightClient,
-        sample_pa_table: pa.Table,
+        sample_pa_table_large: pa.Table,
     ) -> None:
-        """Test the complete write workflow: write_table → done_writing → read."""
+        """Test the write workflow: every batch → done_writing → read."""
         # Setup mocks
         mock_writer = create_context_mock_writer()
         mock_metadata_reader = Mock()
@@ -911,57 +919,60 @@ class TestCreateDataset:
 
         mock_do_put.return_value = (mock_writer, mock_metadata_reader)
 
+        batches = sample_pa_table_large.to_batches(max_chunksize=30)
+        assert len(batches) == 4
+
         # Execute
         flight_client.create_dataset(
             space_id="test_space",
             dataset_name="test_dataset",
-            pa_table=sample_pa_table,
+            reader=pa.RecordBatchReader.from_batches(
+                sample_pa_table_large.schema, iter(batches)
+            ),
         )
 
-        # Verify workflow order
-        assert mock_writer.write_table.called
-        assert mock_writer.done_writing.called
+        # Verify every batch was written, in order, before done_writing
+        written = [
+            call.args[0]
+            for call in mock_writer.method_calls
+            if call[0] == "write_batch"
+        ]
+        assert [b.num_rows for b in written] == [30, 30, 30, 10]
         assert mock_metadata_reader.read.called
 
-        # Verify write_table was called before done_writing
-        write_call_order = mock_writer.method_calls.index(
-            ("write_table", (sample_pa_table, 1000), {})
+        method_names = [call[0] for call in mock_writer.method_calls]
+        assert method_names.index("done_writing") > max(
+            i for i, n in enumerate(method_names) if n == "write_batch"
         )
-        done_call_order = mock_writer.method_calls.index(
-            ("done_writing", (), {})
-        )
-        assert write_call_order < done_call_order
 
     @patch("arize._flight.client.ArizeFlightClient.do_put")
-    def test_create_dataset_uses_max_chunksize(
+    def test_create_dataset_batch_error_wrapped(
         self,
         mock_do_put: Mock,
         flight_client: ArizeFlightClient,
-        sample_pa_table_large: pa.Table,
+        sample_pa_table: pa.Table,
     ) -> None:
-        """Test that max_chunksize is passed to write_table."""
-        # Setup mocks
+        """Test that an error while producing batches is wrapped and stops the stream."""
         mock_writer = create_context_mock_writer()
         mock_metadata_reader = Mock()
-        mock_response = Mock()
-
-        response = flight_pb2.CreateDatasetResponse()
-        response.dataset_id = "dataset_123"
-        mock_response.to_pybytes.return_value = response.SerializeToString()
-        mock_metadata_reader.read.return_value = mock_response
-
         mock_do_put.return_value = (mock_writer, mock_metadata_reader)
 
-        # Execute
-        flight_client.create_dataset(
-            space_id="test_space",
-            dataset_name="test_dataset",
-            pa_table=sample_pa_table_large,
-        )
+        def failing_batches() -> Iterator[pa.RecordBatch]:
+            yield sample_pa_table.to_batches()[0]
+            raise ValueError("bad batch")
 
-        # Verify max_chunksize was used
-        call_args = mock_writer.write_table.call_args
-        assert call_args[0][1] == 1000
+        with pytest.raises(RuntimeError) as excinfo:
+            flight_client.create_dataset(
+                space_id="test_space",
+                dataset_name="test_dataset",
+                reader=pa.RecordBatchReader.from_batches(
+                    sample_pa_table.schema, failing_batches()
+                ),
+            )
+
+        assert isinstance(excinfo.value.__cause__, ValueError)
+        mock_writer.write_batch.assert_called_once()
+        mock_writer.done_writing.assert_not_called()
 
 
 @pytest.mark.unit

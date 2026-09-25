@@ -24,6 +24,7 @@ from arize._generated.api_client.models.create_project_request import CreateProj
 from arize._generated.api_client.models.list_projects_response import ListProjectsResponse
 from arize._generated.api_client.models.list_tags_response import ListTagsResponse
 from arize._generated.api_client.models.project import Project
+from arize._generated.api_client.models.project_type import ProjectType
 from arize._generated.api_client.models.remove_tags_request import RemoveTagsRequest
 from arize._generated.api_client.models.remove_tags_response import RemoveTagsResponse
 from arize._generated.api_client.models.update_project_request import UpdateProjectRequest
@@ -373,7 +374,7 @@ class ProjectsApi:
     ) -> Project:
         """Create a project
 
-        Create a new project given a name and space ID.  **Payload Requirements** - The project name must be unique within the given space.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Create a new project given a name and space ID.  **Payload Requirements** - The project name must be unique within the given space. - New projects start as `APPLICATION` projects.  If a space denies space-level permission to send trace data, projects created here may not accept traces until that access is granted. Harness sessions that rely on automatic project creation can lose spans in those spaces.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param create_project_request: Body containing project creation parameters (required)
         :type create_project_request: CreateProjectRequest
@@ -446,7 +447,7 @@ class ProjectsApi:
     ) -> ApiResponse[Project]:
         """Create a project
 
-        Create a new project given a name and space ID.  **Payload Requirements** - The project name must be unique within the given space.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Create a new project given a name and space ID.  **Payload Requirements** - The project name must be unique within the given space. - New projects start as `APPLICATION` projects.  If a space denies space-level permission to send trace data, projects created here may not accept traces until that access is granted. Harness sessions that rely on automatic project creation can lose spans in those spaces.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param create_project_request: Body containing project creation parameters (required)
         :type create_project_request: CreateProjectRequest
@@ -519,7 +520,7 @@ class ProjectsApi:
     ) -> RESTResponseType:
         """Create a project
 
-        Create a new project given a name and space ID.  **Payload Requirements** - The project name must be unique within the given space.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Create a new project given a name and space ID.  **Payload Requirements** - The project name must be unique within the given space. - New projects start as `APPLICATION` projects.  If a space denies space-level permission to send trace data, projects created here may not accept traces until that access is granted. Harness sessions that rely on automatic project creation can lose spans in those spaces.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param create_project_request: Body containing project creation parameters (required)
         :type create_project_request: CreateProjectRequest
@@ -1479,6 +1480,7 @@ class ProjectsApi:
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
+        project_type: Annotated[Optional[ProjectType], Field(description="Filter projects by type. When omitted, harness projects are excluded from list results. Set to `HARNESS` to include harness session projects. ")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1506,6 +1508,8 @@ class ProjectsApi:
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
+        :param project_type: Filter projects by type. When omitted, harness projects are excluded from list results. Set to `HARNESS` to include harness session projects. 
+        :type project_type: ProjectType
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1534,6 +1538,7 @@ class ProjectsApi:
             name=name,
             limit=limit,
             cursor=cursor,
+            project_type=project_type,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1567,6 +1572,7 @@ class ProjectsApi:
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
+        project_type: Annotated[Optional[ProjectType], Field(description="Filter projects by type. When omitted, harness projects are excluded from list results. Set to `HARNESS` to include harness session projects. ")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1594,6 +1600,8 @@ class ProjectsApi:
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
+        :param project_type: Filter projects by type. When omitted, harness projects are excluded from list results. Set to `HARNESS` to include harness session projects. 
+        :type project_type: ProjectType
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1622,6 +1630,7 @@ class ProjectsApi:
             name=name,
             limit=limit,
             cursor=cursor,
+            project_type=project_type,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1655,6 +1664,7 @@ class ProjectsApi:
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
+        project_type: Annotated[Optional[ProjectType], Field(description="Filter projects by type. When omitted, harness projects are excluded from list results. Set to `HARNESS` to include harness session projects. ")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1682,6 +1692,8 @@ class ProjectsApi:
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
+        :param project_type: Filter projects by type. When omitted, harness projects are excluded from list results. Set to `HARNESS` to include harness session projects. 
+        :type project_type: ProjectType
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1710,6 +1722,7 @@ class ProjectsApi:
             name=name,
             limit=limit,
             cursor=cursor,
+            project_type=project_type,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1738,6 +1751,7 @@ class ProjectsApi:
         name,
         limit,
         cursor,
+        project_type,
         _request_auth,
         _content_type,
         _headers,
@@ -1779,6 +1793,10 @@ class ProjectsApi:
         if cursor is not None:
             
             _query_params.append(('cursor', cursor))
+            
+        if project_type is not None:
+            
+            _query_params.append(('project_type', project_type.value))
             
         # process the header parameters
         # process the form parameters

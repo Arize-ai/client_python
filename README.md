@@ -597,7 +597,7 @@ resp_df = resp.to_df()
 
 ### Create a Dataset
 
-You can create a dataset using `client.datasets.create()`. You must pass examples — we currently don't support creating an empty dataset. Examples can be provided as a list of dictionaries or a pandas dataframe.
+You can create a dataset using `client.datasets.create()`. You must pass examples — we currently don't support creating an empty dataset. Examples can be provided as a list of dictionaries, a pandas dataframe, or a path to a Parquet or Arrow IPC file (or a directory of them). File paths are streamed via Arrow Flight one record batch at a time, so the dataset is never loaded into memory.
 
 ```python
 examples = [
@@ -618,13 +618,13 @@ examples = [
 ]
 ```
 
-If the number of examples is too large, the client SDK will try to send the data via Arrow Flight via gRPC for better performance. If you want to force the data transfer to HTTP you can use the `force_http` flag. The response is a `Dataset` object.
+If the number of examples is too large, the client SDK will try to send the data via Arrow Flight via gRPC for better performance. If you want to force the data transfer to HTTP you can use the `force_http` flag. File paths always use Flight, so `force_http` is not allowed with them. The response is a `Dataset` object.
 
 ```python
 created_dataset = client.datasets.create(
     space="<space-id-or-name>",
     name="<your-dataset-name>", # Name must be unique within a space
-    examples=..., # List of dictionaries or pandas dataframe
+    examples=..., # List of dictionaries, pandas dataframe, or Parquet/Arrow path(s)
     # force_http=... # Optionally pass force_http to create datasets via HTTP instead of gRPC, defaults to False
 )
 ```
@@ -810,7 +810,7 @@ experiment_json = experiment.to_json()
 
 ### Create an Experiment
 
-It is possible that you have run the experiment yourself without the above function, and hence you already have experiment data that you want to send to Arize. In this case, use the `client.experiments.create()` method by passing the runs data as a list of dictionaries or pandas dataframe.
+It is possible that you have run the experiment yourself without the above function, and hence you already have experiment data that you want to send to Arize. In this case, use the `client.experiments.create()` method by passing the runs data as a list of dictionaries, a pandas dataframe, or a path to a Parquet or Arrow IPC file (or a directory of them). File paths are streamed via Arrow Flight one record batch at a time and require `dataset`.
 
 > NOTE: If you don't have experiment data and want to run an experiment, see the `client.experiments.run()` section above.
 
@@ -831,7 +831,7 @@ created_experiment = client.experiments.create(
     name="<your-experiment-name>", # Name must be unique within the dataset
     dataset="<your-dataset-id-or-name>",
     space=..., # Optional, space ID or name, used to resolve `dataset` by name
-    experiment_runs=..., # List of dictionaries or pandas dataframe
+    experiment_runs=..., # List of dictionaries, pandas dataframe, or Parquet/Arrow path(s)
     task_fields=ExperimentTaskFieldNames(
         output="<your-output-column>",
         example_id="<your-example-id-column>",

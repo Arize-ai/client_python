@@ -17,23 +17,20 @@ import pprint
 import re  # noqa: F401
 import json
 
-from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
-from arize._generated.api_client.models.project_type import ProjectType
+from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
-class Project(BaseModel):
+class SearchExperimentRunsRequest(BaseModel):
     """
-    A project represents an LLM application and serves as the primary container for observability data. Each project collects traces and spans that capture the execution flow of your application, enabling you to debug issues, monitor latency, and analyze token usage. Projects belong to a space and provide a centralized view of your application's performance. Use projects to organize related traces, run experiments against datasets, and track improvements over time. 
+    Optional criteria for searching an experiment's runs. Omit all fields to return the first page of runs in stable `id` ascending order. Keep the filter unchanged when using a returned cursor to fetch the next page.  Filters use the same SQL-like language as span search. Supported column families include unprefixed `id`, `output`, and `example_id`; custom run columns; `eval.<name>.score`, `eval.<name>.label`, `eval.<name>.explanation`, and `eval.<name>.metadata.*`; and `annotation.<name>.*` when present in the run schema. A present empty or whitespace-only filter is invalid. 
     """ # noqa: E501
-    id: StrictStr = Field(description="The project ID")
-    name: StrictStr = Field(description="The project name")
-    space_id: StrictStr = Field(description="The space ID the project belongs to")
-    created_at: datetime = Field(description="When the project was created")
-    project_type: Optional[ProjectType] = Field(default=None, description="The project type for generative LLM projects. Null for projects that have not been assigned a type. ")
-    __properties: ClassVar[List[str]] = ["id", "name", "space_id", "created_at", "project_type"]
+    filter: Optional[StrictStr] = Field(default=None, description="SQL-like filter expression. Omit to search all runs; an empty or whitespace-only value is invalid.")
+    limit: Optional[Annotated[int, Field(le=500, strict=True, ge=1)]] = Field(default=None, description="Maximum number of runs to return. Defaults to 50 and must be between 1 and 500.")
+    cursor: Optional[StrictStr] = Field(default=None, description="Opaque cursor from `pagination.next_cursor`. Omit to start at the first page; keep the filter unchanged while paging.")
+    __properties: ClassVar[List[str]] = ["filter", "limit", "cursor"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -53,7 +50,7 @@ class Project(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of Project from a JSON string"""
+        """Create an instance of SearchExperimentRunsRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -74,29 +71,26 @@ class Project(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # set to None if project_type (nullable) is None
-        # and model_fields_set contains the field
-        if self.project_type is None and "project_type" in self.model_fields_set:
-            _dict['project_type'] = None
-
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of Project from a dict"""
+        """Create an instance of SearchExperimentRunsRequest from a dict"""
         if obj is None:
             return None
 
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
+        # raise errors for additional fields in the input
+        for _key in obj.keys():
+            if _key not in cls.__properties:
+                raise ValueError("Error due to additional fields (not defined in SearchExperimentRunsRequest) in the input: " + _key)
 
         _obj = cls.model_validate({
-            "id": obj.get("id"),
-            "name": obj.get("name"),
-            "space_id": obj.get("space_id"),
-            "created_at": obj.get("created_at"),
-            "project_type": obj.get("project_type")
+            "filter": obj.get("filter"),
+            "limit": obj.get("limit"),
+            "cursor": obj.get("cursor")
         })
         return _obj
 

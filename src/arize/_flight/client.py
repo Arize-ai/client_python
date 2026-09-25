@@ -200,18 +200,19 @@ class ArizeFlightClient:
         self,
         space_id: str,
         request_type: FlightRequestType,
-        pa_table: pa.Table,
+        reader: pa.RecordBatchReader,
         project_name: str | None = None,
         dataset_id: str | None = None,
         experiment_name: str | None = None,
     ) -> FlightPostArrowFileResponse:
-        """Upload an Arrow table via Flight DoPut.
+        """Upload Arrow record batches via Flight DoPut.
 
         Args:
             space_id: Space ID for the request.
             request_type: Type of Flight request (EVALUATION, ANNOTATION, METADATA, or
                 LOG_EXPERIMENT_DATA).
-            pa_table: PyArrow Table containing the data to upload.
+            reader: Record batches to upload, written to the stream one at a
+                time in iteration order.
             project_name: Project/model name (required for tracing request types).
             dataset_id: Dataset ID (required for experiment request types).
             experiment_name: Experiment name (required for experiment request types).
@@ -225,7 +226,7 @@ class ArizeFlightClient:
                 for the request type.
             RuntimeError: If the Flight request fails.
         """
-        pa_schema = pa_table.schema
+        pa_schema = reader.schema
         if request_type in (
             FlightRequestType.EVALUATION,
             FlightRequestType.ANNOTATION,
@@ -238,7 +239,7 @@ class ArizeFlightClient:
             proto_schema = get_pb_schema_tracing(project_name=project_name)
             base64_schema = base64.b64encode(proto_schema.SerializeToString())
             pa_schema = append_to_pyarrow_metadata(
-                pa_table.schema, {"arize-schema": base64_schema}
+                reader.schema, {"arize-schema": base64_schema}
             )
 
         doput_request = _get_pb_flight_doput_request(
@@ -257,10 +258,8 @@ class ArizeFlightClient:
                 descriptor, pa_schema, options=self.call_options
             )
             with flight_writer:
-                # write table as stream to flight server
-                flight_writer.write_table(
-                    pa_table, self.sdk_config.pyarrow_max_chunksize
-                )
+                for batch in reader:
+                    flight_writer.write_batch(batch)
                 # indicate that client has flushed all contents to stream
                 flight_writer.done_writing()
                 # read response from flight server
@@ -295,14 +294,15 @@ class ArizeFlightClient:
         self,
         space_id: str,
         dataset_name: str,
-        pa_table: pa.Table,
+        reader: pa.RecordBatchReader,
     ) -> str | None:
         """Create a new dataset via Flight DoPut.
 
         Args:
             space_id: Space ID where the dataset will be created.
             dataset_name: Name for the new dataset.
-            pa_table: PyArrow Table containing the dataset examples.
+            reader: Record batches of dataset examples, written to the
+                stream one at a time in iteration order.
 
         Returns:
             The created dataset ID as a string.
@@ -322,13 +322,11 @@ class ArizeFlightClient:
         )
         try:
             flight_writer, flight_metadata_reader = self.do_put(
-                descriptor, pa_table.schema, options=self.call_options
+                descriptor, reader.schema, options=self.call_options
             )
             with flight_writer:
-                # write table as stream to flight server
-                flight_writer.write_table(
-                    pa_table, self.sdk_config.pyarrow_max_chunksize
-                )
+                for batch in reader:
+                    flight_writer.write_batch(batch)
                 # indicate that client has flushed all contents to stream
                 flight_writer.done_writing()
                 # read response from flight server

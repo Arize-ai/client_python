@@ -13,6 +13,7 @@ Method | HTTP request | Description
 [**list_experiment_runs**](ExperimentsApi.md#list_experiment_runs) | **GET** /v2/experiments/{experiment_id}/runs | List experiment runs
 [**list_experiment_tags**](ExperimentsApi.md#list_experiment_tags) | **GET** /v2/experiments/{experiment_id}/tags | List tags on an experiment
 [**list_experiments**](ExperimentsApi.md#list_experiments) | **GET** /v2/experiments | List experiments
+[**search_experiment_runs**](ExperimentsApi.md#search_experiment_runs) | **POST** /v2/experiments/{experiment_id}/runs/search | Search experiment runs
 
 
 # **add_experiment_tags**
@@ -943,6 +944,130 @@ Name | Type | Description  | Notes
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **search_experiment_runs**
+> ListExperimentRunsResponse search_experiment_runs(experiment_id, search_experiment_runs_request)
+
+Search experiment runs
+
+Search runs for a given experiment with an optional SQL-like filter.
+
+Runs are returned in stable `id` ascending order. Pagination uses the
+cursor returned in `pagination.next_cursor`; keep the filter unchanged
+when requesting subsequent pages.
+
+The filter language supports the unprefixed run columns `id`, `output`,
+`example_id`, custom run columns, `eval.<name>.score`,
+`eval.<name>.label`, `eval.<name>.explanation`,
+`eval.<name>.metadata.*`, and `annotation.<name>.*` when those columns
+are present in the run schema.
+
+**Payload Requirements**
+- `filter` is optional. Omitting it returns all runs. A present empty or
+  whitespace-only value is invalid.
+- `limit` is optional and defaults to 50; valid values are 1 through 500.
+- `cursor` is optional; omitting it starts at the first page.
+- Unknown properties are rejected.
+
+**Valid example**
+```json
+{
+  "filter": "eval.quality.score < 0.5",
+  "limit": 50,
+  "cursor": "opaque-cursor"
+}
+```
+
+**Invalid example** (limit is outside the supported range)
+```json
+{
+  "filter": "output = 'approved'",
+  "limit": 501
+}
+```
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.list_experiment_runs_response import ListExperimentRunsResponse
+from arize._generated.api_client.models.search_experiment_runs_request import SearchExperimentRunsRequest
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.ExperimentsApi(api_client)
+    experiment_id = 'RXhwZXJpbWVudDoxMjM0NQ==' # str | The unique experiment identifier (base64)
+    search_experiment_runs_request = {"filter":"eval.quality.score < 0.5","limit":50,"cursor":"eyJjcmVhdGVkX2F0IjoiMDAwMS0wMS0wMVQwMDowMDowMFoiLCJpZCI6IjQifQ"} # SearchExperimentRunsRequest | Body containing optional search criteria for experiment runs
+
+    try:
+        # Search experiment runs
+        api_response = api_instance.search_experiment_runs(experiment_id, search_experiment_runs_request)
+        print("The response of ExperimentsApi->search_experiment_runs:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling ExperimentsApi->search_experiment_runs: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **experiment_id** | **str**| The unique experiment identifier (base64) | 
+ **search_experiment_runs_request** | [**SearchExperimentRunsRequest**](SearchExperimentRunsRequest.md)| Body containing optional search criteria for experiment runs | 
+
+### Return type
+
+[**ListExperimentRunsResponse**](ListExperimentRunsResponse.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Returns a list of experiment run objects |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

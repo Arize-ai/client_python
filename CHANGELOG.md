@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.56.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.55.0...arize-python-sdk/v8.56.0) (2026-09-25)
+
+
+### 🎁 New Features
+
+* **datasets & experiments:** accept Parquet/Arrow file paths in `create()`, streamed so large files don't need to fit in memory ([#87938](https://github.com/Arize-ai/arize/issues/87938)) ([256a4aa](https://github.com/Arize-ai/arize/commit/256a4aa084549a8a3aaf01806d227c2a673948bb))
+
 ## [8.55.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.54.0...arize-python-sdk/v8.55.0) (2026-09-22)
 
 

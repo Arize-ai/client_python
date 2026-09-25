@@ -302,6 +302,7 @@ from arize._generated.api_client.models.predefined_user_role_assignment import P
 from arize._generated.api_client.models.predefined_user_role_assignment_request import PredefinedUserRoleAssignmentRequest
 from arize._generated.api_client.models.problem import Problem
 from arize._generated.api_client.models.project import Project
+from arize._generated.api_client.models.project_type import ProjectType
 from arize._generated.api_client.models.prompt import Prompt
 from arize._generated.api_client.models.prompt_version import PromptVersion
 from arize._generated.api_client.models.prompt_version_create_request import PromptVersionCreateRequest
@@ -328,6 +329,7 @@ from arize._generated.api_client.models.role_binding_resource_type import RoleBi
 from arize._generated.api_client.models.run_configuration import RunConfiguration
 from arize._generated.api_client.models.run_configuration_request import RunConfigurationRequest
 from arize._generated.api_client.models.scheduled_runtime_config import ScheduledRuntimeConfig
+from arize._generated.api_client.models.search_experiment_runs_request import SearchExperimentRunsRequest
 from arize._generated.api_client.models.service_key_bot_user import ServiceKeyBotUser
 from arize._generated.api_client.models.service_key_bot_user_org_assignment import ServiceKeyBotUserOrgAssignment
 from arize._generated.api_client.models.service_key_bot_user_space_assignment import ServiceKeyBotUserSpaceAssignment

@@ -671,7 +671,9 @@ class SpansClient:
                 response = flight_client.log_arrow_table(
                     space_id=space_id,
                     project_name=project_name,
-                    pa_table=pa_table,
+                    reader=pa_table.to_reader(
+                        max_chunksize=self._sdk_config.pyarrow_max_chunksize
+                    ),
                     request_type=request_type,
                 )
             except Exception as e:
@@ -886,7 +888,9 @@ class SpansClient:
                 response = flight_client.log_arrow_table(
                     space_id=space_id,
                     project_name=project_name,
-                    pa_table=pa_table,
+                    reader=pa_table.to_reader(
+                        max_chunksize=self._sdk_config.pyarrow_max_chunksize
+                    ),
                     request_type=request_type,
                 )
             except Exception as e:
@@ -1224,7 +1228,9 @@ class SpansClient:
                 response = flight_client.log_arrow_table(
                     space_id=space_id,
                     project_name=project_name,
-                    pa_table=pa_table,
+                    reader=pa_table.to_reader(
+                        max_chunksize=self._sdk_config.pyarrow_max_chunksize
+                    ),
                     request_type=request_type,
                 )
             except Exception as e:

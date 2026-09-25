@@ -137,6 +137,7 @@ Class | Method | HTTP request | Description
 *ExperimentsApi* | [**list_experiment_runs**](arize/_generated/api_client/docs/ExperimentsApi.md#list_experiment_runs) | **GET** /v2/experiments/{experiment_id}/runs | List experiment runs
 *ExperimentsApi* | [**list_experiment_tags**](arize/_generated/api_client/docs/ExperimentsApi.md#list_experiment_tags) | **GET** /v2/experiments/{experiment_id}/tags | List tags on an experiment
 *ExperimentsApi* | [**list_experiments**](arize/_generated/api_client/docs/ExperimentsApi.md#list_experiments) | **GET** /v2/experiments | List experiments
+*ExperimentsApi* | [**search_experiment_runs**](arize/_generated/api_client/docs/ExperimentsApi.md#search_experiment_runs) | **POST** /v2/experiments/{experiment_id}/runs/search | Search experiment runs
 *IntegrationsApi* | [**create_integration**](arize/_generated/api_client/docs/IntegrationsApi.md#create_integration) | **POST** /v2/integrations | Create an integration
 *IntegrationsApi* | [**delete_integration**](arize/_generated/api_client/docs/IntegrationsApi.md#delete_integration) | **DELETE** /v2/integrations/{integration_id} | Delete an integration
 *IntegrationsApi* | [**get_integration**](arize/_generated/api_client/docs/IntegrationsApi.md#get_integration) | **GET** /v2/integrations/{integration_id} | Get an integration
@@ -523,6 +524,7 @@ Class | Method | HTTP request | Description
  - [PredefinedUserRoleAssignmentRequest](arize/_generated/api_client/docs/PredefinedUserRoleAssignmentRequest.md)
  - [Problem](arize/_generated/api_client/docs/Problem.md)
  - [Project](arize/_generated/api_client/docs/Project.md)
+ - [ProjectType](arize/_generated/api_client/docs/ProjectType.md)
  - [Prompt](arize/_generated/api_client/docs/Prompt.md)
  - [PromptVersion](arize/_generated/api_client/docs/PromptVersion.md)
  - [PromptVersionCreateRequest](arize/_generated/api_client/docs/PromptVersionCreateRequest.md)
@@ -549,6 +551,7 @@ Class | Method | HTTP request | Description
  - [RunConfiguration](arize/_generated/api_client/docs/RunConfiguration.md)
  - [RunConfigurationRequest](arize/_generated/api_client/docs/RunConfigurationRequest.md)
  - [ScheduledRuntimeConfig](arize/_generated/api_client/docs/ScheduledRuntimeConfig.md)
+ - [SearchExperimentRunsRequest](arize/_generated/api_client/docs/SearchExperimentRunsRequest.md)
  - [ServiceKeyBotUser](arize/_generated/api_client/docs/ServiceKeyBotUser.md)
  - [ServiceKeyBotUserOrgAssignment](arize/_generated/api_client/docs/ServiceKeyBotUserOrgAssignment.md)
  - [ServiceKeyBotUserSpaceAssignment](arize/_generated/api_client/docs/ServiceKeyBotUserSpaceAssignment.md)

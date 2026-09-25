@@ -28,6 +28,7 @@ from arize._generated.api_client.models.insert_experiment_runs_request import In
 from arize._generated.api_client.models.list_experiment_runs_response import ListExperimentRunsResponse
 from arize._generated.api_client.models.list_experiments_response import ListExperimentsResponse
 from arize._generated.api_client.models.list_tags_response import ListTagsResponse
+from arize._generated.api_client.models.search_experiment_runs_request import SearchExperimentRunsRequest
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
 from arize._generated.api_client.api_response import ApiResponse
@@ -2733,6 +2734,314 @@ class ExperimentsApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/v2/experiments',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def search_experiment_runs(
+        self,
+        experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
+        search_experiment_runs_request: Annotated[SearchExperimentRunsRequest, Field(description="Body containing optional search criteria for experiment runs")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ListExperimentRunsResponse:
+        """Search experiment runs
+
+        Search runs for a given experiment with an optional SQL-like filter.  Runs are returned in stable `id` ascending order. Pagination uses the cursor returned in `pagination.next_cursor`; keep the filter unchanged when requesting subsequent pages.  The filter language supports the unprefixed run columns `id`, `output`, `example_id`, custom run columns, `eval.<name>.score`, `eval.<name>.label`, `eval.<name>.explanation`, `eval.<name>.metadata.*`, and `annotation.<name>.*` when those columns are present in the run schema.  **Payload Requirements** - `filter` is optional. Omitting it returns all runs. A present empty or   whitespace-only value is invalid. - `limit` is optional and defaults to 50; valid values are 1 through 500. - `cursor` is optional; omitting it starts at the first page. - Unknown properties are rejected.  **Valid example** ```json {   \"filter\": \"eval.quality.score < 0.5\",   \"limit\": 50,   \"cursor\": \"opaque-cursor\" } ```  **Invalid example** (limit is outside the supported range) ```json {   \"filter\": \"output = 'approved'\",   \"limit\": 501 } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param experiment_id: The unique experiment identifier (base64) (required)
+        :type experiment_id: str
+        :param search_experiment_runs_request: Body containing optional search criteria for experiment runs (required)
+        :type search_experiment_runs_request: SearchExperimentRunsRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._search_experiment_runs_serialize(
+            experiment_id=experiment_id,
+            search_experiment_runs_request=search_experiment_runs_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListExperimentRunsResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def search_experiment_runs_with_http_info(
+        self,
+        experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
+        search_experiment_runs_request: Annotated[SearchExperimentRunsRequest, Field(description="Body containing optional search criteria for experiment runs")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[ListExperimentRunsResponse]:
+        """Search experiment runs
+
+        Search runs for a given experiment with an optional SQL-like filter.  Runs are returned in stable `id` ascending order. Pagination uses the cursor returned in `pagination.next_cursor`; keep the filter unchanged when requesting subsequent pages.  The filter language supports the unprefixed run columns `id`, `output`, `example_id`, custom run columns, `eval.<name>.score`, `eval.<name>.label`, `eval.<name>.explanation`, `eval.<name>.metadata.*`, and `annotation.<name>.*` when those columns are present in the run schema.  **Payload Requirements** - `filter` is optional. Omitting it returns all runs. A present empty or   whitespace-only value is invalid. - `limit` is optional and defaults to 50; valid values are 1 through 500. - `cursor` is optional; omitting it starts at the first page. - Unknown properties are rejected.  **Valid example** ```json {   \"filter\": \"eval.quality.score < 0.5\",   \"limit\": 50,   \"cursor\": \"opaque-cursor\" } ```  **Invalid example** (limit is outside the supported range) ```json {   \"filter\": \"output = 'approved'\",   \"limit\": 501 } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param experiment_id: The unique experiment identifier (base64) (required)
+        :type experiment_id: str
+        :param search_experiment_runs_request: Body containing optional search criteria for experiment runs (required)
+        :type search_experiment_runs_request: SearchExperimentRunsRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._search_experiment_runs_serialize(
+            experiment_id=experiment_id,
+            search_experiment_runs_request=search_experiment_runs_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListExperimentRunsResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def search_experiment_runs_without_preload_content(
+        self,
+        experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
+        search_experiment_runs_request: Annotated[SearchExperimentRunsRequest, Field(description="Body containing optional search criteria for experiment runs")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Search experiment runs
+
+        Search runs for a given experiment with an optional SQL-like filter.  Runs are returned in stable `id` ascending order. Pagination uses the cursor returned in `pagination.next_cursor`; keep the filter unchanged when requesting subsequent pages.  The filter language supports the unprefixed run columns `id`, `output`, `example_id`, custom run columns, `eval.<name>.score`, `eval.<name>.label`, `eval.<name>.explanation`, `eval.<name>.metadata.*`, and `annotation.<name>.*` when those columns are present in the run schema.  **Payload Requirements** - `filter` is optional. Omitting it returns all runs. A present empty or   whitespace-only value is invalid. - `limit` is optional and defaults to 50; valid values are 1 through 500. - `cursor` is optional; omitting it starts at the first page. - Unknown properties are rejected.  **Valid example** ```json {   \"filter\": \"eval.quality.score < 0.5\",   \"limit\": 50,   \"cursor\": \"opaque-cursor\" } ```  **Invalid example** (limit is outside the supported range) ```json {   \"filter\": \"output = 'approved'\",   \"limit\": 501 } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param experiment_id: The unique experiment identifier (base64) (required)
+        :type experiment_id: str
+        :param search_experiment_runs_request: Body containing optional search criteria for experiment runs (required)
+        :type search_experiment_runs_request: SearchExperimentRunsRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._search_experiment_runs_serialize(
+            experiment_id=experiment_id,
+            search_experiment_runs_request=search_experiment_runs_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListExperimentRunsResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _search_experiment_runs_serialize(
+        self,
+        experiment_id,
+        search_experiment_runs_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if experiment_id is not None:
+            _path_params['experiment_id'] = experiment_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if search_experiment_runs_request is not None:
+            _body_params = search_experiment_runs_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/experiments/{experiment_id}/runs/search',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

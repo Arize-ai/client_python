@@ -10,6 +10,7 @@ Name | Type | Description | Notes
 **name** | **str** | The project name | 
 **space_id** | **str** | The space ID the project belongs to | 
 **created_at** | **datetime** | When the project was created | 
+**project_type** | [**ProjectType**](ProjectType.md) | The project type for generative LLM projects. Null for projects that have not been assigned a type.  | [optional] 
 
 ## Example
 

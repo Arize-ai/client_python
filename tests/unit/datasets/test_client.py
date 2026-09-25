@@ -5,15 +5,19 @@ from __future__ import annotations
 import json
 import logging
 from datetime import datetime, timezone
+from pathlib import Path
 from unittest.mock import MagicMock, Mock, create_autospec, patch
 
 import numpy as np
 import pandas as pd
 import pyarrow as pa
+import pyarrow.parquet as pq
 import pytest
 
 from arize._generated.api_client import DatasetsApi
+from arize.datasets import errors as err
 from arize.datasets.client import DatasetsClient
+from arize.datasets.upload import flight_schema
 
 
 @pytest.fixture
@@ -497,3 +501,229 @@ class TestDatasetsClientListExamplesCaching:
             "search",
             "lookup",
         ]
+
+
+DATASET_ID = "RGF0YXNldDoxMjM6YWJj"
+
+
+@pytest.mark.unit
+class TestDatasetsClientCreate:
+    """Tests for DatasetsClient.create()."""
+
+    @pytest.fixture(autouse=True)
+    def _configure(self, mock_sdk_config: Mock) -> None:
+        mock_sdk_config.pyarrow_max_chunksize = 10
+        mock_sdk_config.max_http_payload_size_mb = 8
+
+    @pytest.fixture
+    def flight_client(self) -> MagicMock:
+        client = MagicMock()
+        client.__enter__ = Mock(return_value=client)
+        client.__exit__ = Mock(return_value=False)
+        client.written = []
+
+        def create_dataset(**kwargs: object) -> str:
+            client.written.extend(kwargs["reader"])  # type: ignore[attr-defined]
+            return DATASET_ID
+
+        client.create_dataset.side_effect = create_dataset
+        return client
+
+    @pytest.fixture
+    def parquet_file(self, tmp_path: Path) -> Path:
+        path = tmp_path / "examples.parquet"
+        pq.write_table(
+            pa.table({"id": ["a", "b", "c"], "query": ["q1", "q2", "q3"]}),
+            path,
+        )
+        return path
+
+    def _create(
+        self,
+        datasets_client: DatasetsClient,
+        flight_client: MagicMock,
+        examples: object,
+        **kwargs: object,
+    ) -> tuple[Mock, Mock, Mock]:
+        with (
+            patch(
+                "arize.datasets.client._find_space_id", return_value="space-1"
+            ) as find_space,
+            patch(
+                "arize.datasets.client.ArizeFlightClient",
+                return_value=flight_client,
+            ) as flight_cls,
+            patch.object(DatasetsClient, "get", return_value=Mock()) as get,
+        ):
+            datasets_client.create(
+                name="ds",
+                space="space",
+                examples=examples,  # type: ignore[arg-type]
+                **kwargs,  # type: ignore[arg-type]
+            )
+        return find_space, flight_cls, get
+
+    def test_small_list_uses_rest(
+        self,
+        datasets_client: DatasetsClient,
+        mock_api: Mock,
+        flight_client: MagicMock,
+    ) -> None:
+        _, flight_cls, _ = self._create(
+            datasets_client, flight_client, [{"query": "q"}]
+        )
+        mock_api.create_dataset.assert_called_once()
+        flight_cls.assert_not_called()
+
+    def test_large_dataframe_streams_table_batches(
+        self,
+        datasets_client: DatasetsClient,
+        mock_api: Mock,
+        flight_client: MagicMock,
+    ) -> None:
+        df = pd.DataFrame({"query": [f"q{i}" for i in range(25)]})
+        with patch(
+            "arize.datasets.client.get_payload_size_mb", return_value=100.0
+        ):
+            _, _, get = self._create(datasets_client, flight_client, df)
+        mock_api.create_dataset.assert_not_called()
+        kwargs = flight_client.create_dataset.call_args.kwargs
+        batches = flight_client.written
+        assert [b.num_rows for b in batches] == [10, 10, 5]
+        assert all(b.schema.equals(kwargs["reader"].schema) for b in batches)
+        get.assert_called_once_with(dataset=DATASET_ID)
+
+    def test_empty_list_raises(
+        self, datasets_client: DatasetsClient, flight_client: MagicMock
+    ) -> None:
+        with pytest.raises(ValueError, match="empty dataset"):
+            self._create(datasets_client, flight_client, [])
+
+    @pytest.mark.parametrize(
+        "make_input",
+        [
+            str,
+            Path,
+            lambda p: [p],
+            lambda p: (str(p),),
+            lambda p: p.parent,
+        ],
+        ids=["str", "path", "list", "tuple", "directory"],
+    )
+    def test_file_input_streams_via_flight(
+        self,
+        datasets_client: DatasetsClient,
+        mock_api: Mock,
+        flight_client: MagicMock,
+        parquet_file: Path,
+        make_input: object,
+    ) -> None:
+        examples = make_input(parquet_file)  # type: ignore[operator]
+        _, flight_cls, get = self._create(
+            datasets_client, flight_client, examples
+        )
+        mock_api.create_dataset.assert_not_called()
+        flight_cls.assert_called_once()
+        kwargs = flight_client.create_dataset.call_args.kwargs
+        assert kwargs["reader"].schema.equals(
+            flight_schema(pq.read_schema(parquet_file))
+        )
+        table = pa.Table.from_batches(flight_client.written)
+        assert table.column("id").to_pylist() == ["a", "b", "c"]
+        assert table.column("query").to_pylist() == ["q1", "q2", "q3"]
+        get.assert_called_once_with(dataset=DATASET_ID)
+
+    def test_arrow_file_input(
+        self,
+        datasets_client: DatasetsClient,
+        flight_client: MagicMock,
+        tmp_path: Path,
+    ) -> None:
+        path = tmp_path / "examples.arrow"
+        table = pa.table({"query": ["q1", "q2"]})
+        with (
+            pa.OSFile(str(path), "wb") as sink,
+            pa.ipc.new_file(sink, table.schema) as writer,
+        ):
+            writer.write_table(table)
+        self._create(datasets_client, flight_client, path)
+        out = pa.Table.from_batches(flight_client.written)
+        assert out.column("query").to_pylist() == ["q1", "q2"]
+        assert out.schema.names == ["query", "id", "created_at", "updated_at"]
+
+    def test_force_http_with_path_raises_before_lookup(
+        self,
+        datasets_client: DatasetsClient,
+        flight_client: MagicMock,
+        parquet_file: Path,
+    ) -> None:
+        with (
+            patch("arize.datasets.client._find_space_id") as find_space,
+            pytest.raises(ValueError, match="force_http"),
+        ):
+            datasets_client.create(
+                name="ds", space="space", examples=parquet_file, force_http=True
+            )
+        find_space.assert_not_called()
+
+    def test_mixed_list_raises_type_error(
+        self,
+        datasets_client: DatasetsClient,
+        flight_client: MagicMock,
+        parquet_file: Path,
+    ) -> None:
+        with pytest.raises(TypeError, match="only dicts or only file paths"):
+            self._create(
+                datasets_client,
+                flight_client,
+                [{"query": "q"}, str(parquet_file)],
+            )
+
+    @pytest.mark.parametrize(
+        ("table", "error"),
+        [
+            (
+                pa.table({"query": pa.array([], pa.string())}),
+                err.EmptyDatasetError,
+            ),
+            (pa.table({"raw": [b"x"]}), err.BinaryColumnError),
+            (pa.table({"id": ["a", "a"]}), err.IDColumnUniqueConstraintError),
+        ],
+        ids=["empty", "binary", "duplicate-ids"],
+    )
+    def test_pre_stream_checks_fail_before_flight(
+        self,
+        datasets_client: DatasetsClient,
+        flight_client: MagicMock,
+        tmp_path: Path,
+        table: pa.Table,
+        error: type[Exception],
+    ) -> None:
+        path = tmp_path / "bad.parquet"
+        pq.write_table(table, path)
+        with (
+            patch(
+                "arize.datasets.client._find_space_id", return_value="space-1"
+            ),
+            patch("arize.datasets.client.ArizeFlightClient") as flight_cls,
+            pytest.raises(error),
+        ):
+            datasets_client.create(name="ds", space="space", examples=path)
+        flight_cls.assert_not_called()
+
+    def test_logs_streaming_summary_without_sizing_payload(
+        self,
+        datasets_client: DatasetsClient,
+        flight_client: MagicMock,
+        parquet_file: Path,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        with (
+            patch(
+                "arize.datasets.client.get_payload_size_mb",
+                side_effect=AssertionError("must not size file input"),
+            ),
+            caplog.at_level(logging.INFO, logger="arize.datasets.client"),
+        ):
+            self._create(datasets_client, flight_client, parquet_file)
+        assert "Streaming 3 examples from 1 file(s)" in caplog.text

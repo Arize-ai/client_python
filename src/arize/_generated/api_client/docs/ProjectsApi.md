@@ -147,6 +147,12 @@ Create a new project given a name and space ID.
 
 **Payload Requirements**
 - The project name must be unique within the given space.
+- New projects start as `APPLICATION` projects.
+
+If a space denies space-level permission to send trace data, projects
+created here may not accept traces until that access is granted. Harness
+sessions that rely on automatic project creation can lose spans in those
+spaces.
 
 <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
@@ -490,7 +496,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **list_projects**
-> ListProjectsResponse list_projects(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
+> ListProjectsResponse list_projects(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor, project_type=project_type)
 
 List projects
 
@@ -506,6 +512,7 @@ List projects the user has access to.
 ```python
 import arize._generated.api_client
 from arize._generated.api_client.models.list_projects_response import ListProjectsResponse
+from arize._generated.api_client.models.project_type import ProjectType
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -534,10 +541,11 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     name = 'production' # str | Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned.  (optional)
     limit = 50 # int | Maximum items to return. Defaults to 50 if omitted; maximum is 100. (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
+    project_type = arize._generated.api_client.ProjectType() # ProjectType | Filter projects by type. When omitted, harness projects are excluded from list results. Set to `HARNESS` to include harness session projects.  (optional)
 
     try:
         # List projects
-        api_response = api_instance.list_projects(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
+        api_response = api_instance.list_projects(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor, project_type=project_type)
         print("The response of ProjectsApi->list_projects:\n")
         pprint(api_response)
     except Exception as e:
@@ -556,6 +564,7 @@ Name | Type | Description  | Notes
  **name** | **str**| Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, &#x60;name&#x3D;prod&#x60; matches \&quot;production\&quot;, \&quot;my-prod-dataset\&quot;, etc. If omitted, no name filtering is applied and all resources are returned.  | [optional] 
  **limit** | **int**| Maximum items to return. Defaults to 50 if omitted; maximum is 100. | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
+ **project_type** | [**ProjectType**](.md)| Filter projects by type. When omitted, harness projects are excluded from list results. Set to &#x60;HARNESS&#x60; to include harness session projects.  | [optional] 
 
 ### Return type
 

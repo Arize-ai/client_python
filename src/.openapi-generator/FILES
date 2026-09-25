@@ -327,6 +327,7 @@ arize/_generated/api_client/docs/PredefinedUserRoleAssignment.md
 arize/_generated/api_client/docs/PredefinedUserRoleAssignmentRequest.md
 arize/_generated/api_client/docs/Problem.md
 arize/_generated/api_client/docs/Project.md
+arize/_generated/api_client/docs/ProjectType.md
 arize/_generated/api_client/docs/ProjectsApi.md
 arize/_generated/api_client/docs/Prompt.md
 arize/_generated/api_client/docs/PromptVersion.md
@@ -358,6 +359,7 @@ arize/_generated/api_client/docs/RolesApi.md
 arize/_generated/api_client/docs/RunConfiguration.md
 arize/_generated/api_client/docs/RunConfigurationRequest.md
 arize/_generated/api_client/docs/ScheduledRuntimeConfig.md
+arize/_generated/api_client/docs/SearchExperimentRunsRequest.md
 arize/_generated/api_client/docs/ServiceKeyBotUser.md
 arize/_generated/api_client/docs/ServiceKeyBotUserOrgAssignment.md
 arize/_generated/api_client/docs/ServiceKeyBotUserSpaceAssignment.md
@@ -760,6 +762,7 @@ arize/_generated/api_client/models/predefined_user_role_assignment.py
 arize/_generated/api_client/models/predefined_user_role_assignment_request.py
 arize/_generated/api_client/models/problem.py
 arize/_generated/api_client/models/project.py
+arize/_generated/api_client/models/project_type.py
 arize/_generated/api_client/models/prompt.py
 arize/_generated/api_client/models/prompt_version.py
 arize/_generated/api_client/models/prompt_version_create_request.py
@@ -786,6 +789,7 @@ arize/_generated/api_client/models/role_binding_resource_type.py
 arize/_generated/api_client/models/run_configuration.py
 arize/_generated/api_client/models/run_configuration_request.py
 arize/_generated/api_client/models/scheduled_runtime_config.py
+arize/_generated/api_client/models/search_experiment_runs_request.py
 arize/_generated/api_client/models/service_key_bot_user.py
 arize/_generated/api_client/models/service_key_bot_user_org_assignment.py
 arize/_generated/api_client/models/service_key_bot_user_space_assignment.py
@@ -994,6 +998,7 @@ arize/_generated/api_client/test/test_pagination_metadata.py
 arize/_generated/api_client/test/test_permission.py
 arize/_generated/api_client/test/test_predefined_role_assignment.py
 arize/_generated/api_client/test/test_predefined_user_role_assignment.py
+arize/_generated/api_client/test/test_project_type.py
 arize/_generated/api_client/test/test_prompt.py
 arize/_generated/api_client/test/test_prompt_version.py
 arize/_generated/api_client/test/test_prompt_version_create_request.py
@@ -1008,6 +1013,7 @@ arize/_generated/api_client/test/test_response_format.py
 arize/_generated/api_client/test/test_role.py
 arize/_generated/api_client/test/test_role_binding.py
 arize/_generated/api_client/test/test_role_binding_resource_type.py
+arize/_generated/api_client/test/test_search_experiment_runs_request.py
 arize/_generated/api_client/test/test_service_key_bot_user.py
 arize/_generated/api_client/test/test_service_key_bot_user_org_assignment.py
 arize/_generated/api_client/test/test_service_key_bot_user_space_assignment.py

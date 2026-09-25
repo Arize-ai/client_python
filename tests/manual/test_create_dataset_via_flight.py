@@ -75,9 +75,16 @@ def main(argv: list[str] | None = None, *, run_date: date | None = None) -> int:
         default=None,
         help="upload only the first N rows (for testing chunked upload)",
     )
+    parser.add_argument(
+        "--stream",
+        action="store_true",
+        help="pass the file path to create() so the SDK streams it",
+    )
     args = parser.parse_args(argv)
-    if not args.file.is_file():
+    if not args.file.exists():
         raise FileNotFoundError(f"parquet file not found: {args.file}")
+    if args.stream and args.limit is not None:
+        parser.error("--limit cannot be combined with --stream")
 
     name = dataset_name(run_date or date.today(), args.iteration)  # noqa: DTZ011
     print(f"DEBUGPRINT: test_create_dataset_via_flight.py:68: name={name}")
@@ -92,16 +99,21 @@ def main(argv: list[str] | None = None, *, run_date: date | None = None) -> int:
     space = client.spaces.get(space=space_id)
     print(f"DEBUGPRINT: test_create_dataset_via_flight.py:77: space={space}")
 
-    data = pd.read_parquet(args.file)
-    if args.limit is not None:
-        data = data.head(args.limit)
-    data.drop(columns=["created_at", "updated_at"], inplace=True)
-    print(f"DEBUGPRINT: loaded {len(data)} rows from {args.file}")
-    result = client.datasets.create(
-        name=name,
-        space=space_id,
-        examples=data,
-    )
+    if args.stream:
+        result = client.datasets.create(
+            name=name, space=space_id, examples=args.file
+        )
+    else:
+        data = pd.read_parquet(args.file)
+        if args.limit is not None:
+            data = data.head(args.limit)
+        data.drop(columns=["created_at", "updated_at"], inplace=True)
+        print(f"DEBUGPRINT: loaded {len(data)} rows from {args.file}")
+        result = client.datasets.create(
+            name=name,
+            space=space_id,
+            examples=data,
+        )
     print(result.id)
     print(result.model_dump_json())
     return 0

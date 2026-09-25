@@ -2,14 +2,20 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from unittest.mock import MagicMock, Mock, create_autospec, patch
 
 import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
 import pytest
 
 from arize._generated.api_client import ExperimentsApi
 from arize.experiments.client import ExperimentsClient
 from arize.experiments.types import ExperimentTaskFieldNames
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 @pytest.fixture
@@ -486,3 +492,238 @@ class TestListRunsStandalone:
             space_id="space-456",
             experiment_id="RXhwZXJpbWVudDoxMjM6YWJj",
         )
+
+
+@pytest.mark.unit
+class TestCreateFromFiles:
+    """Tests for ExperimentsClient.create() with file-path runs."""
+
+    TASK = ExperimentTaskFieldNames(example_id="example_id", output="output")
+
+    @pytest.fixture(autouse=True)
+    def _configure(
+        self, mock_sdk_config: Mock, experiments_client: ExperimentsClient
+    ) -> None:
+        mock_sdk_config.pyarrow_max_chunksize = 10
+        experiments_client._datasets_api.get_dataset.return_value = Mock(
+            space_id="space-1"
+        )
+
+    @pytest.fixture
+    def flight_client(self) -> MagicMock:
+        client = MagicMock()
+        client.__enter__ = Mock(return_value=client)
+        client.__exit__ = Mock(return_value=False)
+        client.init_experiment.return_value = ("exp-1", "trace-project")
+        client.written = []
+
+        def log_arrow_table(**kwargs: object) -> Mock:
+            client.written.extend(kwargs["reader"])  # type: ignore[attr-defined]
+            return Mock(experiment_id="exp-1")
+
+        client.log_arrow_table.side_effect = log_arrow_table
+        return client
+
+    @pytest.fixture
+    def runs_file(self, tmp_path: Path) -> Path:
+        path = tmp_path / "runs.parquet"
+        pq.write_table(
+            pa.table(
+                {
+                    "example_id": ["e1", "e2", "e3"],
+                    "output": [{"answer": 1}, {"answer": 2}, {"answer": 3}],
+                }
+            ),
+            path,
+        )
+        return path
+
+    def test_file_input_inits_then_streams(
+        self,
+        experiments_client: ExperimentsClient,
+        mock_api: Mock,
+        flight_client: MagicMock,
+        runs_file: Path,
+    ) -> None:
+        with (
+            patch(
+                "arize.experiments.client._find_dataset_id",
+                return_value="dataset-1",
+            ),
+            patch(
+                "arize.experiments.client.ArizeFlightClient",
+                return_value=flight_client,
+            ),
+            patch.object(ExperimentsClient, "get", return_value=Mock()) as get,
+        ):
+            experiments_client.create(
+                name="exp",
+                dataset="ds",
+                experiment_runs=runs_file,
+                task_fields=self.TASK,
+            )
+        mock_api.create_experiment.assert_not_called()
+        flight_client.init_experiment.assert_called_once_with(
+            space_id="space-1", dataset_id="dataset-1", experiment_name="exp"
+        )
+        kwargs = flight_client.log_arrow_table.call_args.kwargs
+        assert kwargs["dataset_id"] == "dataset-1"
+        table = pa.Table.from_batches(flight_client.written)
+        assert table.schema.equals(kwargs["reader"].schema)
+        assert table.column("example_id").to_pylist() == ["e1", "e2", "e3"]
+        assert table.column("output").to_pylist() == [
+            '{"answer": 1}',
+            '{"answer": 2}',
+            '{"answer": 3}',
+        ]
+        get.assert_called_once_with(experiment="exp-1")
+
+    def test_force_http_with_path_raises_before_resolution(
+        self, experiments_client: ExperimentsClient, runs_file: Path
+    ) -> None:
+        with (
+            patch("arize.experiments.client._find_dataset_id") as find,
+            pytest.raises(ValueError, match="force_http"),
+        ):
+            experiments_client.create(
+                name="exp",
+                dataset="ds",
+                experiment_runs=runs_file,
+                task_fields=self.TASK,
+                force_http=True,
+            )
+        find.assert_not_called()
+
+    def test_get_keeps_prerelease_decorator(self) -> None:
+        assert hasattr(ExperimentsClient.get, "__wrapped__")
+
+    def test_path_without_dataset_raises(
+        self, experiments_client: ExperimentsClient, runs_file: Path
+    ) -> None:
+        with (
+            patch("arize.experiments.client._find_space_id") as find,
+            pytest.raises(ValueError, match="require `dataset`"),
+        ):
+            experiments_client.create(
+                name="exp",
+                space="sp",
+                experiment_runs=str(runs_file),
+                task_fields=ExperimentTaskFieldNames(output="output"),
+            )
+        find.assert_not_called()
+
+    @pytest.mark.parametrize(
+        ("table", "match"),
+        [
+            (
+                pa.table(
+                    {
+                        "example_id": pa.array([], pa.string()),
+                        "output": pa.array([], pa.string()),
+                    }
+                ),
+                "no rows",
+            ),
+            (pa.table({"example_id": ["e1"]}), "Missing required columns"),
+        ],
+        ids=["empty", "missing-output"],
+    )
+    def test_pre_stream_checks_fail_before_init(
+        self,
+        experiments_client: ExperimentsClient,
+        tmp_path: Path,
+        table: pa.Table,
+        match: str,
+    ) -> None:
+        path = tmp_path / "bad.parquet"
+        pq.write_table(table, path)
+        with (
+            patch(
+                "arize.experiments.client._find_dataset_id",
+                return_value="dataset-1",
+            ),
+            patch("arize.experiments.client.ArizeFlightClient") as flight_cls,
+            pytest.raises(ValueError, match=match),
+        ):
+            experiments_client.create(
+                name="exp",
+                dataset="ds",
+                experiment_runs=path,
+                task_fields=self.TASK,
+            )
+        flight_cls.assert_not_called()
+
+
+@pytest.mark.unit
+class TestRunFlightUpload:
+    """run() uploads its results as record batches over Flight."""
+
+    def test_run_streams_output_batches(
+        self,
+        experiments_client: ExperimentsClient,
+        mock_api: Mock,
+        mock_sdk_config: Mock,
+        run_experiment_df: pd.DataFrame,
+    ) -> None:
+        mock_sdk_config.enable_caching = False
+        mock_sdk_config.pyarrow_max_chunksize = 10
+        experiments_client._datasets_api.get_dataset.return_value = Mock(
+            space_id="space-1", updated_at=None
+        )
+        mock_api.get_experiment.return_value = Mock()
+        flight_client = MagicMock()
+        flight_client.__enter__ = Mock(return_value=flight_client)
+        flight_client.__exit__ = Mock(return_value=False)
+        written: list[pa.RecordBatch] = []
+
+        def log_arrow_table(**kwargs: object) -> Mock:
+            written.extend(kwargs["reader"])  # type: ignore[arg-type]
+            return Mock(experiment_id="exp-1")
+
+        flight_client.log_arrow_table.side_effect = log_arrow_table
+        output_df = pd.concat([run_experiment_df] * 25, ignore_index=True)
+
+        with (
+            patch(
+                "arize.experiments.client._find_dataset_id",
+                return_value="dataset-1",
+            ),
+            patch.object(
+                ExperimentsClient,
+                "_init_experiment_via_flight",
+                return_value=("exp-1", "trace-project"),
+            ),
+            patch.object(
+                ExperimentsClient,
+                "_get_dataset_examples_via_flight",
+                return_value=pd.DataFrame({"id": ["ex-abc"], "q": ["ping"]}),
+            ),
+            patch(
+                "arize.experiments.client._get_tracer_resource",
+                return_value=(Mock(), Mock(), Mock()),
+            ),
+            patch(
+                "arize.experiments.client.run_experiment",
+                return_value=output_df,
+            ),
+            patch(
+                "arize.experiments.client.ArizeFlightClient",
+                return_value=flight_client,
+            ),
+            patch.object(ExperimentsClient, "get", return_value=Mock()) as get,
+        ):
+            _, result_df = experiments_client.run(
+                name="exp", dataset="ds", task=lambda example: "pong"
+            )
+
+        assert result_df is output_df
+        kwargs = flight_client.log_arrow_table.call_args.kwargs
+        assert kwargs["dataset_id"] == "dataset-1"
+        assert kwargs["space_id"] == "space-1"
+        assert [b.num_rows for b in written] == [10, 10, 5]
+        assert all(b.schema.equals(kwargs["reader"].schema) for b in written)
+        assert (
+            pa.Table.from_batches(written).column("output").to_pylist()
+            == ["pong"] * 25
+        )
+        get.assert_called_once_with(experiment="exp-1")

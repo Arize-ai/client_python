@@ -1,3 +1,3 @@
 """Version information for the Arize SDK."""
 
-__version__ = "8.55.0"
+__version__ = "8.56.0"

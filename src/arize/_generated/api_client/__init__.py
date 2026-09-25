@@ -339,6 +339,7 @@ __all__ = [
     "PredefinedUserRoleAssignmentRequest",
     "Problem",
     "Project",
+    "ProjectType",
     "Prompt",
     "PromptVersion",
     "PromptVersionCreateRequest",
@@ -365,6 +366,7 @@ __all__ = [
     "RunConfiguration",
     "RunConfigurationRequest",
     "ScheduledRuntimeConfig",
+    "SearchExperimentRunsRequest",
     "ServiceKeyBotUser",
     "ServiceKeyBotUserOrgAssignment",
     "ServiceKeyBotUserSpaceAssignment",
@@ -797,6 +799,7 @@ from arize._generated.api_client.models.predefined_user_role_assignment import P
 from arize._generated.api_client.models.predefined_user_role_assignment_request import PredefinedUserRoleAssignmentRequest as PredefinedUserRoleAssignmentRequest
 from arize._generated.api_client.models.problem import Problem as Problem
 from arize._generated.api_client.models.project import Project as Project
+from arize._generated.api_client.models.project_type import ProjectType as ProjectType
 from arize._generated.api_client.models.prompt import Prompt as Prompt
 from arize._generated.api_client.models.prompt_version import PromptVersion as PromptVersion
 from arize._generated.api_client.models.prompt_version_create_request import PromptVersionCreateRequest as PromptVersionCreateRequest
@@ -823,6 +826,7 @@ from arize._generated.api_client.models.role_binding_resource_type import RoleBi
 from arize._generated.api_client.models.run_configuration import RunConfiguration as RunConfiguration
 from arize._generated.api_client.models.run_configuration_request import RunConfigurationRequest as RunConfigurationRequest
 from arize._generated.api_client.models.scheduled_runtime_config import ScheduledRuntimeConfig as ScheduledRuntimeConfig
+from arize._generated.api_client.models.search_experiment_runs_request import SearchExperimentRunsRequest as SearchExperimentRunsRequest
 from arize._generated.api_client.models.service_key_bot_user import ServiceKeyBotUser as ServiceKeyBotUser
 from arize._generated.api_client.models.service_key_bot_user_org_assignment import ServiceKeyBotUserOrgAssignment as ServiceKeyBotUserOrgAssignment
 from arize._generated.api_client.models.service_key_bot_user_space_assignment import ServiceKeyBotUserSpaceAssignment as ServiceKeyBotUserSpaceAssignment
