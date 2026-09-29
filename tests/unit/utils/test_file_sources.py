@@ -10,14 +10,12 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import pytest
 
-from arize.utils import file_sources
 from arize.utils.file_sources import (
     conform_to_schema,
     is_path_input,
     json_encode_maps,
     open_source,
     resolve_files,
-    split_oversized,
     unified_source_schema,
 )
 
@@ -259,29 +257,3 @@ class TestConformToSchema:
         schema = pa.schema([pa.field("n", pa.int64())])
         with pytest.raises(pa.ArrowInvalid, match="column 'n'"):
             conform_to_schema(batch, schema)
-
-
-@pytest.mark.unit
-class TestSplitOversized:
-    def test_splits_preserving_order(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        monkeypatch.setattr(file_sources, "FLIGHT_SERVER_MAX_MESSAGE_BYTES", 64)
-        batch = pa.record_batch({"a": list(range(8))})
-        parts = list(split_oversized(batch))
-        assert len(parts) > 1
-        assert all(p.nbytes <= 32 for p in parts)
-        assert pa.Table.from_batches(parts).column("a").to_pylist() == list(
-            range(8)
-        )
-
-    def test_single_row_over_budget_raises(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        monkeypatch.setattr(file_sources, "FLIGHT_SERVER_MAX_MESSAGE_BYTES", 2)
-        with pytest.raises(ValueError, match="single row"):
-            list(split_oversized(pa.record_batch({"a": [1]})))
-
-    def test_small_batch_passes_through(self) -> None:
-        batch = pa.record_batch({"a": [1]})
-        assert list(split_oversized(batch)) == [batch]

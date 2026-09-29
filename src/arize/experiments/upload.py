@@ -11,7 +11,6 @@ from arize.experiments.functions import transform_to_experiment_format
 from arize.utils.file_sources import (
     conform_to_schema,
     json_encode_maps,
-    split_oversized,
 )
 
 if TYPE_CHECKING:
@@ -103,4 +102,4 @@ def iter_flight_batches(
                 batch.to_pandas(), task_fields, evaluator_columns
             )
             converted = pa.RecordBatch.from_pandas(df, preserve_index=False)
-            yield from split_oversized(conform_to_schema(converted, schema))
+            yield conform_to_schema(converted, schema)

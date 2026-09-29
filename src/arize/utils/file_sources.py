@@ -11,8 +11,6 @@ from typing import TYPE_CHECKING, Protocol, TypeGuard
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-from arize.constants.pyarrow import FLIGHT_SERVER_MAX_MESSAGE_BYTES
-
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator, Sequence
 
@@ -248,19 +246,3 @@ def conform_to_schema(
                 f"to {field.type}: {e}"
             ) from e
     return pa.RecordBatch.from_arrays(arrays, schema=schema)
-
-
-def split_oversized(batch: pa.RecordBatch) -> Iterator[pa.RecordBatch]:
-    """Halve ``batch`` until each piece fits the Flight server's message limit."""
-    budget = FLIGHT_SERVER_MAX_MESSAGE_BYTES // 2
-    if batch.nbytes <= budget:
-        yield batch
-        return
-    if batch.num_rows == 1:
-        raise ValueError(
-            f"a single row is {batch.nbytes} bytes; the Flight server "
-            f"accepts at most {budget} bytes per record batch"
-        )
-    half = batch.num_rows // 2
-    yield from split_oversized(batch.slice(0, half))
-    yield from split_oversized(batch.slice(half))

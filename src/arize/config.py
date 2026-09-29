@@ -197,7 +197,9 @@ class SDKConfiguration:
         flight_scheme: Apache Arrow Flight endpoint scheme.
             Environment variable: ARIZE_FLIGHT_SCHEME.
             Default: "grpc+tls".
-        pyarrow_max_chunksize: Maximum chunk size for PyArrow operations (1 to MAX_CHUNKSIZE).
+        pyarrow_max_chunksize: Maximum rows per PyArrow record batch (1 to MAX_CHUNKSIZE).
+            Flight uploads also bound each batch by its measured Arrow size, so a batch
+            may carry fewer rows than this.
             Environment variable: ARIZE_MAX_CHUNKSIZE.
             Default: 10_000.
         request_verify: Whether to verify SSL certificates for HTTP requests.

@@ -46,6 +46,8 @@
     - [Delete a Dataset](#delete-a-dataset)
     - [List Dataset Examples](#list-dataset-examples)
     - [Append Dataset Examples](#append-dataset-examples)
+    - [Update Dataset Examples](#update-dataset-examples)
+    - [Delete Dataset Examples](#delete-dataset-examples)
   - [Operations on Experiments](#operations-on-experiments)
     - [List Experiments](#list-experiments)
     - [Run an Experiment](#run-an-experiment)
@@ -674,6 +676,16 @@ resp = client.datasets.list_examples(
 )
 ```
 
+For more complex queries, pass an optional SQL-like `filter` to narrow results by example columns and `annotation.<name>.*` fields. `filter` is not supported when `all=True`.
+
+```python
+resp = client.datasets.list_examples(
+    dataset="<your-dataset-id-or-name>",
+    filter="\"llm output\" = 'Login Issues'",
+    limit=50,
+)
+```
+
 The response is an object of type `DatasetsExamplesList200Response`, and you can access the list of examples via its `examples` attribute. In addition, you can transform the response object to a dictionary, to JSON format, or a pandas dataframe.
 
 ```python
@@ -877,14 +889,15 @@ client.experiments.delete(
 
 ### List Experiment Runs
 
-You can list the runs of a given experiment using `client.experiments.list_runs()` and passing the experiment ID or name. You can specify the number of runs desired using the `limit` parameter. If you want all runs, consider using the `all=True` parameter, which will make it so the SDK exports the data using Arrow Flight via gRPC, for increased performance.
+You can list the runs of a given experiment using `client.experiments.list_runs()` and passing the experiment ID or name. You can specify the number of runs desired using the `limit` parameter. For more complex queries, pass an SQL-like `filter` expression: it supports unprefixed `id`, `output`, `example_id`, custom run columns, `eval.<name>.score`, `eval.<name>.label`, `eval.<name>.explanation`, `eval.<name>.metadata.*`, and `annotation.<name>.*` when present. Runs are returned in stable `id` ascending order; pass the cursor from a previous response's `pagination.next_cursor` to fetch the next page, keeping the filter unchanged across pages. If you want all runs, consider using the `all=True` parameter, which will make it so the SDK exports the data using Arrow Flight via gRPC, for increased performance (`filter` is not supported with `all=True`).
 
 ```python
 resp = client.experiments.list_runs(
     experiment="<your-experiment-id-or-name>",
     dataset=..., # Optional, dataset ID or name
     space=..., # Optional, space ID or name
-    limit=... # number of desired runs. Defaults to 100
+    filter="output = '4'",  # Optional SQL-like filter expression
+    limit=..., # number of desired runs. Defaults to 50; valid range 1-500
     all=... # Whether or not to export all of the runs. Defaults to False
 )
 ```

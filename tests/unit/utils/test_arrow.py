@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TYPE_CHECKING
 from unittest.mock import MagicMock, patch
 
 import pyarrow as pa
 import pytest
 
+from arize.constants.pyarrow import DEFAULT_FLIGHT_BATCH_BUDGET_BYTES
 from arize.exceptions.auth import AuthenticationError
 from arize.exceptions.http import APIError
 from arize.utils.arrow import (
@@ -17,7 +19,11 @@ from arize.utils.arrow import (
     _mktemp_in,
     _write_arrow_file,
     post_arrow_table,
+    split_batches_by_byte_budget,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 
 @pytest.fixture
@@ -742,3 +748,216 @@ class TestFilesize:
         size = _filesize("/nonexistent/file.txt")
 
         assert size == -1
+
+
+def _skewed_table(widths: list[int]) -> pa.Table:
+    """Build a one-column table whose row `i` holds `widths[i]` bytes of text."""
+    return pa.table({"payload": ["x" * width for width in widths]})
+
+
+def _split_table(
+    table: pa.Table,
+    max_batch_bytes: int = DEFAULT_FLIGHT_BATCH_BUDGET_BYTES,
+    max_batch_rows: int | None = None,
+) -> list[pa.RecordBatch]:
+    return list(
+        split_batches_by_byte_budget(
+            table.to_batches(), max_batch_bytes, max_batch_rows
+        )
+    )
+
+
+@pytest.mark.unit
+class TestSplitBatchesByByteBudget:
+    """Test split_batches_by_byte_budget function."""
+
+    def test_empty_table_yields_nothing(self) -> None:
+        """Should yield no batches for a table with no rows."""
+        table = _skewed_table([10]).schema.empty_table()
+
+        assert _split_table(table) == []
+
+    def test_single_row_table_yields_one_batch(self) -> None:
+        """Should yield a single batch for a single-row table."""
+        table = _skewed_table([100])
+
+        batches = _split_table(table)
+
+        assert len(batches) == 1
+        assert batches[0].num_rows == 1
+
+    def test_tiny_rows_fit_in_one_batch(self) -> None:
+        """Should keep a table well under the budget as one batch."""
+        table = _skewed_table([4] * 5_000)
+
+        batches = _split_table(table)
+
+        assert len(batches) == 1
+        assert batches[0].num_rows == 5_000
+
+    def test_splits_when_running_size_crosses_budget(self) -> None:
+        """Should cut a batch once accumulated rows cross the byte budget."""
+        table = _skewed_table([1_000] * 100)
+
+        batches = _split_table(table, max_batch_bytes=10_000)
+
+        assert len(batches) > 1
+        assert all(batch.nbytes <= 10_000 for batch in batches)
+
+    def test_preserves_all_rows_in_order(self) -> None:
+        """Should reproduce the original table when batches are concatenated."""
+        table = _skewed_table([50, 900, 50, 5_000, 50, 120, 3_000])
+
+        batches = _split_table(table, max_batch_bytes=2_000)
+
+        assert pa.Table.from_batches(batches, schema=table.schema).equals(table)
+
+    def test_extreme_skew_keeps_batches_within_budget(self) -> None:
+        """Should bound batches by bytes when one row is 100x the median."""
+        widths = [1_000] * 50 + [100_000] + [1_000] * 50
+        table = _skewed_table(widths)
+
+        batches = _split_table(table, max_batch_bytes=20_000)
+
+        oversized = [batch for batch in batches if batch.nbytes > 20_000]
+        assert [batch.num_rows for batch in oversized] == [1]
+        assert sum(batch.num_rows for batch in batches) == len(widths)
+
+    def test_row_larger_than_budget_is_emitted_alone(self) -> None:
+        """Should emit a row that exceeds the budget as its own batch."""
+        table = _skewed_table([100, 50_000, 100])
+
+        batches = _split_table(table, max_batch_bytes=1_000)
+
+        assert [batch.num_rows for batch in batches] == [1, 1, 1]
+        assert batches[1].nbytes > 1_000
+
+    def test_row_over_server_limit_is_yielded(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Should yield a row over the server limit so the server rejects it."""
+        monkeypatch.setattr(
+            "arize.utils.arrow.FLIGHT_SERVER_MAX_MESSAGE_BYTES", 10_000
+        )
+        table = _skewed_table([100, 50_000])
+
+        batches = _split_table(table, max_batch_bytes=1_000)
+
+        assert [batch.num_rows for batch in batches] == [1, 1]
+        assert batches[1].nbytes > 10_000
+
+    def test_budget_above_server_limit_raises_before_reading(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Should reject a budget above the server limit before any batch is read."""
+        monkeypatch.setattr(
+            "arize.utils.arrow.FLIGHT_SERVER_MAX_MESSAGE_BYTES", 10_000
+        )
+
+        def source() -> Iterator[pa.RecordBatch]:
+            raise AssertionError("source was read")
+            yield
+
+        with pytest.raises(ValueError, match="max_batch_bytes"):
+            split_batches_by_byte_budget(source(), max_batch_bytes=1_000_000)
+
+    def test_row_ceiling_caps_batch_rows(self) -> None:
+        """Should never exceed max_batch_rows even when bytes allow more."""
+        table = _skewed_table([4] * 1_000)
+
+        batches = _split_table(table, max_batch_rows=250)
+
+        assert [batch.num_rows for batch in batches] == [250] * 4
+
+    def test_byte_budget_applies_under_row_ceiling(self) -> None:
+        """Should still cut by bytes when the row ceiling is generous."""
+        table = _skewed_table([1_000] * 100)
+
+        batches = _split_table(
+            table, max_batch_bytes=10_000, max_batch_rows=100_000
+        )
+
+        assert len(batches) > 1
+        assert all(batch.nbytes <= 10_000 for batch in batches)
+
+    def test_dictionary_column_counted_once_per_batch(self) -> None:
+        """Should size a dictionary column by the slice, not by each row."""
+        labels = pa.array(["a" * 4_000, "b" * 4_000] * 500).dictionary_encode()
+        table = pa.table({"label": labels, "payload": ["x" * 100] * 1_000})
+
+        batches = _split_table(table, max_batch_bytes=20_000)
+
+        assert all(batch.nbytes <= 20_000 for batch in batches)
+        assert sum(batch.num_rows for batch in batches) == 1_000
+        assert max(batch.num_rows for batch in batches) > 1
+
+    def test_skips_empty_chunks(self) -> None:
+        """Should drop the zero-row batches an empty column chunk produces."""
+        table = pa.table(
+            {
+                "payload": pa.chunked_array(
+                    [pa.array([], type=pa.string()), pa.array(["a", "b"])]
+                )
+            }
+        )
+
+        batches = _split_table(table)
+
+        assert [batch.num_rows for batch in batches] == [2]
+
+    def test_multi_chunk_table_is_split(self) -> None:
+        """Should handle a table whose columns already hold several chunks."""
+        table = pa.concat_tables(
+            [_skewed_table([1_000] * 20), _skewed_table([1_000] * 20)]
+        )
+
+        batches = _split_table(table, max_batch_bytes=5_000)
+
+        assert sum(batch.num_rows for batch in batches) == 40
+        assert all(batch.nbytes <= 5_000 for batch in batches)
+
+    @pytest.mark.parametrize(
+        ("max_batch_bytes", "max_batch_rows"),
+        [(0, None), (-1, None), (1_000, 0), (1_000, -5)],
+    )
+    def test_rejects_non_positive_bounds(
+        self, max_batch_bytes: int, max_batch_rows: int | None
+    ) -> None:
+        """Should reject a budget or row ceiling below one."""
+        table = _skewed_table([10])
+
+        with pytest.raises(ValueError):
+            _split_table(
+                table,
+                max_batch_bytes=max_batch_bytes,
+                max_batch_rows=max_batch_rows,
+            )
+
+    def test_is_lazy(self) -> None:
+        """Should not pull a batch from the source until the caller asks."""
+        pulled = []
+
+        def source() -> Iterator[pa.RecordBatch]:
+            for width in (100, 100):
+                pulled.append(width)
+                yield _skewed_table([width]).to_batches()[0]
+
+        out = split_batches_by_byte_budget(source())
+
+        assert pulled == []
+        next(out)
+        assert pulled == [100]
+
+    def test_splits_each_batch_by_bytes_and_rows(self) -> None:
+        """Should bound every output batch by the byte budget and row ceiling."""
+        table = _skewed_table([1_000] * 40 + [4] * 40)
+        source = table.to_batches(max_chunksize=50)
+
+        batches = list(
+            split_batches_by_byte_budget(
+                source, max_batch_bytes=10_000, max_batch_rows=20
+            )
+        )
+
+        assert all(b.nbytes <= 10_000 and b.num_rows <= 20 for b in batches)
+        assert pa.Table.from_batches(batches, schema=table.schema).equals(table)

@@ -131,6 +131,28 @@ class TestDatasetsCRUD:
         finally:
             datasets_client.delete(dataset=dataset.id)
 
+    def test_list_examples_with_filter(self, datasets_client) -> None:
+        """list_examples(filter=...) returns only matching examples."""
+        name = _unique("sdk-test-ds")
+        dataset = datasets_client.create(
+            name=name,
+            space=SPACE_NAME,
+            examples=_EXAMPLES,
+        )
+        try:
+            resp = datasets_client.list_examples(
+                dataset=dataset.id,
+                filter="input = 'What is 2+2?'",
+                limit=100,
+            )
+            assert len(resp.examples) == 1
+            assert (
+                resp.examples[0].additional_properties["input"]
+                == "What is 2+2?"
+            )
+        finally:
+            datasets_client.delete(dataset=dataset.id)
+
     def test_append_examples(self, datasets_client) -> None:
         """append_examples() adds rows to an existing dataset."""
         name = _unique("sdk-test-ds")

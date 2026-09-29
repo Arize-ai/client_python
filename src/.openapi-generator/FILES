@@ -359,6 +359,7 @@ arize/_generated/api_client/docs/RolesApi.md
 arize/_generated/api_client/docs/RunConfiguration.md
 arize/_generated/api_client/docs/RunConfigurationRequest.md
 arize/_generated/api_client/docs/ScheduledRuntimeConfig.md
+arize/_generated/api_client/docs/SearchDatasetExamplesRequest.md
 arize/_generated/api_client/docs/SearchExperimentRunsRequest.md
 arize/_generated/api_client/docs/ServiceKeyBotUser.md
 arize/_generated/api_client/docs/ServiceKeyBotUserOrgAssignment.md
@@ -789,6 +790,7 @@ arize/_generated/api_client/models/role_binding_resource_type.py
 arize/_generated/api_client/models/run_configuration.py
 arize/_generated/api_client/models/run_configuration_request.py
 arize/_generated/api_client/models/scheduled_runtime_config.py
+arize/_generated/api_client/models/search_dataset_examples_request.py
 arize/_generated/api_client/models/search_experiment_runs_request.py
 arize/_generated/api_client/models/service_key_bot_user.py
 arize/_generated/api_client/models/service_key_bot_user_org_assignment.py
@@ -1013,6 +1015,7 @@ arize/_generated/api_client/test/test_response_format.py
 arize/_generated/api_client/test/test_role.py
 arize/_generated/api_client/test/test_role_binding.py
 arize/_generated/api_client/test/test_role_binding_resource_type.py
+arize/_generated/api_client/test/test_search_dataset_examples_request.py
 arize/_generated/api_client/test/test_search_experiment_runs_request.py
 arize/_generated/api_client/test/test_service_key_bot_user.py
 arize/_generated/api_client/test/test_service_key_bot_user_org_assignment.py

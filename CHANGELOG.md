@@ -1,5 +1,18 @@
 # Changelog
 
+## [8.57.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.56.0...arize-python-sdk/v8.57.0) (2026-09-29)
+
+
+### 🎁 New Features
+
+* **datasets:** adding complex filter queries to list dataset examples ([#88160](https://github.com/Arize-ai/arize/issues/88160)) ([8d44e41](https://github.com/Arize-ai/arize/commit/8d44e41497a481d09a984d103fd4809a44d34a04))
+* **experiments:** adding complex filter queries to list experiment runs ([#87925](https://github.com/Arize-ai/arize/issues/87925)) ([49b812a](https://github.com/Arize-ai/arize/commit/49b812a1adf4a90fa167609e9215f871c3c48ba2))
+
+
+### 🐛 Bug Fixes
+
+* **upload:** fixed uploads failing when record batches with large or variably-sized rows exceeded the server's size limit ([#87804](https://github.com/Arize-ai/arize/issues/87804)) ([c9f67d9](https://github.com/Arize-ai/arize/commit/c9f67d93e7d6b0bbf053871efcab8450e5a3bc08))
+
 ## [8.56.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.55.0...arize-python-sdk/v8.56.0) (2026-09-25)
 
 

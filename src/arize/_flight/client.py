@@ -11,13 +11,19 @@ from pyarrow import flight
 
 from arize._flight.types import FlightRequestType
 from arize._generated.protocol.flight import flight_pb2
+from arize.constants.pyarrow import (
+    DEFAULT_FLIGHT_BATCH_BUDGET_BYTES,
+    FLIGHT_SERVER_MAX_MESSAGE_BYTES,
+)
+from arize.exceptions.arrow import RecordBatchTooLargeError
 from arize.logging import log_a_list
+from arize.utils.arrow import split_batches_by_byte_budget
 from arize.utils.openinference_conversion import convert_json_str_to_dict
 from arize.utils.proto import get_pb_schema_tracing
 
 if TYPE_CHECKING:
     import types
-    from collections.abc import Iterator
+    from collections.abc import Iterable, Iterator
 
     import pandas as pd
     import pyarrow as pa
@@ -253,12 +259,17 @@ class ArizeFlightClient:
         descriptor = flight.FlightDescriptor.for_command(
             json_format.MessageToJson(doput_request).encode("utf-8")
         )
+        batches = _OversizedBatchWatch(
+            split_batches_by_byte_budget(
+                reader, max_batch_rows=self.sdk_config.pyarrow_max_chunksize
+            )
+        )
         try:
             flight_writer, flight_metadata_reader = self.do_put(
                 descriptor, pa_schema, options=self.call_options
             )
             with flight_writer:
-                for batch in reader:
+                for batch in batches:
                     flight_writer.write_batch(batch)
                 # indicate that client has flushed all contents to stream
                 flight_writer.done_writing()
@@ -268,10 +279,11 @@ class ArizeFlightClient:
                     return None
 
         except Exception as e:
+            error = batches.explain(e)
             logger.exception("Error logging arrow table to Arize")
             raise RuntimeError(
-                f"Error logging arrow table to Arize: {e}"
-            ) from e
+                f"Error logging arrow table to Arize: {error}"
+            ) from error
 
         match request_type:
             case FlightRequestType.EVALUATION:
@@ -320,12 +332,17 @@ class ArizeFlightClient:
         descriptor = flight.FlightDescriptor.for_command(
             json_format.MessageToJson(doput_request).encode("utf-8")
         )
+        batches = _OversizedBatchWatch(
+            split_batches_by_byte_budget(
+                reader, max_batch_rows=self.sdk_config.pyarrow_max_chunksize
+            )
+        )
         try:
             flight_writer, flight_metadata_reader = self.do_put(
                 descriptor, reader.schema, options=self.call_options
             )
             with flight_writer:
-                for batch in reader:
+                for batch in batches:
                     flight_writer.write_batch(batch)
                 # indicate that client has flushed all contents to stream
                 flight_writer.done_writing()
@@ -338,10 +355,11 @@ class ArizeFlightClient:
                 res.ParseFromString(flight_response.to_pybytes())
                 return str(res.dataset_id) if res else None
         except Exception as e:
+            error = batches.explain(e)
             logger.exception("Error logging arrow table to Arize")
             raise RuntimeError(
-                f"Error logging arrow table to Arize: {e}"
-            ) from e
+                f"Error logging arrow table to Arize: {error}"
+            ) from error
 
     def get_dataset_examples(
         self,
@@ -481,6 +499,42 @@ class ArizeFlightClient:
             resp_pb.experiment_id,
             resp_pb.trace_model_name,
         )
+
+
+class _OversizedBatchWatch:
+    """Record batches passed through unchanged, noting the first one the server cannot accept.
+
+    The server fails a stream when one message is over its limit, and that
+    failure can reach the client on a later write or on the response read, so
+    the batch is noted as it is handed out rather than when the error arrives.
+    """
+
+    def __init__(self, batches: Iterable[pa.RecordBatch]) -> None:
+        self._batches = batches
+        self._oversized: tuple[int, int] | None = None
+
+    def __iter__(self) -> Iterator[pa.RecordBatch]:
+        for batch in self._batches:
+            if (
+                self._oversized is None
+                and batch.nbytes > FLIGHT_SERVER_MAX_MESSAGE_BYTES
+            ):
+                self._oversized = (batch.num_rows, batch.nbytes)
+            yield batch
+
+    def explain(self, error: Exception) -> Exception:
+        """Return a RecordBatchTooLargeError caused by `error` if an oversized batch was sent."""
+        if self._oversized is None:
+            return error
+        num_rows, nbytes = self._oversized
+        too_large = RecordBatchTooLargeError(
+            num_rows=num_rows,
+            nbytes=nbytes,
+            limit_bytes=FLIGHT_SERVER_MAX_MESSAGE_BYTES,
+            budget_bytes=DEFAULT_FLIGHT_BATCH_BUDGET_BYTES,
+        )
+        too_large.__cause__ = error
+        return too_large
 
 
 def append_to_pyarrow_metadata(

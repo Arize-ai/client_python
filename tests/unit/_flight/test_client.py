@@ -10,11 +10,13 @@ All tests use mocks and are marked with @pytest.mark.unit.
 from __future__ import annotations
 
 import json
+from functools import partial
 from typing import TYPE_CHECKING
 from unittest.mock import MagicMock, Mock, patch
 
 import pandas as pd
 import pyarrow as pa
+import pyarrow.parquet as pq
 import pytest
 from pyarrow import flight
 
@@ -26,12 +28,33 @@ from arize._flight.client import (
 from arize._flight.types import FlightRequestType
 from arize._generated.protocol.flight import flight_pb2
 from arize.config import SDKConfiguration
+from arize.datasets.upload import (
+    flight_schema,
+    iter_flight_batches,
+    source_type,
+)
+from arize.exceptions.arrow import RecordBatchTooLargeError
+from arize.utils.arrow import split_batches_by_byte_budget
+from arize.utils.file_sources import open_source, unified_source_schema
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Callable, Iterator
+    from pathlib import Path
 
 
 # ==================== Helper Functions ====================
+
+
+def _reject_over(
+    limit: int, error: Exception
+) -> Callable[[pa.RecordBatch], None]:
+    """Build a write_batch side effect that fails like the server on a large batch."""
+
+    def write_batch(batch: pa.RecordBatch) -> None:
+        if batch.nbytes > limit:
+            raise error
+
+    return write_batch
 
 
 def create_context_mock_writer() -> MagicMock:
@@ -779,6 +802,79 @@ class TestLogArrowTable:
         call_args = mock_append_metadata.call_args[0]
         assert call_args[0] == sample_pa_table.schema
 
+    @patch("arize._flight.client.ArizeFlightClient.do_put")
+    @patch("arize._flight.client.get_pb_schema_tracing")
+    def test_log_arrow_table_sends_oversized_row_for_server_to_reject(
+        self,
+        mock_get_schema: Mock,
+        mock_do_put: Mock,
+        flight_client: ArizeFlightClient,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Test that a row over the server limit is sent, so the server fails the stream."""
+        monkeypatch.setattr(
+            "arize._flight.client.FLIGHT_SERVER_MAX_MESSAGE_BYTES", 10_000
+        )
+        mock_schema = Mock()
+        mock_schema.SerializeToString.return_value = b"schema_bytes"
+        mock_get_schema.return_value = mock_schema
+        mock_writer = create_context_mock_writer()
+        server_error = flight.FlightServerError(
+            "grpc: received message larger than max"
+        )
+        mock_writer.write_batch.side_effect = _reject_over(10_000, server_error)
+        mock_do_put.return_value = (mock_writer, Mock())
+        table = pa.table({"payload": ["x" * 100, "x" * 50_000]})
+
+        with pytest.raises(RuntimeError) as excinfo:
+            flight_client.log_arrow_table(
+                space_id="test_space",
+                request_type=FlightRequestType.EVALUATION,
+                reader=table.to_reader(),
+                project_name="test_project",
+            )
+
+        too_large = excinfo.value.__cause__
+        assert isinstance(too_large, RecordBatchTooLargeError)
+        assert too_large.__cause__ is server_error
+        written = [c.args[0] for c in mock_writer.write_batch.call_args_list]
+        assert written[-1].nbytes > 10_000
+        mock_writer.done_writing.assert_not_called()
+
+    @patch("arize._flight.client.ArizeFlightClient.do_put")
+    @patch("arize._flight.client.get_pb_schema_tracing")
+    def test_log_arrow_table_respects_row_ceiling(
+        self,
+        mock_get_schema: Mock,
+        mock_do_put: Mock,
+        flight_client: ArizeFlightClient,
+        sample_pa_table_over_row_ceiling: pa.Table,
+    ) -> None:
+        """Test that incoming batches are re-cut to the configured row ceiling."""
+        mock_schema = Mock()
+        mock_schema.SerializeToString.return_value = b"schema_bytes"
+        mock_get_schema.return_value = mock_schema
+        mock_writer = create_context_mock_writer()
+        mock_metadata_reader = Mock()
+        mock_response = Mock()
+        mock_response.to_pybytes.return_value = (
+            flight_pb2.WriteSpanEvaluationResponse().SerializeToString()
+        )
+        mock_metadata_reader.read.return_value = mock_response
+        mock_do_put.return_value = (mock_writer, mock_metadata_reader)
+
+        flight_client.log_arrow_table(
+            space_id="test_space",
+            request_type=FlightRequestType.EVALUATION,
+            reader=sample_pa_table_over_row_ceiling.combine_chunks().to_reader(),
+            project_name="test_project",
+        )
+
+        written = [
+            call.args[0] for call in mock_writer.write_batch.call_args_list
+        ]
+        assert [batch.num_rows for batch in written] == [1000, 1000, 500]
+
 
 @pytest.mark.unit
 class TestCreateDataset:
@@ -973,6 +1069,172 @@ class TestCreateDataset:
         assert isinstance(excinfo.value.__cause__, ValueError)
         mock_writer.write_batch.assert_called_once()
         mock_writer.done_writing.assert_not_called()
+
+    @patch("arize._flight.client.ArizeFlightClient.do_put")
+    def test_create_dataset_sends_oversized_row_for_server_to_reject(
+        self,
+        mock_do_put: Mock,
+        flight_client: ArizeFlightClient,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Test that a row over the server limit is sent, so the server fails the stream."""
+        monkeypatch.setattr(
+            "arize._flight.client.FLIGHT_SERVER_MAX_MESSAGE_BYTES", 10_000
+        )
+        mock_writer = create_context_mock_writer()
+        server_error = flight.FlightServerError(
+            "grpc: received message larger than max"
+        )
+        mock_writer.write_batch.side_effect = _reject_over(10_000, server_error)
+        mock_do_put.return_value = (mock_writer, Mock())
+        table = pa.table({"payload": ["x" * 100, "x" * 50_000]})
+
+        with pytest.raises(RuntimeError) as excinfo:
+            flight_client.create_dataset(
+                space_id="test_space",
+                dataset_name="test_dataset",
+                reader=table.to_reader(),
+            )
+
+        too_large = excinfo.value.__cause__
+        assert isinstance(too_large, RecordBatchTooLargeError)
+        assert too_large.__cause__ is server_error
+        written = [c.args[0] for c in mock_writer.write_batch.call_args_list]
+        assert written[-1].nbytes > 10_000
+        mock_writer.done_writing.assert_not_called()
+
+    @patch("arize._flight.client.ArizeFlightClient.do_put")
+    def test_create_dataset_names_oversized_row_when_server_error_arrives_late(
+        self,
+        mock_do_put: Mock,
+        flight_client: ArizeFlightClient,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Test that the rejection maps to RecordBatchTooLargeError on the response read."""
+        monkeypatch.setattr(
+            "arize._flight.client.FLIGHT_SERVER_MAX_MESSAGE_BYTES", 10_000
+        )
+        mock_writer = create_context_mock_writer()
+        mock_metadata_reader = Mock()
+        server_error = flight.FlightServerError(
+            "grpc: received message larger than max"
+        )
+        mock_metadata_reader.read.side_effect = server_error
+        mock_do_put.return_value = (mock_writer, mock_metadata_reader)
+        table = pa.table({"payload": ["x" * 50_000]})
+
+        with pytest.raises(RuntimeError) as excinfo:
+            flight_client.create_dataset(
+                space_id="test_space",
+                dataset_name="test_dataset",
+                reader=table.to_reader(),
+            )
+
+        too_large = excinfo.value.__cause__
+        assert isinstance(too_large, RecordBatchTooLargeError)
+        assert too_large.__cause__ is server_error
+
+    @patch("arize._flight.client.ArizeFlightClient.do_put")
+    def test_create_dataset_leaves_other_errors_unchanged(
+        self,
+        mock_do_put: Mock,
+        flight_client: ArizeFlightClient,
+        sample_pa_table: pa.Table,
+    ) -> None:
+        """Test that a failure with every batch under the limit keeps its own cause."""
+        mock_writer = create_context_mock_writer()
+        server_error = flight.FlightUnavailableError("connection reset")
+        mock_writer.write_batch.side_effect = server_error
+        mock_do_put.return_value = (mock_writer, Mock())
+
+        with pytest.raises(RuntimeError) as excinfo:
+            flight_client.create_dataset(
+                space_id="test_space",
+                dataset_name="test_dataset",
+                reader=sample_pa_table.to_reader(),
+            )
+
+        assert excinfo.value.__cause__ is server_error
+
+    @patch("arize._flight.client.ArizeFlightClient.do_put")
+    def test_create_dataset_respects_row_ceiling(
+        self,
+        mock_do_put: Mock,
+        flight_client: ArizeFlightClient,
+        sample_pa_table_over_row_ceiling: pa.Table,
+    ) -> None:
+        """Test that incoming batches are re-cut to the configured row ceiling."""
+        mock_writer = create_context_mock_writer()
+        mock_metadata_reader = Mock()
+        mock_response = Mock()
+        mock_response.to_pybytes.return_value = (
+            flight_pb2.CreateDatasetResponse(
+                dataset_id="ds-1"
+            ).SerializeToString()
+        )
+        mock_metadata_reader.read.return_value = mock_response
+        mock_do_put.return_value = (mock_writer, mock_metadata_reader)
+
+        flight_client.create_dataset(
+            space_id="test_space",
+            dataset_name="test_dataset",
+            reader=sample_pa_table_over_row_ceiling.combine_chunks().to_reader(),
+        )
+
+        written = [
+            call.args[0] for call in mock_writer.write_batch.call_args_list
+        ]
+        assert [batch.num_rows for batch in written] == [1000, 1000, 500]
+
+    @patch("arize._flight.client.ArizeFlightClient.do_put")
+    def test_create_dataset_bounds_file_batches_by_bytes(
+        self,
+        mock_do_put: Mock,
+        flight_client: ArizeFlightClient,
+        tmp_path: Path,
+    ) -> None:
+        """Test that batches streamed from a file arrive cut to the byte budget."""
+        path = tmp_path / "wide.parquet"
+        pq.write_table(
+            pa.table(
+                {
+                    "id": [f"ex-{i}" for i in range(20)],
+                    "text": ["x" * 1_000] * 20,
+                }
+            ),
+            path,
+        )
+        sources = [open_source(path)]
+        schema = flight_schema(unified_source_schema(sources, source_type))
+        mock_writer = create_context_mock_writer()
+        mock_metadata_reader = Mock()
+        mock_response = Mock()
+        mock_response.to_pybytes.return_value = (
+            flight_pb2.CreateDatasetResponse(
+                dataset_id="ds-1"
+            ).SerializeToString()
+        )
+        mock_metadata_reader.read.return_value = mock_response
+        mock_do_put.return_value = (mock_writer, mock_metadata_reader)
+
+        with patch(
+            "arize._flight.client.split_batches_by_byte_budget",
+            partial(split_batches_by_byte_budget, max_batch_bytes=4_000),
+        ):
+            flight_client.create_dataset(
+                space_id="test_space",
+                dataset_name="test_dataset",
+                reader=pa.RecordBatchReader.from_batches(
+                    schema, iter_flight_batches(sources, schema, 20, 0)
+                ),
+            )
+
+        written = [
+            call.args[0] for call in mock_writer.write_batch.call_args_list
+        ]
+        assert len(written) > 1
+        assert all(batch.nbytes <= 4_000 for batch in written)
+        assert sum(batch.num_rows for batch in written) == 20
 
 
 @pytest.mark.unit

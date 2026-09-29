@@ -307,6 +307,59 @@ class TestPostExperimentRunsViaHttp:
         assert body.experiment_runs[0].example_id == "ex-abc"
 
 
+_EXPERIMENT_ID = "RXhwZXJpbWVudDoxMjM6YWJj"
+
+
+@pytest.mark.unit
+class TestListRuns:
+    """Tests for ExperimentsClient.list_runs()."""
+
+    def test_list_runs_with_filter_calls_search_experiment_runs(
+        self,
+        experiments_client: ExperimentsClient,
+        mock_api: Mock,
+    ) -> None:
+        """Filtered list_runs must POST search_experiment_runs with the request body."""
+        from arize._generated import api_client as gen
+
+        expected = Mock()
+        mock_api.search_experiment_runs.return_value = expected
+
+        result = experiments_client.list_runs(
+            experiment=_EXPERIMENT_ID,
+            filter="output = 'pong'",
+            limit=25,
+            cursor="cursor-abc",
+        )
+
+        mock_api.search_experiment_runs.assert_called_once_with(
+            experiment_id=_EXPERIMENT_ID,
+            search_experiment_runs_request=gen.SearchExperimentRunsRequest(
+                filter="output = 'pong'",
+                limit=25,
+                cursor="cursor-abc",
+            ),
+        )
+        assert result is expected
+
+    def test_list_runs_filter_with_all_raises_value_error(
+        self,
+        experiments_client: ExperimentsClient,
+        mock_api: Mock,
+    ) -> None:
+        """all=True with filter must fail before calling the API."""
+        with pytest.raises(
+            ValueError, match="filter is not supported with all=True"
+        ):
+            experiments_client.list_runs(
+                experiment=_EXPERIMENT_ID,
+                filter="output = 'pong'",
+                all=True,
+            )
+
+        mock_api.search_experiment_runs.assert_not_called()
+
+
 @pytest.mark.unit
 class TestListRunsCaching:
     """Tests for ExperimentsClient.list_runs() caching behaviour."""

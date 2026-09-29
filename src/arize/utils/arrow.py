@@ -10,11 +10,17 @@ from typing import TYPE_CHECKING, Any
 
 import pyarrow as pa
 
+from arize.constants.pyarrow import (
+    DEFAULT_FLIGHT_BATCH_BUDGET_BYTES,
+    FLIGHT_SERVER_MAX_MESSAGE_BYTES,
+)
 from arize.exceptions.auth import AuthenticationError
 from arize.exceptions.http import APIError
 from arize.logging import get_arize_project_url, log_a_list
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
+
     import requests
 
     from arize._generated.protocol.rec import public_pb2 as pb2
@@ -130,6 +136,95 @@ def post_arrow_table(
                 logger.warning(
                     f"Failed to remove temporary file {outfile}: {e!s}"
                 )
+
+
+def split_batches_by_byte_budget(
+    batches: Iterable[pa.RecordBatch],
+    max_batch_bytes: int = DEFAULT_FLIGHT_BATCH_BUDGET_BYTES,
+    max_batch_rows: int | None = None,
+) -> Iterator[pa.RecordBatch]:
+    """Re-cut a stream of record batches so each fits the byte and row limits.
+
+    Works one input batch at a time and never holds more than one of them, so
+    a file-backed stream stays file-backed. Within each input batch, rows
+    accumulate into an output batch until their running size would cross
+    ``max_batch_bytes``, at which point the batch is cut. Sizes come from
+    PyArrow's own accounting on zero-copy slices, so rows whose widths vary by
+    orders of magnitude still yield batches within the budget. Input batches
+    are never merged, so an output batch is never larger than its input.
+
+    Args:
+        batches: Record batches in row order.
+        max_batch_bytes: Byte budget for a single batch. Defaults to
+            DEFAULT_FLIGHT_BATCH_BUDGET_BYTES.
+        max_batch_rows: Optional ceiling on the rows in a single batch. The byte
+            budget applies on top of it. Defaults to :obj:`None` (no ceiling).
+
+    Yields:
+        pa.RecordBatch: Batches in row order, together covering every row.
+
+    A single row larger than the Flight server limit is yielded on its own for
+    the server to reject. The server commits nothing from a stream it fails,
+    but commits every batch already sent when the client closes the stream.
+
+    Raises:
+        ValueError: If max_batch_bytes or max_batch_rows is below 1, or
+            max_batch_bytes is above the Flight server limit.
+    """
+    if max_batch_bytes < 1:
+        raise ValueError(
+            f"max_batch_bytes must be at least 1, got {max_batch_bytes}"
+        )
+    if max_batch_bytes > FLIGHT_SERVER_MAX_MESSAGE_BYTES:
+        raise ValueError(
+            f"max_batch_bytes must be at most the Flight server limit of "
+            f"{FLIGHT_SERVER_MAX_MESSAGE_BYTES} bytes, got {max_batch_bytes}"
+        )
+    if max_batch_rows is not None and max_batch_rows < 1:
+        raise ValueError(
+            f"max_batch_rows must be at least 1, got {max_batch_rows}"
+        )
+    return _split_batches(batches, max_batch_bytes, max_batch_rows)
+
+
+def _split_batches(
+    batches: Iterable[pa.RecordBatch],
+    max_batch_bytes: int,
+    max_batch_rows: int | None,
+) -> Iterator[pa.RecordBatch]:
+    for source in batches:
+        step = max_batch_rows or max(source.num_rows, 1)
+        for offset in range(0, source.num_rows, step):
+            batch = source.slice(offset, step)
+            if batch.nbytes <= max_batch_bytes:
+                yield batch
+                continue
+            yield from _split_batch_by_bytes(batch, max_batch_bytes)
+
+
+def _split_batch_by_bytes(
+    batch: pa.RecordBatch, max_batch_bytes: int
+) -> Iterator[pa.RecordBatch]:
+    """Cut a record batch wherever one more row would cross the byte budget.
+
+    Each candidate slice is measured as a whole, so buffers a slice shares
+    across its rows, such as a dictionary, are counted once rather than per row.
+
+    Args:
+        batch: The record batch to split.
+        max_batch_bytes: Byte budget for a single batch.
+
+    Yields:
+        pa.RecordBatch: Slices in row order. A row larger than the budget is
+            emitted on its own.
+    """
+    start = 0
+    for index in range(1, batch.num_rows):
+        rows = index - start + 1
+        if batch.slice(start, rows).nbytes > max_batch_bytes:
+            yield batch.slice(start, rows - 1)
+            start = index
+    yield batch.slice(start, batch.num_rows - start)
 
 
 def _append_to_pyarrow_metadata(

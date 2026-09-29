@@ -255,7 +255,9 @@ class ArizeClient(LazySubclientsMixin):
             flight_scheme: Apache Arrow Flight endpoint scheme.
                 ENV: ARIZE_FLIGHT_SCHEME.
                 Default: "grpc+tls".
-            pyarrow_max_chunksize: Maximum PyArrow chunk size (1 to MAX_CHUNKSIZE).
+            pyarrow_max_chunksize: Maximum rows per PyArrow record batch
+                (1 to MAX_CHUNKSIZE). Flight uploads also bound each batch by its
+                measured Arrow size, so a batch may carry fewer rows than this.
                 ENV: ARIZE_MAX_CHUNKSIZE.
                 Default: 10_000.
             request_verify: Whether to verify SSL certificates.

@@ -167,30 +167,73 @@ class TestDatasetsClientListExamples:
         self, datasets_client: DatasetsClient, mock_api: Mock
     ) -> None:
         """list_examples() should forward cursor to the generated client."""
+        from arize._generated import api_client as gen
+
         datasets_client.list_examples(
             dataset=self.DATASET_ID,
             cursor="tok-abc",
         )
 
-        mock_api.list_dataset_examples.assert_called_once_with(
+        mock_api.search_dataset_examples.assert_called_once_with(
             dataset_id=self.DATASET_ID,
-            dataset_version_id=None,
-            limit=50,
-            cursor="tok-abc",
+            search_dataset_examples_request=gen.SearchDatasetExamplesRequest(
+                filter=None,
+                limit=50,
+                cursor="tok-abc",
+                dataset_version_id=None,
+            ),
         )
 
     def test_list_examples_defaults_cursor_to_none(
         self, datasets_client: DatasetsClient, mock_api: Mock
     ) -> None:
         """list_examples() should default cursor to None (first page)."""
+        from arize._generated import api_client as gen
+
         datasets_client.list_examples(dataset=self.DATASET_ID)
 
-        mock_api.list_dataset_examples.assert_called_once_with(
+        mock_api.search_dataset_examples.assert_called_once_with(
             dataset_id=self.DATASET_ID,
-            dataset_version_id=None,
-            limit=50,
-            cursor=None,
+            search_dataset_examples_request=gen.SearchDatasetExamplesRequest(
+                filter=None,
+                limit=50,
+                cursor=None,
+                dataset_version_id=None,
+            ),
         )
+
+    def test_list_examples_passes_filter(
+        self, datasets_client: DatasetsClient, mock_api: Mock
+    ) -> None:
+        """list_examples(filter=...) should forward filter via the search endpoint."""
+        from arize._generated import api_client as gen
+
+        datasets_client.list_examples(
+            dataset=self.DATASET_ID,
+            filter="input = 'What is 2+2?'",
+            limit=10,
+        )
+
+        mock_api.search_dataset_examples.assert_called_once_with(
+            dataset_id=self.DATASET_ID,
+            search_dataset_examples_request=gen.SearchDatasetExamplesRequest(
+                filter="input = 'What is 2+2?'",
+                limit=10,
+                cursor=None,
+                dataset_version_id=None,
+            ),
+        )
+
+    def test_list_examples_rejects_filter_with_all(
+        self, datasets_client: DatasetsClient, mock_api: Mock
+    ) -> None:
+        """list_examples(filter=..., all=True) should raise ValueError."""
+        with pytest.raises(ValueError, match="filter is not supported"):
+            datasets_client.list_examples(
+                dataset=self.DATASET_ID,
+                filter="input = 'What is 2+2?'",
+                all=True,
+            )
 
 
 @pytest.mark.unit

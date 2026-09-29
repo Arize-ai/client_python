@@ -15,6 +15,7 @@ Method | HTTP request | Description
 [**list_dataset_tags**](DatasetsApi.md#list_dataset_tags) | **GET** /v2/datasets/{dataset_id}/tags | List tags on a dataset
 [**list_datasets**](DatasetsApi.md#list_datasets) | **GET** /v2/datasets | List datasets
 [**remove_dataset_tags**](DatasetsApi.md#remove_dataset_tags) | **DELETE** /v2/datasets/{dataset_id}/tags | Detach tags from a dataset
+[**search_dataset_examples**](DatasetsApi.md#search_dataset_examples) | **POST** /v2/datasets/{dataset_id}/examples/search | Search dataset examples
 [**update_dataset**](DatasetsApi.md#update_dataset) | **PATCH** /v2/datasets/{dataset_id} | Update a dataset
 [**update_dataset_examples**](DatasetsApi.md#update_dataset_examples) | **PATCH** /v2/datasets/{dataset_id}/examples | Update existing examples in a dataset
 
@@ -1235,6 +1236,130 @@ Name | Type | Description  | Notes
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | Reports which tags were detached and which were not attached |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
+**422** | Unprocessable entity |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **search_dataset_examples**
+> ListDatasetExamplesResponse search_dataset_examples(dataset_id, search_dataset_examples_request)
+
+Search dataset examples
+
+Search examples for a given dataset with an optional SQL-like filter.
+
+Examples are returned in ascending order of `created_at`, with `id` as a
+tiebreaker. This order is stable across pages. Pagination uses the
+cursor returned in `pagination.next_cursor`; keep the filter unchanged
+when requesting subsequent pages.
+
+The filter language supports unprefixed example columns, `id`, and
+`annotation.<name>.*` when those columns are present in the example
+schema.
+
+**Payload Requirements**
+- `filter` is optional. Omitting it returns all examples. A present empty
+  or whitespace-only value is invalid.
+- `limit` is optional and defaults to 50; valid values are 1 through 500.
+- `cursor` is optional; omitting it starts at the first page.
+- `dataset_version_id` is optional; omitting it searches the latest
+  version.
+
+**Valid example**
+```json
+{
+  "filter": "topic = 'arithmetic'",
+  "limit": 50,
+  "cursor": "opaque-cursor"
+}
+```
+
+**Invalid example** (limit is outside the supported range)
+```json
+{
+  "filter": "topic = 'arithmetic'",
+  "limit": 501
+}
+```
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.list_dataset_examples_response import ListDatasetExamplesResponse
+from arize._generated.api_client.models.search_dataset_examples_request import SearchDatasetExamplesRequest
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.DatasetsApi(api_client)
+    dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | The unique dataset identifier (base64)
+    search_dataset_examples_request = {"filter":"topic = 'arithmetic'","limit":50,"cursor":"eyJjcmVhdGVkX2F0IjoiMDAwMS0wMS0wMVQwMDowMDowMFoiLCJpZCI6IjQifQ"} # SearchDatasetExamplesRequest | Body containing optional search criteria for dataset examples
+
+    try:
+        # Search dataset examples
+        api_response = api_instance.search_dataset_examples(dataset_id, search_dataset_examples_request)
+        print("The response of DatasetsApi->search_dataset_examples:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling DatasetsApi->search_dataset_examples: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **dataset_id** | **str**| The unique dataset identifier (base64) | 
+ **search_dataset_examples_request** | [**SearchDatasetExamplesRequest**](SearchDatasetExamplesRequest.md)| Body containing optional search criteria for dataset examples | 
+
+### Return type
+
+[**ListDatasetExamplesResponse**](ListDatasetExamplesResponse.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Returns a list of dataset examples as structured objects |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |

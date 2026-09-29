@@ -64,6 +64,17 @@ def sample_pa_table_large() -> pa.Table:
 
 
 @pytest.fixture
+def sample_pa_table_over_row_ceiling() -> pa.Table:
+    """Create a table with more rows than the fixtures' 1000-row ceiling."""
+    return pa.table(
+        {
+            "id": [f"id_{i}" for i in range(2500)],
+            "value": [float(i) for i in range(2500)],
+        }
+    )
+
+
+@pytest.fixture
 def sample_dataset_df() -> pd.DataFrame:
     """Create sample dataset DataFrame for Flight tests."""
     return pd.DataFrame(

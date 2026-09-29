@@ -366,6 +366,7 @@ __all__ = [
     "RunConfiguration",
     "RunConfigurationRequest",
     "ScheduledRuntimeConfig",
+    "SearchDatasetExamplesRequest",
     "SearchExperimentRunsRequest",
     "ServiceKeyBotUser",
     "ServiceKeyBotUserOrgAssignment",
@@ -826,6 +827,7 @@ from arize._generated.api_client.models.role_binding_resource_type import RoleBi
 from arize._generated.api_client.models.run_configuration import RunConfiguration as RunConfiguration
 from arize._generated.api_client.models.run_configuration_request import RunConfigurationRequest as RunConfigurationRequest
 from arize._generated.api_client.models.scheduled_runtime_config import ScheduledRuntimeConfig as ScheduledRuntimeConfig
+from arize._generated.api_client.models.search_dataset_examples_request import SearchDatasetExamplesRequest as SearchDatasetExamplesRequest
 from arize._generated.api_client.models.search_experiment_runs_request import SearchExperimentRunsRequest as SearchExperimentRunsRequest
 from arize._generated.api_client.models.service_key_bot_user import ServiceKeyBotUser as ServiceKeyBotUser
 from arize._generated.api_client.models.service_key_bot_user_org_assignment import ServiceKeyBotUserOrgAssignment as ServiceKeyBotUserOrgAssignment

@@ -15,7 +15,6 @@ from arize.datasets import errors as err
 from arize.utils.file_sources import (
     conform_to_schema,
     json_encode_maps,
-    split_oversized,
 )
 from arize.utils.openinference_conversion import (
     _should_convert_json,
@@ -185,7 +184,7 @@ def iter_flight_batches(
         for batch in source.iter_batches(batch_rows):
             if batch.num_rows == 0:
                 continue
-            yield from split_oversized(_conform(batch, schema, current_time))
+            yield _conform(batch, schema, current_time)
 
 
 def _conform(

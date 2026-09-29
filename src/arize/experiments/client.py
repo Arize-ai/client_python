@@ -490,28 +490,30 @@ class ExperimentsClient:
             experiment_id=experiment_id,
         )
 
-    @prerelease_endpoint(key="experiments.list_runs", stage=ReleaseStage.BETA)
+    @prerelease_endpoint(key="experiments.list_runs", stage=ReleaseStage.ALPHA)
     def list_runs(
         self,
         *,
         experiment: str,
         dataset: str | None = None,
         space: str | None = None,
+        filter: str | None = None,
         limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
         all: bool = False,
     ) -> ListExperimentRunsResponse:
         """List runs for an experiment.
 
-        Runs are sorted by ``id ASC`` — a stable total order that survives
-        segment compaction.
+        Runs are returned in stable ``id`` ascending order.
 
         Pagination notes:
             - Pass ``pagination.next_cursor`` from the previous response back as
               ``cursor`` to retrieve the next page.
             - The cursor is opaque — do not parse or construct it.
+            - Keep ``filter`` unchanged across pages when paging with a cursor.
             - If ``all=True``, this method retrieves all runs via the Flight path
               and returns them in a single response with ``has_more=False``.
+              ``filter`` is not supported with ``all=True``.
 
         Args:
             experiment: Experiment name or ID to list runs for.
@@ -520,22 +522,33 @@ class ExperimentsClient:
             space: Optional space name or ID. Used to resolve ``dataset`` by
                 name, or — when ``dataset`` is not provided — to resolve a
                 experiment not associated with a dataset's ``experiment`` name directly.
-            limit: Maximum number of runs to return when ``all=False``. The server
-                enforces an upper bound (500).
+            filter: Optional SQL-like filter expression, the same language as
+                span search. Supports unprefixed ``id``, ``output``,
+                ``example_id``, custom run columns, ``eval.<name>.score``,
+                ``eval.<name>.label``, ``eval.<name>.explanation``,
+                ``eval.<name>.metadata.*``, and ``annotation.<name>.*`` when
+                present. A present empty or whitespace-only filter is rejected
+                by the server (400). A malformed or unparseable filter is
+                rejected (422). Omit to return all runs. Not supported when
+                ``all=True``.
+            limit: Maximum number of runs to return when ``all=False``. Defaults
+                to 50; valid range is 1-500.
             cursor: Opaque pagination cursor from a previous response's
                 `pagination.next_cursor`. When ``None``, results start from the
                 first page.
-            all: If True, fetch all runs (ignores ``limit``) via Flight and return a
-                single response.
+            all: If True, fetch all runs via Flight and return a single
+                response. Raises ``ValueError`` if ``filter`` is provided and
+                ignores ``limit``.
 
         Returns:
             A response object containing ``experiment_runs`` and ``pagination`` metadata.
 
         Raises:
+            ValueError: If ``all=True`` and ``filter`` is provided.
             RuntimeError: If the Flight request fails or returns no response when
                 ``all=True``.
             ApiException: If the REST API
-                returns an error response when ``all=False`` (e.g. 401/403/404/429).
+                returns an error response when ``all=False`` (e.g. 400/401/403/404/422/429).
         """
         experiment_id = _find_experiment_id(
             api=self._api,
@@ -546,11 +559,19 @@ class ExperimentsClient:
             space=space,
         )
         if all:
+            if filter is not None:
+                raise ValueError("filter is not supported with all=True")
             return self._list_all_experiment_runs(experiment_id=experiment_id)
-        return self._api.list_experiment_runs(
-            experiment_id=experiment_id,
+        from arize._generated import api_client as gen
+
+        body = gen.SearchExperimentRunsRequest(
+            filter=filter,
             limit=limit,
             cursor=cursor,
+        )
+        return self._api.search_experiment_runs(
+            experiment_id=experiment_id,
+            search_experiment_runs_request=body,
         )
 
     def _list_all_experiment_runs(

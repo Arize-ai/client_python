@@ -377,6 +377,7 @@ class DatasetsClient:
         dataset: str,
         space: str | None = None,
         dataset_version_id: str | None = None,
+        filter: str | None = None,
         limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
         all: bool = False,
@@ -384,7 +385,9 @@ class DatasetsClient:
         """List examples for a dataset (optionally for a specific version).
 
         If `dataset_version_id` is not provided (empty string), the server selects
-        the latest dataset version.
+        the latest dataset version. When `all=False`, this always goes through the
+        REST search endpoint, since the filter DSL can't be carried by the plain
+        list endpoint.
 
         Pagination notes:
             - The response includes `pagination` with `has_more` and `next_cursor`.
@@ -398,23 +401,40 @@ class DatasetsClient:
             space: Space ID or name. Required when *dataset* is a name.
             dataset_version_id: Dataset version ID. If empty, the latest version is
                 selected.
+            filter: Optional filter expression to narrow results. Not supported
+                when `all=True`. An empty or whitespace-only value is omitted
+                and no filter is applied. Supports equality, comparison, and
+                SQL-style ``AND``/``OR`` operators. Examples::
+
+                    "input = 'What is 2+2?'"
+                    "annotation.Correctness.label = 'Correct'"
+                    "input = 'What is 2+2?' AND annotation.Correctness.label = 'Correct'"
             limit: Maximum number of examples to return when `all=False`. The server
                 enforces an upper bound.
             cursor: Opaque pagination cursor from a previous response's
                 ``pagination.next_cursor``. When omitted, results start from the
                 first page.
-            all: If True, fetch all examples (ignores `limit` and `cursor`) via
-                Flight and return a single response.
+            all: If True, fetch all examples (ignores `filter`, `limit`, and
+                `cursor`) via Flight and return a single response.
+
+            Keep `filter` unchanged when paging with `cursor`.
 
         Returns:
             A response object containing `examples` and `pagination` metadata.
 
         Raises:
+            ValueError: If `filter` is provided together with `all=True`.
             RuntimeError: If the Flight request fails or returns no response when
                 `all=True`.
-            ApiException: If the REST API
-                returns an error response when `all=False` (e.g. 401/403/404/429).
+            ApiException: If the REST API returns an error response when
+                `all=False`, e.g. 400 for an invalid filter (401/403/404/422/429 also
+                possible).
         """
+        if filter is not None and not filter.strip():
+            filter = None
+        if filter and all:
+            raise ValueError("filter is not supported when all=True")
+
         dataset_id = _find_dataset_id(
             api=self._api,
             spaces_api=self._spaces_api,
@@ -422,11 +442,17 @@ class DatasetsClient:
             space=space,
         )
         if not all:
-            return self._api.list_dataset_examples(
-                dataset_id=dataset_id,
-                dataset_version_id=dataset_version_id,
+            from arize._generated import api_client as gen
+
+            body = gen.SearchDatasetExamplesRequest(
+                filter=filter,
                 limit=limit,
                 cursor=cursor,
+                dataset_version_id=dataset_version_id,
+            )
+            return self._api.search_dataset_examples(
+                dataset_id=dataset_id,
+                search_dataset_examples_request=body,
             )
 
         dataset_obj = self.get(dataset=dataset_id)

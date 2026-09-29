@@ -113,6 +113,7 @@ Class | Method | HTTP request | Description
 *DatasetsApi* | [**list_dataset_tags**](arize/_generated/api_client/docs/DatasetsApi.md#list_dataset_tags) | **GET** /v2/datasets/{dataset_id}/tags | List tags on a dataset
 *DatasetsApi* | [**list_datasets**](arize/_generated/api_client/docs/DatasetsApi.md#list_datasets) | **GET** /v2/datasets | List datasets
 *DatasetsApi* | [**remove_dataset_tags**](arize/_generated/api_client/docs/DatasetsApi.md#remove_dataset_tags) | **DELETE** /v2/datasets/{dataset_id}/tags | Detach tags from a dataset
+*DatasetsApi* | [**search_dataset_examples**](arize/_generated/api_client/docs/DatasetsApi.md#search_dataset_examples) | **POST** /v2/datasets/{dataset_id}/examples/search | Search dataset examples
 *DatasetsApi* | [**update_dataset**](arize/_generated/api_client/docs/DatasetsApi.md#update_dataset) | **PATCH** /v2/datasets/{dataset_id} | Update a dataset
 *DatasetsApi* | [**update_dataset_examples**](arize/_generated/api_client/docs/DatasetsApi.md#update_dataset_examples) | **PATCH** /v2/datasets/{dataset_id}/examples | Update existing examples in a dataset
 *EvaluatorsApi* | [**add_evaluator_tags**](arize/_generated/api_client/docs/EvaluatorsApi.md#add_evaluator_tags) | **POST** /v2/evaluators/{evaluator_id}/tags | Attach tags to a evaluator
@@ -551,6 +552,7 @@ Class | Method | HTTP request | Description
  - [RunConfiguration](arize/_generated/api_client/docs/RunConfiguration.md)
  - [RunConfigurationRequest](arize/_generated/api_client/docs/RunConfigurationRequest.md)
  - [ScheduledRuntimeConfig](arize/_generated/api_client/docs/ScheduledRuntimeConfig.md)
+ - [SearchDatasetExamplesRequest](arize/_generated/api_client/docs/SearchDatasetExamplesRequest.md)
  - [SearchExperimentRunsRequest](arize/_generated/api_client/docs/SearchExperimentRunsRequest.md)
  - [ServiceKeyBotUser](arize/_generated/api_client/docs/ServiceKeyBotUser.md)
  - [ServiceKeyBotUserOrgAssignment](arize/_generated/api_client/docs/ServiceKeyBotUserOrgAssignment.md)
