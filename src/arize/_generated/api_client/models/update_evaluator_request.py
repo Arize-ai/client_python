@@ -19,6 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -26,7 +27,7 @@ class UpdateEvaluatorRequest(BaseModel):
     """
     Body containing evaluator update parameters
     """ # noqa: E501
-    name: Optional[StrictStr] = Field(default=None, description="New evaluator name")
+    name: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]] = Field(default=None, description="New evaluator name")
     description: Optional[StrictStr] = Field(default=None, description="New description")
     __properties: ClassVar[List[str]] = ["name", "description"]
 

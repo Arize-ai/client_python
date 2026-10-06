@@ -259,6 +259,11 @@ models.ListUsersResponse.to_df = make_to_df("users")  # type: ignore[attr-define
 models.ListResourceRestrictionsResponse.to_df = make_to_df(  # type: ignore[attr-defined]
     "resource_restrictions"
 )
+models.ListWebhooksResponse.to_df = make_to_df("webhooks")  # type: ignore[attr-defined]
+models.ListWebhookDeliveryAttemptsResponse.to_df = make_to_df(  # type: ignore[attr-defined]
+    "delivery_attempts"
+)
+models.ListWebhookSubscriptionsResponse.to_df = make_to_df("subscriptions")  # type: ignore[attr-defined]
 
 # Monkey-patch domain list-response types so .to_df() works on the
 # SDK-typed objects returned by sub-clients (e.g. client.users.list()).

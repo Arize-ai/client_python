@@ -3,13 +3,16 @@
 from __future__ import annotations
 
 import logging
+import math
 import time
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 import pandas as pd
 import pyarrow as pa
 
+from arize._exporter.validation import validate_input_type
 from arize._flight.client import ArizeFlightClient
 from arize._generated.api_client import models
 from arize.constants.config import DEFAULT_LIST_LIMIT
@@ -54,6 +57,24 @@ if TYPE_CHECKING:
     )
 
 logger = logging.getLogger(__name__)
+
+
+def _sanitize_nan_and_inf(obj: Any) -> Any:  # noqa: ANN401
+    """Recursively replace NaN/Infinity floats with None.
+
+    `json.dumps` (used by the generated REST client) emits bare `NaN`/
+    `Infinity`/`-Infinity` tokens for these values by default, which are not
+    valid JSON and are rejected by the server with a decode error. Values
+    that come from a DataFrame with missing cells (`float('nan')`) hit this
+    most often.
+    """
+    if isinstance(obj, float):
+        return None if math.isnan(obj) or math.isinf(obj) else obj
+    if isinstance(obj, dict):
+        return {k: _sanitize_nan_and_inf(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_sanitize_nan_and_inf(v) for v in obj]
+    return obj
 
 
 def _normalize_example_value(value: object) -> object:
@@ -249,6 +270,7 @@ class DatasetsClient:
                 if isinstance(examples, pd.DataFrame)
                 else examples
             )
+            data = _sanitize_nan_and_inf(data)
 
             body = gen.CreateDatasetRequest(
                 name=name,
@@ -515,6 +537,62 @@ class DatasetsClient:
             ),
         )
 
+    def export_to_parquet(
+        self,
+        *,
+        dataset: str,
+        space: str | None = None,
+        dataset_version_id: str | None = None,
+        path: str,
+    ) -> None:
+        """Export all examples of a dataset to a Parquet file.
+
+        Examples are streamed from Arize and written batch by batch, so datasets
+        larger than available memory can be exported. The file holds the same
+        rows and columns as ``list_examples(all=True)``, except that JSON-valued
+        columns are stored as JSON strings (``json.loads`` gives the dict).
+
+        Args:
+            dataset: Dataset ID or name.
+            space: Space ID or name. Required when *dataset* is a name.
+            dataset_version_id: Dataset version ID. If empty, the latest version is
+                selected.
+            path: The file path where the Parquet file will be written. An existing
+                file at this path is overwritten once the export completes. The
+                file is written to ``<path>.partial`` and renamed when complete.
+
+        Raises:
+            TypeError: If `path` is not a string.
+            ValueError: If `path` is a directory or its parent directory
+                does not exist.
+            RuntimeError: If the Flight request or the file write fails.
+                Nothing is written to `path`, and an existing file there is
+                left unchanged.
+        """
+        validate_input_type(path, "path", str)
+        if Path(path).is_dir():
+            raise ValueError(f"Path {path!r} is a directory")
+        if not Path(path).parent.is_dir():
+            raise ValueError(
+                f"Parent directory of path {path!r} does not exist"
+            )
+
+        dataset_id = _find_dataset_id(
+            api=self._api,
+            spaces_api=self._spaces_api,
+            dataset=dataset,
+            space=space,
+        )
+        space_id = self.get(dataset=dataset_id).space_id
+
+        with ArizeFlightClient(sdk_config=self._sdk_config) as flight_client:
+            flight_client.export_dataset_examples_to_parquet(
+                space_id=space_id,
+                dataset_id=dataset_id,
+                dataset_version_id=dataset_version_id,
+                path=path,
+            )
+
     # TODO(Kiko): Needs flightserver support
     @prerelease_endpoint(
         key="datasets.append_examples", stage=ReleaseStage.BETA
@@ -576,6 +654,7 @@ class DatasetsClient:
             if isinstance(examples, pd.DataFrame)
             else examples
         )
+        data = _sanitize_nan_and_inf(data)
         # Cast: pandas to_dict returns dict[Hashable, Any] but API requires dict[str, Any]
         body = gen.InsertDatasetExamplesRequest(
             examples=cast("list[dict[str, Any]]", data)
@@ -645,7 +724,11 @@ class DatasetsClient:
             examples=[
                 obj
                 for example in examples
-                if (obj := gen.UpdateDatasetExampleInput.from_dict(example))
+                if (
+                    obj := gen.UpdateDatasetExampleInput.from_dict(
+                        _sanitize_nan_and_inf(example)
+                    )
+                )
                 is not None
             ],
             new_version=new_version or None,

@@ -36,6 +36,7 @@ from arize.datasets.upload import (
 from arize.exceptions.arrow import RecordBatchTooLargeError
 from arize.utils.arrow import split_batches_by_byte_budget
 from arize.utils.file_sources import open_source, unified_source_schema
+from arize.utils.openinference_conversion import convert_json_str_to_dict
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
@@ -1549,6 +1550,400 @@ class TestGetExperimentRuns:
         mock_do_get.assert_called_once()
         mock_reader.read_all.assert_called_once()
         mock_table.to_pandas.assert_called_once()
+
+
+def _mock_stream_reader(
+    schema: pa.Schema, batches: list[pa.RecordBatch]
+) -> Mock:
+    reader = Mock()
+    reader.schema = schema
+    chunks = [Mock(data=batch) for batch in batches]
+    reader.read_chunk.side_effect = [*chunks, StopIteration()]
+    reader.read_all.return_value = pa.Table.from_batches(batches, schema)
+    return reader
+
+
+def _do_get_ticket(mock_do_get: Mock) -> dict:
+    return json.loads(mock_do_get.call_args[0][0].ticket.decode("utf-8"))
+
+
+_EXPORT_SCHEMA = pa.schema(
+    [
+        ("id", pa.string()),
+        ("input", pa.string()),
+        ("output", pa.string()),
+        ("eval.correctness.metadata", pa.string()),
+    ]
+)
+
+
+def _export_batches() -> list[pa.RecordBatch]:
+    return [
+        pa.RecordBatch.from_pydict(
+            {
+                "id": ["a", "b"],
+                "input": ["q1", "q2"],
+                "output": ['{"answer": 1}', '{"answer": 2}'],
+                "eval.correctness.metadata": ['{"k": "v1"}', '{"k": "v2"}'],
+            },
+            schema=_EXPORT_SCHEMA,
+        ),
+        pa.RecordBatch.from_pydict(
+            {
+                "id": ["c"],
+                "input": ["q3"],
+                "output": ['{"answer": 3}'],
+                "eval.correctness.metadata": ['{"k": "v3"}'],
+            },
+            schema=_EXPORT_SCHEMA,
+        ),
+    ]
+
+
+@pytest.mark.unit
+class TestExportDatasetExamplesToParquet:
+    """Test export_dataset_examples_to_parquet streaming workflows."""
+
+    @patch("arize._flight.client.ArizeFlightClient.do_get")
+    def test_writes_batches_in_order(
+        self,
+        mock_do_get: Mock,
+        flight_client: ArizeFlightClient,
+        tmp_path: Path,
+    ) -> None:
+        batches = _export_batches()
+        mock_do_get.return_value = _mock_stream_reader(_EXPORT_SCHEMA, batches)
+        path = tmp_path / "examples.parquet"
+
+        result = flight_client.export_dataset_examples_to_parquet(
+            space_id="test_space",
+            dataset_id="dataset_123",
+            dataset_version_id=None,
+            path=str(path),
+        )
+
+        assert result is None
+        written = pq.read_table(path)
+        assert written.equals(pa.Table.from_batches(batches, _EXPORT_SCHEMA))
+        assert pq.ParquetFile(path).metadata.num_row_groups == 1
+        mock_do_get.return_value.read_all.assert_not_called()
+        assert list(tmp_path.iterdir()) == [path]
+
+    @patch("arize._flight.client.ArizeFlightClient.do_get")
+    def test_row_groups_bounded_by_byte_budget(
+        self,
+        mock_do_get: Mock,
+        flight_client: ArizeFlightClient,
+        tmp_path: Path,
+    ) -> None:
+        batches = [*_export_batches(), *_export_batches()]
+        mock_do_get.return_value = _mock_stream_reader(_EXPORT_SCHEMA, batches)
+        path = tmp_path / "examples.parquet"
+        budget = batches[0].nbytes + batches[1].nbytes
+
+        with patch(
+            "arize._flight.client.EXPORT_ROW_GROUP_BUDGET_BYTES", budget
+        ):
+            flight_client.export_dataset_examples_to_parquet(
+                space_id="test_space",
+                dataset_id="dataset_123",
+                dataset_version_id=None,
+                path=str(path),
+            )
+
+        metadata = pq.ParquetFile(path).metadata
+        assert [
+            metadata.row_group(i).num_rows
+            for i in range(metadata.num_row_groups)
+        ] == [3, 3]
+        written = pq.read_table(path)
+        assert written.equals(pa.Table.from_batches(batches, _EXPORT_SCHEMA))
+
+    @patch("arize._flight.client.ArizeFlightClient.do_get")
+    def test_ticket_matches_get_dataset_examples(
+        self,
+        mock_do_get: Mock,
+        flight_client: ArizeFlightClient,
+        tmp_path: Path,
+    ) -> None:
+        mock_do_get.return_value = _mock_stream_reader(
+            _EXPORT_SCHEMA, _export_batches()
+        )
+        flight_client.get_dataset_examples(
+            space_id="test_space",
+            dataset_id="dataset_123",
+            dataset_version_id="v1",
+        )
+        get_ticket = _do_get_ticket(mock_do_get)
+
+        mock_do_get.return_value = _mock_stream_reader(
+            _EXPORT_SCHEMA, _export_batches()
+        )
+        flight_client.export_dataset_examples_to_parquet(
+            space_id="test_space",
+            dataset_id="dataset_123",
+            dataset_version_id="v1",
+            path=str(tmp_path / "examples.parquet"),
+        )
+
+        assert _do_get_ticket(mock_do_get) == get_ticket
+        assert get_ticket["getDataset"]["datasetVersion"] == "v1"
+
+    @patch("arize._flight.client.ArizeFlightClient.do_get")
+    def test_empty_stream_writes_schema_only_file(
+        self,
+        mock_do_get: Mock,
+        flight_client: ArizeFlightClient,
+        tmp_path: Path,
+    ) -> None:
+        mock_do_get.return_value = _mock_stream_reader(_EXPORT_SCHEMA, [])
+        path = tmp_path / "examples.parquet"
+
+        flight_client.export_dataset_examples_to_parquet(
+            space_id="test_space",
+            dataset_id="dataset_123",
+            dataset_version_id=None,
+            path=str(path),
+        )
+
+        written = pq.read_table(path)
+        assert written.num_rows == 0
+        assert written.schema.equals(_EXPORT_SCHEMA)
+
+    @patch("arize._flight.client.ArizeFlightClient.do_get")
+    def test_mid_stream_error_is_wrapped(
+        self,
+        mock_do_get: Mock,
+        flight_client: ArizeFlightClient,
+        tmp_path: Path,
+    ) -> None:
+        reader = Mock()
+        reader.schema = _EXPORT_SCHEMA
+        reader.read_chunk.side_effect = [
+            Mock(data=_export_batches()[0]),
+            flight.FlightInternalError("stream broke"),
+        ]
+        mock_do_get.return_value = reader
+
+        with pytest.raises(
+            RuntimeError, match="Failed to export dataset id=dataset_123"
+        ) as exc_info:
+            flight_client.export_dataset_examples_to_parquet(
+                space_id="test_space",
+                dataset_id="dataset_123",
+                dataset_version_id=None,
+                path=str(tmp_path / "examples.parquet"),
+            )
+        assert isinstance(exc_info.value.__cause__, flight.FlightInternalError)
+        assert list(tmp_path.iterdir()) == []
+
+    @patch("arize._flight.client.ArizeFlightClient.do_get")
+    def test_do_get_error_is_wrapped(
+        self,
+        mock_do_get: Mock,
+        flight_client: ArizeFlightClient,
+        tmp_path: Path,
+    ) -> None:
+        mock_do_get.side_effect = Exception("Flight connection failed")
+        path = tmp_path / "examples.parquet"
+
+        with pytest.raises(
+            RuntimeError,
+            match="Failed to export dataset id=dataset_123: Flight connection failed",
+        ):
+            flight_client.export_dataset_examples_to_parquet(
+                space_id="test_space",
+                dataset_id="dataset_123",
+                dataset_version_id=None,
+                path=str(path),
+            )
+        assert not path.exists()
+
+    @patch("arize._flight.client.ArizeFlightClient.do_get")
+    def test_parity_with_get_dataset_examples(
+        self,
+        mock_do_get: Mock,
+        flight_client: ArizeFlightClient,
+        tmp_path: Path,
+    ) -> None:
+        mock_do_get.return_value = _mock_stream_reader(
+            _EXPORT_SCHEMA, _export_batches()
+        )
+        expected = flight_client.get_dataset_examples(
+            space_id="test_space", dataset_id="dataset_123"
+        )
+
+        mock_do_get.return_value = _mock_stream_reader(
+            _EXPORT_SCHEMA, _export_batches()
+        )
+        path = tmp_path / "examples.parquet"
+        flight_client.export_dataset_examples_to_parquet(
+            space_id="test_space",
+            dataset_id="dataset_123",
+            dataset_version_id=None,
+            path=str(path),
+        )
+
+        exported = pq.read_table(path).to_pandas()
+        assert exported["output"].iloc[0] == '{"answer": 1}'
+        pd.testing.assert_frame_equal(
+            convert_json_str_to_dict(exported), expected
+        )
+        assert expected["output"].iloc[0] == {"answer": 1}
+
+
+@pytest.mark.unit
+class TestExportExperimentRunsToParquet:
+    """Test export_experiment_runs_to_parquet streaming workflows."""
+
+    @patch("arize._flight.client.ArizeFlightClient.do_get")
+    def test_writes_batches_in_order(
+        self,
+        mock_do_get: Mock,
+        flight_client: ArizeFlightClient,
+        tmp_path: Path,
+    ) -> None:
+        batches = _export_batches()
+        mock_do_get.return_value = _mock_stream_reader(_EXPORT_SCHEMA, batches)
+        path = tmp_path / "runs.parquet"
+
+        result = flight_client.export_experiment_runs_to_parquet(
+            space_id="test_space",
+            experiment_id="exp_123",
+            path=str(path),
+        )
+
+        assert result is None
+        written = pq.read_table(path)
+        assert written.equals(pa.Table.from_batches(batches, _EXPORT_SCHEMA))
+        mock_do_get.return_value.read_all.assert_not_called()
+
+    @patch("arize._flight.client.ArizeFlightClient.do_get")
+    def test_ticket_matches_get_experiment_runs(
+        self,
+        mock_do_get: Mock,
+        flight_client: ArizeFlightClient,
+        tmp_path: Path,
+    ) -> None:
+        mock_do_get.return_value = _mock_stream_reader(
+            _EXPORT_SCHEMA, _export_batches()
+        )
+        flight_client.get_experiment_runs(
+            space_id="test_space", experiment_id="exp_123"
+        )
+        get_ticket = _do_get_ticket(mock_do_get)
+
+        mock_do_get.return_value = _mock_stream_reader(
+            _EXPORT_SCHEMA, _export_batches()
+        )
+        flight_client.export_experiment_runs_to_parquet(
+            space_id="test_space",
+            experiment_id="exp_123",
+            path=str(tmp_path / "runs.parquet"),
+        )
+
+        assert _do_get_ticket(mock_do_get) == get_ticket
+        assert get_ticket["getExperiment"]["experimentId"] == "exp_123"
+
+    @patch("arize._flight.client.ArizeFlightClient.do_get")
+    def test_empty_stream_writes_schema_only_file(
+        self,
+        mock_do_get: Mock,
+        flight_client: ArizeFlightClient,
+        tmp_path: Path,
+    ) -> None:
+        mock_do_get.return_value = _mock_stream_reader(_EXPORT_SCHEMA, [])
+        path = tmp_path / "runs.parquet"
+
+        flight_client.export_experiment_runs_to_parquet(
+            space_id="test_space",
+            experiment_id="exp_123",
+            path=str(path),
+        )
+
+        written = pq.read_table(path)
+        assert written.num_rows == 0
+        assert written.schema.equals(_EXPORT_SCHEMA)
+
+    @patch("arize._flight.client.ArizeFlightClient.do_get")
+    def test_mid_stream_error_is_wrapped(
+        self,
+        mock_do_get: Mock,
+        flight_client: ArizeFlightClient,
+        tmp_path: Path,
+    ) -> None:
+        reader = Mock()
+        reader.schema = _EXPORT_SCHEMA
+        reader.read_chunk.side_effect = [
+            Mock(data=_export_batches()[0]),
+            flight.FlightInternalError("stream broke"),
+        ]
+        mock_do_get.return_value = reader
+        path = tmp_path / "runs.parquet"
+        path.write_bytes(b"previous export")
+
+        with pytest.raises(
+            RuntimeError, match="Failed to export experiment id=exp_123"
+        ):
+            flight_client.export_experiment_runs_to_parquet(
+                space_id="test_space",
+                experiment_id="exp_123",
+                path=str(path),
+            )
+
+        assert list(tmp_path.iterdir()) == [path]
+        assert path.read_bytes() == b"previous export"
+
+    @patch("arize._flight.client.ArizeFlightClient.do_get")
+    def test_do_get_error_is_wrapped(
+        self,
+        mock_do_get: Mock,
+        flight_client: ArizeFlightClient,
+        tmp_path: Path,
+    ) -> None:
+        mock_do_get.side_effect = Exception("Flight connection failed")
+
+        with pytest.raises(
+            RuntimeError,
+            match="Failed to export experiment id=exp_123: Flight connection failed",
+        ):
+            flight_client.export_experiment_runs_to_parquet(
+                space_id="test_space",
+                experiment_id="exp_123",
+                path=str(tmp_path / "runs.parquet"),
+            )
+
+    @patch("arize._flight.client.ArizeFlightClient.do_get")
+    def test_parity_with_get_experiment_runs(
+        self,
+        mock_do_get: Mock,
+        flight_client: ArizeFlightClient,
+        tmp_path: Path,
+    ) -> None:
+        mock_do_get.return_value = _mock_stream_reader(
+            _EXPORT_SCHEMA, _export_batches()
+        )
+        expected = flight_client.get_experiment_runs(
+            space_id="test_space", experiment_id="exp_123"
+        )
+
+        mock_do_get.return_value = _mock_stream_reader(
+            _EXPORT_SCHEMA, _export_batches()
+        )
+        path = tmp_path / "runs.parquet"
+        flight_client.export_experiment_runs_to_parquet(
+            space_id="test_space",
+            experiment_id="exp_123",
+            path=str(path),
+        )
+
+        exported = convert_json_str_to_dict(
+            pq.read_table(path).to_pandas(),
+            excluded_columns=("result", "output"),
+        )
+        pd.testing.assert_frame_equal(exported, expected)
+        assert all(isinstance(v, str) for v in exported["output"])
+        assert exported["eval.correctness.metadata"].iloc[0] == {"k": "v1"}
 
 
 @pytest.mark.unit

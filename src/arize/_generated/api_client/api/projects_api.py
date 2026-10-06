@@ -1480,7 +1480,7 @@ class ProjectsApi:
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
-        project_type: Annotated[Optional[ProjectType], Field(description="Filter projects by type. When omitted, harness projects are excluded from list results. Set to `HARNESS` to include harness session projects. ")] = None,
+        project_type: Annotated[Optional[ProjectType], Field(description="Filter projects by type. When omitted, projects of every type are returned. Set to `HARNESS` to return only harness session projects. ")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1508,7 +1508,7 @@ class ProjectsApi:
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
-        :param project_type: Filter projects by type. When omitted, harness projects are excluded from list results. Set to `HARNESS` to include harness session projects. 
+        :param project_type: Filter projects by type. When omitted, projects of every type are returned. Set to `HARNESS` to return only harness session projects. 
         :type project_type: ProjectType
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1572,7 +1572,7 @@ class ProjectsApi:
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
-        project_type: Annotated[Optional[ProjectType], Field(description="Filter projects by type. When omitted, harness projects are excluded from list results. Set to `HARNESS` to include harness session projects. ")] = None,
+        project_type: Annotated[Optional[ProjectType], Field(description="Filter projects by type. When omitted, projects of every type are returned. Set to `HARNESS` to return only harness session projects. ")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1600,7 +1600,7 @@ class ProjectsApi:
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
-        :param project_type: Filter projects by type. When omitted, harness projects are excluded from list results. Set to `HARNESS` to include harness session projects. 
+        :param project_type: Filter projects by type. When omitted, projects of every type are returned. Set to `HARNESS` to return only harness session projects. 
         :type project_type: ProjectType
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1664,7 +1664,7 @@ class ProjectsApi:
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
-        project_type: Annotated[Optional[ProjectType], Field(description="Filter projects by type. When omitted, harness projects are excluded from list results. Set to `HARNESS` to include harness session projects. ")] = None,
+        project_type: Annotated[Optional[ProjectType], Field(description="Filter projects by type. When omitted, projects of every type are returned. Set to `HARNESS` to return only harness session projects. ")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1692,7 +1692,7 @@ class ProjectsApi:
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
-        :param project_type: Filter projects by type. When omitted, harness projects are excluded from list results. Set to `HARNESS` to include harness session projects. 
+        :param project_type: Filter projects by type. When omitted, projects of every type are returned. Set to `HARNESS` to return only harness session projects. 
         :type project_type: ProjectType
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request

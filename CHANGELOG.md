@@ -1,5 +1,18 @@
 # Changelog
 
+## [8.57.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.57.0...arize-python-sdk/v8.57.1) (2026-10-05)
+
+
+### 🐛 Bug Fixes
+
+* reject NaN/Infinity JSON at the source and give a clear server error ([#86288](https://github.com/Arize-ai/arize/issues/86288)) ([95d36f8](https://github.com/Arize-ai/arize/commit/95d36f85286efe876fbad0f15a33078850a803de))
+* **webhooks:** add to_df to webhook list responses ([#88975](https://github.com/Arize-ai/arize/issues/88975)) ([3f9be8b](https://github.com/Arize-ai/arize/commit/3f9be8be687e66400db7a42f3d7023456989f7b9))
+
+
+### ❔ Miscellaneous Chores
+
+* require README updates for new public Python SDK surface ([#89405](https://github.com/Arize-ai/arize/issues/89405)) ([1c040fe](https://github.com/Arize-ai/arize/commit/1c040febbdb6491d0c876607641b3f1bd3214413))
+
 ## [8.57.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.56.0...arize-python-sdk/v8.57.0) (2026-09-29)
 
 
@@ -645,10 +658,7 @@ These renames flow from the OpenAPI spec into the generated v2 REST client. **Pu
 
 ### 🎁 New Features
 
-<<<<<<< HEAD
-=======
 * **annotations:** add annotate_examples and annotate_runs methods ([#69280](https://github.com/Arize-ai/arize/issues/69280)) ([5909e21](https://github.com/Arize-ai/arize/commit/5909e218032252bf5b3a057a64ccc111d005e57d))
->>>>>>> fee7274871cfb616fc38a91b9ff7dc00363c53dd
 * **prompts:** prompts v2 API audit improvements ([#68525](https://github.com/Arize-ai/arize/issues/68525)) ([4583acc](https://github.com/Arize-ai/arize/commit/4583acc426e4e5d2491dc97117e13cb4d0050b36))
 * **tasks:** add update() and delete() to Python SDK TasksClient ([#69115](https://github.com/Arize-ai/arize/issues/69115)) ([eec7a38](https://github.com/Arize-ai/arize/commit/eec7a38e011eed0a85cf2cd6c68908da3adc8570))
 

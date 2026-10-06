@@ -28,7 +28,7 @@ class CreateRemoteEvaluatorVersionRequest(BaseModel):
     """
     CreateRemoteEvaluatorVersionRequest
     """ # noqa: E501
-    commit_message: Annotated[str, Field(strict=True, max_length=1000)] = Field(description="Commit message describing the changes")
+    commit_message: Annotated[str, Field(min_length=1, strict=True, max_length=1000)] = Field(description="Commit message describing the changes")
     remote_config: RemoteConfigInput
     __properties: ClassVar[List[str]] = ["commit_message", "remote_config"]
 

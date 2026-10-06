@@ -6,3 +6,6 @@ MAX_CHUNKSIZE = 100_000
 FLIGHT_SERVER_MAX_MESSAGE_BYTES = 512 * 1024 * 1024
 # Leaves room under the server limit for Arrow IPC framing and proto overhead.
 DEFAULT_FLIGHT_BATCH_BUDGET_BYTES = 256 * 1024 * 1024
+# Server batches can be a few hundred rows; writing each as its own Parquet row
+# group bloats the footer metadata the writer holds in memory until close.
+EXPORT_ROW_GROUP_BUDGET_BYTES = 128 * 1024 * 1024

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from enum import Enum
 
 import pytest
@@ -86,3 +87,76 @@ class TestWebhooksTypes:
     )
     def test_type_is_class(self, cls: type) -> None:
         assert isinstance(cls, type)
+
+
+@pytest.mark.unit
+class TestListResponsesToDf:
+    def test_list_responses_have_to_df(self) -> None:
+        for model in (
+            ListWebhooksResponse,
+            ListWebhookDeliveryAttemptsResponse,
+            ListWebhookSubscriptionsResponse,
+        ):
+            assert callable(getattr(model, "to_df", None)), model.__name__
+
+    def test_list_webhooks_to_df_one_row_per_webhook(self) -> None:
+        response = ListWebhooksResponse(
+            webhooks=[
+                _webhook("wh_1", "Alpha"),
+                _webhook("wh_2", "Beta"),
+            ],
+            pagination=PaginationMetadata(has_more=True, next_cursor="n"),
+        )
+        df = response.to_df()
+        assert list(df["name"]) == ["Alpha", "Beta"]
+        assert "pagination" not in df.columns
+
+    def test_list_delivery_attempts_to_df_one_row_per_attempt(self) -> None:
+        response = ListWebhookDeliveryAttemptsResponse(
+            delivery_attempts=[
+                WebhookDeliveryAttempt(
+                    event_id="evt_1",
+                    attempt_number=1,
+                    payload={},
+                    status_code=200,
+                    created_at=_NOW,
+                )
+            ],
+            pagination=PaginationMetadata(has_more=False),
+        )
+        df = response.to_df()
+        assert list(df["event_id"]) == ["evt_1"]
+
+    def test_list_subscriptions_to_df_one_row_per_subscription(self) -> None:
+        response = ListWebhookSubscriptionsResponse(
+            subscriptions=[
+                WebhookSubscription(
+                    id="sub_1",
+                    webhook_id="wh_1",
+                    source_type=WebhookSourceType.PROMPT,
+                    source_id="pr_1",
+                    event=WebhookEventType.PROMPT_VERSION_CREATED,
+                    created_at=_NOW,
+                )
+            ],
+            pagination=PaginationMetadata(has_more=False),
+        )
+        df = response.to_df()
+        assert list(df["id"]) == ["sub_1"]
+
+
+_NOW = datetime(2024, 6, 1, tzinfo=timezone.utc)
+
+
+def _webhook(id: str, name: str) -> Webhook:
+    return Webhook(
+        id=id,
+        organization_id="org_1",
+        name=name,
+        description="",
+        url="https://example.com/hook",
+        auth_type=WebhookAuthType.BEARER,
+        timeout_ms=30000,
+        created_at=_NOW,
+        updated_at=_NOW,
+    )

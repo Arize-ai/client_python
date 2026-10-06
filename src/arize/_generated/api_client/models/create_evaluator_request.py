@@ -19,6 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
 from arize._generated.api_client.models.create_evaluator_version_request import CreateEvaluatorVersionRequest
 from arize._generated.api_client.models.evaluator_type import EvaluatorType
 from typing import Optional, Set
@@ -29,7 +30,7 @@ class CreateEvaluatorRequest(BaseModel):
     Body containing evaluator creation parameters with an initial version. 
     """ # noqa: E501
     space_id: StrictStr = Field(description="Space identifier (base64)")
-    name: StrictStr = Field(description="Evaluator name (must be unique within the space)")
+    name: Annotated[str, Field(min_length=1, strict=True, max_length=255)] = Field(description="Evaluator name (must be unique within the space)")
     description: Optional[StrictStr] = Field(default=None, description="Evaluator description")
     type: EvaluatorType
     version: CreateEvaluatorVersionRequest

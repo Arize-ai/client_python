@@ -548,6 +548,175 @@ class TestListRunsStandalone:
 
 
 @pytest.mark.unit
+class TestExportToParquet:
+    """Tests for ExperimentsClient.export_to_parquet()."""
+
+    EXPERIMENT_ID = "RXhwZXJpbWVudDoxMjM6YWJj"
+
+    @pytest.fixture
+    def flight_client(self) -> MagicMock:
+        instance = MagicMock()
+        instance.__enter__ = Mock(return_value=instance)
+        instance.__exit__ = Mock(return_value=False)
+        return instance
+
+    @pytest.fixture
+    def experiment_obj(self) -> Mock:
+        obj = Mock()
+        obj.space_id = "space-123"
+        return obj
+
+    def test_resolves_by_name_and_streams_to_path(
+        self,
+        experiments_client: ExperimentsClient,
+        flight_client: MagicMock,
+        experiment_obj: Mock,
+        tmp_path: Path,
+    ) -> None:
+        path = str(tmp_path / "runs.parquet")
+        with (
+            patch(
+                "arize.experiments.client._find_experiment_id",
+                return_value=self.EXPERIMENT_ID,
+            ) as mock_find,
+            patch.object(
+                experiments_client, "get", return_value=experiment_obj
+            ) as mock_get,
+            patch(
+                "arize.experiments.client.ArizeFlightClient",
+                return_value=flight_client,
+            ),
+        ):
+            result = experiments_client.export_to_parquet(
+                experiment="gpt-5-baseline",
+                dataset="my-dataset",
+                space="my-space",
+                path=path,
+            )
+
+        assert result is None
+        assert mock_find.call_args.kwargs["experiment"] == "gpt-5-baseline"
+        assert mock_find.call_args.kwargs["dataset"] == "my-dataset"
+        assert mock_find.call_args.kwargs["space"] == "my-space"
+        mock_get.assert_called_once_with(experiment=self.EXPERIMENT_ID)
+        flight_client.export_experiment_runs_to_parquet.assert_called_once_with(
+            space_id="space-123",
+            experiment_id=self.EXPERIMENT_ID,
+            path=path,
+        )
+
+    def test_resolves_by_id(
+        self,
+        experiments_client: ExperimentsClient,
+        flight_client: MagicMock,
+        experiment_obj: Mock,
+        tmp_path: Path,
+    ) -> None:
+        path = str(tmp_path / "runs.parquet")
+        with (
+            patch.object(
+                experiments_client, "get", return_value=experiment_obj
+            ),
+            patch(
+                "arize.experiments.client.ArizeFlightClient",
+                return_value=flight_client,
+            ),
+        ):
+            experiments_client.export_to_parquet(
+                experiment=self.EXPERIMENT_ID, path=path
+            )
+
+        flight_client.export_experiment_runs_to_parquet.assert_called_once_with(
+            space_id="space-123",
+            experiment_id=self.EXPERIMENT_ID,
+            path=path,
+        )
+
+    @pytest.mark.parametrize(
+        ("path", "error"),
+        [
+            ("/nonexistent-dir-for-test/runs.parquet", ValueError),
+            (".", ValueError),
+            (123, TypeError),
+        ],
+    )
+    def test_invalid_path_raises_before_flight(
+        self,
+        experiments_client: ExperimentsClient,
+        path: object,
+        error: type[Exception],
+    ) -> None:
+        with (
+            patch("arize.experiments.client._find_experiment_id") as mock_find,
+            patch("arize.experiments.client.ArizeFlightClient") as flight_cls,
+            pytest.raises(error),
+        ):
+            experiments_client.export_to_parquet(
+                experiment=self.EXPERIMENT_ID,
+                path=path,  # type: ignore[arg-type]
+            )
+
+        mock_find.assert_not_called()
+        flight_cls.assert_not_called()
+
+    def test_flight_error_propagates(
+        self,
+        experiments_client: ExperimentsClient,
+        flight_client: MagicMock,
+        experiment_obj: Mock,
+        tmp_path: Path,
+    ) -> None:
+        flight_client.export_experiment_runs_to_parquet.side_effect = (
+            RuntimeError("Failed to get experiment id=abc")
+        )
+        with (
+            patch.object(
+                experiments_client, "get", return_value=experiment_obj
+            ),
+            patch(
+                "arize.experiments.client.ArizeFlightClient",
+                return_value=flight_client,
+            ),
+            pytest.raises(
+                RuntimeError, match=r"^Failed to get experiment id=abc$"
+            ),
+        ):
+            experiments_client.export_to_parquet(
+                experiment=self.EXPERIMENT_ID,
+                path=str(tmp_path / "runs.parquet"),
+            )
+
+    def test_bypasses_cache(
+        self,
+        mock_sdk_config: Mock,
+        experiments_client: ExperimentsClient,
+        flight_client: MagicMock,
+        experiment_obj: Mock,
+        tmp_path: Path,
+    ) -> None:
+        mock_sdk_config.enable_caching = True
+        with (
+            patch.object(
+                experiments_client, "get", return_value=experiment_obj
+            ),
+            patch("arize.experiments.client.load_cached_resource") as mock_load,
+            patch("arize.experiments.client.cache_resource") as mock_cache,
+            patch(
+                "arize.experiments.client.ArizeFlightClient",
+                return_value=flight_client,
+            ),
+        ):
+            experiments_client.export_to_parquet(
+                experiment=self.EXPERIMENT_ID,
+                path=str(tmp_path / "runs.parquet"),
+            )
+
+        mock_load.assert_not_called()
+        mock_cache.assert_not_called()
+        flight_client.get_experiment_runs.assert_not_called()
+
+
+@pytest.mark.unit
 class TestCreateFromFiles:
     """Tests for ExperimentsClient.create() with file-path runs."""
 

@@ -16,7 +16,7 @@ import pytest
 
 from arize._generated.api_client import DatasetsApi
 from arize.datasets import errors as err
-from arize.datasets.client import DatasetsClient
+from arize.datasets.client import DatasetsClient, _sanitize_nan_and_inf
 from arize.datasets.upload import flight_schema
 
 
@@ -237,6 +237,34 @@ class TestDatasetsClientListExamples:
 
 
 @pytest.mark.unit
+class TestSanitizeNanAndInf:
+    """Tests for _sanitize_nan_and_inf()."""
+
+    def test_replaces_nan_and_inf_floats_with_none(self) -> None:
+        result = _sanitize_nan_and_inf(
+            {
+                "a": float("nan"),
+                "b": float("inf"),
+                "c": float("-inf"),
+                "d": 1.5,
+            }
+        )
+        assert result == {"a": None, "b": None, "c": None, "d": 1.5}
+
+    def test_recurses_into_nested_dicts_and_lists(self) -> None:
+        result = _sanitize_nan_and_inf(
+            {"rows": [{"score": float("nan")}, {"score": 0.9}]}
+        )
+        assert result == {"rows": [{"score": None}, {"score": 0.9}]}
+
+    def test_leaves_non_float_values_untouched(self) -> None:
+        result = _sanitize_nan_and_inf(
+            {"id": "ex_1", "count": 3, "ok": True, "tags": None}
+        )
+        assert result == {"id": "ex_1", "count": 3, "ok": True, "tags": None}
+
+
+@pytest.mark.unit
 class TestDatasetsClientUpdateExamples:
     """Tests for DatasetsClient.update_examples()."""
 
@@ -301,6 +329,34 @@ class TestDatasetsClientUpdateExamples:
 
         _, kwargs = mock_api.update_dataset_examples.call_args
         assert kwargs["dataset_version_id"] == "ver_1"
+
+    def test_update_examples_sanitizes_nan_and_inf(
+        self, datasets_client: DatasetsClient, mock_api: Mock
+    ) -> None:
+        """NaN/Infinity floats in example values must become None.
+
+        Otherwise the generated client's json.dumps() emits a bare NaN/
+        Infinity token, which the server's JSON decoder rejects with a
+        confusing 400 (`can't decode JSON body: invalid character 'N' ...`).
+        """
+        datasets_client.update_examples(
+            dataset=self.DATASET_ID,
+            examples=[
+                {
+                    "id": "ex_1",
+                    "score": float("nan"),
+                    "delta": float("inf"),
+                    "other": 1.5,
+                }
+            ],
+        )
+
+        _, kwargs = mock_api.update_dataset_examples.call_args
+        body = kwargs["update_dataset_examples_request"]
+        props = body.examples[0].additional_properties
+        assert props["score"] is None
+        assert props["delta"] is None
+        assert props["other"] == 1.5
 
     def test_update_examples_returns_api_response(
         self, datasets_client: DatasetsClient, mock_api: Mock
@@ -544,6 +600,170 @@ class TestDatasetsClientListExamplesCaching:
             "search",
             "lookup",
         ]
+
+
+@pytest.mark.unit
+class TestDatasetsClientExportToParquet:
+    """Tests for DatasetsClient.export_to_parquet()."""
+
+    DATASET_ID = "RGF0YXNldDoxMjM6YWJj"
+
+    @pytest.fixture
+    def flight_client(self) -> MagicMock:
+        instance = MagicMock()
+        instance.__enter__ = Mock(return_value=instance)
+        instance.__exit__ = Mock(return_value=False)
+        return instance
+
+    @pytest.fixture
+    def dataset_obj(self) -> Mock:
+        obj = Mock()
+        obj.space_id = "space-123"
+        return obj
+
+    def test_resolves_by_name_and_streams_to_path(
+        self,
+        datasets_client: DatasetsClient,
+        flight_client: MagicMock,
+        dataset_obj: Mock,
+        tmp_path: Path,
+    ) -> None:
+        path = str(tmp_path / "out.parquet")
+        with (
+            patch(
+                "arize.datasets.client._find_dataset_id",
+                return_value=self.DATASET_ID,
+            ) as mock_find,
+            patch.object(
+                datasets_client, "get", return_value=dataset_obj
+            ) as mock_get,
+            patch(
+                "arize.datasets.client.ArizeFlightClient",
+                return_value=flight_client,
+            ),
+        ):
+            result = datasets_client.export_to_parquet(
+                dataset="my-dataset",
+                space="my-space",
+                dataset_version_id="v1",
+                path=path,
+            )
+
+        assert result is None
+        assert mock_find.call_args.kwargs["dataset"] == "my-dataset"
+        assert mock_find.call_args.kwargs["space"] == "my-space"
+        mock_get.assert_called_once_with(dataset=self.DATASET_ID)
+        flight_client.export_dataset_examples_to_parquet.assert_called_once_with(
+            space_id="space-123",
+            dataset_id=self.DATASET_ID,
+            dataset_version_id="v1",
+            path=path,
+        )
+
+    def test_resolves_by_id(
+        self,
+        datasets_client: DatasetsClient,
+        flight_client: MagicMock,
+        dataset_obj: Mock,
+        tmp_path: Path,
+    ) -> None:
+        path = str(tmp_path / "out.parquet")
+        with (
+            patch.object(datasets_client, "get", return_value=dataset_obj),
+            patch(
+                "arize.datasets.client.ArizeFlightClient",
+                return_value=flight_client,
+            ),
+        ):
+            datasets_client.export_to_parquet(
+                dataset=self.DATASET_ID, path=path
+            )
+
+        flight_client.export_dataset_examples_to_parquet.assert_called_once_with(
+            space_id="space-123",
+            dataset_id=self.DATASET_ID,
+            dataset_version_id=None,
+            path=path,
+        )
+
+    @pytest.mark.parametrize(
+        ("path", "error"),
+        [
+            ("/nonexistent-dir-for-test/out.parquet", ValueError),
+            (".", ValueError),
+            (123, TypeError),
+        ],
+    )
+    def test_invalid_path_raises_before_flight(
+        self,
+        datasets_client: DatasetsClient,
+        path: object,
+        error: type[Exception],
+    ) -> None:
+        with (
+            patch("arize.datasets.client._find_dataset_id") as mock_find,
+            patch("arize.datasets.client.ArizeFlightClient") as flight_cls,
+            pytest.raises(error),
+        ):
+            datasets_client.export_to_parquet(
+                dataset=self.DATASET_ID,
+                path=path,  # type: ignore[arg-type]
+            )
+
+        mock_find.assert_not_called()
+        flight_cls.assert_not_called()
+
+    def test_flight_error_propagates(
+        self,
+        datasets_client: DatasetsClient,
+        flight_client: MagicMock,
+        dataset_obj: Mock,
+        tmp_path: Path,
+    ) -> None:
+        flight_client.export_dataset_examples_to_parquet.side_effect = (
+            RuntimeError("Failed to get dataset id=abc")
+        )
+        with (
+            patch.object(datasets_client, "get", return_value=dataset_obj),
+            patch(
+                "arize.datasets.client.ArizeFlightClient",
+                return_value=flight_client,
+            ),
+            pytest.raises(
+                RuntimeError, match=r"^Failed to get dataset id=abc$"
+            ),
+        ):
+            datasets_client.export_to_parquet(
+                dataset=self.DATASET_ID,
+                path=str(tmp_path / "out.parquet"),
+            )
+
+    def test_bypasses_cache(
+        self,
+        mock_sdk_config: Mock,
+        datasets_client: DatasetsClient,
+        flight_client: MagicMock,
+        dataset_obj: Mock,
+        tmp_path: Path,
+    ) -> None:
+        mock_sdk_config.enable_caching = True
+        with (
+            patch.object(datasets_client, "get", return_value=dataset_obj),
+            patch("arize.datasets.client.load_cached_resource") as mock_load,
+            patch("arize.datasets.client.cache_resource") as mock_cache,
+            patch(
+                "arize.datasets.client.ArizeFlightClient",
+                return_value=flight_client,
+            ),
+        ):
+            datasets_client.export_to_parquet(
+                dataset=self.DATASET_ID,
+                path=str(tmp_path / "out.parquet"),
+            )
+
+        mock_load.assert_not_called()
+        mock_cache.assert_not_called()
+        flight_client.get_dataset_examples.assert_not_called()
 
 
 DATASET_ID = "RGF0YXNldDoxMjM6YWJj"

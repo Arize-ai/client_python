@@ -209,7 +209,7 @@ def _cast_arrow_side(batch: pa.RecordBatch) -> pa.RecordBatch:
                 pa.timestamp("ms", tz=field.type.tz), safe=False
             ).cast(pa.int64())
         elif pa.types.is_boolean(field.type):
-            column = pc.if_else(column, "True", "False")
+            column = pc.if_else(column, "True", "False")  # type: ignore[attr-defined]
         elif field.name == "id":
             column = _id_strings(column)
         columns.append(column)
@@ -220,7 +220,9 @@ def _id_strings(column: pa.Array) -> pa.Array:
     # A float NaN would otherwise cast to the literal id "nan"; pandas treats
     # it as missing, so it must become null here too.
     if pa.types.is_floating(column.type):
-        column = pc.if_else(
-            pc.is_nan(column), pa.scalar(None, column.type), column
+        column = pc.if_else(  # type: ignore[attr-defined]
+            pc.is_nan(column),  # type: ignore[attr-defined]
+            pa.scalar(None, column.type),
+            column,
         )
     return column.cast(pa.string())

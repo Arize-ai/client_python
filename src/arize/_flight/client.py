@@ -2,17 +2,22 @@ from __future__ import annotations
 
 import base64
 import logging
+import os
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import TYPE_CHECKING, TypeAlias
 
+import pyarrow as pa
+import pyarrow.parquet as pq
 from google.protobuf import json_format
 from pyarrow import flight
+from tqdm import tqdm
 
 from arize._flight.types import FlightRequestType
 from arize._generated.protocol.flight import flight_pb2
 from arize.constants.pyarrow import (
     DEFAULT_FLIGHT_BATCH_BUDGET_BYTES,
+    EXPORT_ROW_GROUP_BUDGET_BYTES,
     FLIGHT_SERVER_MAX_MESSAGE_BYTES,
 )
 from arize.exceptions.arrow import RecordBatchTooLargeError
@@ -26,7 +31,6 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
 
     import pandas as pd
-    import pyarrow as pa
 
     from arize.config import SDKConfiguration
 
@@ -382,6 +386,53 @@ class ArizeFlightClient:
         Raises:
             RuntimeError: If the Flight request fails.
         """
+        try:
+            reader = self._dataset_examples_reader(
+                space_id, dataset_id, dataset_version_id
+            )
+            # read all data into pandas dataframe
+            df = reader.read_all().to_pandas()
+            return convert_json_str_to_dict(df)
+        except Exception as e:
+            logger.exception(f"Failed to get dataset id={dataset_id}")
+            raise RuntimeError(f"Failed to get dataset id={dataset_id}") from e
+
+    def export_dataset_examples_to_parquet(
+        self,
+        space_id: str,
+        dataset_id: str,
+        dataset_version_id: str | None,
+        path: str,
+    ) -> None:
+        """Stream dataset examples via Flight DoGet into a Parquet file.
+
+        Args:
+            space_id: Space ID containing the dataset.
+            dataset_id: Dataset ID to retrieve examples from.
+            dataset_version_id: Optional specific version ID. If None, retrieves the
+                latest version.
+            path: Destination Parquet file path.
+
+        Raises:
+            RuntimeError: If the Flight request or the write fails.
+        """
+        try:
+            reader = self._dataset_examples_reader(
+                space_id, dataset_id, dataset_version_id
+            )
+            _write_stream_to_parquet(reader, path)
+        except Exception as e:
+            logger.exception(f"Failed to export dataset id={dataset_id}")
+            raise RuntimeError(
+                f"Failed to export dataset id={dataset_id}: {e!s}"
+            ) from e
+
+    def _dataset_examples_reader(
+        self,
+        space_id: str,
+        dataset_id: str,
+        dataset_version_id: str | None,
+    ) -> flight.FlightStreamReader:
         # TODO(Kiko): Space ID should not be needed,
         # should work on server tech debt to remove this
         doget_request = flight_pb2.DoGetRequest(
@@ -394,14 +445,7 @@ class ArizeFlightClient:
         descriptor = flight.Ticket(
             json_format.MessageToJson(doget_request).encode("utf-8")
         )
-        try:
-            reader = self.do_get(descriptor, options=self.call_options)
-            # read all data into pandas dataframe
-            df = reader.read_all().to_pandas()
-            return convert_json_str_to_dict(df)
-        except Exception as e:
-            logger.exception(f"Failed to get dataset id={dataset_id}")
-            raise RuntimeError(f"Failed to get dataset id={dataset_id}") from e
+        return self.do_get(descriptor, options=self.call_options)
 
     # ---------- experiment methods ----------
 
@@ -424,6 +468,49 @@ class ArizeFlightClient:
         Raises:
             RuntimeError: If the Flight request fails.
         """
+        try:
+            reader = self._experiment_runs_reader(space_id, experiment_id)
+            # read all data into pandas dataframe
+            df = reader.read_all().to_pandas()
+            return convert_json_str_to_dict(
+                df, excluded_columns=("result", "output")
+            )
+        except Exception as e:
+            logger.exception(f"Failed to get experiment id={experiment_id}")
+            raise RuntimeError(
+                f"Failed to get experiment id={experiment_id}"
+            ) from e
+
+    def export_experiment_runs_to_parquet(
+        self,
+        space_id: str,
+        experiment_id: str,
+        path: str,
+    ) -> None:
+        """Stream experiment runs via Flight DoGet into a Parquet file.
+
+        Args:
+            space_id: Space ID containing the experiment.
+            experiment_id: Experiment ID to retrieve runs from.
+            path: Destination Parquet file path.
+
+        Raises:
+            RuntimeError: If the Flight request or the write fails.
+        """
+        try:
+            reader = self._experiment_runs_reader(space_id, experiment_id)
+            _write_stream_to_parquet(reader, path)
+        except Exception as e:
+            logger.exception(f"Failed to export experiment id={experiment_id}")
+            raise RuntimeError(
+                f"Failed to export experiment id={experiment_id}: {e!s}"
+            ) from e
+
+    def _experiment_runs_reader(
+        self,
+        space_id: str,
+        experiment_id: str,
+    ) -> flight.FlightStreamReader:
         # TODO(Kiko): Space ID should not be needed,
         # should work on server tech debt to remove this
         doget_request = flight_pb2.DoGetRequest(
@@ -435,18 +522,7 @@ class ArizeFlightClient:
         descriptor = flight.Ticket(
             json_format.MessageToJson(doget_request).encode("utf-8")
         )
-        try:
-            reader = self.do_get(descriptor, options=self.call_options)
-            # read all data into pandas dataframe
-            df = reader.read_all().to_pandas()
-            return convert_json_str_to_dict(
-                df, excluded_columns=("result", "output")
-            )
-        except Exception as e:
-            logger.exception(f"Failed to get experiment id={experiment_id}")
-            raise RuntimeError(
-                f"Failed to get experiment id={experiment_id}"
-            ) from e
+        return self.do_get(descriptor, options=self.call_options)
 
     def init_experiment(
         self,
@@ -535,6 +611,49 @@ class _OversizedBatchWatch:
         )
         too_large.__cause__ = error
         return too_large
+
+
+def _write_stream_to_parquet(
+    reader: flight.FlightStreamReader, path: str
+) -> None:
+    progress_bar = tqdm(
+        total=None,
+        desc="  exporting rows",
+        ncols=80,
+        colour="#008000",
+        unit=" row",
+    )
+    partial_path = f"{path}.partial"
+    try:
+        with pq.ParquetWriter(partial_path, schema=reader.schema) as writer:
+            pending: list[pa.RecordBatch] = []
+            pending_bytes = 0
+            try:
+                while True:
+                    record_batch = reader.read_chunk().data
+                    pending.append(record_batch)
+                    pending_bytes += record_batch.nbytes
+                    if pending_bytes >= EXPORT_ROW_GROUP_BUDGET_BYTES:
+                        writer.write_table(
+                            pa.Table.from_batches(pending, reader.schema)
+                        )
+                        pending, pending_bytes = [], 0
+                    progress_bar.update(record_batch.num_rows)
+            except StopIteration:
+                pass
+            if pending:
+                writer.write_table(
+                    pa.Table.from_batches(pending, reader.schema)
+                )
+        os.replace(partial_path, path)
+    except BaseException:
+        # ParquetWriter writes a valid footer on close even after a failed
+        # stream, so a partial file would read as a complete export.
+        if os.path.exists(partial_path):
+            os.remove(partial_path)
+        raise
+    finally:
+        progress_bar.close()
 
 
 def append_to_pyarrow_metadata(

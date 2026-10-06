@@ -45,6 +45,7 @@
     - [Get a Dataset](#get-a-dataset)
     - [Delete a Dataset](#delete-a-dataset)
     - [List Dataset Examples](#list-dataset-examples)
+    - [Export Dataset Examples](#export-dataset-examples)
     - [Append Dataset Examples](#append-dataset-examples)
     - [Update Dataset Examples](#update-dataset-examples)
     - [Delete Dataset Examples](#delete-dataset-examples)
@@ -55,6 +56,7 @@
     - [Get an Experiment](#get-an-experiment)
     - [Delete an Experiment](#delete-an-experiment)
     - [List Experiment Runs](#list-experiment-runs)
+    - [Export Experiment Runs](#export-experiment-runs)
     - [Append Experiment Runs](#append-experiment-runs)
   - [Operations on Prompts](#operations-on-prompts)
     - [List Prompts](#list-prompts)
@@ -699,6 +701,19 @@ resp_json = resp.to_json()
 resp_df = resp.to_df()
 ```
 
+### Export Dataset Examples
+
+To export all examples of a dataset to a Parquet file, use `client.datasets.export_to_parquet()`. Examples are streamed from Arize via Arrow Flight and written batch by batch, so datasets larger than available memory can be exported. The file holds the same rows and columns as `list_examples(all=True)`, except that JSON-valued columns are stored as JSON strings. The file is written to `<path>.partial` and renamed when the export completes, so a failed export leaves any existing file at `path` unchanged.
+
+```python
+client.datasets.export_to_parquet(
+    dataset="<your-dataset-id-or-name>",
+    space=..., # Optional, space ID or name (required when dataset is a name)
+    dataset_version_id=..., # Optional, defaults to the latest version
+    path="examples.parquet",
+)
+```
+
 ### Append Dataset Examples
 
 You can append examples to an existing dataset version using `client.datasets.append_examples()`. This creates a new dataset version with the appended data and returns the updated `Dataset` object.
@@ -913,6 +928,19 @@ resp_dict = resp.to_dict()
 resp_json = resp.to_json()
 # Get the response as a pandas dataframe
 resp_df = resp.to_df()
+```
+
+### Export Experiment Runs
+
+To export all runs of an experiment to a Parquet file, use `client.experiments.export_to_parquet()`. Runs are streamed from Arize via Arrow Flight and written batch by batch, so experiments larger than available memory can be exported. The file holds the same rows and columns as `list_runs(all=True)`, except that JSON-valued columns are stored as JSON strings. The file is written to `<path>.partial` and renamed when the export completes, so a failed export leaves any existing file at `path` unchanged.
+
+```python
+client.experiments.export_to_parquet(
+    experiment="<your-experiment-id-or-name>",
+    dataset=..., # Optional, dataset ID or name
+    space=..., # Optional, space ID or name (required when dataset is a name, or when experiment is a name and dataset is omitted)
+    path="runs.parquet",
+)
 ```
 
 ### Append Experiment Runs

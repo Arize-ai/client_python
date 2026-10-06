@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
 import opentelemetry.sdk.trace as trace_sdk
@@ -17,6 +18,7 @@ from opentelemetry.sdk.trace.export import (
     SpanExporter,
 )
 
+from arize._exporter.validation import validate_input_type
 from arize._flight.client import ArizeFlightClient
 from arize._flight.types import FlightRequestType
 from arize._generated.api_client import models
@@ -573,6 +575,66 @@ class ExperimentsClient:
             experiment_id=experiment_id,
             search_experiment_runs_request=body,
         )
+
+    def export_to_parquet(
+        self,
+        *,
+        experiment: str,
+        dataset: str | None = None,
+        space: str | None = None,
+        path: str,
+    ) -> None:
+        """Export all runs of an experiment to a Parquet file.
+
+        Runs are streamed from Arize and written batch by batch, so experiments
+        larger than available memory can be exported. The file holds the same
+        rows and columns as ``list_runs(all=True)``, except that JSON-valued
+        columns are stored as JSON strings (``json.loads`` gives the dict).
+        ``output`` and ``result`` are raw strings, as in ``list_runs``.
+
+        Args:
+            experiment: Experiment name or ID to export runs for.
+            dataset: Optional dataset name or ID used to resolve ``experiment``
+                by name, for an experiment associated with a dataset.
+            space: Optional space name or ID. Resolves ``dataset`` when that is a
+                name, and — when ``dataset`` is not provided — resolves
+                ``experiment`` by name directly within the space.
+            path: The file path where the Parquet file will be written. An existing
+                file at this path is overwritten once the export completes. The
+                file is written to ``<path>.partial`` and renamed when complete.
+
+        Raises:
+            TypeError: If ``path`` is not a string.
+            ValueError: If ``path`` is a directory or its parent directory
+                does not exist.
+            RuntimeError: If the Flight request or the file write fails.
+                Nothing is written to ``path``, and an existing file there is
+                left unchanged.
+        """
+        validate_input_type(path, "path", str)
+        if Path(path).is_dir():
+            raise ValueError(f"Path {path!r} is a directory")
+        if not Path(path).parent.is_dir():
+            raise ValueError(
+                f"Parent directory of path {path!r} does not exist"
+            )
+
+        experiment_id = _find_experiment_id(
+            api=self._api,
+            datasets_api=self._datasets_api,
+            spaces_api=self._spaces_api,
+            experiment=experiment,
+            dataset=dataset,
+            space=space,
+        )
+        space_id = self.get(experiment=experiment_id).space_id
+
+        with ArizeFlightClient(sdk_config=self._sdk_config) as flight_client:
+            flight_client.export_experiment_runs_to_parquet(
+                space_id=space_id,
+                experiment_id=experiment_id,
+                path=path,
+            )
 
     def _list_all_experiment_runs(
         self, *, experiment_id: str

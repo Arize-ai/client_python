@@ -541,7 +541,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     name = 'production' # str | Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned.  (optional)
     limit = 50 # int | Maximum items to return. Defaults to 50 if omitted; maximum is 100. (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
-    project_type = arize._generated.api_client.ProjectType() # ProjectType | Filter projects by type. When omitted, harness projects are excluded from list results. Set to `HARNESS` to include harness session projects.  (optional)
+    project_type = arize._generated.api_client.ProjectType() # ProjectType | Filter projects by type. When omitted, projects of every type are returned. Set to `HARNESS` to return only harness session projects.  (optional)
 
     try:
         # List projects
@@ -564,7 +564,7 @@ Name | Type | Description  | Notes
  **name** | **str**| Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, &#x60;name&#x3D;prod&#x60; matches \&quot;production\&quot;, \&quot;my-prod-dataset\&quot;, etc. If omitted, no name filtering is applied and all resources are returned.  | [optional] 
  **limit** | **int**| Maximum items to return. Defaults to 50 if omitted; maximum is 100. | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
- **project_type** | [**ProjectType**](.md)| Filter projects by type. When omitted, harness projects are excluded from list results. Set to &#x60;HARNESS&#x60; to include harness session projects.  | [optional] 
+ **project_type** | [**ProjectType**](.md)| Filter projects by type. When omitted, projects of every type are returned. Set to &#x60;HARNESS&#x60; to return only harness session projects.  | [optional] 
 
 ### Return type
 

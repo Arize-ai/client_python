@@ -28,7 +28,7 @@ class CreateTemplateEvaluatorVersionRequest(BaseModel):
     """
     CreateTemplateEvaluatorVersionRequest
     """ # noqa: E501
-    commit_message: Annotated[str, Field(strict=True, max_length=1000)] = Field(description="Commit message describing the changes")
+    commit_message: Annotated[str, Field(min_length=1, strict=True, max_length=1000)] = Field(description="Commit message describing the changes")
     template_config: TemplateConfigInput
     __properties: ClassVar[List[str]] = ["commit_message", "template_config"]
 
