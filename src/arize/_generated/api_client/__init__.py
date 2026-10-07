@@ -179,6 +179,7 @@ __all__ = [
     "CreateWebhookResponse",
     "CreateWebhookSubscriptionRequest",
     "CreatedServiceApiKey",
+    "CreatedServiceKeyBotUser",
     "CreatedUserApiKey",
     "CustomAuth",
     "CustomBaselineConfig",
@@ -368,6 +369,7 @@ __all__ = [
     "ScheduledRuntimeConfig",
     "SearchDatasetExamplesRequest",
     "SearchExperimentRunsRequest",
+    "ServiceApiKey",
     "ServiceKeyBotUser",
     "ServiceKeyBotUserOrgAssignment",
     "ServiceKeyBotUserSpaceAssignment",
@@ -458,6 +460,7 @@ __all__ = [
     "UpdateUserRequest",
     "UpdateWebhookRequest",
     "User",
+    "UserApiKey",
     "UserRole",
     "UserRoleAssignment",
     "UserRoleAssignmentRequest",
@@ -640,6 +643,7 @@ from arize._generated.api_client.models.create_webhook_request import CreateWebh
 from arize._generated.api_client.models.create_webhook_response import CreateWebhookResponse as CreateWebhookResponse
 from arize._generated.api_client.models.create_webhook_subscription_request import CreateWebhookSubscriptionRequest as CreateWebhookSubscriptionRequest
 from arize._generated.api_client.models.created_service_api_key import CreatedServiceApiKey as CreatedServiceApiKey
+from arize._generated.api_client.models.created_service_key_bot_user import CreatedServiceKeyBotUser as CreatedServiceKeyBotUser
 from arize._generated.api_client.models.created_user_api_key import CreatedUserApiKey as CreatedUserApiKey
 from arize._generated.api_client.models.custom_auth import CustomAuth as CustomAuth
 from arize._generated.api_client.models.custom_baseline_config import CustomBaselineConfig as CustomBaselineConfig
@@ -829,6 +833,7 @@ from arize._generated.api_client.models.run_configuration_request import RunConf
 from arize._generated.api_client.models.scheduled_runtime_config import ScheduledRuntimeConfig as ScheduledRuntimeConfig
 from arize._generated.api_client.models.search_dataset_examples_request import SearchDatasetExamplesRequest as SearchDatasetExamplesRequest
 from arize._generated.api_client.models.search_experiment_runs_request import SearchExperimentRunsRequest as SearchExperimentRunsRequest
+from arize._generated.api_client.models.service_api_key import ServiceApiKey as ServiceApiKey
 from arize._generated.api_client.models.service_key_bot_user import ServiceKeyBotUser as ServiceKeyBotUser
 from arize._generated.api_client.models.service_key_bot_user_org_assignment import ServiceKeyBotUserOrgAssignment as ServiceKeyBotUserOrgAssignment
 from arize._generated.api_client.models.service_key_bot_user_space_assignment import ServiceKeyBotUserSpaceAssignment as ServiceKeyBotUserSpaceAssignment
@@ -919,6 +924,7 @@ from arize._generated.api_client.models.update_task_request import UpdateTaskReq
 from arize._generated.api_client.models.update_user_request import UpdateUserRequest as UpdateUserRequest
 from arize._generated.api_client.models.update_webhook_request import UpdateWebhookRequest as UpdateWebhookRequest
 from arize._generated.api_client.models.user import User as User
+from arize._generated.api_client.models.user_api_key import UserApiKey as UserApiKey
 from arize._generated.api_client.models.user_role import UserRole as UserRole
 from arize._generated.api_client.models.user_role_assignment import UserRoleAssignment as UserRoleAssignment
 from arize._generated.api_client.models.user_role_assignment_request import UserRoleAssignmentRequest as UserRoleAssignmentRequest

@@ -161,6 +161,7 @@ arize/_generated/api_client/docs/CreateWebhookRequest.md
 arize/_generated/api_client/docs/CreateWebhookResponse.md
 arize/_generated/api_client/docs/CreateWebhookSubscriptionRequest.md
 arize/_generated/api_client/docs/CreatedServiceApiKey.md
+arize/_generated/api_client/docs/CreatedServiceKeyBotUser.md
 arize/_generated/api_client/docs/CreatedUserApiKey.md
 arize/_generated/api_client/docs/CustomAuth.md
 arize/_generated/api_client/docs/CustomBaselineConfig.md
@@ -361,6 +362,7 @@ arize/_generated/api_client/docs/RunConfigurationRequest.md
 arize/_generated/api_client/docs/ScheduledRuntimeConfig.md
 arize/_generated/api_client/docs/SearchDatasetExamplesRequest.md
 arize/_generated/api_client/docs/SearchExperimentRunsRequest.md
+arize/_generated/api_client/docs/ServiceApiKey.md
 arize/_generated/api_client/docs/ServiceKeyBotUser.md
 arize/_generated/api_client/docs/ServiceKeyBotUserOrgAssignment.md
 arize/_generated/api_client/docs/ServiceKeyBotUserSpaceAssignment.md
@@ -456,6 +458,7 @@ arize/_generated/api_client/docs/UpdateTaskRequest.md
 arize/_generated/api_client/docs/UpdateUserRequest.md
 arize/_generated/api_client/docs/UpdateWebhookRequest.md
 arize/_generated/api_client/docs/User.md
+arize/_generated/api_client/docs/UserApiKey.md
 arize/_generated/api_client/docs/UserRole.md
 arize/_generated/api_client/docs/UserRoleAssignment.md
 arize/_generated/api_client/docs/UserRoleAssignmentRequest.md
@@ -603,6 +606,7 @@ arize/_generated/api_client/models/create_webhook_request.py
 arize/_generated/api_client/models/create_webhook_response.py
 arize/_generated/api_client/models/create_webhook_subscription_request.py
 arize/_generated/api_client/models/created_service_api_key.py
+arize/_generated/api_client/models/created_service_key_bot_user.py
 arize/_generated/api_client/models/created_user_api_key.py
 arize/_generated/api_client/models/custom_auth.py
 arize/_generated/api_client/models/custom_baseline_config.py
@@ -792,6 +796,7 @@ arize/_generated/api_client/models/run_configuration_request.py
 arize/_generated/api_client/models/scheduled_runtime_config.py
 arize/_generated/api_client/models/search_dataset_examples_request.py
 arize/_generated/api_client/models/search_experiment_runs_request.py
+arize/_generated/api_client/models/service_api_key.py
 arize/_generated/api_client/models/service_key_bot_user.py
 arize/_generated/api_client/models/service_key_bot_user_org_assignment.py
 arize/_generated/api_client/models/service_key_bot_user_space_assignment.py
@@ -882,6 +887,7 @@ arize/_generated/api_client/models/update_task_request.py
 arize/_generated/api_client/models/update_user_request.py
 arize/_generated/api_client/models/update_webhook_request.py
 arize/_generated/api_client/models/user.py
+arize/_generated/api_client/models/user_api_key.py
 arize/_generated/api_client/models/user_role.py
 arize/_generated/api_client/models/user_role_assignment.py
 arize/_generated/api_client/models/user_role_assignment_request.py
@@ -949,6 +955,7 @@ arize/_generated/api_client/test/test_create_webhook_request.py
 arize/_generated/api_client/test/test_create_webhook_response.py
 arize/_generated/api_client/test/test_create_webhook_subscription_request.py
 arize/_generated/api_client/test/test_created_service_api_key.py
+arize/_generated/api_client/test/test_created_service_key_bot_user.py
 arize/_generated/api_client/test/test_created_user_api_key.py
 arize/_generated/api_client/test/test_custom_auth.py
 arize/_generated/api_client/test/test_custom_code_config.py
@@ -1017,6 +1024,7 @@ arize/_generated/api_client/test/test_role_binding.py
 arize/_generated/api_client/test/test_role_binding_resource_type.py
 arize/_generated/api_client/test/test_search_dataset_examples_request.py
 arize/_generated/api_client/test/test_search_experiment_runs_request.py
+arize/_generated/api_client/test/test_service_api_key.py
 arize/_generated/api_client/test/test_service_key_bot_user.py
 arize/_generated/api_client/test/test_service_key_bot_user_org_assignment.py
 arize/_generated/api_client/test/test_service_key_bot_user_space_assignment.py
@@ -1055,6 +1063,7 @@ arize/_generated/api_client/test/test_update_llm_integration_request.py
 arize/_generated/api_client/test/test_update_tag_request.py
 arize/_generated/api_client/test/test_update_webhook_request.py
 arize/_generated/api_client/test/test_user.py
+arize/_generated/api_client/test/test_user_api_key.py
 arize/_generated/api_client/test/test_user_status.py
 arize/_generated/api_client/test/test_users_api.py
 arize/_generated/api_client/test/test_webhook.py

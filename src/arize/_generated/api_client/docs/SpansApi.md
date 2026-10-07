@@ -302,7 +302,30 @@ List spans
 
 Returns a paginated list of spans.
 
-The spans are sorted by their timestamp, with the most recent coming first.
+Spans are ordered by `start_time` from newest to oldest. Trace and span
+identifiers give spans with the same start time a stable order. Start and
+end time bounds are inclusive.
+
+Use the returned cursor with the same project, filter, column selection,
+and time window. You can change the page limit. If the server rejects a
+cursor after an endpoint update, restart the page walk without it.
+
+Adjacent inclusive polling windows overlap at their boundary. Remove
+duplicate trace and span identifier pairs. Use an overlap between polling
+windows to include data that arrives late. Cursor pagination keeps one
+time window fixed, but it is not a snapshot of changing data.
+
+**Spans that arrive long after they started**
+
+`start_time` is the time your application recorded for the span. Arize
+also stores the time it received the span. This endpoint searches
+received-time storage for a few hours on either side of the `start_time`
+range you ask for, which is how the Arize UI reads the same data.
+
+A span that reached Arize much later than it started can therefore fall
+outside that search. Backfilled or replayed traces are the common case.
+Widen `start_time` and `end_time` to cover when the data was sent, not
+only when it was recorded, and those spans come back.
 
 <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 

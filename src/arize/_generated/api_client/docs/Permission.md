@@ -212,6 +212,8 @@ A permission identifier following the pattern {RESOURCE}_{ACTION}. Auto-generate
 
 * `PROMPT_READ` (value: `'PROMPT_READ'`)
 
+* `PROMPT_RESTRICT` (value: `'PROMPT_RESTRICT'`)
+
 * `PROMPT_UPDATE` (value: `'PROMPT_UPDATE'`)
 
 * `QUEUE_CREATE` (value: `'QUEUE_CREATE'`)

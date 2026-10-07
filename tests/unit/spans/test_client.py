@@ -978,3 +978,43 @@ class TestSpansClientLogWithEvals:
 
         sent_columns = mock_post.call_args.kwargs["pa_table"].column_names
         assert "random_column" not in sent_columns
+
+
+@pytest.mark.unit
+class TestListSpansResponseSpanKinds:
+    """Tests that list responses deserialize every OpenInference span kind."""
+
+    @staticmethod
+    def _response_json(kind: str) -> str:
+        import json
+
+        return json.dumps(
+            {
+                "spans": [
+                    {
+                        "name": "TypeSafeClient",
+                        "context": {
+                            "span_id": "8b12af6a725fb53e",
+                            "trace_id": "0aef55a38085242f04ca84cc1c61fa3f",
+                        },
+                        "kind": kind,
+                        "start_time": "2026-10-06T23:52:30.218803Z",
+                        "end_time": "2026-10-06T23:52:30.489060Z",
+                        "status_code": "OK",
+                    }
+                ],
+                "pagination": {"has_more": False},
+            }
+        )
+
+    def test_decision_span_kind_deserializes(self) -> None:
+        """A DECISION span must not fail the whole list response (#89877)."""
+        from arize._generated.api_client.models.list_spans_response import (
+            ListSpansResponse,
+        )
+        from arize._generated.api_client.models.span_kind import SpanKind
+
+        response = ListSpansResponse.from_json(self._response_json("DECISION"))
+
+        assert response is not None
+        assert response.spans[0].kind is SpanKind.DECISION

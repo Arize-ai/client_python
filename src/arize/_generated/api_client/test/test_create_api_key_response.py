@@ -46,7 +46,7 @@ class TestCreateApiKeyResponse(unittest.TestCase):
                 created_by_user_id = '',
                 last_used_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 key = '',
-                bot_user = arize._generated.api_client.models.service_key_bot_user.ServiceKeyBotUser(
+                bot_user = arize._generated.api_client.models.created_service_key_bot_user.CreatedServiceKeyBotUser(
                     id = '', 
                     name = '', 
                     account_role = null, 
@@ -71,7 +71,7 @@ class TestCreateApiKeyResponse(unittest.TestCase):
                 created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 created_by_user_id = '',
                 key = '',
-                bot_user = arize._generated.api_client.models.service_key_bot_user.ServiceKeyBotUser(
+                bot_user = arize._generated.api_client.models.created_service_key_bot_user.CreatedServiceKeyBotUser(
                     id = '', 
                     name = '', 
                     account_role = null, 

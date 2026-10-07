@@ -1,5 +1,17 @@
 # Changelog
 
+## [8.58.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.57.1...arize-python-sdk/v8.58.0) (2026-10-07)
+
+
+### 🎁 New Features
+
+* **api-keys:** return bot_user on GET /v2/api-keys ([#85776](https://github.com/Arize-ai/arize/issues/85776)) ([110f231](https://github.com/Arize-ai/arize/commit/110f23120e1e3f253c9f409bad26c65e5b472844))
+
+
+### 🐛 Bug Fixes
+
+* **spans:** add DECISION to SpanKind so decision spans deserialize ([#89880](https://github.com/Arize-ai/arize/issues/89880)) ([3db8f51](https://github.com/Arize-ai/arize/commit/3db8f512b899441fc6c518e64425b8d8e4d4df94))
+
 ## [8.57.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.57.0...arize-python-sdk/v8.57.1) (2026-10-05)
 
 

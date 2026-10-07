@@ -138,7 +138,17 @@ subsequent pages.
 that space. When `key_type` is omitted alongside `space_id`, service keys are returned
 implicitly. Requires the `SERVICE_KEY_READ` permission in the space (or account/space admin).
 Optionally combine with `user_id` to filter service keys by their creator — available to any
-caller with space access (not admin-gated).
+caller with space access (not admin-gated). Each service key entry includes `bot_user`,
+with the same fields as the bot user returned by `POST /v2/api-keys` — use `bot_user.id`
+as the `user_id` when creating a role binding for the key. Unlike the create response,
+`bot_user.organizations` may be empty in a list response:
+- When `space_id` is set, `bot_user.organizations` is always empty, including for the
+  queried space. The bot user may hold bindings in spaces or organizations the caller
+  cannot read, so the space-scoped listing returns no bindings.
+- When the bot user cannot be resolved (for example, it was deleted while the list ran),
+  `bot_user.name` is empty, `bot_user.organizations` is empty, and `bot_user.account_role`
+  is a `MEMBER` placeholder, not the bot user's real role. Do not make role decisions from
+  `account_role` when `name` is empty.
 
 **User keys (`key_type=USER`):** Returned by default (no `space_id`). Provide `user_id` to
 view keys belonging to a specific user — account admins only; non-admins receive `403`.

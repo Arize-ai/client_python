@@ -195,34 +195,48 @@ def make_to_df(
     return to_df
 
 
-def annotation_configs_to_df(
-    self: object,
-    by_alias: bool = False,
-    exclude_none: str | bool = True,
-    json_normalize: bool = False,
-    convert_dtypes: bool = True,
-    expand_field: str = "actual_instance",
-    expand_prefix: str = "",
-) -> "pd.DataFrame":
-    """Convert annotation config list response to DataFrame.
+def make_oneof_list_to_df(field_name: str) -> "Callable[..., pd.DataFrame]":
+    """Return a ``to_df`` method for a oneOf-wrapped list-response field.
 
-    Defaults to expanding `actual_instance` so oneOf wrapper internals are
-    flattened into user-facing columns.
+    For a list field whose items are a generated oneOf wrapper (e.g.
+    ``ApiKey``, ``AnnotationConfig``). Defaults to expanding ``actual_instance``
+    so the oneOf wrapper internals
+    are flattened into user-facing columns, and drops the wrapper's own
+    bookkeeping columns (``one_of_schemas``, ``discriminator_value_class_map``).
+
+    Args:
+        field_name: Name of the list field on the response object (e.g.
+            ``"annotation_configs"``, ``"api_keys"``).
+
+    Returns:
+        A ``to_df`` function suitable for assignment as a class method.
     """
-    to_df = make_to_df("annotation_configs")
-    df = to_df(
-        self,
-        by_alias=by_alias,
-        exclude_none=exclude_none,
-        json_normalize=json_normalize,
-        convert_dtypes=convert_dtypes,
-        expand_field=expand_field,
-        expand_prefix=expand_prefix,
-    )
-    return df.drop(
-        columns=["one_of_schemas", "discriminator_value_class_map"],
-        errors="ignore",
-    )
+    base_to_df = make_to_df(field_name)
+
+    def to_df(
+        self: object,
+        by_alias: bool = False,
+        exclude_none: str | bool = True,
+        json_normalize: bool = False,
+        convert_dtypes: bool = True,
+        expand_field: str = "actual_instance",
+        expand_prefix: str = "",
+    ) -> "pd.DataFrame":
+        df = base_to_df(
+            self,
+            by_alias=by_alias,
+            exclude_none=exclude_none,
+            json_normalize=json_normalize,
+            convert_dtypes=convert_dtypes,
+            expand_field=expand_field,
+            expand_prefix=expand_prefix,
+        )
+        return df.drop(
+            columns=["one_of_schemas", "discriminator_value_class_map"],
+            errors="ignore",
+        )
+
+    return to_df
 
 
 # Monkey-patch convenience methods onto generated response models
@@ -236,13 +250,15 @@ models.ListExperimentRunsResponse.to_df = make_to_df(  # type: ignore[attr-defin
     "experiment_runs", flatten_annotations=True
 )
 models.ListProjectsResponse.to_df = make_to_df("projects")  # type: ignore[attr-defined]
-models.ListAnnotationConfigsResponse.to_df = annotation_configs_to_df  # type: ignore[attr-defined]
+models.ListAnnotationConfigsResponse.to_df = make_oneof_list_to_df(  # type: ignore[attr-defined]
+    "annotation_configs"
+)
 models.ListSpansResponse.to_df = make_to_df(  # type: ignore[attr-defined]
     "spans", flatten_annotations=True
 )
 models.ListTracesResponse.to_df = make_to_df("traces")  # type: ignore[attr-defined]
 models.ListSpacesResponse.to_df = make_to_df("spaces")  # type: ignore[attr-defined]
-models.ListApiKeysResponse.to_df = make_to_df("api_keys")  # type: ignore[attr-defined]
+models.ListApiKeysResponse.to_df = make_oneof_list_to_df("api_keys")  # type: ignore[attr-defined]
 models.ListAnnotationQueueRecordsResponse.to_df = make_to_df("records")  # type: ignore[attr-defined]
 models.ListAnnotationQueuesResponse.to_df = make_to_df("annotation_queues")  # type: ignore[attr-defined]
 models.ListEvaluatorsResponse.to_df = make_to_df("evaluators")  # type: ignore[attr-defined]

@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**traces** | [**List[Trace]**](Trace.md) | A list of traces, ordered newest-first. | 
+**traces** | [**List[Trace]**](Trace.md) | A list of root-based trace entries ordered by root span &#x60;start_time&#x60; from newest to oldest. The root trace and span identifiers give entries with the same start time a stable order.  | 
 **pagination** | [**PaginationMetadata**](PaginationMetadata.md) |  | 
 
 ## Example

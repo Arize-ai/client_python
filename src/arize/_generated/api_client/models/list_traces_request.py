@@ -29,7 +29,7 @@ class ListTracesRequest(BaseModel):
     """ # noqa: E501
     project_id: StrictStr = Field(description="The project ID to list traces for")
     start_time: Optional[datetime] = Field(default=None, description="Return traces whose spans start at or after this timestamp (inclusive). ISO 8601 format (e.g., `2024-01-01T00:00:00Z`). Defaults to 1 week ago. ")
-    end_time: Optional[datetime] = Field(default=None, description="Return traces whose spans start before this timestamp (exclusive). ISO 8601 format (e.g., `2024-01-02T00:00:00Z`). Defaults to the current time. ")
+    end_time: Optional[datetime] = Field(default=None, description="Return traces whose spans start at or before this timestamp (inclusive). ISO 8601 format (e.g., `2024-01-02T00:00:00Z`). Defaults to the current time. ")
     filter: Optional[StrictStr] = Field(default=None, description="Filter expression to apply to the query. Supports SQL-like syntax for filtering spans by attributes (e.g., `status_code = 'ERROR'` or `span_kind = 'LLM'`). A trace is returned when **any** of its spans matches the filter — the matching span is usually a child, not the root. Optional; omit it to apply no filter. If provided, it must not be empty or whitespace-only. ")
     __properties: ClassVar[List[str]] = ["project_id", "start_time", "end_time", "filter"]
 

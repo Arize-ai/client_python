@@ -213,8 +213,8 @@ are authorization-filtered after a page is read, a page may contain fewer items 
 `limit` (or be empty) while `has_more` is still `true`. Clients MUST keep paging until
 `has_more` is `false` — do not stop on an empty page.
 
-The `resource_type` query parameter is optional. When omitted, restrictions of all
-supported types are returned in one merged list.
+Use the optional `resource_type` query param to filter to a single resource type.
+When omitted, restrictions of all supported types are returned in one merged list.
 
 <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
@@ -250,7 +250,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.ResourceRestrictionsApi(api_client)
-    resource_type = arize._generated.api_client.ResourceRestrictionType() # ResourceRestrictionType | Filter the results to a specific resource type. When omitted, restrictions of all supported types are returned. - `PROJECT` — Return only restricted projects. - `DASHBOARD` — Return only restricted dashboards.  (optional)
+    resource_type = arize._generated.api_client.ResourceRestrictionType() # ResourceRestrictionType | Filter restrictions to a single resource type. - `PROJECT` — Return only restricted projects. - `DASHBOARD` — Return only restricted dashboards. - `PROMPT` — Return only restricted prompts.  When not specified, restrictions of all supported types are returned in one merged list.  (optional)
     limit = 50 # int | Maximum items to return. Defaults to 50 if omitted; maximum is 100. (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
@@ -270,7 +270,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **resource_type** | [**ResourceRestrictionType**](.md)| Filter the results to a specific resource type. When omitted, restrictions of all supported types are returned. - &#x60;PROJECT&#x60; — Return only restricted projects. - &#x60;DASHBOARD&#x60; — Return only restricted dashboards.  | [optional] 
+ **resource_type** | [**ResourceRestrictionType**](.md)| Filter restrictions to a single resource type. - &#x60;PROJECT&#x60; — Return only restricted projects. - &#x60;DASHBOARD&#x60; — Return only restricted dashboards. - &#x60;PROMPT&#x60; — Return only restricted prompts.  When not specified, restrictions of all supported types are returned in one merged list.  | [optional] 
  **limit** | **int**| Maximum items to return. Defaults to 50 if omitted; maximum is 100. | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
 

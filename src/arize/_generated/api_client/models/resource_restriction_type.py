@@ -20,7 +20,7 @@ from typing_extensions import Self
 
 class ResourceRestrictionType(str, Enum):
     """
-    Type of the restricted resource. - PROJECT - A project within a space. - DASHBOARD - A dashboard within a space. 
+    Type of the restricted resource. - PROJECT - A project within a space. - DASHBOARD - A dashboard within a space. - PROMPT - A prompt within a space. 
     """
 
     """
@@ -28,6 +28,7 @@ class ResourceRestrictionType(str, Enum):
     """
     PROJECT = 'PROJECT'
     DASHBOARD = 'DASHBOARD'
+    PROMPT = 'PROMPT'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

@@ -17,20 +17,23 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List
-from arize._generated.api_client.models.pagination_metadata import PaginationMetadata
-from arize._generated.api_client.models.span import Span
+from typing_extensions import Annotated
+from arize._generated.api_client.models.service_key_bot_user_org_assignment import ServiceKeyBotUserOrgAssignment
+from arize._generated.api_client.models.user_role_assignment import UserRoleAssignment
 from typing import Optional, Set
 from typing_extensions import Self
 
-class ListSpansResponse(BaseModel):
+class CreatedServiceKeyBotUser(BaseModel):
     """
-    ListSpansResponse
+    CreatedServiceKeyBotUser
     """ # noqa: E501
-    spans: List[Span] = Field(description="A list of spans ordered by `start_time` from newest to oldest. Spans with the same start time use their trace and span identifiers for a stable order. ")
-    pagination: PaginationMetadata
-    __properties: ClassVar[List[str]] = ["spans", "pagination"]
+    id: StrictStr = Field(description="Global ID of the bot user.")
+    name: StrictStr = Field(description="Display name of the bot user.")
+    account_role: UserRoleAssignment = Field(description="Account-level role assigned to the bot user. Always present — defaults are resolved server-side.")
+    organizations: Annotated[List[ServiceKeyBotUserOrgAssignment], Field(min_length=1)] = Field(description="Organization access assignments for the service account, each containing nested space assignments. Always has at least one entry — creating a service key requires at least one organization. ")
+    __properties: ClassVar[List[str]] = ["id", "name", "account_role", "organizations"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -50,7 +53,7 @@ class ListSpansResponse(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of ListSpansResponse from a JSON string"""
+        """Create an instance of CreatedServiceKeyBotUser from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -71,21 +74,21 @@ class ListSpansResponse(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in spans (list)
+        # override the default output from pydantic by calling `to_dict()` of account_role
+        if self.account_role:
+            _dict['account_role'] = self.account_role.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of each item in organizations (list)
         _items = []
-        if self.spans:
-            for _item_spans in self.spans:
-                if _item_spans:
-                    _items.append(_item_spans.to_dict())
-            _dict['spans'] = _items
-        # override the default output from pydantic by calling `to_dict()` of pagination
-        if self.pagination:
-            _dict['pagination'] = self.pagination.to_dict()
+        if self.organizations:
+            for _item_organizations in self.organizations:
+                if _item_organizations:
+                    _items.append(_item_organizations.to_dict())
+            _dict['organizations'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of ListSpansResponse from a dict"""
+        """Create an instance of CreatedServiceKeyBotUser from a dict"""
         if obj is None:
             return None
 
@@ -94,8 +97,10 @@ class ListSpansResponse(BaseModel):
 
 
         _obj = cls.model_validate({
-            "spans": [Span.from_dict(_item) for _item in obj["spans"]] if obj.get("spans") is not None else None,
-            "pagination": PaginationMetadata.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None
+            "id": obj.get("id"),
+            "name": obj.get("name"),
+            "account_role": UserRoleAssignment.from_dict(obj["account_role"]) if obj.get("account_role") is not None else None,
+            "organizations": [ServiceKeyBotUserOrgAssignment.from_dict(_item) for _item in obj["organizations"]] if obj.get("organizations") is not None else None
         })
         return _obj
 

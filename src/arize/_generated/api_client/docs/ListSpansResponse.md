@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**spans** | [**List[Span]**](Span.md) | A list of spans | 
+**spans** | [**List[Span]**](Span.md) | A list of spans ordered by &#x60;start_time&#x60; from newest to oldest. Spans with the same start time use their trace and span identifiers for a stable order.  | 
 **pagination** | [**PaginationMetadata**](PaginationMetadata.md) |  | 
 
 ## Example

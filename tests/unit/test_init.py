@@ -616,3 +616,84 @@ class TestPivotAnnotations:
             obj, exclude_none=False
         )
         assert "annotations" in df.columns
+
+
+@pytest.mark.unit
+class TestApiKeysToDf:
+    """Tests for ListApiKeysResponse.to_df(), which must unwrap the ApiKey
+    oneOf union rather than emit its Pydantic wrapper internals.
+    """
+
+    def _make_response(self) -> object:
+        from arize._generated.api_client.models.api_key import ApiKey
+        from arize._generated.api_client.models.list_api_keys_response import (
+            ListApiKeysResponse,
+        )
+        from arize._generated.api_client.models.pagination_metadata import (
+            PaginationMetadata,
+        )
+        from arize._generated.api_client.models.predefined_user_role_assignment import (
+            PredefinedUserRoleAssignment,
+        )
+        from arize._generated.api_client.models.service_api_key import (
+            ServiceApiKey,
+        )
+        from arize._generated.api_client.models.service_key_bot_user import (
+            ServiceKeyBotUser,
+        )
+        from arize._generated.api_client.models.user_api_key import UserApiKey
+        from arize._generated.api_client.models.user_role_assignment import (
+            UserRoleAssignment,
+        )
+
+        user_key = UserApiKey(
+            id="key-1",
+            name="user-key",
+            key_type="USER",
+            status="ACTIVE",
+            redacted_key="ak-x",
+            created_at="2026-01-01T00:00:00Z",
+            created_by_user_id="user-1",
+        )
+        bot_user = ServiceKeyBotUser(
+            id="bot-1",
+            name="service-key",
+            account_role=UserRoleAssignment(
+                actual_instance=PredefinedUserRoleAssignment(
+                    type="PREDEFINED", name="MEMBER"
+                )
+            ),
+            organizations=[],
+        )
+        service_key = ServiceApiKey(
+            id="key-2",
+            name="service-key",
+            key_type="SERVICE",
+            status="ACTIVE",
+            redacted_key="ak-y",
+            created_at="2026-01-01T00:00:00Z",
+            created_by_user_id="user-1",
+            bot_user=bot_user,
+        )
+        return ListApiKeysResponse(
+            api_keys=[
+                ApiKey(actual_instance=user_key),
+                ApiKey(actual_instance=service_key),
+            ],
+            pagination=PaginationMetadata(has_more=False),
+        )
+
+    def test_unwraps_oneof_into_real_columns(self) -> None:
+        df = self._make_response().to_df()
+        assert list(df["id"]) == ["key-1", "key-2"]
+        assert list(df["name"]) == ["user-key", "service-key"]
+        assert "one_of_schemas" not in df.columns
+        assert "discriminator_value_class_map" not in df.columns
+        assert "actual_instance" not in df.columns
+
+    def test_bot_user_present_only_for_service_key(self) -> None:
+        import pandas as pd
+
+        df = self._make_response().to_df(exclude_none=False)
+        assert pd.isna(df.loc[0, "bot_user"])
+        assert df.loc[1, "bot_user"]["id"] == "bot-1"

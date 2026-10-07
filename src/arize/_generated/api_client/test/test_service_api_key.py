@@ -14,10 +14,10 @@
 
 import unittest
 
-from arize._generated.api_client.models.created_service_api_key import CreatedServiceApiKey
+from arize._generated.api_client.models.service_api_key import ServiceApiKey
 
-class TestCreatedServiceApiKey(unittest.TestCase):
-    """CreatedServiceApiKey unit test stubs"""
+class TestServiceApiKey(unittest.TestCase):
+    """ServiceApiKey unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,16 +25,16 @@ class TestCreatedServiceApiKey(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> CreatedServiceApiKey:
-        """Test CreatedServiceApiKey
+    def make_instance(self, include_optional) -> ServiceApiKey:
+        """Test ServiceApiKey
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `CreatedServiceApiKey`
+        # uncomment below to create an instance of `ServiceApiKey`
         """
-        model = CreatedServiceApiKey()
+        model = ServiceApiKey()
         if include_optional:
-            return CreatedServiceApiKey(
+            return ServiceApiKey(
                 id = '',
                 name = '',
                 description = '',
@@ -45,7 +45,7 @@ class TestCreatedServiceApiKey(unittest.TestCase):
                 expires_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 created_by_user_id = '',
                 last_used_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
-                bot_user = arize._generated.api_client.models.created_service_key_bot_user.CreatedServiceKeyBotUser(
+                bot_user = arize._generated.api_client.models.service_key_bot_user.ServiceKeyBotUser(
                     id = '', 
                     name = '', 
                     account_role = null, 
@@ -58,11 +58,10 @@ class TestCreatedServiceApiKey(unittest.TestCase):
                                     space_id = 'U3BhY2U6MjAwMTphQmNE', 
                                     role = null, )
                                 ], )
-                        ], ),
-                key = ''
+                        ], )
             )
         else:
-            return CreatedServiceApiKey(
+            return ServiceApiKey(
                 id = '',
                 name = '',
                 key_type = 'SERVICE',
@@ -70,7 +69,7 @@ class TestCreatedServiceApiKey(unittest.TestCase):
                 redacted_key = '',
                 created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 created_by_user_id = '',
-                bot_user = arize._generated.api_client.models.created_service_key_bot_user.CreatedServiceKeyBotUser(
+                bot_user = arize._generated.api_client.models.service_key_bot_user.ServiceKeyBotUser(
                     id = '', 
                     name = '', 
                     account_role = null, 
@@ -84,12 +83,11 @@ class TestCreatedServiceApiKey(unittest.TestCase):
                                     role = null, )
                                 ], )
                         ], ),
-                key = '',
         )
         """
 
-    def testCreatedServiceApiKey(self):
-        """Test CreatedServiceApiKey"""
+    def testServiceApiKey(self):
+        """Test ServiceApiKey"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

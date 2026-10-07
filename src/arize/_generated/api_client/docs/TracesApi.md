@@ -24,7 +24,9 @@ matching span (e.g. `status_code = 'ERROR'` or `span_kind = 'LLM'`), not
 only traces whose root span matches. The matching span is usually a child,
 not the root.
 
-Traces are returned newest-first.
+Trace entries are ordered by root span `start_time` from newest to oldest.
+Root trace and span identifiers give entries with the same start time a
+stable order. Start and end time bounds are inclusive.
 
 **Behaviors and limitations**
 - Traces are anchored on their root span (the span with no parent). A
@@ -33,8 +35,26 @@ Traces are returned newest-first.
   boundary-straddling trace that fall outside the range are not included.
 - A trace with more than one root span is returned as multiple entries
   sharing the same `trace_id`, distinguished by `root_span_id`.
-- Each trace returns at most 1,000 spans. When a trace has more, its
-  `spans_truncated` flag is `true`.
+- Each trace returns at most 1,000 spans. Traces share a fetch allowance
+  per page. When that allowance is exhausted, traces can be incomplete
+  even when `spans_truncated` is `false`.
+
+Use the returned cursor with the same project, filter, and time window.
+You can change the page limit. If the server rejects a cursor after an
+endpoint update, restart the page walk without it. Cursor pagination keeps
+one time window fixed, but it is not a snapshot of changing data.
+
+**Traces that arrive long after they started**
+
+`start_time` is the time your application recorded for the span. Arize
+also stores the time it received the span. This endpoint searches
+received-time storage for a few hours on either side of the `start_time`
+range you ask for, which is how the Arize UI reads the same data.
+
+A trace that reached Arize much later than it started can therefore fall
+outside that search. Backfilled or replayed traces are the common case.
+Widen `start_time` and `end_time` to cover when the data was sent, not
+only when it was recorded, and those traces come back.
 
 <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 

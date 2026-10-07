@@ -142,6 +142,7 @@ from arize._generated.api_client.models.create_webhook_request import CreateWebh
 from arize._generated.api_client.models.create_webhook_response import CreateWebhookResponse
 from arize._generated.api_client.models.create_webhook_subscription_request import CreateWebhookSubscriptionRequest
 from arize._generated.api_client.models.created_service_api_key import CreatedServiceApiKey
+from arize._generated.api_client.models.created_service_key_bot_user import CreatedServiceKeyBotUser
 from arize._generated.api_client.models.created_user_api_key import CreatedUserApiKey
 from arize._generated.api_client.models.custom_auth import CustomAuth
 from arize._generated.api_client.models.custom_baseline_config import CustomBaselineConfig
@@ -331,6 +332,7 @@ from arize._generated.api_client.models.run_configuration_request import RunConf
 from arize._generated.api_client.models.scheduled_runtime_config import ScheduledRuntimeConfig
 from arize._generated.api_client.models.search_dataset_examples_request import SearchDatasetExamplesRequest
 from arize._generated.api_client.models.search_experiment_runs_request import SearchExperimentRunsRequest
+from arize._generated.api_client.models.service_api_key import ServiceApiKey
 from arize._generated.api_client.models.service_key_bot_user import ServiceKeyBotUser
 from arize._generated.api_client.models.service_key_bot_user_org_assignment import ServiceKeyBotUserOrgAssignment
 from arize._generated.api_client.models.service_key_bot_user_space_assignment import ServiceKeyBotUserSpaceAssignment
@@ -421,6 +423,7 @@ from arize._generated.api_client.models.update_task_request import UpdateTaskReq
 from arize._generated.api_client.models.update_user_request import UpdateUserRequest
 from arize._generated.api_client.models.update_webhook_request import UpdateWebhookRequest
 from arize._generated.api_client.models.user import User
+from arize._generated.api_client.models.user_api_key import UserApiKey
 from arize._generated.api_client.models.user_role import UserRole
 from arize._generated.api_client.models.user_role_assignment import UserRoleAssignment
 from arize._generated.api_client.models.user_role_assignment_request import UserRoleAssignmentRequest

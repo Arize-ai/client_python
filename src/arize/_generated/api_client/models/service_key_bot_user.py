@@ -19,7 +19,6 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List
-from typing_extensions import Annotated
 from arize._generated.api_client.models.service_key_bot_user_org_assignment import ServiceKeyBotUserOrgAssignment
 from arize._generated.api_client.models.user_role_assignment import UserRoleAssignment
 from typing import Optional, Set
@@ -31,8 +30,8 @@ class ServiceKeyBotUser(BaseModel):
     """ # noqa: E501
     id: StrictStr = Field(description="Global ID of the bot user.")
     name: StrictStr = Field(description="Display name of the bot user.")
-    account_role: UserRoleAssignment = Field(description="Account-level role assigned to the bot user. Always present — defaults are resolved server-side.")
-    organizations: Annotated[List[ServiceKeyBotUserOrgAssignment], Field(min_length=1)] = Field(description="Organization access assignments for the service account, each containing nested space assignments.")
+    account_role: UserRoleAssignment = Field(description="Account-level role assigned to the bot user. Always present — defaults are resolved server-side. In a list response (`GET /v2/api-keys`) for a bot user that could not be resolved, this is a `MEMBER` placeholder and `name` is empty. ")
+    organizations: List[ServiceKeyBotUserOrgAssignment] = Field(description="Organization access assignments for the service account, each containing nested space assignments. Always empty in a list response (`GET /v2/api-keys`) filtered by `space_id`. Also empty in a list response for a bot user whose bindings could not be resolved (e.g. a stale or otherwise unrecoverable bot user). `CreatedServiceKeyBotUser` (used in the `POST /v2/api-keys` response) tightens this to at least one entry, since creating a service key always requires an organization. ")
     __properties: ClassVar[List[str]] = ["id", "name", "account_role", "organizations"]
 
     model_config = ConfigDict(

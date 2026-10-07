@@ -36,6 +36,7 @@ class SpanKind(str, Enum):
     GUARDRAIL = 'GUARDRAIL'
     EVALUATOR = 'EVALUATOR'
     PROMPT = 'PROMPT'
+    DECISION = 'DECISION'
     UNKNOWN = 'UNKNOWN'
 
     @classmethod

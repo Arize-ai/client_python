@@ -17,7 +17,7 @@ Name | Type | Description | Notes
 **created_by_user_id** | **str** | ID of the user who created the key. | 
 **last_used_at** | **datetime** | Approximate timestamp when the key was last used for authentication. This value is periodically updated and may not reflect the most recent usage. | [optional] 
 **key** | **str** | The full API key value. **Only returned once** at creation or refresh time. Store it securely — it cannot be retrieved again.  | 
-**bot_user** | [**ServiceKeyBotUser**](ServiceKeyBotUser.md) |  | 
+**bot_user** | [**CreatedServiceKeyBotUser**](CreatedServiceKeyBotUser.md) |  | 
 
 ## Example
 

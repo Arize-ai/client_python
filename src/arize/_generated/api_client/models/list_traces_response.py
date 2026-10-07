@@ -28,7 +28,7 @@ class ListTracesResponse(BaseModel):
     """
     ListTracesResponse
     """ # noqa: E501
-    traces: List[Trace] = Field(description="A list of traces, ordered newest-first.")
+    traces: List[Trace] = Field(description="A list of root-based trace entries ordered by root span `start_time` from newest to oldest. The root trace and span identifiers give entries with the same start time a stable order. ")
     pagination: PaginationMetadata
     __properties: ClassVar[List[str]] = ["traces", "pagination"]
 
