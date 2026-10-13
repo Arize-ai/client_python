@@ -1,5 +1,17 @@
 # Changelog
 
+## [8.59.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.58.0...arize-python-sdk/v8.59.0) (2026-10-12)
+
+
+### 🎁 New Features
+
+* adding preview truncation to list spans ([#89694](https://github.com/Arize-ai/arize/issues/89694)) ([71202f9](https://github.com/Arize-ai/arize/commit/71202f9163d0d1466cec70bb6d64bb8f23e47c85))
+
+
+### 🐛 Bug Fixes
+
+* route create by row count and payload size ([#87806](https://github.com/Arize-ai/arize/issues/87806)) ([7b70dab](https://github.com/Arize-ai/arize/commit/7b70dabcf512e8160d0ceea7381b408206592d42))
+
 ## [8.58.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.57.1...arize-python-sdk/v8.58.0) (2026-10-07)
 
 

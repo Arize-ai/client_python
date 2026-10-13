@@ -23,7 +23,10 @@ from arize._flight.client import ArizeFlightClient
 from arize._flight.types import FlightRequestType
 from arize._generated.api_client import models
 from arize._generated.api_client.exceptions import ApiException
-from arize.constants.config import DEFAULT_LIST_LIMIT
+from arize.constants.config import (
+    DEFAULT_LIST_LIMIT,
+    REST_MAX_ITEMS_PER_REQUEST,
+)
 from arize.exceptions.base import INVALID_ARROW_CONVERSION_MSG
 from arize.experiments.functions import (
     ExperimentMetadata,
@@ -48,12 +51,13 @@ from arize.utils.openinference_conversion import (
     convert_boolean_columns_to_str,
     convert_default_columns_to_json_str,
 )
+from arize.utils.records import to_json_records
 from arize.utils.resolve import (
     _find_dataset_id,
     _find_experiment_id,
     _find_space_id,
 )
-from arize.utils.size import get_payload_size_mb
+from arize.utils.size import to_json_records_within
 
 if TYPE_CHECKING:
     # builtins is needed to use builtins.list in type annotations because
@@ -219,14 +223,19 @@ class ExperimentsClient:
         format using `task_fields` and optional `evaluator_columns`.
 
         Transport selection:
-            - If the payload is below the configured REST payload threshold (or
-              `force_http=True`), this method uploads via REST.
-            - Otherwise, it attempts a more efficient upload path via gRPC + Flight.
-              Experiments not associated with a dataset always upload via REST, since
-              the gRPC + Flight path only supports dataset-associated experiments.
             - File paths always stream via gRPC + Flight one record batch at a
               time, so the runs are never fully loaded in memory. They require
               `dataset`, and `force_http=True` raises ValueError.
+            - More than 1000 runs always upload via gRPC + Flight. REST accepts
+              at most 1000 runs per request, so `force_http=True` raises
+              `ValueError` in that case.
+            - Otherwise the runs are converted to JSON records. If that body is
+              at or under the configured REST payload threshold (or
+              `force_http=True`), this method uploads via REST; if it is larger,
+              it uploads via gRPC + Flight.
+            - Experiments not associated with a dataset always upload via REST,
+              since the gRPC + Flight path only supports dataset-associated
+              experiments. They therefore accept at most 1000 runs per call.
 
         Args:
             name: Experiment name. Must be unique within the target dataset
@@ -244,20 +253,25 @@ class ExperimentsClient:
                   `.feather`), a directory of such files (searched recursively),
                   or a list of such paths. All files must share a compatible
                   schema; columns missing from some files are filled with nulls.
+                NumPy arrays and scalars are converted to plain Python values
+                before a REST upload.
             task_fields: Mapping that identifies the columns/fields containing the
                 task results (e.g. `example_id`, output fields).
             evaluator_columns: Optional mapping describing evaluator result columns.
             force_http: If True, force REST upload even if the payload exceeds the
-                configured REST payload threshold.
+                configured REST payload threshold. Not allowed with more than
+                1000 runs.
 
         Returns:
             The created experiment object.
 
         Raises:
             ValueError: If neither `dataset` nor `space` is provided, if a column
-                named by `task_fields` is missing, or, for file paths, if
-                `dataset` is not provided, `force_http=True`, no data files are
-                found, the files hold no rows, or their schemas are incompatible.
+                named by `task_fields` is missing, if more than 1000 runs must go
+                over REST (`force_http=True`, or an experiment not associated with
+                a dataset), or, for file paths, if `dataset` is not provided,
+                `force_http=True`, no data files are found, the files hold no
+                rows, or their schemas are incompatible.
             TypeError: If `experiment_runs` is not a list of dicts, a DataFrame,
                 or file paths, or is a list mixing dicts and paths.
             FileNotFoundError: If a given path does not exist.
@@ -316,32 +330,37 @@ class ExperimentsClient:
             experiment_runs, task_fields, evaluator_columns
         )
 
-        below_threshold = (
-            get_payload_size_mb(experiment_runs)
-            <= self._sdk_config.max_http_payload_size_mb
-        )
-
-        if dataset_id is None or below_threshold or force_http:
-            from arize._generated import api_client as gen
-
-            data = experiment_df.to_dict(orient="records")
-            runs_create = [
-                obj
-                for run in data
-                if (
-                    obj := gen.ExperimentRunInput.from_dict(
-                        cast("dict[str, Any]", run)
-                    )
+        row_count = len(experiment_df)
+        if dataset_id is None or force_http:
+            if row_count > REST_MAX_ITEMS_PER_REQUEST:
+                hint = (
+                    "Experiments not associated with a dataset upload via "
+                    "REST only; split the upload."
+                    if dataset_id is None
+                    else "Drop force_http to upload via Flight, or split the "
+                    "upload."
                 )
-                is not None
-            ]
-            body = gen.CreateExperimentRequest(
+                raise ValueError(
+                    f"REST accepts at most {REST_MAX_ITEMS_PER_REQUEST} "
+                    f"experiment runs per request; got {row_count}. {hint}"
+                )
+            return self._create_experiment_via_rest(
                 name=name,
                 dataset_id=dataset_id,
                 space_id=space_id,
-                experiment_runs=runs_create,
+                runs=to_json_records(experiment_df),
             )
-            return self._api.create_experiment(create_experiment_request=body)
+        if row_count <= REST_MAX_ITEMS_PER_REQUEST:
+            data = to_json_records_within(
+                experiment_df, self._sdk_config.max_http_payload_size_mb
+            )
+            if data is not None:
+                return self._create_experiment_via_rest(
+                    name=name,
+                    dataset_id=dataset_id,
+                    space_id=space_id,
+                    runs=data,
+                )
 
         # If we have too many examples, try to convert to a dataframe
         # and log via gRPC + flight
@@ -775,16 +794,10 @@ class ExperimentsClient:
         from arize._generated import api_client as gen
 
         if isinstance(experiment_runs, pd.DataFrame):
-            data = experiment_runs.to_dict(orient="records")
             runs_create = [
                 obj
-                for run in data
-                if (
-                    obj := gen.ExperimentRunInput.from_dict(
-                        cast("dict[str, Any]", run)
-                    )
-                )
-                is not None
+                for run in to_json_records(experiment_runs)
+                if (obj := gen.ExperimentRunInput.from_dict(run)) is not None
             ]
         else:
             runs_create = list(experiment_runs)
@@ -1167,24 +1180,40 @@ class ExperimentsClient:
     ) -> Experiment:
         # TODO(Kiko): Once we enable experiment tracing for the REST path,
         # we will need to replace the create call for an append runs call
-        from arize._generated import api_client as gen
-
-        data = experiment_df.to_dict(orient="records")
-        runs_create = [
-            obj
-            for run in data
-            if (
-                obj := gen.ExperimentRunInput.from_dict(
-                    cast("dict[str, Any]", run)
-                )
-            )
-            is not None
-        ]
-        body = gen.CreateExperimentRequest(
+        return self._create_experiment_via_rest(
             name=name,
             dataset_id=dataset_id,
-            experiment_runs=runs_create,
+            space_id=None,
+            runs=to_json_records(experiment_df),
         )
+
+    def _create_experiment_via_rest(
+        self,
+        *,
+        name: str,
+        dataset_id: str | None,
+        space_id: str | None,
+        runs: builtins.list[dict[str, Any]],
+    ) -> Experiment:
+        from arize._generated import api_client as gen
+
+        runs_create = [
+            obj
+            for run in runs
+            if (obj := gen.ExperimentRunInput.from_dict(run)) is not None
+        ]
+        if dataset_id is not None:
+            body = gen.CreateExperimentRequest(
+                name=name,
+                dataset_id=dataset_id,
+                experiment_runs=runs_create,
+            )
+        else:
+            body = gen.CreateExperimentRequest(
+                name=name,
+                space_id=space_id,
+                experiment_runs=runs_create,
+            )
         return self._api.create_experiment(create_experiment_request=body)
 
     def _dataset_space_id(self, dataset_id: str) -> str:

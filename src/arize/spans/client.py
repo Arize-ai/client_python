@@ -158,6 +158,7 @@ class SpansClient:
         filter: str | None = None,
         included_columns: builtins.list[str] | None = None,
         excluded_columns: builtins.list[str] | None = None,
+        truncate_string_length: int | None = None,
         limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
     ) -> ListSpansResponse:
@@ -192,6 +193,17 @@ class SpansClient:
             excluded_columns: Optional list of full dotted column paths to omit
                 from each span. Fixed span fields are always returned. Cannot
                 be used with ``included_columns``.
+            truncate_string_length: When set, every string value inside each
+                returned span's ``attributes`` object, including strings nested
+                at any depth in objects and arrays, is shortened to at most this
+                many characters (Unicode code points). Strings longer than the
+                limit are cut and end with a single ellipsis character ``…``,
+                which counts toward the limit. Strings at or under the limit
+                are unchanged. Only ``attributes`` string values are affected;
+                span IDs, names, kinds, status, timestamps, annotations,
+                evaluations, events, and pagination are never truncated.
+                Omitted means no truncation. Must be a positive integer; ``0``
+                or a negative value is rejected.
             limit: Maximum number of spans to return. The server enforces an
                 upper bound. Defaults to 50.
             cursor: Opaque pagination cursor returned from a previous response.
@@ -222,6 +234,7 @@ class SpansClient:
             filter=filter,
             included_columns=included_columns,
             excluded_columns=excluded_columns,
+            truncate_string_length=truncate_string_length,
         )
         return self._api.list_spans(
             list_spans_request=body,

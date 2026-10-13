@@ -271,7 +271,11 @@ client.spans.log(
 
 Use `list` to retrieve a page of spans. Set `included_columns` to return only
 the columns you need, or set `excluded_columns` to omit large columns. Do not
-set both. Fixed span fields are always returned.
+set both. Fixed span fields are always returned. Set
+`truncate_string_length` to shorten long string values inside each span's
+`attributes` object. Strings longer than the limit are cut and end with `…`,
+which counts toward the limit. Span IDs, names, status, timestamps,
+annotations, evaluations, and events are not truncated.
 
 ```python
 from arize import ArizeClient
@@ -280,6 +284,7 @@ client = ArizeClient(api_key=API_KEY)
 spans = client.spans.list(
     project="<your-project-id>",
     excluded_columns=["attributes.embedding.vectors"],
+    truncate_string_length=200,
 )
 for span in spans.spans:
     print(span.name)

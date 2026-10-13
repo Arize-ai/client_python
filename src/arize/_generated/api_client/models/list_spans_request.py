@@ -34,7 +34,8 @@ class ListSpansRequest(BaseModel):
     filter: Optional[StrictStr] = Field(default=None, description="Filter expression to apply to the query. Supports SQL-like syntax for filtering spans by attributes (e.g., `status_code = 'ERROR'`). Optional; omit it to apply no filter. If provided, it must not be empty or whitespace-only. ")
     included_columns: Optional[Annotated[List[Annotated[str, Field(min_length=1, strict=True)]], Field(min_length=1, max_length=1000)]] = Field(default=None, description="Columns to include in each span. When set, only these columns (plus fixed span fields) are returned. Mutually exclusive with `excluded_columns` — providing both returns 422.  Values must be full dotted column paths (e.g., `attributes.llm.model_name`, `eval.hallucination.score`). Unknown column names are silently ignored.  Fixed span fields — name, context (trace_id, span_id), kind, parent_id, start_time, end_time, status_code, status_message, latency_ms, and events — are always returned regardless of this parameter. ")
     excluded_columns: Optional[Annotated[List[Annotated[str, Field(min_length=1, strict=True)]], Field(min_length=1, max_length=1000)]] = Field(default=None, description="Columns to exclude from each span. When set, all columns except these are returned. Mutually exclusive with `included_columns` — providing both returns 422.  Values must be full dotted column paths (e.g., `attributes.embedding.vectors`, `eval.toxicity.score`). Unknown column names are silently ignored. Attempts to exclude fixed span fields (name, context, kind, parent_id, start_time, end_time, status_code, status_message, latency_ms, events) are silently ignored.  Excluding an `attributes.*` column removes that attribute from the returned `attributes` object. ")
-    __properties: ClassVar[List[str]] = ["project_id", "start_time", "end_time", "filter", "included_columns", "excluded_columns"]
+    truncate_string_length: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, description="When set, every string value inside each returned span's `attributes` object, including strings nested at any depth in objects and arrays, is shortened to at most this many characters (Unicode code points). Strings longer than the limit are cut and end with a single ellipsis character `…` which counts toward the limit; strings at or under the limit are unchanged. Only `attributes` string values are affected; span IDs, names, kinds, status, timestamps, annotations, evaluations, events and pagination are never truncated. Omitted means no truncation. Must be a positive integer; 0 or negative returns 422. ")
+    __properties: ClassVar[List[str]] = ["project_id", "start_time", "end_time", "filter", "included_columns", "excluded_columns", "truncate_string_length"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -97,7 +98,8 @@ class ListSpansRequest(BaseModel):
             "end_time": obj.get("end_time"),
             "filter": obj.get("filter"),
             "included_columns": obj.get("included_columns"),
-            "excluded_columns": obj.get("excluded_columns")
+            "excluded_columns": obj.get("excluded_columns"),
+            "truncate_string_length": obj.get("truncate_string_length")
         })
         return _obj
 

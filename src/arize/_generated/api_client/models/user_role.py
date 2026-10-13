@@ -28,6 +28,7 @@ class UserRole(str, Enum):
     """
     ADMIN = 'ADMIN'
     MEMBER = 'MEMBER'
+    MEMBER_UI_ONLY = 'MEMBER_UI_ONLY'
     ANNOTATOR = 'ANNOTATOR'
 
     @classmethod

@@ -59,6 +59,11 @@ DEFAULT_LOG_STRUCTURED = False
 ENV_MAX_PAST_YEARS = "ARIZE_MAX_PAST_YEARS"
 DEFAULT_MAX_PAST_YEARS = 5
 
+# REST write limits
+# The server rejects create/insert bodies for dataset examples and experiment
+# runs with more items than this; larger uploads must go over Flight.
+REST_MAX_ITEMS_PER_REQUEST = 1000
+
 # Pagination
 # Default page size the SDK applies when a list call omits ``limit``.
 # Centralized here so every sub-client shares one source of truth; change it in

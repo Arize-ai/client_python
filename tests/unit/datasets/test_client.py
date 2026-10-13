@@ -16,7 +16,7 @@ import pytest
 
 from arize._generated.api_client import DatasetsApi
 from arize.datasets import errors as err
-from arize.datasets.client import DatasetsClient, _sanitize_nan_and_inf
+from arize.datasets.client import DatasetsClient
 from arize.datasets.upload import flight_schema
 
 
@@ -234,34 +234,6 @@ class TestDatasetsClientListExamples:
                 filter="input = 'What is 2+2?'",
                 all=True,
             )
-
-
-@pytest.mark.unit
-class TestSanitizeNanAndInf:
-    """Tests for _sanitize_nan_and_inf()."""
-
-    def test_replaces_nan_and_inf_floats_with_none(self) -> None:
-        result = _sanitize_nan_and_inf(
-            {
-                "a": float("nan"),
-                "b": float("inf"),
-                "c": float("-inf"),
-                "d": 1.5,
-            }
-        )
-        assert result == {"a": None, "b": None, "c": None, "d": 1.5}
-
-    def test_recurses_into_nested_dicts_and_lists(self) -> None:
-        result = _sanitize_nan_and_inf(
-            {"rows": [{"score": float("nan")}, {"score": 0.9}]}
-        )
-        assert result == {"rows": [{"score": None}, {"score": 0.9}]}
-
-    def test_leaves_non_float_values_untouched(self) -> None:
-        result = _sanitize_nan_and_inf(
-            {"id": "ex_1", "count": 3, "ok": True, "tags": None}
-        )
-        assert result == {"id": "ex_1", "count": 3, "ok": True, "tags": None}
 
 
 @pytest.mark.unit
@@ -602,6 +574,11 @@ class TestDatasetsClientListExamplesCaching:
         ]
 
 
+class _Unserializable:
+    def __str__(self) -> str:
+        raise AssertionError("row past the size limit was converted")
+
+
 @pytest.mark.unit
 class TestDatasetsClientExportToParquet:
     """Tests for DatasetsClient.export_to_parquet()."""
@@ -766,6 +743,286 @@ class TestDatasetsClientExportToParquet:
         flight_client.get_dataset_examples.assert_not_called()
 
 
+@pytest.mark.unit
+class TestDatasetsClientCreateTransport:
+    """Tests for the REST vs Flight selection in DatasetsClient.create()."""
+
+    @staticmethod
+    def _array_df(rows: int) -> pd.DataFrame:
+        return pd.DataFrame(
+            {
+                "id": [f"ex-{i}" for i in range(rows)],
+                "embedding": [np.arange(4, dtype=np.float64)] * rows,
+                "tools": [np.array(["search", "lookup"])] * rows,
+                "count": np.arange(rows, dtype=np.int64),
+            }
+        )
+
+    def test_array_columns_under_cap_use_rest_with_plain_lists(
+        self,
+        datasets_client: DatasetsClient,
+        mock_api: Mock,
+        mock_sdk_config: Mock,
+    ) -> None:
+        """Small array-bearing DataFrames go over REST with JSON-safe values."""
+        mock_sdk_config.max_http_payload_size_mb = 8
+        mock_api.create_dataset.return_value = Mock()
+
+        with (
+            patch(
+                "arize.datasets.client._find_space_id",
+                return_value="space-123",
+            ),
+            patch.object(
+                datasets_client, "_create_dataset_from_dataframe"
+            ) as flight,
+        ):
+            datasets_client.create(
+                name="ds", space="space-123", examples=self._array_df(20)
+            )
+
+        flight.assert_not_called()
+        body = mock_api.create_dataset.call_args.kwargs[
+            "create_dataset_request"
+        ]
+        assert len(body.examples) == 20
+        first = body.examples[0]
+        assert first["embedding"] == [0.0, 1.0, 2.0, 3.0]
+        assert type(first["embedding"]) is list
+        assert first["tools"] == ["search", "lookup"]
+        assert type(first["count"]) is int
+        assert json.dumps(body.examples)
+
+    def test_more_than_rest_cap_routes_to_flight_without_measuring(
+        self,
+        datasets_client: DatasetsClient,
+        mock_api: Mock,
+        mock_sdk_config: Mock,
+    ) -> None:
+        """Above the REST item cap the size is never measured; Flight is used."""
+        mock_sdk_config.max_http_payload_size_mb = 8
+        examples = [{"text": "short"}] * 1001
+
+        with (
+            patch(
+                "arize.datasets.client._find_space_id",
+                return_value="space-123",
+            ),
+            patch(
+                "arize.datasets.client.to_json_records_within"
+            ) as records_within_fn,
+            patch.object(
+                datasets_client, "_create_dataset_from_dataframe"
+            ) as flight,
+        ):
+            datasets_client.create(
+                name="ds", space="space-123", examples=examples
+            )
+
+        records_within_fn.assert_not_called()
+        mock_api.create_dataset.assert_not_called()
+        flight.assert_called_once()
+        sent = flight.call_args.kwargs["examples"]
+        assert isinstance(sent, pd.DataFrame)
+        assert len(sent) == 1001
+
+    def test_exactly_rest_cap_may_use_rest(
+        self,
+        datasets_client: DatasetsClient,
+        mock_api: Mock,
+        mock_sdk_config: Mock,
+    ) -> None:
+        """Exactly 1000 small rows still go over REST."""
+        mock_sdk_config.max_http_payload_size_mb = 8
+        mock_api.create_dataset.return_value = Mock()
+
+        with (
+            patch(
+                "arize.datasets.client._find_space_id",
+                return_value="space-123",
+            ),
+            patch.object(
+                datasets_client, "_create_dataset_from_dataframe"
+            ) as flight,
+        ):
+            datasets_client.create(
+                name="ds",
+                space="space-123",
+                examples=[{"text": "short"}] * 1000,
+            )
+
+        flight.assert_not_called()
+        mock_api.create_dataset.assert_called_once()
+
+    def test_wide_rows_over_threshold_route_to_flight(
+        self,
+        datasets_client: DatasetsClient,
+        mock_api: Mock,
+        mock_sdk_config: Mock,
+    ) -> None:
+        """Few rows whose JSON exceeds the threshold go over Flight."""
+        mock_sdk_config.max_http_payload_size_mb = 1
+        df = pd.DataFrame(
+            {
+                "id": ["a", "b"],
+                "embedding": [np.zeros(300_000, dtype=np.float64)] * 2,
+            }
+        )
+
+        with (
+            patch(
+                "arize.datasets.client._find_space_id",
+                return_value="space-123",
+            ),
+            patch.object(
+                datasets_client, "_create_dataset_from_dataframe"
+            ) as flight,
+        ):
+            datasets_client.create(name="ds", space="space-123", examples=df)
+
+        mock_api.create_dataset.assert_not_called()
+        flight.assert_called_once()
+        assert flight.call_args.kwargs["examples"] is df
+
+    def test_stops_converting_rows_once_over_threshold(
+        self,
+        datasets_client: DatasetsClient,
+        mock_api: Mock,
+        mock_sdk_config: Mock,
+    ) -> None:
+        """Rows after the threshold is passed are never converted."""
+        mock_sdk_config.max_http_payload_size_mb = 1
+        examples = [
+            {"text": "x" * (2 * 1024 * 1024)},
+            {"text": _Unserializable()},
+        ]
+
+        with (
+            patch(
+                "arize.datasets.client._find_space_id",
+                return_value="space-123",
+            ),
+            patch.object(
+                datasets_client, "_create_dataset_from_dataframe"
+            ) as flight,
+        ):
+            datasets_client.create(
+                name="ds", space="space-123", examples=examples
+            )
+
+        mock_api.create_dataset.assert_not_called()
+        flight.assert_called_once()
+
+    def test_force_http_over_threshold_still_uses_rest(
+        self,
+        datasets_client: DatasetsClient,
+        mock_api: Mock,
+        mock_sdk_config: Mock,
+    ) -> None:
+        """force_http overrides the size threshold below the item cap."""
+        mock_sdk_config.max_http_payload_size_mb = 1
+        mock_api.create_dataset.return_value = Mock()
+        df = pd.DataFrame(
+            {"id": ["a"], "embedding": [np.zeros(200_000, dtype=np.float64)]}
+        )
+
+        with (
+            patch(
+                "arize.datasets.client._find_space_id",
+                return_value="space-123",
+            ),
+            patch.object(
+                datasets_client, "_create_dataset_from_dataframe"
+            ) as flight,
+        ):
+            datasets_client.create(
+                name="ds", space="space-123", examples=df, force_http=True
+            )
+
+        flight.assert_not_called()
+        body = mock_api.create_dataset.call_args.kwargs[
+            "create_dataset_request"
+        ]
+        assert type(body.examples[0]["embedding"]) is list
+
+    def test_force_http_over_rest_cap_raises_value_error(
+        self,
+        datasets_client: DatasetsClient,
+        mock_api: Mock,
+        mock_sdk_config: Mock,
+    ) -> None:
+        """force_http with more rows than REST accepts is a clear ValueError."""
+        mock_sdk_config.max_http_payload_size_mb = 8
+
+        with (
+            patch(
+                "arize.datasets.client._find_space_id",
+                return_value="space-123",
+            ),
+            patch.object(datasets_client, "_create_dataset_from_dataframe"),
+            pytest.raises(ValueError, match=r"at most 1000") as exc_info,
+        ):
+            datasets_client.create(
+                name="ds",
+                space="space-123",
+                examples=[{"text": "short"}] * 1001,
+                force_http=True,
+            )
+
+        message = str(exc_info.value)
+        assert "force_http" in message
+        assert "split" in message
+        mock_api.create_dataset.assert_not_called()
+
+
+@pytest.mark.unit
+class TestDatasetsClientAppendExamplesNormalization:
+    """Tests for value normalization in DatasetsClient.append_examples()."""
+
+    def test_dataframe_with_array_columns_sends_plain_lists(
+        self,
+        datasets_client: DatasetsClient,
+        mock_api: Mock,
+    ) -> None:
+        """Array cells reach the request body as plain lists."""
+        mock_api.insert_dataset_examples.return_value = Mock()
+        df = pd.DataFrame(
+            {
+                "embedding": [np.array([1.5, 2.5])],
+                "count": np.array([3], dtype=np.int64),
+            }
+        )
+
+        datasets_client.append_examples(
+            dataset="RGF0YXNldDoxMjM6YWJj", examples=df
+        )
+
+        body = mock_api.insert_dataset_examples.call_args.kwargs[
+            "insert_dataset_examples_request"
+        ]
+        assert body.examples == [{"embedding": [1.5, 2.5], "count": 3}]
+        assert type(body.examples[0]["embedding"]) is list
+        assert type(body.examples[0]["count"]) is int
+
+    def test_list_with_numpy_values_is_normalized(
+        self,
+        datasets_client: DatasetsClient,
+        mock_api: Mock,
+    ) -> None:
+        """Numpy values inside plain dicts are converted too."""
+        mock_api.insert_dataset_examples.return_value = Mock()
+
+        datasets_client.append_examples(
+            dataset="RGF0YXNldDoxMjM6YWJj",
+            examples=[{"scores": np.array([0.1, 0.9])}],
+        )
+
+        body = mock_api.insert_dataset_examples.call_args.kwargs[
+            "insert_dataset_examples_request"
+        ]
+        assert body.examples == [{"scores": [0.1, 0.9]}]
+
+
 DATASET_ID = "RGF0YXNldDoxMjM6YWJj"
 
 
@@ -846,7 +1103,7 @@ class TestDatasetsClientCreate:
     ) -> None:
         df = pd.DataFrame({"query": [f"q{i}" for i in range(25)]})
         with patch(
-            "arize.datasets.client.get_payload_size_mb", return_value=100.0
+            "arize.datasets.client.to_json_records_within", return_value=None
         ):
             _, _, get = self._create(datasets_client, flight_client, df)
         mock_api.create_dataset.assert_not_called()
@@ -983,7 +1240,7 @@ class TestDatasetsClientCreate:
     ) -> None:
         with (
             patch(
-                "arize.datasets.client.get_payload_size_mb",
+                "arize.datasets.client.to_json_records_within",
                 side_effect=AssertionError("must not size file input"),
             ),
             caplog.at_level(logging.INFO, logger="arize.datasets.client"),

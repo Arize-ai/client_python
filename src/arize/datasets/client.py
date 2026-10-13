@@ -3,19 +3,20 @@
 from __future__ import annotations
 
 import logging
-import math
 import time
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
-import numpy as np
 import pandas as pd
 import pyarrow as pa
 
 from arize._exporter.validation import validate_input_type
 from arize._flight.client import ArizeFlightClient
 from arize._generated.api_client import models
-from arize.constants.config import DEFAULT_LIST_LIMIT
+from arize.constants.config import (
+    DEFAULT_LIST_LIMIT,
+    REST_MAX_ITEMS_PER_REQUEST,
+)
 from arize.datasets.errors import EmptyDatasetError
 from arize.datasets.upload import (
     check_unique_ids,
@@ -34,12 +35,13 @@ from arize.utils.file_sources import (
     resolve_files,
     unified_source_schema,
 )
+from arize.utils.records import to_json_records
 from arize.utils.resolve import (
     _find_dataset_id,
     _find_space_id,
     _resolve_resource,
 )
-from arize.utils.size import get_payload_size_mb
+from arize.utils.size import to_json_records_within
 
 if TYPE_CHECKING:
     # builtins is needed to use builtins.list in type annotations because
@@ -59,55 +61,15 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def _sanitize_nan_and_inf(obj: Any) -> Any:  # noqa: ANN401
-    """Recursively replace NaN/Infinity floats with None.
-
-    `json.dumps` (used by the generated REST client) emits bare `NaN`/
-    `Infinity`/`-Infinity` tokens for these values by default, which are not
-    valid JSON and are rejected by the server with a decode error. Values
-    that come from a DataFrame with missing cells (`float('nan')`) hit this
-    most often.
-    """
-    if isinstance(obj, float):
-        return None if math.isnan(obj) or math.isinf(obj) else obj
-    if isinstance(obj, dict):
-        return {k: _sanitize_nan_and_inf(v) for k, v in obj.items()}
-    if isinstance(obj, list):
-        return [_sanitize_nan_and_inf(v) for v in obj]
-    return obj
-
-
-def _normalize_example_value(value: object) -> object:
-    """Convert NumPy containers and scalars to JSON-compatible Python values."""
-    if isinstance(value, np.datetime64):
-        return None if np.isnat(value) else np.datetime_as_string(value)
-    if isinstance(value, np.ndarray):
-        if np.issubdtype(value.dtype, np.datetime64):
-            normalized = np.datetime_as_string(value).astype(object)
-            normalized[np.isnat(value)] = None
-            return normalized.tolist()
-        return _normalize_example_value(value.tolist())
-    if isinstance(value, np.generic):
-        return _normalize_example_value(value.item())
-    if isinstance(value, dict):
-        return {
-            key: _normalize_example_value(item) for key, item in value.items()
-        }
-    if isinstance(value, (list, tuple)):
-        return [_normalize_example_value(item) for item in value]
-    return value
-
-
 def _dataset_examples_from_dataframe(
     dataset_df: pd.DataFrame,
 ) -> list[models.DatasetExample]:
     """Convert DataFrame rows to dataset examples with JSON-compatible values."""
-    examples = []
-    for row in dataset_df.to_dict(orient="records"):
-        normalized_row = cast("dict[str, Any]", _normalize_example_value(row))
-        if example := models.DatasetExample.from_dict(normalized_row):
-            examples.append(example)
-    return examples
+    return [
+        example
+        for row in to_json_records(dataset_df)
+        if (example := models.DatasetExample.from_dict(row)) is not None
+    ]
 
 
 class DatasetsClient:
@@ -204,12 +166,16 @@ class DatasetsClient:
             - Each example must contain at least one property (i.e. `{}` is invalid).
 
         Transport selection:
-            - Lists and DataFrames below the configured REST payload threshold (or
-              with `force_http=True`) upload via REST; larger ones upload via
-              gRPC + Flight.
             - File paths always stream via gRPC + Flight one record batch at a
               time, so the dataset is never fully loaded in memory.
               `force_http=True` raises ValueError for path input.
+            - More than 1000 examples always upload via gRPC + Flight. REST
+              accepts at most 1000 examples per request, so `force_http=True`
+              raises `ValueError` in that case.
+            - Otherwise the examples are converted to JSON records. If that body
+              is at or under the configured REST payload threshold (or
+              `force_http=True`), this method uploads via REST; if it is larger,
+              it uploads via gRPC + Flight.
 
         Args:
             name: Dataset name (must be unique within the target space).
@@ -221,17 +187,22 @@ class DatasetsClient:
                   `.feather`), a directory of such files (searched recursively),
                   or a list of such paths. All files must share a compatible
                   schema; columns missing from some files are filled with nulls.
+                NumPy arrays and scalars are converted to plain Python values
+                before a REST upload.
             force_http: If True, force REST upload even if the payload exceeds the
-                configured REST payload threshold.
+                configured REST payload threshold. Not allowed with more than
+                1000 examples.
 
         Returns:
             The created dataset object as returned by the API.
 
         Raises:
-            TypeError: If `examples` is a list mixing dicts and file paths.
+            TypeError: If `examples` is a list mixing dicts and file paths, or
+                is not a list of dicts, a :class:`pandas.DataFrame`, or file paths.
             ValueError: If `examples` is empty, if `force_http=True` is combined
-                with file paths, if no data files are found, if a file has an
-                unsupported suffix, or if the files' schemas are incompatible.
+                with file paths or more than 1000 examples, if no data files are
+                found, if a file has an unsupported suffix, or if the files'
+                schemas are incompatible.
             FileNotFoundError: If a given path does not exist.
             BinaryColumnError: If a data file has a bytes column.
             EmptyDatasetError: If the data files hold no rows.
@@ -258,27 +229,30 @@ class DatasetsClient:
         if len(examples) == 0:
             raise ValueError("Cannot create an empty dataset")
 
-        below_threshold = (
-            get_payload_size_mb(examples)
-            <= self._sdk_config.max_http_payload_size_mb
-        )
-        if below_threshold or force_http:
-            from arize._generated import api_client as gen
-
+        row_count = len(examples)
+        if row_count > REST_MAX_ITEMS_PER_REQUEST and force_http:
+            raise ValueError(
+                f"REST accepts at most {REST_MAX_ITEMS_PER_REQUEST} examples "
+                f"per request; got {row_count}. Drop force_http to upload via "
+                "Flight, or split the upload."
+            )
+        if row_count <= REST_MAX_ITEMS_PER_REQUEST:
             data = (
-                examples.to_dict(orient="records")
-                if isinstance(examples, pd.DataFrame)
-                else examples
+                to_json_records(examples)
+                if force_http
+                else to_json_records_within(
+                    examples, self._sdk_config.max_http_payload_size_mb
+                )
             )
-            data = _sanitize_nan_and_inf(data)
+            if data is not None:
+                from arize._generated import api_client as gen
 
-            body = gen.CreateDatasetRequest(
-                name=name,
-                space_id=space_id,
-                # Cast: pandas to_dict returns dict[Hashable, Any] but API requires dict[str, Any]
-                examples=cast("list[dict[str, Any]]", data),
-            )
-            return self._api.create_dataset(create_dataset_request=body)
+                body = gen.CreateDatasetRequest(
+                    name=name,
+                    space_id=space_id,
+                    examples=data,
+                )
+                return self._api.create_dataset(create_dataset_request=body)
 
         # If we have too many examples, try to convert to a dataframe
         # and log via gRPC + flight
@@ -630,6 +604,7 @@ class DatasetsClient:
             examples: Examples to append, provided as either:
                 - a list of JSON-like dicts, or
                 - a :class:`pandas.DataFrame` (converted to records before upload).
+                NumPy arrays and scalars are converted to plain Python values.
 
         Returns:
             A :class:`DatasetVersionWithExampleIds` containing the dataset attributes,
@@ -649,15 +624,8 @@ class DatasetsClient:
         )
         from arize._generated import api_client as gen
 
-        data = (
-            examples.to_dict(orient="records")
-            if isinstance(examples, pd.DataFrame)
-            else examples
-        )
-        data = _sanitize_nan_and_inf(data)
-        # Cast: pandas to_dict returns dict[Hashable, Any] but API requires dict[str, Any]
         body = gen.InsertDatasetExamplesRequest(
-            examples=cast("list[dict[str, Any]]", data)
+            examples=to_json_records(examples)
         )
 
         return self._api.insert_dataset_examples(
@@ -723,12 +691,8 @@ class DatasetsClient:
         body = gen.UpdateDatasetExamplesRequest(
             examples=[
                 obj
-                for example in examples
-                if (
-                    obj := gen.UpdateDatasetExampleInput.from_dict(
-                        _sanitize_nan_and_inf(example)
-                    )
-                )
+                for example in to_json_records(examples)
+                if (obj := gen.UpdateDatasetExampleInput.from_dict(example))
                 is not None
             ],
             new_version=new_version or None,

@@ -44,7 +44,8 @@ class TestListSpansRequest(unittest.TestCase):
                     ],
                 excluded_columns = [
                     '0'
-                    ]
+                    ],
+                truncate_string_length = 1
             )
         else:
             return ListSpansRequest(

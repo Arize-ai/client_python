@@ -378,6 +378,7 @@ class TestSpansClientList:
                 end_time=end,
                 filter="status_code = 'ERROR'",
                 included_columns=["attributes.llm.model_name"],
+                truncate_string_length=200,
                 limit=50,
                 cursor="cursor-abc",
             )
@@ -389,6 +390,7 @@ class TestSpansClientList:
             filter="status_code = 'ERROR'",
             included_columns=["attributes.llm.model_name"],
             excluded_columns=None,
+            truncate_string_length=200,
         )
 
     def test_list_calls_api_with_request_and_pagination(
@@ -439,6 +441,7 @@ class TestSpansClientList:
             filter=None,
             included_columns=None,
             excluded_columns=None,
+            truncate_string_length=None,
         )
         mock_api.list_spans.assert_called_once_with(
             list_spans_request=mock_request_cls.return_value,
@@ -551,6 +554,7 @@ class TestSpansClientList:
             filter=None,
             included_columns=None,
             excluded_columns=None,
+            truncate_string_length=None,
         )
 
     def test_list_builds_request_with_excluded_columns(
@@ -577,6 +581,7 @@ class TestSpansClientList:
             filter=None,
             included_columns=None,
             excluded_columns=["attributes.embedding.vectors"],
+            truncate_string_length=None,
         )
 
 

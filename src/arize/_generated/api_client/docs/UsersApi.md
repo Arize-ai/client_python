@@ -47,7 +47,8 @@ the request returns `409 Conflict`.
 - `role` — required, one of `ADMIN`, `MEMBER`, `ANNOTATOR`; sets the account-level role
 - `invite_mode` — required, one of `NONE`, `EMAIL_LINK`, `TEMPORARY_PASSWORD`
 
-Requires account admin role or USER_CREATE permission.
+Requires account admin or member role. Admins can assign any role;
+members can only assign `MEMBER` or `ANNOTATOR`.
 
 <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 

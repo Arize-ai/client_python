@@ -496,6 +496,10 @@ Delete evaluator
 
 Deletes an evaluator and all its versions. This operation is irreversible.
 
+An evaluator that is still used by an online task returns `409`. The
+error lists the tasks that use it. Remove the evaluator from these tasks,
+or delete the tasks, then delete the evaluator.
+
 <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
@@ -568,6 +572,7 @@ void (empty response body)
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
+**409** | Resource conflict |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -591,6 +596,11 @@ the response is still `200`.
 Deleting a version currently pinned to a running online task un-pins that
 task; it falls back to resolving the evaluator's latest version.
 
+A request that would delete every remaining version of an evaluator that
+an online task still uses returns `409`, and no versions are deleted. The
+error lists the tasks that use the evaluator. Keep at least one version,
+or remove the evaluator from these tasks or delete the tasks first.
+
 **Payload Requirements**
 - `version_ids` must contain between 1 and 100 IDs. Duplicate IDs are accepted
   and silently collapsed so each version is processed at most once.
@@ -610,6 +620,8 @@ task; it falls back to resolving the evaluator's latest version.
   delete its versions.
 - `404` — `evaluator_id` does not exist or is not readable by the caller
   (`Evaluator not found`).
+- `409` — the request would delete every remaining version of an
+  evaluator that an online task still uses.
 - `429` — rate limit exceeded.
 
 **Valid example** — evaluator `RXZhbHVhdG9yOjEyOkI3cmk=` with a single
@@ -722,6 +734,7 @@ Name | Type | Description  | Notes
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
+**409** | Resource conflict |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

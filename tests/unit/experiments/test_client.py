@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 from unittest.mock import MagicMock, Mock, create_autospec, patch
 
+import numpy as np
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -162,6 +163,7 @@ class TestCreate:
             "create_experiment_request"
         ]
         assert body.dataset_id is None
+        assert "dataset_id" not in body.model_fields_set
         assert body.space_id == "space-id-123"
         assert len(body.experiment_runs) == 1
         assert body.experiment_runs[0].example_id is None
@@ -714,6 +716,382 @@ class TestExportToParquet:
         mock_load.assert_not_called()
         mock_cache.assert_not_called()
         flight_client.get_experiment_runs.assert_not_called()
+
+
+@pytest.mark.unit
+class TestCreateTransportSelection:
+    """Tests for the REST vs Flight selection in ExperimentsClient.create."""
+
+    FIELDS = ExperimentTaskFieldNames(example_id="example_id", output="output")
+
+    @staticmethod
+    def _array_df(rows: int) -> pd.DataFrame:
+        return pd.DataFrame(
+            {
+                "example_id": [f"ex-{i}" for i in range(rows)],
+                "output": ["out"] * rows,
+                "embedding": [np.arange(3, dtype=np.float64)] * rows,
+                "latency_ms": np.arange(rows, dtype=np.int64),
+            }
+        )
+
+    @staticmethod
+    def _flight_patches(client: ExperimentsClient) -> tuple[Any, Any]:
+        client._datasets_api.get_dataset.return_value = Mock(space_id="space-1")
+        client._sdk_config.pyarrow_max_chunksize = 1000
+        return (
+            patch.object(client, "_init_experiment_via_flight"),
+            patch.object(client, "_post_experiment_runs_via_flight"),
+        )
+
+    def test_array_columns_under_cap_use_rest_with_plain_lists(
+        self,
+        experiments_client: ExperimentsClient,
+        mock_api: Mock,
+        mock_sdk_config: Mock,
+    ) -> None:
+        """Small array-bearing runs go over REST with JSON-safe values."""
+        mock_sdk_config.max_http_payload_size_mb = 8
+        mock_api.create_experiment.return_value = Mock()
+        init_flight, post_flight = self._flight_patches(experiments_client)
+
+        with (
+            patch(
+                "arize.experiments.client._find_dataset_id",
+                return_value="ds-1",
+            ),
+            init_flight as init_mock,
+            post_flight as post_mock,
+        ):
+            experiments_client.create(
+                name="exp",
+                dataset="ds-1",
+                experiment_runs=self._array_df(20),
+                task_fields=self.FIELDS,
+            )
+
+        init_mock.assert_not_called()
+        post_mock.assert_not_called()
+        body = mock_api.create_experiment.call_args.kwargs[
+            "create_experiment_request"
+        ]
+        assert len(body.experiment_runs) == 20
+        run = body.experiment_runs[0]
+        assert run.example_id == "ex-0"
+        assert run.output == "out"
+        extra = run.additional_properties
+        assert extra["embedding"] == [0.0, 1.0, 2.0]
+        assert type(extra["embedding"]) is list
+        assert type(extra["latency_ms"]) is int
+
+    def test_more_than_rest_cap_routes_to_flight_without_measuring(
+        self,
+        experiments_client: ExperimentsClient,
+        mock_api: Mock,
+        mock_sdk_config: Mock,
+    ) -> None:
+        """Above the REST item cap the size is never measured; Flight is used."""
+        mock_sdk_config.max_http_payload_size_mb = 8
+        init_flight, post_flight = self._flight_patches(experiments_client)
+        runs = [{"example_id": f"ex-{i}", "output": "o"} for i in range(1001)]
+
+        with (
+            patch(
+                "arize.experiments.client._find_dataset_id",
+                return_value="ds-1",
+            ),
+            patch(
+                "arize.experiments.client.to_json_records_within"
+            ) as records_within_fn,
+            init_flight as init_mock,
+            post_flight as post_mock,
+        ):
+            experiments_client.create(
+                name="exp",
+                dataset="ds-1",
+                experiment_runs=runs,
+                task_fields=self.FIELDS,
+            )
+
+        records_within_fn.assert_not_called()
+        mock_api.create_experiment.assert_not_called()
+        init_mock.assert_called_once()
+        post_mock.assert_called_once()
+        assert (
+            sum(b.num_rows for b in post_mock.call_args.kwargs["reader"])
+            == 1001
+        )
+
+    def test_wide_rows_over_threshold_route_to_flight(
+        self,
+        experiments_client: ExperimentsClient,
+        mock_api: Mock,
+        mock_sdk_config: Mock,
+    ) -> None:
+        """Few runs whose JSON exceeds the threshold go over Flight."""
+        mock_sdk_config.max_http_payload_size_mb = 1
+        init_flight, post_flight = self._flight_patches(experiments_client)
+        df = pd.DataFrame(
+            {
+                "example_id": ["a", "b"],
+                "output": ["o", "o"],
+                "embedding": [np.zeros(300_000, dtype=np.float64)] * 2,
+            }
+        )
+
+        with (
+            patch(
+                "arize.experiments.client._find_dataset_id",
+                return_value="ds-1",
+            ),
+            init_flight,
+            post_flight as post_mock,
+        ):
+            experiments_client.create(
+                name="exp",
+                dataset="ds-1",
+                experiment_runs=df,
+                task_fields=self.FIELDS,
+            )
+
+        mock_api.create_experiment.assert_not_called()
+        post_mock.assert_called_once()
+
+    def test_force_http_over_threshold_still_uses_rest(
+        self,
+        experiments_client: ExperimentsClient,
+        mock_api: Mock,
+        mock_sdk_config: Mock,
+    ) -> None:
+        """force_http overrides the size threshold below the item cap."""
+        mock_sdk_config.max_http_payload_size_mb = 1
+        mock_api.create_experiment.return_value = Mock()
+        init_flight, post_flight = self._flight_patches(experiments_client)
+        df = pd.DataFrame(
+            {
+                "example_id": ["a"],
+                "output": ["o"],
+                "embedding": [np.zeros(300_000, dtype=np.float64)],
+            }
+        )
+
+        with (
+            patch(
+                "arize.experiments.client._find_dataset_id",
+                return_value="ds-1",
+            ),
+            init_flight as init_mock,
+            post_flight as post_mock,
+        ):
+            experiments_client.create(
+                name="exp",
+                dataset="ds-1",
+                experiment_runs=df,
+                task_fields=self.FIELDS,
+                force_http=True,
+            )
+
+        init_mock.assert_not_called()
+        post_mock.assert_not_called()
+        body = mock_api.create_experiment.call_args.kwargs[
+            "create_experiment_request"
+        ]
+        assert body.dataset_id == "ds-1"
+        assert "space_id" not in body.model_fields_set
+        extra = body.experiment_runs[0].additional_properties
+        assert type(extra["embedding"]) is list
+
+    def test_force_http_over_rest_cap_raises_value_error(
+        self,
+        experiments_client: ExperimentsClient,
+        mock_api: Mock,
+        mock_sdk_config: Mock,
+    ) -> None:
+        """force_http with more runs than REST accepts is a clear ValueError."""
+        mock_sdk_config.max_http_payload_size_mb = 8
+        runs = [{"example_id": f"ex-{i}", "output": "o"} for i in range(1001)]
+
+        with (
+            patch(
+                "arize.experiments.client._find_dataset_id",
+                return_value="ds-1",
+            ),
+            pytest.raises(ValueError, match=r"at most 1000") as exc_info,
+        ):
+            experiments_client.create(
+                name="exp",
+                dataset="ds-1",
+                experiment_runs=runs,
+                task_fields=self.FIELDS,
+                force_http=True,
+            )
+
+        message = str(exc_info.value)
+        assert "force_http" in message
+        assert "split" in message
+        mock_api.create_experiment.assert_not_called()
+
+    def test_standalone_over_rest_cap_raises_value_error(
+        self,
+        experiments_client: ExperimentsClient,
+        mock_api: Mock,
+        mock_sdk_config: Mock,
+    ) -> None:
+        """A standalone experiment has no Flight path, so the cap is a hard error."""
+        mock_sdk_config.max_http_payload_size_mb = 8
+        runs = [{"output": "o"} for _ in range(1001)]
+
+        with (
+            patch(
+                "arize.experiments.client._find_space_id",
+                return_value="space-1",
+            ),
+            pytest.raises(ValueError, match=r"at most 1000") as exc_info,
+        ):
+            experiments_client.create(
+                name="exp",
+                space="space-1",
+                experiment_runs=runs,
+                task_fields=ExperimentTaskFieldNames(output="output"),
+            )
+
+        assert "split" in str(exc_info.value)
+        mock_api.create_experiment.assert_not_called()
+
+    def test_standalone_normalizes_and_ignores_size_threshold(
+        self,
+        experiments_client: ExperimentsClient,
+        mock_api: Mock,
+        mock_sdk_config: Mock,
+    ) -> None:
+        """Standalone experiments always use REST and get normalized values."""
+        mock_sdk_config.max_http_payload_size_mb = 1
+        mock_api.create_experiment.return_value = Mock()
+        df = pd.DataFrame(
+            {
+                "output": ["o"],
+                "embedding": [np.zeros(200_000, dtype=np.float64)],
+            }
+        )
+
+        with patch(
+            "arize.experiments.client._find_space_id",
+            return_value="space-1",
+        ):
+            experiments_client.create(
+                name="exp",
+                space="space-1",
+                experiment_runs=df,
+                task_fields=ExperimentTaskFieldNames(output="output"),
+            )
+
+        body = mock_api.create_experiment.call_args.kwargs[
+            "create_experiment_request"
+        ]
+        extra = body.experiment_runs[0].additional_properties
+        assert type(extra["embedding"]) is list
+        assert len(extra["embedding"]) == 200_000
+
+    def test_nan_and_inf_are_sent_as_null(
+        self,
+        experiments_client: ExperimentsClient,
+        mock_api: Mock,
+        mock_sdk_config: Mock,
+    ) -> None:
+        """Missing and infinite floats become None in the REST body."""
+        mock_sdk_config.max_http_payload_size_mb = 8
+        mock_api.create_experiment.return_value = Mock()
+        df = pd.DataFrame(
+            {
+                "output": ["o", "p"],
+                "score": [float("nan"), float("inf")],
+            }
+        )
+
+        with patch(
+            "arize.experiments.client._find_space_id",
+            return_value="space-1",
+        ):
+            experiments_client.create(
+                name="exp",
+                space="space-1",
+                experiment_runs=df,
+                task_fields=ExperimentTaskFieldNames(output="output"),
+            )
+
+        body = mock_api.create_experiment.call_args.kwargs[
+            "create_experiment_request"
+        ]
+        scores = [
+            run.additional_properties["score"] for run in body.experiment_runs
+        ]
+        assert scores == [None, None]
+
+
+@pytest.mark.unit
+class TestAppendRunsNormalization:
+    """Tests for value normalization in ExperimentsClient.append_runs."""
+
+    def test_dataframe_with_array_columns_sends_plain_lists(
+        self,
+        experiments_client: ExperimentsClient,
+        mock_api: Mock,
+    ) -> None:
+        """Array cells reach the request body as plain lists."""
+        mock_api.insert_experiment_runs.return_value = Mock()
+        df = pd.DataFrame(
+            {
+                "example_id": ["ex-a"],
+                "output": ["out-a"],
+                "embedding": [np.array([1.5, 2.5])],
+            }
+        )
+
+        with patch(
+            "arize.experiments.client._find_experiment_id",
+            return_value="exp-1",
+        ):
+            experiments_client.append_runs(
+                experiment="exp-1", experiment_runs=df
+            )
+
+        body = mock_api.insert_experiment_runs.call_args.kwargs[
+            "insert_experiment_runs_request"
+        ]
+        extra = body.experiment_runs[0].additional_properties
+        assert extra["embedding"] == [1.5, 2.5]
+        assert type(extra["embedding"]) is list
+
+    def test_nan_and_inf_are_sent_as_null(
+        self,
+        experiments_client: ExperimentsClient,
+        mock_api: Mock,
+    ) -> None:
+        """Missing and infinite floats become None in the REST body."""
+        mock_api.insert_experiment_runs.return_value = Mock()
+        df = pd.DataFrame(
+            {
+                "example_id": ["ex-a", "ex-b"],
+                "output": ["out-a", "out-b"],
+                "score": [float("nan"), float("-inf")],
+            }
+        )
+
+        with patch(
+            "arize.experiments.client._find_experiment_id",
+            return_value="exp-1",
+        ):
+            experiments_client.append_runs(
+                experiment="exp-1", experiment_runs=df
+            )
+
+        body = mock_api.insert_experiment_runs.call_args.kwargs[
+            "insert_experiment_runs_request"
+        ]
+        scores = [
+            run.additional_properties["score"] for run in body.experiment_runs
+        ]
+        assert scores == [None, None]
 
 
 @pytest.mark.unit
