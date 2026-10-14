@@ -28,8 +28,8 @@ class ListEvaluatorVersionsResponse(BaseModel):
     """
     ListEvaluatorVersionsResponse
     """ # noqa: E501
-    evaluator_versions: List[EvaluatorVersion] = Field(description="A list of evaluator versions")
-    pagination: PaginationMetadata
+    evaluator_versions: Optional[List[EvaluatorVersion]] = Field(default=None, description="A list of evaluator versions")
+    pagination: Optional[PaginationMetadata] = None
     __properties: ClassVar[List[str]] = ["evaluator_versions", "pagination"]
 
     model_config = ConfigDict(
@@ -93,10 +93,10 @@ class ListEvaluatorVersionsResponse(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "evaluator_versions": [EvaluatorVersion.from_dict(_item) for _item in obj["evaluator_versions"]] if obj.get("evaluator_versions") is not None else None,
             "pagination": PaginationMetadata.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

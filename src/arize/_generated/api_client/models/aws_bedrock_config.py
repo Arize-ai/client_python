@@ -27,16 +27,18 @@ class AwsBedrockConfig(BaseModel):
     """
     Config for an AWS Bedrock LLM integration. The model catalog is caller-controlled via `is_default_models_enabled` and `model_names`. Function/tool-calling settings do not apply to Bedrock and are omitted.
     """ # noqa: E501
-    provider: StrictStr = Field(description="Discriminator identifying the AWS Bedrock provider.")
-    is_default_models_enabled: StrictBool = Field(description="Whether Arize's default Bedrock model catalog is enabled.")
-    model_names: List[StrictStr] = Field(description="Custom model names configured on this integration. Empty when none.")
-    auth: AwsBedrockAuth
+    provider: Optional[StrictStr] = Field(default=None, description="Discriminator identifying the AWS Bedrock provider.")
+    is_default_models_enabled: Optional[StrictBool] = Field(default=None, description="Whether Arize's default Bedrock model catalog is enabled.")
+    model_names: Optional[List[StrictStr]] = Field(default=None, description="Custom model names configured on this integration. Empty when none.")
+    auth: Optional[AwsBedrockAuth] = None
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["provider", "is_default_models_enabled", "model_names", "auth"]
 
     @field_validator('provider')
     def provider_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['AWS_BEDROCK']):
             raise ValueError("must be one of enum values ('AWS_BEDROCK')")
         return value
@@ -101,12 +103,12 @@ class AwsBedrockConfig(BaseModel):
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "provider": obj.get("provider"),
             "is_default_models_enabled": obj.get("is_default_models_enabled"),
             "model_names": obj.get("model_names"),
             "auth": AwsBedrockAuth.from_dict(obj["auth"]) if obj.get("auth") is not None else None
-        })
+        }.items() if key in obj})
         # store additional fields in additional_properties
         for _key in obj.keys():
             if _key not in cls.__properties:

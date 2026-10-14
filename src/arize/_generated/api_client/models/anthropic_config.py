@@ -26,16 +26,18 @@ class AnthropicConfig(BaseModel):
     """
     Config for an Anthropic LLM integration.
     """ # noqa: E501
-    is_function_calling_enabled: StrictBool = Field(description="Whether function/tool calling is enabled.")
-    provider: StrictStr = Field(description="Discriminator identifying the Anthropic provider.")
-    has_api_key: StrictBool = Field(description="Whether an API key is configured (the key itself is never returned).")
-    base_url: Optional[StrictStr] = Field(description="Endpoint URL serving the Anthropic Messages API, including the version path. Null when not set.")
+    is_function_calling_enabled: Optional[StrictBool] = Field(default=None, description="Whether function/tool calling is enabled.")
+    provider: Optional[StrictStr] = Field(default=None, description="Discriminator identifying the Anthropic provider.")
+    has_api_key: Optional[StrictBool] = Field(default=None, description="Whether an API key is configured (the key itself is never returned).")
+    base_url: Optional[StrictStr] = Field(default=None, description="Endpoint URL serving the Anthropic Messages API, including the version path. Null when not set.")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["is_function_calling_enabled", "provider", "has_api_key", "base_url"]
 
     @field_validator('provider')
     def provider_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['ANTHROPIC']):
             raise ValueError("must be one of enum values ('ANTHROPIC')")
         return value
@@ -102,12 +104,12 @@ class AnthropicConfig(BaseModel):
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "is_function_calling_enabled": obj.get("is_function_calling_enabled"),
             "provider": obj.get("provider"),
             "has_api_key": obj.get("has_api_key"),
             "base_url": obj.get("base_url")
-        })
+        }.items() if key in obj})
         # store additional fields in additional_properties
         for _key in obj.keys():
             if _key not in cls.__properties:

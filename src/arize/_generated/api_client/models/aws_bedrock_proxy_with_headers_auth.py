@@ -26,14 +26,16 @@ class AwsBedrockProxyWithHeadersAuth(BaseModel):
     """
     Proxy auth for AWS Bedrock: requests are forwarded to a proxy URL with custom headers. Header values are write-only; configured names are returned as `header_names`.
     """ # noqa: E501
-    auth_type: StrictStr = Field(description="Discriminator identifying proxy auth.")
-    base_url: StrictStr = Field(description="Proxy URL requests are forwarded to.")
-    header_names: List[StrictStr] = Field(description="Names of the custom request headers configured on this integration. Empty when none are configured. Header values are write-only and never returned.")
+    auth_type: Optional[StrictStr] = Field(default=None, description="Discriminator identifying proxy auth.")
+    base_url: Optional[StrictStr] = Field(default=None, description="Proxy URL requests are forwarded to.")
+    header_names: Optional[List[StrictStr]] = Field(default=None, description="Names of the custom request headers configured on this integration. Empty when none are configured. Header values are write-only and never returned.")
     __properties: ClassVar[List[str]] = ["auth_type", "base_url", "header_names"]
 
     @field_validator('auth_type')
     def auth_type_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['PROXY_WITH_HEADERS']):
             raise ValueError("must be one of enum values ('PROXY_WITH_HEADERS')")
         return value
@@ -89,11 +91,11 @@ class AwsBedrockProxyWithHeadersAuth(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "auth_type": obj.get("auth_type"),
             "base_url": obj.get("base_url"),
             "header_names": obj.get("header_names")
-        })
+        }.items() if key in obj})
         return _obj
 
 

@@ -28,8 +28,8 @@ class ListMonitorsResponse(BaseModel):
     """
     ListMonitorsResponse
     """ # noqa: E501
-    monitors: List[Monitor] = Field(description="A list of monitors.")
-    pagination: PaginationMetadata
+    monitors: Optional[List[Monitor]] = Field(default=None, description="A list of monitors.")
+    pagination: Optional[PaginationMetadata] = None
     __properties: ClassVar[List[str]] = ["monitors", "pagination"]
 
     model_config = ConfigDict(
@@ -93,10 +93,10 @@ class ListMonitorsResponse(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "monitors": [Monitor.from_dict(_item) for _item in obj["monitors"]] if obj.get("monitors") is not None else None,
             "pagination": PaginationMetadata.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

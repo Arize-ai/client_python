@@ -38,6 +38,7 @@ from arize._generated.api_client.models.user_role_assignment import (
     UserRoleAssignment,
 )
 from arize._generated.api_client.models.user_status import UserStatus
+from arize.utils.response import coerce_response_role
 
 
 class PredefinedUserRole(PredefinedUserRoleAssignmentRequest):
@@ -87,25 +88,25 @@ _UserRoleField = Annotated[
 class User(BaseModel):
     """An account user with domain-typed role."""
 
-    id: str
-    name: str
-    email: str
-    created_at: datetime
-    status: UserStatus
-    role: _UserRoleField
-    is_developer: bool
+    id: str | None = None
+    name: str | None = None
+    email: str | None = None
+    created_at: datetime | None = None
+    status: UserStatus | None = None
+    role: _UserRoleField | None = None
+    is_developer: bool | None = None
 
     @field_validator("role", mode="before")
     @classmethod
     def _coerce_role(cls, v: object) -> object:
-        if isinstance(v, UserRoleAssignment):
-            actual = v.actual_instance
-            if isinstance(actual, PredefinedUserRoleAssignment):
-                return PredefinedUserRole(name=actual.name)
-            if isinstance(actual, CustomUserRoleAssignment):
-                return CustomUserRole(id=actual.id, name=actual.name)
-            raise TypeError(f"Unknown role type: {type(actual)!r}")
-        return v
+        return coerce_response_role(
+            v,
+            wrapper_type=UserRoleAssignment,
+            predefined_response_type=PredefinedUserRoleAssignment,
+            custom_response_type=CustomUserRoleAssignment,
+            predefined_type=PredefinedUserRole,
+            custom_type=CustomUserRole,
+        )
 
 
 class CreateUserResponse(User):
@@ -116,7 +117,7 @@ class CreateUserResponse(User):
     password issued for the new account.
     """
 
-    invite_mode: InviteMode
+    invite_mode: InviteMode | None = None
     # repr=False so logging/printing a CreateUserResponse (e.g. `logger.debug("%r", result)`)
     # doesn't leak the plaintext password, mirroring the generated model's use of SecretStr.
     temporary_password: str | None = Field(default=None, repr=False)
@@ -125,8 +126,8 @@ class CreateUserResponse(User):
 class ListUsersResponse(BaseModel):
     """Paginated list of users with domain-typed roles."""
 
-    users: list[User]
-    pagination: PaginationMetadata
+    users: list[User] | None = None
+    pagination: PaginationMetadata | None = None
 
 
 class DeletionStatus(str, Enum):

@@ -28,8 +28,8 @@ class ListIntegrationsResponse(BaseModel):
     """
     ListIntegrationsResponse
     """ # noqa: E501
-    integrations: List[Integration] = Field(description="A polymorphic, type-tagged list of integrations.")
-    pagination: PaginationMetadata
+    integrations: Optional[List[Integration]] = Field(default=None, description="A polymorphic, type-tagged list of integrations.")
+    pagination: Optional[PaginationMetadata] = None
     __properties: ClassVar[List[str]] = ["integrations", "pagination"]
 
     model_config = ConfigDict(
@@ -93,10 +93,10 @@ class ListIntegrationsResponse(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "integrations": [Integration.from_dict(_item) for _item in obj["integrations"]] if obj.get("integrations") is not None else None,
             "pagination": PaginationMetadata.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

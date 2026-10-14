@@ -5,9 +5,10 @@ from __future__ import annotations
 import base64
 import logging
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Protocol
 
 from arize.exceptions.spaces import AmbiguousNameError
+from arize.utils.response import require_operation_value
 
 if TYPE_CHECKING:
     from arize._generated.api_client import (
@@ -30,6 +31,22 @@ if TYPE_CHECKING:
     from arize._generated.api_client.models.integration_type import (
         IntegrationType,
     )
+
+
+class _Pagination(Protocol):
+    @property
+    def next_cursor(self) -> str | None: ...
+
+
+class _PaginatedResponse(Protocol):
+    @property
+    def pagination(self) -> _Pagination | None: ...
+
+
+def _next_cursor(response: _PaginatedResponse, *, field: str) -> str | None:
+    pagination = require_operation_value(response.pagination, field=field)
+    return pagination.next_cursor
+
 
 logger = logging.getLogger(__name__)
 
@@ -142,8 +159,14 @@ def _find_space_id(api: SpacesApi, space: str) -> str:
             limit=_LIST_PAGE_SIZE,
             cursor=cursor,
         )
-        matches.extend(s.id for s in response.spaces if s.name == space)
-        cursor = getattr(response.pagination, "next_cursor", None)
+        matches.extend(
+            require_operation_value(s.id, field="space.id")
+            for s in require_operation_value(
+                response.spaces, field="response.spaces"
+            )
+            if s.name == space
+        )
+        cursor = _next_cursor(response, field="space_list.pagination")
         if not cursor:
             break
 
@@ -210,12 +233,15 @@ def _find_project_id(
             limit=_LIST_PAGE_SIZE,
             cursor=cursor,
         )
-        for p in response.projects:
+        for p in require_operation_value(
+            response.projects, field="response.projects"
+        ):
             if p.name == project:
                 logger.debug("Resolved project '%s' → %s", project, p.id)
-                return p.id
-            available.append(p.name)
-        cursor = getattr(response.pagination, "next_cursor", None)
+                return require_operation_value(p.id, field="project.id")
+            if p.name is not None:
+                available.append(p.name)
+        cursor = _next_cursor(response, field="project_list.pagination")
         if not cursor:
             break
 
@@ -275,12 +301,15 @@ def _find_dataset_id(
             limit=_LIST_PAGE_SIZE,
             cursor=cursor,
         )
-        for d in response.datasets:
+        for d in require_operation_value(
+            response.datasets, field="response.datasets"
+        ):
             if d.name == dataset:
                 logger.debug("Resolved dataset '%s' → %s", dataset, d.id)
-                return d.id
-            available.append(d.name)
-        cursor = getattr(response.pagination, "next_cursor", None)
+                return require_operation_value(d.id, field="dataset.id")
+            if d.name is not None:
+                available.append(d.name)
+        cursor = _next_cursor(response, field="dataset_list.pagination")
         if not cursor:
             break
 
@@ -387,17 +416,22 @@ def _find_experiment_id(
             limit=_LIST_PAGE_SIZE,
             cursor=cursor,
         )
-        for e in response.experiments:
+        for e in require_operation_value(
+            response.experiments, field="response.experiments"
+        ):
             if e.name != experiment:
-                available.append(e.name)
+                if e.name is not None:
+                    available.append(e.name)
                 continue
             if dataset_id is not None:
                 # Dataset-scoped: name is unique per dataset, so
                 # the first match is the only possible match.
                 logger.debug("Resolved experiment '%s' → %s", experiment, e.id)
-                return e.id
-            space_scoped_matches.append(e.id)
-        cursor = getattr(response.pagination, "next_cursor", None)
+                return require_operation_value(e.id, field="experiment.id")
+            space_scoped_matches.append(
+                require_operation_value(e.id, field="experiment.id")
+            )
+        cursor = _next_cursor(response, field="experiment_list.pagination")
         if not cursor:
             break
 
@@ -465,12 +499,15 @@ def _find_prompt_id(
             limit=_LIST_PAGE_SIZE,
             cursor=cursor,
         )
-        for p in response.prompts:
+        for p in require_operation_value(
+            response.prompts, field="response.prompts"
+        ):
             if p.name == prompt:
                 logger.debug("Resolved prompt '%s' → %s", prompt, p.id)
-                return p.id
-            available.append(p.name)
-        cursor = getattr(response.pagination, "next_cursor", None)
+                return require_operation_value(p.id, field="prompt.id")
+            if p.name is not None:
+                available.append(p.name)
+        cursor = _next_cursor(response, field="prompt_list.pagination")
         if not cursor:
             break
 
@@ -530,12 +567,15 @@ def _find_evaluator_id(
             limit=_LIST_PAGE_SIZE,
             cursor=cursor,
         )
-        for ev in response.evaluators:
+        for ev in require_operation_value(
+            response.evaluators, field="response.evaluators"
+        ):
             if ev.name == evaluator:
                 logger.debug("Resolved evaluator '%s' → %s", evaluator, ev.id)
-                return ev.id
-            available.append(ev.name)
-        cursor = getattr(response.pagination, "next_cursor", None)
+                return require_operation_value(ev.id, field="evaluator.id")
+            if ev.name is not None:
+                available.append(ev.name)
+        cursor = _next_cursor(response, field="evaluator_list.pagination")
         if not cursor:
             break
 
@@ -595,7 +635,9 @@ def _find_annotation_config_id(
             limit=_LIST_PAGE_SIZE,
             cursor=cursor,
         )
-        for ac in response.annotation_configs:
+        for ac in require_operation_value(
+            response.annotation_configs, field="response.annotation_configs"
+        ):
             inner = ac.actual_instance
             if inner is None:
                 continue
@@ -605,9 +647,14 @@ def _find_annotation_config_id(
                     annotation_config,
                     inner.id,
                 )
-                return inner.id
-            available.append(inner.name)
-        cursor = getattr(response.pagination, "next_cursor", None)
+                return require_operation_value(
+                    inner.id, field="annotation_config.id"
+                )
+            if inner.name is not None:
+                available.append(inner.name)
+        cursor = _next_cursor(
+            response, field="annotation_config_list.pagination"
+        )
         if not cursor:
             break
 
@@ -667,14 +714,17 @@ def _find_ai_integration_id(
             limit=_LIST_PAGE_SIZE,
             cursor=cursor,
         )
-        for ai in response.ai_integrations:
+        for ai in require_operation_value(
+            response.ai_integrations, field="response.ai_integrations"
+        ):
             if ai.name == integration:
                 logger.debug(
                     "Resolved AI integration '%s' → %s", integration, ai.id
                 )
-                return ai.id
-            available.append(ai.name)
-        cursor = getattr(response.pagination, "next_cursor", None)
+                return require_operation_value(ai.id, field="ai_integration.id")
+            if ai.name is not None:
+                available.append(ai.name)
+        cursor = _next_cursor(response, field="ai_integration_list.pagination")
         if not cursor:
             break
 
@@ -736,7 +786,9 @@ def _find_integration_id(
             limit=_LIST_PAGE_SIZE,
             cursor=cursor,
         )
-        for item in response.integrations:
+        for item in require_operation_value(
+            response.integrations, field="response.integrations"
+        ):
             inner = item.actual_instance
             if inner is None:
                 continue
@@ -744,9 +796,10 @@ def _find_integration_id(
                 logger.debug(
                     "Resolved integration '%s' → %s", integration, inner.id
                 )
-                return inner.id
-            available.append(inner.name)
-        cursor = getattr(response.pagination, "next_cursor", None)
+                return require_operation_value(inner.id, field="integration.id")
+            if inner.name is not None:
+                available.append(inner.name)
+        cursor = _next_cursor(response, field="integration_list.pagination")
         if not cursor:
             break
 
@@ -806,16 +859,23 @@ def _find_annotation_queue_id(
             limit=100,
             cursor=cursor,
         )
-        for q in response.annotation_queues:
+        for q in require_operation_value(
+            response.annotation_queues, field="response.annotation_queues"
+        ):
             if q.name == annotation_queue:
                 logger.debug(
                     "Resolved annotation queue '%s' → %s",
                     annotation_queue,
                     q.id,
                 )
-                return q.id
-            available.append(q.name)
-        cursor = getattr(response.pagination, "next_cursor", None)
+                return require_operation_value(
+                    q.id, field="annotation_queue.id"
+                )
+            if q.name is not None:
+                available.append(q.name)
+        cursor = _next_cursor(
+            response, field="annotation_queue_list.pagination"
+        )
         if not cursor:
             break
 
@@ -875,12 +935,15 @@ def _find_task_id(
             limit=_LIST_PAGE_SIZE,
             cursor=cursor,
         )
-        for t in response.tasks:
+        for t in require_operation_value(
+            response.tasks, field="response.tasks"
+        ):
             if t.name == task:
                 logger.debug("Resolved task '%s' → %s", task, t.id)
-                return t.id
-            available.append(t.name)
-        cursor = getattr(response.pagination, "next_cursor", None)
+                return require_operation_value(t.id, field="task.id")
+            if t.name is not None:
+                available.append(t.name)
+        cursor = _next_cursor(response, field="task_list.pagination")
         if not cursor:
             break
 
@@ -916,14 +979,17 @@ def _find_organization_id(api: OrganizationsApi, organization: str) -> str:
             limit=_LIST_PAGE_SIZE,
             cursor=cursor,
         )
-        for org in response.organizations:
+        for org in require_operation_value(
+            response.organizations, field="response.organizations"
+        ):
             if org.name == organization:
                 logger.debug(
                     "Resolved organization '%s' → %s", organization, org.id
                 )
-                return org.id
-            available.append(org.name)
-        cursor = getattr(response.pagination, "next_cursor", None)
+                return require_operation_value(org.id, field="organization.id")
+            if org.name is not None:
+                available.append(org.name)
+        cursor = _next_cursor(response, field="organization_list.pagination")
         if not cursor:
             break
 
@@ -979,12 +1045,15 @@ def _find_webhook_id(
             limit=_LIST_PAGE_SIZE,
             cursor=cursor,
         )
-        for w in response.webhooks:
+        for w in require_operation_value(
+            response.webhooks, field="response.webhooks"
+        ):
             if w.name == webhook:
                 logger.debug("Resolved webhook '%s' → %s", webhook, w.id)
-                return w.id
-            available.append(w.name)
-        cursor = getattr(response.pagination, "next_cursor", None)
+                return require_operation_value(w.id, field="webhook.id")
+            if w.name is not None:
+                available.append(w.name)
+        cursor = _next_cursor(response, field="webhook_list.pagination")
         if not cursor:
             break
 
@@ -1012,12 +1081,15 @@ def _find_role_id(api: RolesApi, role: str) -> str:
 
     while True:
         response = api.list_roles(limit=_LIST_PAGE_SIZE, cursor=cursor)
-        for r in response.roles:
+        for r in require_operation_value(
+            response.roles, field="response.roles"
+        ):
             if r.name == role:
                 logger.debug("Resolved role '%s' → %s", role, r.id)
-                return r.id
-            available.append(r.name)
-        cursor = getattr(response.pagination, "next_cursor", None)
+                return require_operation_value(r.id, field="role.id")
+            if r.name is not None:
+                available.append(r.name)
+        cursor = _next_cursor(response, field="role_list.pagination")
         if not cursor:
             break
 
@@ -1048,11 +1120,16 @@ def _find_user_id_by_email(api: UsersApi, email: str) -> str:
             limit=_LIST_PAGE_SIZE,
             cursor=cursor,
         )
-        for u in response.users:
-            if u.email.lower() == email.lower():
+        for u in require_operation_value(
+            response.users, field="response.users"
+        ):
+            if (
+                require_operation_value(u.email, field="user.email").lower()
+                == email.lower()
+            ):
                 logger.debug("Resolved user email '%s' → %s", email, u.id)
-                return u.id
-        cursor = getattr(response.pagination, "next_cursor", None)
+                return require_operation_value(u.id, field="user.id")
+        cursor = _next_cursor(response, field="user_list.pagination")
         if not cursor:
             break
 

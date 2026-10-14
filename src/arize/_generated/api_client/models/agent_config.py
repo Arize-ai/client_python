@@ -28,10 +28,10 @@ class AgentConfig(BaseModel):
     """
     Configuration for `type: AGENT` integrations: a customer-hosted HTTPS endpoint plus a JSON Schema describing the request payload. 
     """ # noqa: E501
-    endpoint: Annotated[str, Field(strict=True, max_length=2048)] = Field(description="HTTPS endpoint URL Arize calls for replay. Validated server-side for SSRF (must resolve to a public address). ")
-    has_headers: StrictBool = Field(description="Whether any headers are configured. Read-only — derived from `headers` on write. Header values are never returned. ")
-    input_schema: Dict[str, Any] = Field(description="JSON Schema (Draft-07) the endpoint's request body conforms to. ")
-    request_presets: List[AgentRequestPreset] = Field(description="Named, reusable request payloads. Replace-on-provide on PATCH. Always present; an integration with no presets returns `[]`. ")
+    endpoint: Optional[Annotated[str, Field(strict=True, max_length=2048)]] = Field(default=None, description="HTTPS endpoint URL Arize calls for replay. Validated server-side for SSRF (must resolve to a public address). ")
+    has_headers: Optional[StrictBool] = Field(default=None, description="Whether any headers are configured. Read-only — derived from `headers` on write. Header values are never returned. ")
+    input_schema: Optional[Dict[str, Any]] = Field(default=None, description="JSON Schema (Draft-07) the endpoint's request body conforms to. ")
+    request_presets: Optional[List[AgentRequestPreset]] = Field(default=None, description="Named, reusable request payloads. Replace-on-provide on PATCH. Always present; an integration with no presets returns `[]`. ")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["endpoint", "has_headers", "input_schema", "request_presets"]
 
@@ -101,12 +101,12 @@ class AgentConfig(BaseModel):
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "endpoint": obj.get("endpoint"),
             "has_headers": obj.get("has_headers"),
             "input_schema": obj.get("input_schema"),
             "request_presets": [AgentRequestPreset.from_dict(_item) for _item in obj["request_presets"]] if obj.get("request_presets") is not None else None
-        })
+        }.items() if key in obj})
         # store additional fields in additional_properties
         for _key in obj.keys():
             if _key not in cls.__properties:

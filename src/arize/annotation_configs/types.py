@@ -39,12 +39,15 @@ class ListAnnotationConfigsResponse(BaseModel):
     or :class:`FreeformAnnotationConfig`) instead of the oneOf wrapper.
     """
 
-    annotation_configs: list[
-        CategoricalAnnotationConfig
-        | ContinuousAnnotationConfig
-        | FreeformAnnotationConfig
-    ]
-    pagination: PaginationMetadata
+    annotation_configs: (
+        list[
+            CategoricalAnnotationConfig
+            | ContinuousAnnotationConfig
+            | FreeformAnnotationConfig
+        ]
+        | None
+    ) = None
+    pagination: PaginationMetadata | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -52,11 +55,16 @@ class ListAnnotationConfigsResponse(BaseModel):
     @classmethod
     def _coerce_annotation_configs(
         cls, v: object
-    ) -> list[
-        CategoricalAnnotationConfig
-        | ContinuousAnnotationConfig
-        | FreeformAnnotationConfig
-    ]:
+    ) -> (
+        list[
+            CategoricalAnnotationConfig
+            | ContinuousAnnotationConfig
+            | FreeformAnnotationConfig
+        ]
+        | None
+    ):
+        if v is None:
+            return None
         result = []
         for item in v:  # type: ignore[attr-defined]
             if isinstance(item, AnnotationConfig):

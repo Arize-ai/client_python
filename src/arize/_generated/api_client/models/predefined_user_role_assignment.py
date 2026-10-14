@@ -28,8 +28,8 @@ class PredefinedUserRoleAssignment(BaseModel):
     """
     A predefined account-level role assignment.
     """ # noqa: E501
-    type: UserRoleAssignmentType = Field(description="Discriminator identifying this as a predefined role assignment. Must be `PREDEFINED`.")
-    name: UserRole
+    type: Optional[UserRoleAssignmentType] = Field(default=None, description="Discriminator identifying this as a predefined role assignment. Must be `PREDEFINED`.")
+    name: Optional[UserRole] = None
     __properties: ClassVar[List[str]] = ["type", "name"]
 
     model_config = ConfigDict(
@@ -83,10 +83,10 @@ class PredefinedUserRoleAssignment(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "type": obj.get("type"),
             "name": obj.get("name")
-        })
+        }.items() if key in obj})
         return _obj
 
 

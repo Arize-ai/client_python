@@ -27,7 +27,7 @@ class AnnotationBatchResult(BaseModel):
     """
     Result of a batch annotation operation. Contains one result entry per annotated record.
     """ # noqa: E501
-    results: List[AnnotateRecordResult] = Field(description="Per-record annotation results, in the same order as the request.")
+    results: Optional[List[AnnotateRecordResult]] = Field(default=None, description="Per-record annotation results, in the same order as the request.")
     __properties: ClassVar[List[str]] = ["results"]
 
     model_config = ConfigDict(
@@ -88,9 +88,9 @@ class AnnotationBatchResult(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "results": [AnnotateRecordResult.from_dict(_item) for _item in obj["results"]] if obj.get("results") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

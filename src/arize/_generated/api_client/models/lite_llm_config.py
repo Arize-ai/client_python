@@ -26,18 +26,20 @@ class LiteLlmConfig(BaseModel):
     """
     Config for a LiteLLM integration. `base_url` is the LiteLLM endpoint Arize sends requests to and is always set — LiteLLM is self-hosted, so there is no default endpoint. Secrets are write-only: the virtual key surfaces as `has_api_key` and custom request headers surface as `header_names` (names only). `model_names` lists only the model names configured on this integration; models resolved live from the LiteLLM deployment are served through the Arize UI and are not returned here.
     """ # noqa: E501
-    is_function_calling_enabled: StrictBool = Field(description="Whether function/tool calling is enabled.")
-    provider: StrictStr = Field(description="Discriminator identifying the LiteLLM provider.")
-    has_api_key: StrictBool = Field(description="Whether an API key is configured (the key itself is never returned).")
-    base_url: StrictStr = Field(description="LiteLLM endpoint URL requests are sent to.")
-    header_names: List[StrictStr] = Field(description="Names of the custom request headers configured on this integration. Empty when none are configured. Header values are write-only and never returned.")
-    model_names: List[StrictStr] = Field(description="Custom model names configured on this integration. Empty when none.")
+    is_function_calling_enabled: Optional[StrictBool] = Field(default=None, description="Whether function/tool calling is enabled.")
+    provider: Optional[StrictStr] = Field(default=None, description="Discriminator identifying the LiteLLM provider.")
+    has_api_key: Optional[StrictBool] = Field(default=None, description="Whether an API key is configured (the key itself is never returned).")
+    base_url: Optional[StrictStr] = Field(default=None, description="LiteLLM endpoint URL requests are sent to.")
+    header_names: Optional[List[StrictStr]] = Field(default=None, description="Names of the custom request headers configured on this integration. Empty when none are configured. Header values are write-only and never returned.")
+    model_names: Optional[List[StrictStr]] = Field(default=None, description="Custom model names configured on this integration. Empty when none.")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["is_function_calling_enabled", "provider", "has_api_key", "base_url", "header_names", "model_names"]
 
     @field_validator('provider')
     def provider_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['LITELLM']):
             raise ValueError("must be one of enum values ('LITELLM')")
         return value
@@ -99,14 +101,14 @@ class LiteLlmConfig(BaseModel):
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "is_function_calling_enabled": obj.get("is_function_calling_enabled"),
             "provider": obj.get("provider"),
             "has_api_key": obj.get("has_api_key"),
             "base_url": obj.get("base_url"),
             "header_names": obj.get("header_names"),
             "model_names": obj.get("model_names")
-        })
+        }.items() if key in obj})
         # store additional fields in additional_properties
         for _key in obj.keys():
             if _key not in cls.__properties:

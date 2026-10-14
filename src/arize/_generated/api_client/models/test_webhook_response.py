@@ -26,8 +26,8 @@ class TestWebhookResponse(BaseModel):
     """
     The outcome of a test delivery to the webhook's endpoint.
     """ # noqa: E501
-    status_code: StrictInt = Field(description="HTTP status code returned by the webhook's endpoint. `502` when no response was received, for example because the endpoint was unreachable or timed out.")
-    error_message: Optional[StrictStr] = Field(description="Why the test delivery failed. `null` for successful deliveries.")
+    status_code: Optional[StrictInt] = Field(default=None, description="HTTP status code returned by the webhook's endpoint. `502` when no response was received, for example because the endpoint was unreachable or timed out.")
+    error_message: Optional[StrictStr] = Field(default=None, description="Why the test delivery failed. `null` for successful deliveries.")
     __properties: ClassVar[List[str]] = ["status_code", "error_message"]
 
     model_config = ConfigDict(
@@ -86,10 +86,10 @@ class TestWebhookResponse(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "status_code": obj.get("status_code"),
             "error_message": obj.get("error_message")
-        })
+        }.items() if key in obj})
         return _obj
 
 

@@ -28,7 +28,7 @@ class Annotation(BaseModel):
     """
     A human annotation on a record.
     """ # noqa: E501
-    name: StrictStr = Field(description="The name of the annotation")
+    name: Optional[StrictStr] = Field(default=None, description="The name of the annotation")
     score: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, description="Numeric score for the annotation")
     label: Optional[StrictStr] = Field(default=None, description="Categorical label for the annotation")
     text: Optional[StrictStr] = Field(default=None, description="Free-form text note for the annotation")
@@ -90,14 +90,14 @@ class Annotation(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "name": obj.get("name"),
             "score": obj.get("score"),
             "label": obj.get("label"),
             "text": obj.get("text"),
             "updated_at": obj.get("updated_at"),
             "annotator": AnnotatorUser.from_dict(obj["annotator"]) if obj.get("annotator") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

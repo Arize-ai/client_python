@@ -63,17 +63,17 @@ class Task(BaseModel):
     :class:`RunConfiguration`.
     """
 
-    id: str
-    name: str
-    type: str
+    id: str | None = None
+    name: str | None = None
+    type: str | None = None
     project_id: str | None = None
     dataset_id: str | None = None
     sampling_rate: float | None = None
-    is_continuous: bool
+    is_continuous: bool | None = None
     query_filter: str | None = None
     query_filters: TaskQueryFilters | None = None
-    evaluators: list[TaskEvaluator]
-    experiment_ids: list[str]
+    evaluators: list[TaskEvaluator] | None = None
+    experiment_ids: list[str] | None = None
     run_configuration: (
         AgentCallRunConfig
         | LlmGenerationRunConfig
@@ -81,8 +81,8 @@ class Task(BaseModel):
         | None
     ) = None
     last_run_at: datetime | None = None
-    created_at: datetime
-    updated_at: datetime
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
     created_by_user_id: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
@@ -109,8 +109,8 @@ class Task(BaseModel):
 class ListTasksResponse(BaseModel):
     """SDK view of the generated list response with each ``Task``'s ``run_configuration`` unwrapped."""
 
-    tasks: list[Task]
-    pagination: PaginationMetadata
+    tasks: list[Task] | None = None
+    pagination: PaginationMetadata | None = None
 
     model_config = ConfigDict(from_attributes=True)
 

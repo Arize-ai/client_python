@@ -29,13 +29,13 @@ class User(BaseModel):
     """
     An account user represents a member of the account. Users can be listed, updated, or removed from the account. 
     """ # noqa: E501
-    id: StrictStr = Field(description="A universally unique identifier (base64-encoded opaque string).")
-    name: StrictStr = Field(description="Display name of the user")
-    email: StrictStr = Field(description="An email address")
-    created_at: datetime = Field(description="Timestamp for when the user was created")
-    status: UserStatus
-    role: UserRoleAssignment
-    is_developer: StrictBool = Field(description="Whether the user has developer permissions (can use the Arize API)")
+    id: Optional[StrictStr] = Field(default=None, description="A universally unique identifier (base64-encoded opaque string).")
+    name: Optional[StrictStr] = Field(default=None, description="Display name of the user")
+    email: Optional[StrictStr] = Field(default=None, description="An email address")
+    created_at: Optional[datetime] = Field(default=None, description="Timestamp for when the user was created")
+    status: Optional[UserStatus] = None
+    role: Optional[UserRoleAssignment] = None
+    is_developer: Optional[StrictBool] = Field(default=None, description="Whether the user has developer permissions (can use the Arize API)")
     __properties: ClassVar[List[str]] = ["id", "name", "email", "created_at", "status", "role", "is_developer"]
 
     model_config = ConfigDict(
@@ -92,7 +92,7 @@ class User(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "name": obj.get("name"),
             "email": obj.get("email"),
@@ -100,7 +100,7 @@ class User(BaseModel):
             "status": obj.get("status"),
             "role": UserRoleAssignment.from_dict(obj["role"]) if obj.get("role") is not None else None,
             "is_developer": obj.get("is_developer")
-        })
+        }.items() if key in obj})
         return _obj
 
 

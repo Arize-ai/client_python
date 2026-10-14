@@ -82,11 +82,11 @@ class AzureParams(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "azure_deployment_name": obj.get("azure_deployment_name"),
             "azure_openai_endpoint": obj.get("azure_openai_endpoint"),
             "azure_openai_version": obj.get("azure_openai_version")
-        })
+        }.items() if key in obj})
         return _obj
 
 

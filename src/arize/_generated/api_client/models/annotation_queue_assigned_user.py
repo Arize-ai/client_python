@@ -28,8 +28,8 @@ class AnnotationQueueAssignedUser(BaseModel):
     """
     A user assigned to a record with their completion status
     """ # noqa: E501
-    user: AnnotatorUser
-    completion_status: AnnotationQueueCompletionStatus
+    user: Optional[AnnotatorUser] = None
+    completion_status: Optional[AnnotationQueueCompletionStatus] = None
     __properties: ClassVar[List[str]] = ["user", "completion_status"]
 
     model_config = ConfigDict(
@@ -86,10 +86,10 @@ class AnnotationQueueAssignedUser(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "user": AnnotatorUser.from_dict(obj["user"]) if obj.get("user") is not None else None,
             "completion_status": obj.get("completion_status")
-        })
+        }.items() if key in obj})
         return _obj
 
 

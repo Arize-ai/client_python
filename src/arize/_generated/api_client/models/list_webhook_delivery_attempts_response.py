@@ -28,8 +28,8 @@ class ListWebhookDeliveryAttemptsResponse(BaseModel):
     """
     ListWebhookDeliveryAttemptsResponse
     """ # noqa: E501
-    delivery_attempts: List[WebhookDeliveryAttempt] = Field(description="A list of delivery attempts, most recent first")
-    pagination: PaginationMetadata
+    delivery_attempts: Optional[List[WebhookDeliveryAttempt]] = Field(default=None, description="A list of delivery attempts, most recent first")
+    pagination: Optional[PaginationMetadata] = None
     __properties: ClassVar[List[str]] = ["delivery_attempts", "pagination"]
 
     model_config = ConfigDict(
@@ -93,10 +93,10 @@ class ListWebhookDeliveryAttemptsResponse(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "delivery_attempts": [WebhookDeliveryAttempt.from_dict(_item) for _item in obj["delivery_attempts"]] if obj.get("delivery_attempts") is not None else None,
             "pagination": PaginationMetadata.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

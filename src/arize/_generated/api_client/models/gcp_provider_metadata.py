@@ -27,10 +27,10 @@ class GcpProviderMetadata(BaseModel):
     """
     Vertex AI (GCP) provider metadata
     """ # noqa: E501
-    kind: GcpProviderMetadataKind
-    project_id: StrictStr = Field(description="GCP project ID")
-    location: StrictStr = Field(description="GCP region (e.g. us-central1)")
-    project_access_label: StrictStr = Field(description="Display label for the project")
+    kind: Optional[GcpProviderMetadataKind] = None
+    project_id: Optional[StrictStr] = Field(default=None, description="GCP project ID")
+    location: Optional[StrictStr] = Field(default=None, description="GCP region (e.g. us-central1)")
+    project_access_label: Optional[StrictStr] = Field(default=None, description="Display label for the project")
     __properties: ClassVar[List[str]] = ["kind", "project_id", "location", "project_access_label"]
 
     model_config = ConfigDict(
@@ -84,12 +84,12 @@ class GcpProviderMetadata(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "kind": obj.get("kind"),
             "project_id": obj.get("project_id"),
             "location": obj.get("location"),
             "project_access_label": obj.get("project_access_label")
-        })
+        }.items() if key in obj})
         return _obj
 
 

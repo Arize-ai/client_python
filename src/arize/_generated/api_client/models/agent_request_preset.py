@@ -29,9 +29,9 @@ class AgentRequestPreset(BaseModel):
     A named, reusable request payload bound to an agent integration. Embedded in `agent.config.request_presets[]`. There is no standalone preset endpoint; presets are managed exclusively via the nested collection on the parent integration.  Validation rules: - `name` is unique within the integration (case-sensitive). Length 1-255. - `description` length 0-1024 (nullable). - `config` must conform to the integration's `input_schema` *with   `required` dropped* (present fields validated; missing fields ignored). 
     """ # noqa: E501
     id: Optional[StrictStr] = Field(default=None, description="Server-generated, opaque preset identifier. Read-only.")
-    name: Annotated[str, Field(min_length=1, strict=True, max_length=255)] = Field(description="Preset name (unique within the integration). Length 1-255.")
+    name: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]] = Field(default=None, description="Preset name (unique within the integration). Length 1-255.")
     description: Optional[Annotated[str, Field(strict=True, max_length=1024)]] = Field(default=None, description="Optional preset description (length 0-1024).")
-    config: Dict[str, Any] = Field(description="Partial request body. Validated against the parent integration's `input_schema` with `required` dropped. ")
+    config: Optional[Dict[str, Any]] = Field(default=None, description="Partial request body. Validated against the parent integration's `input_schema` with `required` dropped. ")
     created_at: Optional[datetime] = Field(default=None, description="When the preset was created. Read-only.")
     updated_at: Optional[datetime] = Field(default=None, description="When the preset was last updated. Read-only.")
     additional_properties: Dict[str, Any] = {}
@@ -105,14 +105,14 @@ class AgentRequestPreset(BaseModel):
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "name": obj.get("name"),
             "description": obj.get("description"),
             "config": obj.get("config"),
             "created_at": obj.get("created_at"),
             "updated_at": obj.get("updated_at")
-        })
+        }.items() if key in obj})
         # store additional fields in additional_properties
         for _key in obj.keys():
             if _key not in cls.__properties:

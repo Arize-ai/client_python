@@ -27,13 +27,15 @@ class TaskQueryFilter(BaseModel):
     """
     A single named task-level query filter (trace/session shape). The `id` is a logical label used in `query_filters.expression` and per-evaluator `query_mappings`. 
     """ # noqa: E501
-    id: Annotated[str, Field(strict=True)] = Field(description="Single-letter query id, one of `A`-`E`. Unique within the task. Referenced by `query_filters.expression` and by each evaluator's `query_mappings`. ")
-    filter: StrictStr = Field(description="The query filter expression for this named query.")
+    id: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="Single-letter query id, one of `A`-`E`. Unique within the task. Referenced by `query_filters.expression` and by each evaluator's `query_mappings`. ")
+    filter: Optional[StrictStr] = Field(default=None, description="The query filter expression for this named query.")
     __properties: ClassVar[List[str]] = ["id", "filter"]
 
     @field_validator('id')
     def id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
+        if value is None:
+            return None
         if not re.match(r"^[A-E]$", value):
             raise ValueError(r"must validate the regular expression /^[A-E]$/")
         return value
@@ -89,10 +91,10 @@ class TaskQueryFilter(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "filter": obj.get("filter")
-        })
+        }.items() if key in obj})
         return _obj
 
 

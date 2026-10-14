@@ -28,8 +28,8 @@ class PredefinedRoleAssignment(BaseModel):
     """
     A predefined space role assignment.
     """ # noqa: E501
-    type: SpaceRoleAssignmentType = Field(description="Discriminator identifying this as a predefined role assignment. Must be `PREDEFINED`.")
-    name: UserSpaceRole
+    type: Optional[SpaceRoleAssignmentType] = Field(default=None, description="Discriminator identifying this as a predefined role assignment. Must be `PREDEFINED`.")
+    name: Optional[UserSpaceRole] = None
     __properties: ClassVar[List[str]] = ["type", "name"]
 
     model_config = ConfigDict(
@@ -83,10 +83,10 @@ class PredefinedRoleAssignment(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "type": obj.get("type"),
             "name": obj.get("name")
-        })
+        }.items() if key in obj})
         return _obj
 
 

@@ -27,14 +27,16 @@ class FixedCustomBaselineWindow(BaseModel):
     """
     A custom comparison dataset using data between a fixed start and end date.
     """ # noqa: E501
-    type: StrictStr = Field(description="Identifies this comparison window as a fixed date range.")
-    fixed_start_date: datetime = Field(description="The start of the fixed comparison window.")
-    fixed_end_date: datetime = Field(description="The end of the fixed comparison window.")
+    type: Optional[StrictStr] = Field(default=None, description="Identifies this comparison window as a fixed date range.")
+    fixed_start_date: Optional[datetime] = Field(default=None, description="The start of the fixed comparison window.")
+    fixed_end_date: Optional[datetime] = Field(default=None, description="The end of the fixed comparison window.")
     __properties: ClassVar[List[str]] = ["type", "fixed_start_date", "fixed_end_date"]
 
     @field_validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['FIXED']):
             raise ValueError("must be one of enum values ('FIXED')")
         return value
@@ -90,11 +92,11 @@ class FixedCustomBaselineWindow(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "type": obj.get("type"),
             "fixed_start_date": obj.get("fixed_start_date"),
             "fixed_end_date": obj.get("fixed_end_date")
-        })
+        }.items() if key in obj})
         return _obj
 
 

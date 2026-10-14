@@ -83,12 +83,12 @@ class JsonSchemaConfig(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "name": obj.get("name"),
             "description": obj.get("description"),
             "schema": obj.get("schema"),
             "strict": obj.get("strict") if obj.get("strict") is not None else False
-        })
+        }.items() if key in obj})
         return _obj
 
 

@@ -26,9 +26,9 @@ class DeleteEvaluatorVersionsResponse(BaseModel):
     """
     Result of a DELETE /v2/evaluators/{evaluator_id}/versions request.  The delete is partial-tolerant: requested versions that exist and belong to `evaluator_id` are deleted; every requested ID that was not deleted is reported in `not_deleted_version_ids`. An ID may be not-deleted because it does not exist or belongs to a different evaluator.  `completed` is `true` when this response is returned because the synchronous delete has fully processed the request. It does not mean every requested version was found and deleted: each requested ID appears in exactly one of `deleted_version_ids` or `not_deleted_version_ids`.  The delete operation is idempotent — re-submitting already-deleted IDs is safe and simply reports them as not deleted.  Deleting a version that is currently pinned to a running online task un-pins that task, which then falls back to resolving the evaluator's latest version. 
     """ # noqa: E501
-    completed: StrictBool = Field(description="Always `true` in a successful response, indicating both result lists are complete. This does not indicate whether all requested versions existed. ")
-    deleted_version_ids: List[StrictStr] = Field(description="Evaluator version IDs confirmed deleted in this request.")
-    not_deleted_version_ids: List[StrictStr] = Field(description="Requested evaluator version IDs that were not deleted.")
+    completed: Optional[StrictBool] = Field(default=None, description="Always `true` in a successful response, indicating both result lists are complete. This does not indicate whether all requested versions existed. ")
+    deleted_version_ids: Optional[List[StrictStr]] = Field(default=None, description="Evaluator version IDs confirmed deleted in this request.")
+    not_deleted_version_ids: Optional[List[StrictStr]] = Field(default=None, description="Requested evaluator version IDs that were not deleted.")
     __properties: ClassVar[List[str]] = ["completed", "deleted_version_ids", "not_deleted_version_ids"]
 
     model_config = ConfigDict(
@@ -82,11 +82,11 @@ class DeleteEvaluatorVersionsResponse(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "completed": obj.get("completed"),
             "deleted_version_ids": obj.get("deleted_version_ids"),
             "not_deleted_version_ids": obj.get("not_deleted_version_ids")
-        })
+        }.items() if key in obj})
         return _obj
 
 

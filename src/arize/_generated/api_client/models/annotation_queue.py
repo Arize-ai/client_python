@@ -29,14 +29,14 @@ class AnnotationQueue(BaseModel):
     """
     AnnotationQueue
     """ # noqa: E501
-    id: StrictStr = Field(description="The unique identifier for the annotation queue")
-    name: StrictStr = Field(description="The name of the annotation queue")
-    space_id: StrictStr = Field(description="The space id the annotation queue belongs to")
+    id: Optional[StrictStr] = Field(default=None, description="The unique identifier for the annotation queue")
+    name: Optional[StrictStr] = Field(default=None, description="The name of the annotation queue")
+    space_id: Optional[StrictStr] = Field(default=None, description="The space id the annotation queue belongs to")
     instructions: Optional[StrictStr] = Field(default=None, description="The instructions for the annotation queue")
     annotation_configs: Optional[List[AnnotationConfig]] = Field(default=None, description="The annotation configs associated with this queue")
-    annotators: List[AnnotatorUser] = Field(description="Users assigned as annotators to this queue")
-    created_at: datetime = Field(description="The timestamp for when the annotation queue was created")
-    updated_at: datetime = Field(description="The timestamp for when the annotation queue was last updated")
+    annotators: Optional[List[AnnotatorUser]] = Field(default=None, description="Users assigned as annotators to this queue")
+    created_at: Optional[datetime] = Field(default=None, description="The timestamp for when the annotation queue was created")
+    updated_at: Optional[datetime] = Field(default=None, description="The timestamp for when the annotation queue was last updated")
     column_allowlist: Optional[List[StrictStr]] = Field(default=None, description="The record column names annotators assigned to this queue are allowed to see. Absent or `null` means the queue is unrestricted and annotators see every column. ")
     __properties: ClassVar[List[str]] = ["id", "name", "space_id", "instructions", "annotation_configs", "annotators", "created_at", "updated_at", "column_allowlist"]
 
@@ -115,7 +115,7 @@ class AnnotationQueue(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "name": obj.get("name"),
             "space_id": obj.get("space_id"),
@@ -125,7 +125,7 @@ class AnnotationQueue(BaseModel):
             "created_at": obj.get("created_at"),
             "updated_at": obj.get("updated_at"),
             "column_allowlist": obj.get("column_allowlist")
-        })
+        }.items() if key in obj})
         return _obj
 
 

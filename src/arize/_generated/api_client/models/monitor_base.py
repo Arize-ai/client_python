@@ -34,20 +34,20 @@ class MonitorBase(BaseModel):
     """
     MonitorBase
     """ # noqa: E501
-    id: StrictStr = Field(description="Unique identifier for the monitor (base64 global ID).")
-    name: StrictStr = Field(description="Human-readable name of the monitor.")
-    type: MonitorType = Field(description="Required on create. Immutable after creation.")
-    project_id: StrictStr = Field(description="The project that the monitor belongs to (base64 global ID). ")
-    uri: StrictStr = Field(description="The UI deep link to the monitor.")
-    status: MonitorStatus = Field(description="Current evaluation state. Read-only.")
-    threshold: ThresholdConfig
-    notifications_enabled: StrictBool = Field(description="Whether notifications fire on a triggered transition.")
-    manual_evaluation_enabled: StrictBool = Field(description="Whether the monitor is evaluated manually rather than on the automatic cadence.")
-    created_by_user_id: StrictStr = Field(description="The user who created the monitor (base64 global ID).")
+    id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the monitor (base64 global ID).")
+    name: Optional[StrictStr] = Field(default=None, description="Human-readable name of the monitor.")
+    type: Optional[MonitorType] = Field(default=None, description="Required on create. Immutable after creation.")
+    project_id: Optional[StrictStr] = Field(default=None, description="The project that the monitor belongs to (base64 global ID). ")
+    uri: Optional[StrictStr] = Field(default=None, description="The UI deep link to the monitor.")
+    status: Optional[MonitorStatus] = Field(default=None, description="Current evaluation state. Read-only.")
+    threshold: Optional[ThresholdConfig] = None
+    notifications_enabled: Optional[StrictBool] = Field(default=None, description="Whether notifications fire on a triggered transition.")
+    manual_evaluation_enabled: Optional[StrictBool] = Field(default=None, description="Whether the monitor is evaluated manually rather than on the automatic cadence.")
+    created_by_user_id: Optional[StrictStr] = Field(default=None, description="The user who created the monitor (base64 global ID).")
     filters: Optional[List[MonitorFilter]] = Field(default=None, description="Data filters applied to the monitor's metric. Omitted when the metric is computed over all data. ")
     notification_configs: Optional[List[NotificationConfig]] = Field(default=None, description="Notification channels (email / integration / webhook) notified on a triggered transition. Omitted when no channels are configured. ")
-    created_at: datetime = Field(description="When the monitor was created.")
-    updated_at: datetime = Field(description="When the monitor was last updated.")
+    created_at: Optional[datetime] = Field(default=None, description="When the monitor was created.")
+    updated_at: Optional[datetime] = Field(default=None, description="When the monitor was last updated.")
     downtime: Optional[DowntimeConfig] = None
     scheduled_runtime: Optional[ScheduledRuntimeConfig] = None
     evaluation_window_length_seconds: Optional[StrictInt] = Field(default=None, description="The length of the evaluation window in seconds. Omitted when unset. ")
@@ -141,7 +141,7 @@ class MonitorBase(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "name": obj.get("name"),
             "type": obj.get("type"),
@@ -163,7 +163,7 @@ class MonitorBase(BaseModel):
             "evaluated_at": obj.get("evaluated_at"),
             "latest_computed_value": obj.get("latest_computed_value"),
             "notes": obj.get("notes")
-        })
+        }.items() if key in obj})
         return _obj
 
 

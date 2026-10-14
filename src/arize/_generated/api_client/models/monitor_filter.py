@@ -28,9 +28,9 @@ class MonitorFilter(BaseModel):
     """
     MonitorFilter
     """ # noqa: E501
-    dimension: Dimension
-    operator: FilterOperator
-    values: List[StrictStr] = Field(description="The values compared against by the operator.")
+    dimension: Optional[Dimension] = None
+    operator: Optional[FilterOperator] = None
+    values: Optional[List[StrictStr]] = Field(default=None, description="The values compared against by the operator.")
     __properties: ClassVar[List[str]] = ["dimension", "operator", "values"]
 
     model_config = ConfigDict(
@@ -87,11 +87,11 @@ class MonitorFilter(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "dimension": Dimension.from_dict(obj["dimension"]) if obj.get("dimension") is not None else None,
             "operator": obj.get("operator"),
             "values": obj.get("values")
-        })
+        }.items() if key in obj})
         return _obj
 
 

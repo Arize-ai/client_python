@@ -26,8 +26,8 @@ class ToolCallFunction(BaseModel):
     """
     The function to call
     """ # noqa: E501
-    name: StrictStr = Field(description="The name of the function")
-    arguments: StrictStr = Field(description="The arguments to the function as a JSON string")
+    name: Optional[StrictStr] = Field(default=None, description="The name of the function")
+    arguments: Optional[StrictStr] = Field(default=None, description="The arguments to the function as a JSON string")
     __properties: ClassVar[List[str]] = ["name", "arguments"]
 
     model_config = ConfigDict(
@@ -81,10 +81,10 @@ class ToolCallFunction(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "name": obj.get("name"),
             "arguments": obj.get("arguments")
-        })
+        }.items() if key in obj})
         return _obj
 
 

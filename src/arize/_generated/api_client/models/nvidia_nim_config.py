@@ -26,19 +26,21 @@ class NvidiaNimConfig(BaseModel):
     """
     Config for an NVIDIA NIM integration. Every connection field is optional: `base_url` targets a self-hosted NIM endpoint (null when using the provider default). Secrets are write-only: the API key surfaces as `has_api_key` and custom request headers surface as `header_names` (names only).
     """ # noqa: E501
-    is_function_calling_enabled: StrictBool = Field(description="Whether function/tool calling is enabled.")
-    provider: StrictStr = Field(description="Discriminator identifying the NVIDIA NIM provider.")
-    has_api_key: StrictBool = Field(description="Whether an API key is configured (the key itself is never returned).")
-    base_url: Optional[StrictStr] = Field(description="Self-hosted NIM endpoint URL. Null when not set.")
-    header_names: List[StrictStr] = Field(description="Names of the custom request headers configured on this integration. Empty when none are configured. Header values are write-only and never returned.")
-    is_default_models_enabled: StrictBool = Field(description="Whether Arize's default model catalog is enabled.")
-    model_names: List[StrictStr] = Field(description="Custom model names configured on this integration. Empty when none.")
+    is_function_calling_enabled: Optional[StrictBool] = Field(default=None, description="Whether function/tool calling is enabled.")
+    provider: Optional[StrictStr] = Field(default=None, description="Discriminator identifying the NVIDIA NIM provider.")
+    has_api_key: Optional[StrictBool] = Field(default=None, description="Whether an API key is configured (the key itself is never returned).")
+    base_url: Optional[StrictStr] = Field(default=None, description="Self-hosted NIM endpoint URL. Null when not set.")
+    header_names: Optional[List[StrictStr]] = Field(default=None, description="Names of the custom request headers configured on this integration. Empty when none are configured. Header values are write-only and never returned.")
+    is_default_models_enabled: Optional[StrictBool] = Field(default=None, description="Whether Arize's default model catalog is enabled.")
+    model_names: Optional[List[StrictStr]] = Field(default=None, description="Custom model names configured on this integration. Empty when none.")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["is_function_calling_enabled", "provider", "has_api_key", "base_url", "header_names", "is_default_models_enabled", "model_names"]
 
     @field_validator('provider')
     def provider_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['NVIDIA_NIM']):
             raise ValueError("must be one of enum values ('NVIDIA_NIM')")
         return value
@@ -105,7 +107,7 @@ class NvidiaNimConfig(BaseModel):
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "is_function_calling_enabled": obj.get("is_function_calling_enabled"),
             "provider": obj.get("provider"),
             "has_api_key": obj.get("has_api_key"),
@@ -113,7 +115,7 @@ class NvidiaNimConfig(BaseModel):
             "header_names": obj.get("header_names"),
             "is_default_models_enabled": obj.get("is_default_models_enabled"),
             "model_names": obj.get("model_names")
-        })
+        }.items() if key in obj})
         # store additional fields in additional_properties
         for _key in obj.keys():
             if _key not in cls.__properties:

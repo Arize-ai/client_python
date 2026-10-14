@@ -1,5 +1,13 @@
 # Changelog
 
+## [8.59.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.59.0...arize-python-sdk/v8.59.1) (2026-10-14)
+
+
+### 🐛 Bug Fixes
+
+* **spaces:** return space organization IDs without changing filters ([#89713](https://github.com/Arize-ai/arize/issues/89713)) ([a95ed00](https://github.com/Arize-ai/arize/commit/a95ed00f704bb471428ec7b69b401567e9ce8354))
+* tolerate missing fields in compatible REST responses ([#90512](https://github.com/Arize-ai/arize/issues/90512)) ([9431b24](https://github.com/Arize-ai/arize/commit/9431b24918a9d19787b4283962e91415d79f84d4))
+
 ## [8.59.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.58.0...arize-python-sdk/v8.59.0) (2026-10-12)
 
 

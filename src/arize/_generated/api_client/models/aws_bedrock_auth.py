@@ -94,37 +94,15 @@ class AwsBedrockAuth(BaseModel):
     @classmethod
     def from_json(cls, json_str: str) -> Self:
         """Returns the object represented by the json string"""
-        instance = cls.model_construct()
-        error_messages = []
-        match = 0
-
-        # deserialize data into AwsBedrockDefaultAuth
-        try:
-            instance.actual_instance = AwsBedrockDefaultAuth.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-        # deserialize data into AwsBedrockBearerTokenAuth
-        try:
-            instance.actual_instance = AwsBedrockBearerTokenAuth.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-        # deserialize data into AwsBedrockProxyWithHeadersAuth
-        try:
-            instance.actual_instance = AwsBedrockProxyWithHeadersAuth.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-
-        if match > 1:
-            # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into AwsBedrockAuth with oneOf schemas: AwsBedrockBearerTokenAuth, AwsBedrockDefaultAuth, AwsBedrockProxyWithHeadersAuth. Details: " + ", ".join(error_messages))
-        elif match == 0:
-            # no match
-            raise ValueError("No match found when deserializing the JSON string into AwsBedrockAuth with oneOf schemas: AwsBedrockBearerTokenAuth, AwsBedrockDefaultAuth, AwsBedrockProxyWithHeadersAuth. Details: " + ", ".join(error_messages))
-        else:
-            return instance
+        payload = json.loads(json_str)
+        if isinstance(payload, dict) and 'auth_type' in payload:
+            if payload['auth_type'] == 'DEFAULT':
+                return cls(actual_instance=AwsBedrockDefaultAuth.from_dict(payload))
+            if payload['auth_type'] == 'BEARER_TOKEN':
+                return cls(actual_instance=AwsBedrockBearerTokenAuth.from_dict(payload))
+            if payload['auth_type'] == 'PROXY_WITH_HEADERS':
+                return cls(actual_instance=AwsBedrockProxyWithHeadersAuth.from_dict(payload))
+        raise ValueError('Cannot identify AwsBedrockAuth response: expected a supported auth_type value')
 
     def to_json(self) -> str:
         """Returns the JSON representation of the actual instance"""

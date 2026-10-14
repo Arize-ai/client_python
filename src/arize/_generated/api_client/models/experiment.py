@@ -27,13 +27,13 @@ class Experiment(BaseModel):
     """
     Experiments combine a dataset (example inputs/expected outputs), a task (the function that produces model outputs), and one or more evaluators (code or LLM judges) to measure performance. Each run is stored independently so you can compare runs, track progress, and validate improvements over time. See the full definition on the Experiments page.  Use an experiment to run tasks on a dataset, attach evaluators to score outputs, and compare runs to confirm improvements. 
     """ # noqa: E501
-    id: StrictStr = Field(description="Unique identifier for the experiment")
-    name: StrictStr = Field(description="Name of the experiment")
-    space_id: StrictStr = Field(description="Unique identifier for the space this experiment belongs to")
+    id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the experiment")
+    name: Optional[StrictStr] = Field(default=None, description="Name of the experiment")
+    space_id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the space this experiment belongs to")
     dataset_id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the dataset associated with this experiment. Null if the experiment isn't associated with a dataset.")
     dataset_version_id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the dataset version associated with this experiment. Null if the experiment isn't associated with a dataset.")
-    created_at: datetime = Field(description="Timestamp for when the experiment was created")
-    updated_at: datetime = Field(description="Timestamp for the last update of the experiment")
+    created_at: Optional[datetime] = Field(default=None, description="Timestamp for when the experiment was created")
+    updated_at: Optional[datetime] = Field(default=None, description="Timestamp for the last update of the experiment")
     experiment_traces_project_id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the experiment traces project this experiment belongs to (if it exists)")
     integration_id: Optional[StrictStr] = Field(default=None, description="Identifier (base64) of the agent integration that backs this experiment, as returned by the integrations API. Null for non-agent experiments (for example, SDK or Playground experiments). ")
     __properties: ClassVar[List[str]] = ["id", "name", "space_id", "dataset_id", "dataset_version_id", "created_at", "updated_at", "experiment_traces_project_id", "integration_id"]
@@ -104,7 +104,7 @@ class Experiment(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "name": obj.get("name"),
             "space_id": obj.get("space_id"),
@@ -114,7 +114,7 @@ class Experiment(BaseModel):
             "updated_at": obj.get("updated_at"),
             "experiment_traces_project_id": obj.get("experiment_traces_project_id"),
             "integration_id": obj.get("integration_id")
-        })
+        }.items() if key in obj})
         return _obj
 
 

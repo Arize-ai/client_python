@@ -26,15 +26,17 @@ class GeminiConfig(BaseModel):
     """
     Config for a Google Gemini LLM integration.
     """ # noqa: E501
-    is_function_calling_enabled: StrictBool = Field(description="Whether function/tool calling is enabled.")
-    provider: StrictStr = Field(description="Discriminator identifying the Gemini provider.")
-    has_api_key: StrictBool = Field(description="Whether an API key is configured (the key itself is never returned).")
+    is_function_calling_enabled: Optional[StrictBool] = Field(default=None, description="Whether function/tool calling is enabled.")
+    provider: Optional[StrictStr] = Field(default=None, description="Discriminator identifying the Gemini provider.")
+    has_api_key: Optional[StrictBool] = Field(default=None, description="Whether an API key is configured (the key itself is never returned).")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["is_function_calling_enabled", "provider", "has_api_key"]
 
     @field_validator('provider')
     def provider_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['GEMINI']):
             raise ValueError("must be one of enum values ('GEMINI')")
         return value
@@ -96,11 +98,11 @@ class GeminiConfig(BaseModel):
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "is_function_calling_enabled": obj.get("is_function_calling_enabled"),
             "provider": obj.get("provider"),
             "has_api_key": obj.get("has_api_key")
-        })
+        }.items() if key in obj})
         # store additional fields in additional_properties
         for _key in obj.keys():
             if _key not in cls.__properties:

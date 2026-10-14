@@ -1502,6 +1502,10 @@ client.organizations.remove_user(
 Use `client.spaces` to create, retrieve, update, delete, and manage memberships
 for Arize spaces.
 
+Space responses from list, get, create, and update include `organization_id`,
+the ID of the parent organization, when the server supports this field.
+Older server versions may omit it.
+
 ### List Spaces
 
 ```python
@@ -1513,6 +1517,9 @@ resp = client.spaces.list(
 )
 space_list = resp.spaces
 ```
+
+Omit `organization_id` to list accessible spaces from all organizations. The SDK
+sends this value as the REST query parameter `org_id`.
 
 ### Get a Space
 

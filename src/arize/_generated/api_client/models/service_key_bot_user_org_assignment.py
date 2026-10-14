@@ -28,9 +28,9 @@ class ServiceKeyBotUserOrgAssignment(BaseModel):
     """
     ServiceKeyBotUserOrgAssignment
     """ # noqa: E501
-    org_id: StrictStr = Field(description="ID of the organization the service account has access to.")
-    role: OrganizationRoleAssignment = Field(description="Role assigned to the bot user within this organization. Always present — defaults are resolved server-side.")
-    spaces: List[ServiceKeyBotUserSpaceAssignment] = Field(description="Space assignments within this organization. Roles are always present in the response (defaults are resolved server-side).")
+    org_id: Optional[StrictStr] = Field(default=None, description="ID of the organization the service account has access to.")
+    role: Optional[OrganizationRoleAssignment] = Field(default=None, description="Role assigned to the bot user within this organization. Always present — defaults are resolved server-side.")
+    spaces: Optional[List[ServiceKeyBotUserSpaceAssignment]] = Field(default=None, description="Space assignments within this organization. Roles are always present in the response (defaults are resolved server-side).")
     __properties: ClassVar[List[str]] = ["org_id", "role", "spaces"]
 
     model_config = ConfigDict(
@@ -94,11 +94,11 @@ class ServiceKeyBotUserOrgAssignment(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "org_id": obj.get("org_id"),
             "role": OrganizationRoleAssignment.from_dict(obj["role"]) if obj.get("role") is not None else None,
             "spaces": [ServiceKeyBotUserSpaceAssignment.from_dict(_item) for _item in obj["spaces"]] if obj.get("spaces") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

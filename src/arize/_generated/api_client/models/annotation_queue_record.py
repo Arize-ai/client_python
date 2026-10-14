@@ -31,16 +31,16 @@ class AnnotationQueueRecord(BaseModel):
     """
     A record in an annotation queue with its data
     """ # noqa: E501
-    id: StrictStr = Field(description="The unique identifier for the record")
-    annotation_queue_id: StrictStr = Field(description="The annotation queue this record belongs to")
-    source_type: AnnotationQueueSourceType
+    id: Optional[StrictStr] = Field(default=None, description="The unique identifier for the record")
+    annotation_queue_id: Optional[StrictStr] = Field(default=None, description="The annotation queue this record belongs to")
+    source_type: Optional[AnnotationQueueSourceType] = None
     granularity: Optional[RecordGranularity] = Field(default=None, description="The granularity of the record, if applicable.")
-    data: Dict[str, Any] = Field(description="Record data as flat key-value pairs containing span or dataset fields. Does not include annotation or evaluation columns.")
-    annotations: List[Annotation] = Field(description="Annotations on this record.")
-    trace_annotations: List[Annotation] = Field(description="Trace annotations on this record.")
-    session_annotations: List[Annotation] = Field(description="Session annotations on this record.")
-    evaluations: List[Evaluation] = Field(description="Evaluation results on this record")
-    assigned_users: List[AnnotationQueueAssignedUser] = Field(description="Users assigned to this record")
+    data: Optional[Dict[str, Any]] = Field(default=None, description="Record data as flat key-value pairs containing span or dataset fields. Does not include annotation or evaluation columns.")
+    annotations: Optional[List[Annotation]] = Field(default=None, description="Annotations on this record.")
+    trace_annotations: Optional[List[Annotation]] = Field(default=None, description="Trace annotations on this record.")
+    session_annotations: Optional[List[Annotation]] = Field(default=None, description="Session annotations on this record.")
+    evaluations: Optional[List[Evaluation]] = Field(default=None, description="Evaluation results on this record")
+    assigned_users: Optional[List[AnnotationQueueAssignedUser]] = Field(default=None, description="Users assigned to this record")
     __properties: ClassVar[List[str]] = ["id", "annotation_queue_id", "source_type", "granularity", "data", "annotations", "trace_annotations", "session_annotations", "evaluations", "assigned_users"]
 
     model_config = ConfigDict(
@@ -134,7 +134,7 @@ class AnnotationQueueRecord(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "annotation_queue_id": obj.get("annotation_queue_id"),
             "source_type": obj.get("source_type"),
@@ -145,7 +145,7 @@ class AnnotationQueueRecord(BaseModel):
             "session_annotations": [Annotation.from_dict(_item) for _item in obj["session_annotations"]] if obj.get("session_annotations") is not None else None,
             "evaluations": [Evaluation.from_dict(_item) for _item in obj["evaluations"]] if obj.get("evaluations") is not None else None,
             "assigned_users": [AnnotationQueueAssignedUser.from_dict(_item) for _item in obj["assigned_users"]] if obj.get("assigned_users") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

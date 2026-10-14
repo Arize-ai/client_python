@@ -94,37 +94,15 @@ class AnnotationConfig(BaseModel):
     @classmethod
     def from_json(cls, json_str: str) -> Self:
         """Returns the object represented by the json string"""
-        instance = cls.model_construct()
-        error_messages = []
-        match = 0
-
-        # deserialize data into ContinuousAnnotationConfig
-        try:
-            instance.actual_instance = ContinuousAnnotationConfig.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-        # deserialize data into CategoricalAnnotationConfig
-        try:
-            instance.actual_instance = CategoricalAnnotationConfig.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-        # deserialize data into FreeformAnnotationConfig
-        try:
-            instance.actual_instance = FreeformAnnotationConfig.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-
-        if match > 1:
-            # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into AnnotationConfig with oneOf schemas: CategoricalAnnotationConfig, ContinuousAnnotationConfig, FreeformAnnotationConfig. Details: " + ", ".join(error_messages))
-        elif match == 0:
-            # no match
-            raise ValueError("No match found when deserializing the JSON string into AnnotationConfig with oneOf schemas: CategoricalAnnotationConfig, ContinuousAnnotationConfig, FreeformAnnotationConfig. Details: " + ", ".join(error_messages))
-        else:
-            return instance
+        payload = json.loads(json_str)
+        if isinstance(payload, dict) and 'type' in payload:
+            if payload['type'] == 'CONTINUOUS':
+                return cls(actual_instance=ContinuousAnnotationConfig.from_dict(payload))
+            if payload['type'] == 'CATEGORICAL':
+                return cls(actual_instance=CategoricalAnnotationConfig.from_dict(payload))
+            if payload['type'] == 'FREEFORM':
+                return cls(actual_instance=FreeformAnnotationConfig.from_dict(payload))
+        raise ValueError('Cannot identify AnnotationConfig response: expected a supported type value')
 
     def to_json(self) -> str:
         """Returns the JSON representation of the actual instance"""

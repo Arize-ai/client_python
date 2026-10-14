@@ -27,7 +27,7 @@ class Dimension(BaseModel):
     """
     Dimension
     """ # noqa: E501
-    category: DimensionCategory = Field(description="The category of the monitored dimension.")
+    category: Optional[DimensionCategory] = Field(default=None, description="The category of the monitored dimension.")
     name: Optional[StrictStr] = Field(default=None, description="Name of the monitored field. Omitted when the category has no concrete field name.  ")
     __properties: ClassVar[List[str]] = ["category", "name"]
 
@@ -82,10 +82,10 @@ class Dimension(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "category": obj.get("category"),
             "name": obj.get("name")
-        })
+        }.items() if key in obj})
         return _obj
 
 

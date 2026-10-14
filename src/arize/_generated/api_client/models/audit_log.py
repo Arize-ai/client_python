@@ -28,14 +28,14 @@ class AuditLog(BaseModel):
     """
     A single audit log entry recording an authenticated user action.
     """ # noqa: E501
-    id: StrictStr = Field(description="A universally unique identifier (base64-encoded opaque string).")
-    user_id: StrictStr = Field(description="A universally unique identifier (base64-encoded opaque string).")
-    ip: StrictStr = Field(description="The IP address from which the request originated.")
-    operation_type: AuditLogOperationType
+    id: Optional[StrictStr] = Field(default=None, description="A universally unique identifier (base64-encoded opaque string).")
+    user_id: Optional[StrictStr] = Field(default=None, description="A universally unique identifier (base64-encoded opaque string).")
+    ip: Optional[StrictStr] = Field(default=None, description="The IP address from which the request originated.")
+    operation_type: Optional[AuditLogOperationType] = None
     operation_name: Optional[StrictStr] = Field(default=None, description="The name of the GraphQL operation or REST endpoint.")
     operation_text: Optional[StrictStr] = Field(default=None, description="The full text of the operation (query or mutation body, or REST request body).")
     variables: Optional[StrictStr] = Field(default=None, description="JSON-serialized variables passed with the operation.")
-    created_at: datetime = Field(description="ISO 8601 timestamp when the action was recorded.")
+    created_at: Optional[datetime] = Field(default=None, description="ISO 8601 timestamp when the action was recorded.")
     __properties: ClassVar[List[str]] = ["id", "user_id", "ip", "operation_type", "operation_name", "operation_text", "variables", "created_at"]
 
     model_config = ConfigDict(
@@ -104,7 +104,7 @@ class AuditLog(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "user_id": obj.get("user_id"),
             "ip": obj.get("ip"),
@@ -113,7 +113,7 @@ class AuditLog(BaseModel):
             "operation_text": obj.get("operation_text"),
             "variables": obj.get("variables"),
             "created_at": obj.get("created_at")
-        })
+        }.items() if key in obj})
         return _obj
 
 

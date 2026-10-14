@@ -122,7 +122,7 @@ class PromptWithVersion(_GenPromptWithVersion):
     by the CLI's generic formatter.
     """
 
-    version: PromptVersion  # type: ignore[assignment]
+    version: PromptVersion | None = None
 
 
 __all__ = [

@@ -26,14 +26,16 @@ class AwsBedrockBearerTokenAuth(BaseModel):
     """
     Bearer-token auth for AWS Bedrock. The token surfaces as `has_api_key` on read; the token itself is never returned.
     """ # noqa: E501
-    auth_type: StrictStr = Field(description="Discriminator identifying bearer-token auth.")
-    has_api_key: StrictBool = Field(description="Whether a bearer token is configured (the token itself is never returned). Always true for integrations created through this API; may be false for integrations created through the Arize UI without a token.")
-    base_url: Optional[StrictStr] = Field(description="Custom Bedrock endpoint URL. Null when not set.")
+    auth_type: Optional[StrictStr] = Field(default=None, description="Discriminator identifying bearer-token auth.")
+    has_api_key: Optional[StrictBool] = Field(default=None, description="Whether a bearer token is configured (the token itself is never returned). Always true for integrations created through this API; may be false for integrations created through the Arize UI without a token.")
+    base_url: Optional[StrictStr] = Field(default=None, description="Custom Bedrock endpoint URL. Null when not set.")
     __properties: ClassVar[List[str]] = ["auth_type", "has_api_key", "base_url"]
 
     @field_validator('auth_type')
     def auth_type_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['BEARER_TOKEN']):
             raise ValueError("must be one of enum values ('BEARER_TOKEN')")
         return value
@@ -94,11 +96,11 @@ class AwsBedrockBearerTokenAuth(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "auth_type": obj.get("auth_type"),
             "has_api_key": obj.get("has_api_key"),
             "base_url": obj.get("base_url")
-        })
+        }.items() if key in obj})
         return _obj
 
 

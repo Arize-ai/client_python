@@ -27,13 +27,13 @@ class Prompt(BaseModel):
     """
     A prompt is a reusable template for LLM interactions. Prompts can be versioned and labeled to track changes over time. Use prompts to standardize how you interact with LLMs across your application. 
     """ # noqa: E501
-    id: StrictStr = Field(description="The prompt ID")
-    name: StrictStr = Field(description="The prompt name")
+    id: Optional[StrictStr] = Field(default=None, description="The prompt ID")
+    name: Optional[StrictStr] = Field(default=None, description="The prompt name")
     description: Optional[StrictStr] = Field(default=None, description="The prompt description")
-    space_id: StrictStr = Field(description="The space ID the prompt belongs to")
-    created_at: datetime = Field(description="When the prompt was created")
-    updated_at: datetime = Field(description="When the prompt was last updated")
-    created_by_user_id: StrictStr = Field(description="The user ID of the user who created the prompt")
+    space_id: Optional[StrictStr] = Field(default=None, description="The space ID the prompt belongs to")
+    created_at: Optional[datetime] = Field(default=None, description="When the prompt was created")
+    updated_at: Optional[datetime] = Field(default=None, description="When the prompt was last updated")
+    created_by_user_id: Optional[StrictStr] = Field(default=None, description="The user ID of the user who created the prompt")
     __properties: ClassVar[List[str]] = ["id", "name", "description", "space_id", "created_at", "updated_at", "created_by_user_id"]
 
     model_config = ConfigDict(
@@ -92,7 +92,7 @@ class Prompt(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "name": obj.get("name"),
             "description": obj.get("description"),
@@ -100,7 +100,7 @@ class Prompt(BaseModel):
             "created_at": obj.get("created_at"),
             "updated_at": obj.get("updated_at"),
             "created_by_user_id": obj.get("created_by_user_id")
-        })
+        }.items() if key in obj})
         return _obj
 
 

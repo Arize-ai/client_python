@@ -28,15 +28,17 @@ class DynamicRangeThreshold(BaseModel):
     """
     DynamicRangeThreshold
     """ # noqa: E501
-    type: StrictStr = Field(description="Identifies this threshold as a lower/upper bound range derived from a statistical calculation.")
-    calculation: ThresholdCalculation
-    lower: DynamicThresholdBound = Field(description="The lower bound of the range. Its `operator` must be `GREATER_THAN` or `GREATER_THAN_OR_EQUAL`. ")
-    upper: DynamicThresholdBound = Field(description="The upper bound of the range. Its `operator` must be `LESS_THAN` or `LESS_THAN_OR_EQUAL`. ")
+    type: Optional[StrictStr] = Field(default=None, description="Identifies this threshold as a lower/upper bound range derived from a statistical calculation.")
+    calculation: Optional[ThresholdCalculation] = None
+    lower: Optional[DynamicThresholdBound] = Field(default=None, description="The lower bound of the range. Its `operator` must be `GREATER_THAN` or `GREATER_THAN_OR_EQUAL`. ")
+    upper: Optional[DynamicThresholdBound] = Field(default=None, description="The upper bound of the range. Its `operator` must be `LESS_THAN` or `LESS_THAN_OR_EQUAL`. ")
     __properties: ClassVar[List[str]] = ["type", "calculation", "lower", "upper"]
 
     @field_validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['DYNAMIC_RANGE']):
             raise ValueError("must be one of enum values ('DYNAMIC_RANGE')")
         return value
@@ -98,12 +100,12 @@ class DynamicRangeThreshold(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "type": obj.get("type"),
             "calculation": obj.get("calculation"),
             "lower": DynamicThresholdBound.from_dict(obj["lower"]) if obj.get("lower") is not None else None,
             "upper": DynamicThresholdBound.from_dict(obj["upper"]) if obj.get("upper") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

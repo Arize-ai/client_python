@@ -27,8 +27,8 @@ class AwsProviderMetadata(BaseModel):
     """
     AWS Bedrock provider metadata
     """ # noqa: E501
-    kind: AwsProviderMetadataKind
-    role_arn: StrictStr = Field(description="AWS IAM role ARN for cross-account access")
+    kind: Optional[AwsProviderMetadataKind] = None
+    role_arn: Optional[StrictStr] = Field(default=None, description="AWS IAM role ARN for cross-account access")
     external_id: Optional[StrictStr] = Field(default=None, description="External ID for the assume-role policy")
     __properties: ClassVar[List[str]] = ["kind", "role_arn", "external_id"]
 
@@ -88,11 +88,11 @@ class AwsProviderMetadata(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "kind": obj.get("kind"),
             "role_arn": obj.get("role_arn"),
             "external_id": obj.get("external_id")
-        })
+        }.items() if key in obj})
         return _obj
 
 

@@ -28,8 +28,8 @@ class ListTasksResponse(BaseModel):
     """
     ListTasksResponse
     """ # noqa: E501
-    tasks: List[Task] = Field(description="A list of tasks")
-    pagination: PaginationMetadata
+    tasks: Optional[List[Task]] = Field(default=None, description="A list of tasks")
+    pagination: Optional[PaginationMetadata] = None
     __properties: ClassVar[List[str]] = ["tasks", "pagination"]
 
     model_config = ConfigDict(
@@ -93,10 +93,10 @@ class ListTasksResponse(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "tasks": [Task.from_dict(_item) for _item in obj["tasks"]] if obj.get("tasks") is not None else None,
             "pagination": PaginationMetadata.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

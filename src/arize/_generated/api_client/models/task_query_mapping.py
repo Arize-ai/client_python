@@ -27,9 +27,9 @@ class TaskQueryMapping(BaseModel):
     """
     Maps one evaluator variable to one or more query ids and an attribute path (trace/session shape). 
     """ # noqa: E501
-    variable_name: StrictStr = Field(description="The evaluator template variable this mapping populates.")
-    query_ids: Annotated[List[Annotated[str, Field(strict=True)]], Field(min_length=0)] = Field(description="Declared query ids (`A`-`E`) whose matching units feed this variable. An empty list means \"any declared query\" (valid for session-level variables that match all spans in the conversation). Every id must be declared in the task's `query_filters.filters`. ")
-    attribute_path: StrictStr = Field(description="Span attribute path (e.g. `attributes.input.value`) resolved within each admitted unit to populate `variable_name`. ")
+    variable_name: Optional[StrictStr] = Field(default=None, description="The evaluator template variable this mapping populates.")
+    query_ids: Optional[Annotated[List[Annotated[str, Field(strict=True)]], Field(min_length=0)]] = Field(default=None, description="Declared query ids (`A`-`E`) whose matching units feed this variable. An empty list means \"any declared query\" (valid for session-level variables that match all spans in the conversation). Every id must be declared in the task's `query_filters.filters`. ")
+    attribute_path: Optional[StrictStr] = Field(default=None, description="Span attribute path (e.g. `attributes.input.value`) resolved within each admitted unit to populate `variable_name`. ")
     __properties: ClassVar[List[str]] = ["variable_name", "query_ids", "attribute_path"]
 
     model_config = ConfigDict(
@@ -83,11 +83,11 @@ class TaskQueryMapping(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "variable_name": obj.get("variable_name"),
             "query_ids": obj.get("query_ids"),
             "attribute_path": obj.get("attribute_path")
-        })
+        }.items() if key in obj})
         return _obj
 
 

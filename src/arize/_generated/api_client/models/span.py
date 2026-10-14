@@ -33,12 +33,12 @@ class Span(BaseModel):
     """
     A Span represents a single unit of work within a distributed trace for an LLM application. It captures the operation’s input and output, start and end times, and a span kind indicating its role (such as LLM, Tool, Agent, Retriever, Chain, or Embedding). Spans are hierarchically related and combine to form a trace, enabling end-to-end visibility into request execution, performance bottlenecks, and errors across complex LLM pipelines. 
     """ # noqa: E501
-    name: StrictStr = Field(description="Name of the span")
-    context: SpanContext
-    kind: SpanKind
+    name: Optional[StrictStr] = Field(default=None, description="Name of the span")
+    context: Optional[SpanContext] = None
+    kind: Optional[SpanKind] = None
     parent_id: Optional[StrictStr] = Field(default=None, description="ID of the parent span")
-    start_time: datetime = Field(description="Timestamp when the span started")
-    end_time: datetime = Field(description="Timestamp when the span ended")
+    start_time: Optional[datetime] = Field(default=None, description="Timestamp when the span started")
+    end_time: Optional[datetime] = Field(default=None, description="Timestamp when the span ended")
     status_code: Optional[SpanStatusCode] = Field(default=None, description="Status code of the span. When absent, the server treats the value as `UNSET` (equivalent to OK).")
     status_message: Optional[StrictStr] = Field(default=None, description="Status message associated with the span")
     attributes: Optional[Dict[str, Any]] = Field(default=None, description="Key-value pairs of span attributes")
@@ -130,7 +130,7 @@ class Span(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "name": obj.get("name"),
             "context": SpanContext.from_dict(obj["context"]) if obj.get("context") is not None else None,
             "kind": obj.get("kind"),
@@ -144,7 +144,7 @@ class Span(BaseModel):
             "trace_annotations": [Annotation.from_dict(_item) for _item in obj["trace_annotations"]] if obj.get("trace_annotations") is not None else None,
             "evaluations": [Evaluation.from_dict(_item) for _item in obj["evaluations"]] if obj.get("evaluations") is not None else None,
             "events": [SpanEvent.from_dict(_item) for _item in obj["events"]] if obj.get("events") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

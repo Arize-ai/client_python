@@ -29,15 +29,15 @@ class TemplateConfig(BaseModel):
     """
     TemplateConfig
     """ # noqa: E501
-    name: StrictStr = Field(description="Eval column name. Must match ^[a-zA-Z0-9_\\s\\-&()]+$")
-    template: StrictStr = Field(description="The prompt template with variable placeholders")
-    include_explanations: StrictBool = Field(description="Whether to include explanations in the evaluation output")
+    name: Optional[StrictStr] = Field(default=None, description="Eval column name. Must match ^[a-zA-Z0-9_\\s\\-&()]+$")
+    template: Optional[StrictStr] = Field(default=None, description="The prompt template with variable placeholders")
+    include_explanations: Optional[StrictBool] = Field(default=None, description="Whether to include explanations in the evaluation output")
     use_function_calling: Optional[StrictBool] = Field(default=None, description="Whether to use function calling if the model supports it.")
     use_structured_output: Optional[StrictBool] = Field(default=True, description="Whether to use structured output if the model supports it")
     classification_choices: Optional[Dict[str, Union[StrictFloat, StrictInt]]] = Field(default=None, description="Map of choice label to numeric score (e.g. {\"relevant\": 1, \"irrelevant\": 0}). Null for legacy freeform evaluators that predate required choices.")
     direction: Optional[OptimizationDirection] = Field(default=None, description="Direction for optimization applied to this template's evaluation scores. Defaults to `MAXIMIZE` when omitted.")
     data_granularity: Optional[DataGranularity] = Field(default=None, description="Data granularity level. Null for legacy evaluators with no stored granularity.")
-    llm_config: EvaluatorLlmConfig
+    llm_config: Optional[EvaluatorLlmConfig] = None
     __properties: ClassVar[List[str]] = ["name", "template", "include_explanations", "use_function_calling", "use_structured_output", "classification_choices", "direction", "data_granularity", "llm_config"]
 
     model_config = ConfigDict(
@@ -104,7 +104,7 @@ class TemplateConfig(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "name": obj.get("name"),
             "template": obj.get("template"),
             "include_explanations": obj.get("include_explanations"),
@@ -114,7 +114,7 @@ class TemplateConfig(BaseModel):
             "direction": obj.get("direction"),
             "data_granularity": obj.get("data_granularity"),
             "llm_config": EvaluatorLlmConfig.from_dict(obj["llm_config"]) if obj.get("llm_config") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

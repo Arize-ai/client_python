@@ -28,8 +28,8 @@ class ListTagsResponse(BaseModel):
     """
     ListTagsResponse
     """ # noqa: E501
-    tags: List[Tag] = Field(description="The tags attached to the resource, most recently updated first. Empty when the resource has no tags. ")
-    pagination: PaginationMetadata = Field(description="Pagination metadata. Tag lists are not paginated yet, so `has_more` is always `false` and `next_cursor` is always omitted. The field is present so that adding pagination later does not change the response shape. ")
+    tags: Optional[List[Tag]] = Field(default=None, description="The tags attached to the resource, most recently updated first. Empty when the resource has no tags. ")
+    pagination: Optional[PaginationMetadata] = Field(default=None, description="Pagination metadata. Tag lists are not paginated yet, so `has_more` is always `false` and `next_cursor` is always omitted. The field is present so that adding pagination later does not change the response shape. ")
     __properties: ClassVar[List[str]] = ["tags", "pagination"]
 
     model_config = ConfigDict(
@@ -93,10 +93,10 @@ class ListTagsResponse(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "tags": [Tag.from_dict(_item) for _item in obj["tags"]] if obj.get("tags") is not None else None,
             "pagination": PaginationMetadata.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

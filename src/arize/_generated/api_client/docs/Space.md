@@ -7,6 +7,7 @@ A space is a container within an organization for grouping related projects, dat
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **str** | Unique identifier for the space | 
+**organization_id** | **str** | The unique identifier of the organization that contains the space. Older server versions may omit this field. | [optional] 
 **name** | **str** | Name of the space | 
 **description** | **str** | A brief description of the space&#39;s purpose | 
 **created_at** | **datetime** | Timestamp for when the space was created | 

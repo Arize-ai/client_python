@@ -26,13 +26,15 @@ class CustomDefaultAuth(BaseModel):
     """
     API-key auth for a custom endpoint. The key surfaces as `has_api_key`; the key itself is never returned. A custom endpoint may require no credential at all, in which case `has_api_key` is false.
     """ # noqa: E501
-    auth_type: StrictStr = Field(description="Discriminator identifying API-key auth.")
-    has_api_key: StrictBool = Field(description="Whether an API key is configured (the key itself is never returned).")
+    auth_type: Optional[StrictStr] = Field(default=None, description="Discriminator identifying API-key auth.")
+    has_api_key: Optional[StrictBool] = Field(default=None, description="Whether an API key is configured (the key itself is never returned).")
     __properties: ClassVar[List[str]] = ["auth_type", "has_api_key"]
 
     @field_validator('auth_type')
     def auth_type_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['DEFAULT']):
             raise ValueError("must be one of enum values ('DEFAULT')")
         return value
@@ -88,10 +90,10 @@ class CustomDefaultAuth(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "auth_type": obj.get("auth_type"),
             "has_api_key": obj.get("has_api_key")
-        })
+        }.items() if key in obj})
         return _obj
 
 

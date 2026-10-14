@@ -28,19 +28,21 @@ class ContinuousAnnotationConfig(BaseModel):
     """
     ContinuousAnnotationConfig
     """ # noqa: E501
-    id: StrictStr = Field(description="The unique identifier for the annotation config")
-    name: StrictStr = Field(description="The name of the annotation config")
-    created_at: datetime = Field(description="The timestamp for when the annotation config was created")
-    space_id: StrictStr = Field(description="The space id the annotation config belongs to")
-    type: StrictStr = Field(description="Discriminator value identifying a continuous annotation config.")
-    minimum_score: Union[StrictFloat, StrictInt] = Field(description="The minimum score value")
-    maximum_score: Union[StrictFloat, StrictInt] = Field(description="The maximum score value")
+    id: Optional[StrictStr] = Field(default=None, description="The unique identifier for the annotation config")
+    name: Optional[StrictStr] = Field(default=None, description="The name of the annotation config")
+    created_at: Optional[datetime] = Field(default=None, description="The timestamp for when the annotation config was created")
+    space_id: Optional[StrictStr] = Field(default=None, description="The space id the annotation config belongs to")
+    type: Optional[StrictStr] = Field(default=None, description="Discriminator value identifying a continuous annotation config.")
+    minimum_score: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, description="The minimum score value")
+    maximum_score: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, description="The maximum score value")
     optimization_direction: Optional[OptimizationDirection] = Field(default=None, description="Direction for optimization. When absent, the server treats the value as `NONE`.")
     __properties: ClassVar[List[str]] = ["id", "name", "created_at", "space_id", "type", "minimum_score", "maximum_score", "optimization_direction"]
 
     @field_validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['CONTINUOUS']):
             raise ValueError("must be one of enum values ('CONTINUOUS')")
         return value
@@ -96,7 +98,7 @@ class ContinuousAnnotationConfig(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "name": obj.get("name"),
             "created_at": obj.get("created_at"),
@@ -105,7 +107,7 @@ class ContinuousAnnotationConfig(BaseModel):
             "minimum_score": obj.get("minimum_score"),
             "maximum_score": obj.get("maximum_score"),
             "optimization_direction": obj.get("optimization_direction")
-        })
+        }.items() if key in obj})
         return _obj
 
 

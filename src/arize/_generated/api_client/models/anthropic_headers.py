@@ -85,9 +85,9 @@ class AnthropicHeaders(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "anthropic_beta": obj.get("anthropic_beta")
-        })
+        }.items() if key in obj})
         return _obj
 
 

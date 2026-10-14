@@ -26,13 +26,15 @@ class EmailNotificationConfig(BaseModel):
     """
     EmailNotificationConfig
     """ # noqa: E501
-    type: StrictStr = Field(description="Identifies this notification channel as an email address.")
-    email_address: StrictStr = Field(description="Email address notified on a triggered transition.")
+    type: Optional[StrictStr] = Field(default=None, description="Identifies this notification channel as an email address.")
+    email_address: Optional[StrictStr] = Field(default=None, description="Email address notified on a triggered transition.")
     __properties: ClassVar[List[str]] = ["type", "email_address"]
 
     @field_validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['EMAIL']):
             raise ValueError("must be one of enum values ('EMAIL')")
         return value
@@ -88,10 +90,10 @@ class EmailNotificationConfig(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "type": obj.get("type"),
             "email_address": obj.get("email_address")
-        })
+        }.items() if key in obj})
         return _obj
 
 

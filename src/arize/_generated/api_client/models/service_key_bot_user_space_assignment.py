@@ -27,8 +27,8 @@ class ServiceKeyBotUserSpaceAssignment(BaseModel):
     """
     ServiceKeyBotUserSpaceAssignment
     """ # noqa: E501
-    space_id: StrictStr = Field(description="ID of the space the service account has access to.")
-    role: SpaceRoleAssignment = Field(description="Role assigned to the bot user within this space. Always present — defaults are resolved server-side.")
+    space_id: Optional[StrictStr] = Field(default=None, description="ID of the space the service account has access to.")
+    role: Optional[SpaceRoleAssignment] = Field(default=None, description="Role assigned to the bot user within this space. Always present — defaults are resolved server-side.")
     __properties: ClassVar[List[str]] = ["space_id", "role"]
 
     model_config = ConfigDict(
@@ -85,10 +85,10 @@ class ServiceKeyBotUserSpaceAssignment(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "space_id": obj.get("space_id"),
             "role": SpaceRoleAssignment.from_dict(obj["role"]) if obj.get("role") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

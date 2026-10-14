@@ -27,8 +27,8 @@ class CustomUserRoleAssignment(BaseModel):
     """
     A custom RBAC role assignment.
     """ # noqa: E501
-    type: UserRoleAssignmentType = Field(description="Discriminator identifying this as a custom role assignment. Must be `CUSTOM`.")
-    id: StrictStr = Field(description="The unique identifier of the custom RBAC role.")
+    type: Optional[UserRoleAssignmentType] = Field(default=None, description="Discriminator identifying this as a custom role assignment. Must be `CUSTOM`.")
+    id: Optional[StrictStr] = Field(default=None, description="The unique identifier of the custom RBAC role.")
     name: Optional[StrictStr] = Field(default=None, description="Human-readable name of the custom role. Returned in responses only; ignored on input. ")
     __properties: ClassVar[List[str]] = ["type", "id", "name"]
 
@@ -85,11 +85,11 @@ class CustomUserRoleAssignment(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "type": obj.get("type"),
             "id": obj.get("id"),
             "name": obj.get("name")
-        })
+        }.items() if key in obj})
         return _obj
 
 

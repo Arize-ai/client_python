@@ -28,7 +28,7 @@ class TaskQueryFilters(BaseModel):
     """
     Combined named-query filters and boolean expression for the trace/session shape. Supply this object OR `query_filter` (span shape) — not both. 
     """ # noqa: E501
-    filters: Annotated[List[TaskQueryFilter], Field(min_length=1, max_length=5)] = Field(description="Named query filters (1-5 entries) with unique `A`-`E` ids. Each entry pairs a single-letter id with a filter expression. ")
+    filters: Optional[Annotated[List[TaskQueryFilter], Field(min_length=1, max_length=5)]] = Field(default=None, description="Named query filters (1-5 entries) with unique `A`-`E` ids. Each entry pairs a single-letter id with a filter expression. ")
     expression: Optional[StrictStr] = Field(default=None, description="Boolean expression combining the `filters` ids (e.g. `A AND B`). Optional when exactly one filter is declared; required when two or more are declared. When a client omits `expression` on a single-filter create, GET echoes a synthesized expression equal to the lone query id (e.g. `A`). ")
     __properties: ClassVar[List[str]] = ["filters", "expression"]
 
@@ -90,10 +90,10 @@ class TaskQueryFilters(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "filters": [TaskQueryFilter.from_dict(_item) for _item in obj["filters"]] if obj.get("filters") is not None else None,
             "expression": obj.get("expression")
-        })
+        }.items() if key in obj})
         return _obj
 
 

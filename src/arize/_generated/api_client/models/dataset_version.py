@@ -27,11 +27,11 @@ class DatasetVersion(BaseModel):
     """
     A dataset version is a saved snapshot of a dataset. Arize stores datasets as version-controlled collections of examples for experiments. When you update a dataset, you can do so inplace  or create a new version while preserving access to previous versions. 
     """ # noqa: E501
-    id: StrictStr = Field(description="Unique identifier for the dataset version")
-    name: StrictStr = Field(description="Name of the dataset version")
-    dataset_id: StrictStr = Field(description="Unique identifier for the dataset this version belongs to")
-    created_at: datetime = Field(description="Timestamp for when the dataset version was created")
-    updated_at: datetime = Field(description="Timestamp for the last update of the dataset version")
+    id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the dataset version")
+    name: Optional[StrictStr] = Field(default=None, description="Name of the dataset version")
+    dataset_id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the dataset this version belongs to")
+    created_at: Optional[datetime] = Field(default=None, description="Timestamp for when the dataset version was created")
+    updated_at: Optional[datetime] = Field(default=None, description="Timestamp for the last update of the dataset version")
     __properties: ClassVar[List[str]] = ["id", "name", "dataset_id", "created_at", "updated_at"]
 
     model_config = ConfigDict(
@@ -85,13 +85,13 @@ class DatasetVersion(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "name": obj.get("name"),
             "dataset_id": obj.get("dataset_id"),
             "created_at": obj.get("created_at"),
             "updated_at": obj.get("updated_at")
-        })
+        }.items() if key in obj})
         return _obj
 
 

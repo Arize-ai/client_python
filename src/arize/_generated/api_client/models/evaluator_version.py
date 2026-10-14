@@ -102,43 +102,17 @@ class EvaluatorVersion(BaseModel):
     @classmethod
     def from_json(cls, json_str: str) -> Self:
         """Returns the object represented by the json string"""
-        instance = cls.model_construct()
-        error_messages = []
-        match = 0
-
-        # deserialize data into EvaluatorVersionTemplate
-        try:
-            instance.actual_instance = EvaluatorVersionTemplate.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-        # deserialize data into EvaluatorVersionCode
-        try:
-            instance.actual_instance = EvaluatorVersionCode.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-        # deserialize data into EvaluatorVersionHarness
-        try:
-            instance.actual_instance = EvaluatorVersionHarness.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-        # deserialize data into EvaluatorVersionRemote
-        try:
-            instance.actual_instance = EvaluatorVersionRemote.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-
-        if match > 1:
-            # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into EvaluatorVersion with oneOf schemas: EvaluatorVersionCode, EvaluatorVersionHarness, EvaluatorVersionRemote, EvaluatorVersionTemplate. Details: " + ", ".join(error_messages))
-        elif match == 0:
-            # no match
-            raise ValueError("No match found when deserializing the JSON string into EvaluatorVersion with oneOf schemas: EvaluatorVersionCode, EvaluatorVersionHarness, EvaluatorVersionRemote, EvaluatorVersionTemplate. Details: " + ", ".join(error_messages))
-        else:
-            return instance
+        payload = json.loads(json_str)
+        if isinstance(payload, dict) and 'type' in payload:
+            if payload['type'] == 'TEMPLATE':
+                return cls(actual_instance=EvaluatorVersionTemplate.from_dict(payload))
+            if payload['type'] == 'CODE':
+                return cls(actual_instance=EvaluatorVersionCode.from_dict(payload))
+            if payload['type'] == 'HARNESS':
+                return cls(actual_instance=EvaluatorVersionHarness.from_dict(payload))
+            if payload['type'] == 'REMOTE':
+                return cls(actual_instance=EvaluatorVersionRemote.from_dict(payload))
+        raise ValueError('Cannot identify EvaluatorVersion response: expected a supported type value')
 
     def to_json(self) -> str:
         """Returns the JSON representation of the actual instance"""

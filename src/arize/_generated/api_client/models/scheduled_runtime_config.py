@@ -27,7 +27,7 @@ class ScheduledRuntimeConfig(BaseModel):
     """
     ScheduledRuntimeConfig
     """ # noqa: E501
-    enabled: StrictBool = Field(description="Whether the monitor runs on a schedule. `false` means automatic scheduled evaluation is disabled.")
+    enabled: Optional[StrictBool] = Field(default=None, description="Whether the monitor runs on a schedule. `false` means automatic scheduled evaluation is disabled.")
     cadence_seconds: Optional[StrictInt] = Field(default=None, description="How often the monitor evaluates, in seconds.")
     days_of_week: Optional[List[Annotated[int, Field(le=6, strict=True, ge=0)]]] = Field(default=None, description="Days of the week the monitor runs on (`0` = Sunday … `6` = Saturday). ")
     __properties: ClassVar[List[str]] = ["enabled", "cadence_seconds", "days_of_week"]
@@ -83,11 +83,11 @@ class ScheduledRuntimeConfig(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "enabled": obj.get("enabled"),
             "cadence_seconds": obj.get("cadence_seconds"),
             "days_of_week": obj.get("days_of_week")
-        })
+        }.items() if key in obj})
         return _obj
 
 

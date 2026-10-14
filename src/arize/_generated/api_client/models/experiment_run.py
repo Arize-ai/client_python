@@ -27,7 +27,7 @@ class ExperimentRun(BaseModel):
     """
     An experiment run with experiment data including outputs, evaluations, and trace metadata
     """ # noqa: E501
-    id: StrictStr = Field(description="System-assigned unique ID for the example")
+    id: Optional[StrictStr] = Field(default=None, description="System-assigned unique ID for the example")
     example_id: Optional[StrictStr] = Field(default=None, description="ID of the dataset example associated with this experiment run. Null when the experiment isn't associated with a dataset.")
     output: Optional[StrictStr] = Field(default=None, description="Output of the task for the matching example. Null when the task errored.")
     error: Optional[StrictStr] = Field(default=None, description="Error message when the task failed. Null on success.")
@@ -120,13 +120,13 @@ class ExperimentRun(BaseModel):
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "example_id": obj.get("example_id"),
             "output": obj.get("output"),
             "error": obj.get("error"),
             "annotations": [Annotation.from_dict(_item) for _item in obj["annotations"]] if obj.get("annotations") is not None else None
-        })
+        }.items() if key in obj})
         # store additional fields in additional_properties
         for _key in obj.keys():
             if _key not in cls.__properties:

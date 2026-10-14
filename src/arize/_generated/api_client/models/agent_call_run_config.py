@@ -26,15 +26,17 @@ class AgentCallRunConfig(BaseModel):
     """
     Configuration for running an agent integration against each dataset example. The `input_template` is sent to the agent after Mustache substitution. 
     """ # noqa: E501
-    experiment_type: StrictStr = Field(description="Discriminator. Must be `\"AGENT_CALL\"`.")
-    integration_id: StrictStr = Field(description="Agent integration identifier (base64). The agent invoked for each dataset example. Must reference an integration of `type` `AGENT`; other integration types are rejected. ")
-    input_template: Dict[str, Any] = Field(description="JSON request body sent to the agent for each dataset example. Must be a JSON object whose values conform to the agent integration's input schema. Mustache placeholders (`{{column}}`) are substituted with each dataset row's values before the request is sent. The `dataset.` prefix is optional — `{{column}}` and `{{dataset.column}}` are equivalent, and responses (create, update, and read) always echo the normalized `{{column}}` form. Write every placeholder as a JSON string. A string that is exactly one placeholder (`\"{{profile_id}}\"`) is replaced by the row value cast to the type the input schema declares for that field: numeric strings become integers or numbers, `\"true\"`/`\"false\"` become booleans, JSON text becomes an object or array, and non-string values become strings. A placeholder embedded in other text (`\"id-{{profile_id}}\"`) is interpolated as text. A whole-value placeholder whose cell is null or whose column is missing is sent as `null`. Fields the schema does not type are sent with the dataset value's own type. If a value cannot be cast, that experiment run fails with an error naming the column, the value, and the target type; the other runs continue. ")
+    experiment_type: Optional[StrictStr] = Field(default=None, description="Discriminator. Must be `\"AGENT_CALL\"`.")
+    integration_id: Optional[StrictStr] = Field(default=None, description="Agent integration identifier (base64). The agent invoked for each dataset example. Must reference an integration of `type` `AGENT`; other integration types are rejected. ")
+    input_template: Optional[Dict[str, Any]] = Field(default=None, description="JSON request body sent to the agent for each dataset example. Must be a JSON object whose values conform to the agent integration's input schema. Mustache placeholders (`{{column}}`) are substituted with each dataset row's values before the request is sent. The `dataset.` prefix is optional — `{{column}}` and `{{dataset.column}}` are equivalent, and responses (create, update, and read) always echo the normalized `{{column}}` form. Write every placeholder as a JSON string. A string that is exactly one placeholder (`\"{{profile_id}}\"`) is replaced by the row value cast to the type the input schema declares for that field: numeric strings become integers or numbers, `\"true\"`/`\"false\"` become booleans, JSON text becomes an object or array, and non-string values become strings. A placeholder embedded in other text (`\"id-{{profile_id}}\"`) is interpolated as text. A whole-value placeholder whose cell is null or whose column is missing is sent as `null`. Fields the schema does not type are sent with the dataset value's own type. If a value cannot be cast, that experiment run fails with an error naming the column, the value, and the target type; the other runs continue. ")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["experiment_type", "integration_id", "input_template"]
 
     @field_validator('experiment_type')
     def experiment_type_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['AGENT_CALL']):
             raise ValueError("must be one of enum values ('AGENT_CALL')")
         return value
@@ -96,11 +98,11 @@ class AgentCallRunConfig(BaseModel):
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "experiment_type": obj.get("experiment_type"),
             "integration_id": obj.get("integration_id"),
             "input_template": obj.get("input_template")
-        })
+        }.items() if key in obj})
         # store additional fields in additional_properties
         for _key in obj.keys():
             if _key not in cls.__properties:

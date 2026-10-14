@@ -28,13 +28,13 @@ class RoleBinding(BaseModel):
     """
     RoleBinding
     """ # noqa: E501
-    id: StrictStr = Field(description="Unique identifier for the role binding.")
-    role_id: StrictStr = Field(description="A universally unique identifier (base64-encoded opaque string).")
-    user_id: StrictStr = Field(description="ID of the user this binding assigns the role to.  For a **service key**, this is the ID of the key's bot user — not the ID of the person who created the key. Read it from `bot_user.id` on the `POST /v2/api-keys` response, or from `bot_user.id` on the matching service key entry returned by `GET /v2/api-keys`. ")
-    resource_type: RoleBindingResourceType
-    resource_id: StrictStr = Field(description="A universally unique identifier (base64-encoded opaque string).")
-    created_at: datetime = Field(description="Timestamp when the binding was created.")
-    updated_at: datetime = Field(description="Timestamp when the binding was last updated.")
+    id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the role binding.")
+    role_id: Optional[StrictStr] = Field(default=None, description="A universally unique identifier (base64-encoded opaque string).")
+    user_id: Optional[StrictStr] = Field(default=None, description="ID of the user this binding assigns the role to.  For a **service key**, this is the ID of the key's bot user — not the ID of the person who created the key. Read it from `bot_user.id` on the `POST /v2/api-keys` response, or from `bot_user.id` on the matching service key entry returned by `GET /v2/api-keys`. ")
+    resource_type: Optional[RoleBindingResourceType] = None
+    resource_id: Optional[StrictStr] = Field(default=None, description="A universally unique identifier (base64-encoded opaque string).")
+    created_at: Optional[datetime] = Field(default=None, description="Timestamp when the binding was created.")
+    updated_at: Optional[datetime] = Field(default=None, description="Timestamp when the binding was last updated.")
     __properties: ClassVar[List[str]] = ["id", "role_id", "user_id", "resource_type", "resource_id", "created_at", "updated_at"]
 
     model_config = ConfigDict(
@@ -88,7 +88,7 @@ class RoleBinding(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "role_id": obj.get("role_id"),
             "user_id": obj.get("user_id"),
@@ -96,7 +96,7 @@ class RoleBinding(BaseModel):
             "resource_id": obj.get("resource_id"),
             "created_at": obj.get("created_at"),
             "updated_at": obj.get("updated_at")
-        })
+        }.items() if key in obj})
         return _obj
 
 

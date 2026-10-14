@@ -13,7 +13,7 @@ post-gen patch in recompile_openapi.sh:
 
   Type 2 — ignore (response/entity schemas):
     additionalProperties: false + x-forward-compatible: true.
-    Post-gen patch removes the strict check; unknown fields are silently dropped.
+    Post-gen patch drops unknown fields and defaults missing required fields to None.
 
   Type 3 — store (intentionally open-ended schemas):
     additionalProperties: true in the spec.
@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import pytest
 
+from arize._generated.api_client.api_client import ApiClient
 from arize._generated.api_client.models.agent_call_run_config import (
     AgentCallRunConfig,
 )
@@ -52,6 +53,9 @@ from arize._generated.api_client.models.create_project_request import (
 )
 from arize._generated.api_client.models.custom_config import CustomConfig
 from arize._generated.api_client.models.gemini_config import GeminiConfig
+from arize._generated.api_client.models.list_projects_response import (
+    ListProjectsResponse,
+)
 from arize._generated.api_client.models.llm_generation_run_config import (
     LlmGenerationRunConfig,
 )
@@ -64,7 +68,19 @@ from arize._generated.api_client.models.llm_message_request import (
 )
 from arize._generated.api_client.models.nvidia_nim_config import NvidiaNimConfig
 from arize._generated.api_client.models.open_ai_config import OpenAiConfig
+from arize._generated.api_client.models.predefined_role_assignment import (
+    PredefinedRoleAssignment,
+)
 from arize._generated.api_client.models.project import Project
+from arize._generated.api_client.models.service_api_key import ServiceApiKey
+from arize._generated.api_client.models.space_membership import SpaceMembership
+from arize._generated.api_client.models.space_role_assignment import (
+    SpaceRoleAssignment,
+)
+from arize._generated.api_client.models.space_role_assignment_request import (
+    SpaceRoleAssignmentRequest,
+)
+from arize._generated.api_client.models.task_query_filter import TaskQueryFilter
 from arize._generated.api_client.models.task_run import TaskRun
 from arize._generated.api_client.models.template_evaluation_run_config import (
     TemplateEvaluationRunConfig,
@@ -74,6 +90,8 @@ from arize._generated.api_client.models.template_evaluation_run_config_request i
 )
 from arize._generated.api_client.models.tool_config import ToolConfig
 from arize._generated.api_client.models.vertex_ai_config import VertexAiConfig
+from arize.exceptions import MissingResponseFieldError
+from arize.utils.response import require_operation_value
 
 # ---------------------------------------------------------------------------
 # Minimal valid payloads for each targeted model
@@ -427,3 +445,144 @@ class TestStrictModelsUnchanged:
             model_cls.from_dict(
                 {**payload, "unknown_future_field": "should_fail"}
             )
+
+
+@pytest.mark.unit
+class TestMissingResponseFields:
+    """Marked response models tolerate older server payloads."""
+
+    @pytest.mark.parametrize(
+        "deserialize", [Project.from_dict, Project.model_validate]
+    )
+    def test_missing_required_fields_default_to_none(self, deserialize) -> None:
+        """Present values remain available and absent values are None."""
+        project = deserialize({"name": "legacy-project"})
+        assert project.name == "legacy-project"
+        assert project.id is None
+        assert project.space_id is None
+        assert project.created_at is None
+
+    def test_rest_deserialization_accepts_missing_nested_fields(self) -> None:
+        """The REST client returns partial response models from older servers."""
+        with ApiClient() as client:
+            response = client.deserialize(
+                '{"projects": [{"name": "legacy-project"}]}',
+                "ListProjectsResponse",
+                "application/json",
+            )
+        assert response.projects[0].name == "legacy-project"
+        assert response.projects[0].id is None
+        assert response.pagination is None
+
+    def test_nested_response_fields_default_to_none(self) -> None:
+        """Compatibility applies to nested models and response envelopes."""
+        response = ListProjectsResponse.from_dict(
+            {"projects": [{"name": "legacy-project"}]}
+        )
+        assert response.projects[0].name == "legacy-project"
+        assert response.projects[0].id is None
+        assert response.pagination is None
+
+    def test_missing_enum_and_nested_object_default_to_none(self) -> None:
+        """Absent enum fields bypass value validators without inventing a value."""
+        response = ServiceApiKey.from_dict({"name": "legacy-key"})
+        assert response.key_type is None
+        assert response.bot_user is None
+
+    @pytest.mark.parametrize(
+        "payload", [{"name": 123}, {"created_at": "invalid-date"}]
+    )
+    def test_invalid_present_values_still_fail(self, payload: dict) -> None:
+        """Missing-field compatibility does not bypass value validation."""
+        with pytest.raises(ValueError):
+            Project.from_dict(payload)
+
+    def test_invalid_present_enum_still_fails(self) -> None:
+        """A supplied enum value must still be valid."""
+        with pytest.raises(ValueError):
+            ServiceApiKey.from_dict({"key_type": "INVALID"})
+
+    def test_missing_request_field_still_fails(self) -> None:
+        """Request schemas still require their mandatory fields."""
+        with pytest.raises(ValueError):
+            CreateProjectRequest.from_dict({"name": "my-project"})
+
+
+@pytest.mark.unit
+class TestResponseVariantSelection:
+    """Discriminators still identify variants when other fields are absent."""
+
+    def test_role_discriminator_selects_variant(self) -> None:
+        """A predefined role does not also match the optional custom role fields."""
+        response = SpaceRoleAssignment.from_dict(
+            {"type": "PREDEFINED", "name": "ADMIN"}
+        )
+        assert isinstance(response.actual_instance, PredefinedRoleAssignment)
+        assert response.actual_instance.name == "ADMIN"
+
+    def test_nested_role_can_omit_required_variant_field(self) -> None:
+        """An older response may identify a variant without all its fields."""
+        response = SpaceMembership.from_dict({"role": {"type": "PREDEFINED"}})
+        assert isinstance(
+            response.role.actual_instance, PredefinedRoleAssignment
+        )
+        assert response.role.actual_instance.name is None
+
+    def test_invalid_variant_value_still_fails(self) -> None:
+        """Discriminator lookup does not bypass variant validation."""
+        with pytest.raises(ValueError):
+            SpaceRoleAssignment.from_dict(
+                {"type": "PREDEFINED", "name": "INVALID"}
+            )
+
+    def test_operation_reports_missing_required_value(self) -> None:
+        """Operations fail clearly when the old response lacks needed data."""
+        with pytest.raises(MissingResponseFieldError, match=r"project\.id"):
+            require_operation_value(None, field="project.id")
+
+    def test_request_variant_still_requires_fields(self) -> None:
+        """Response variant selection does not relax request union models."""
+        with pytest.raises(ValueError):
+            SpaceRoleAssignmentRequest.from_dict({"type": "PREDEFINED"})
+
+
+@pytest.mark.unit
+class TestNullResponseFields:
+    """Nullable responses retain validation for non-null values."""
+
+    @pytest.mark.parametrize("value", [None, "A"])
+    def test_regex_accepts_null_or_valid_value(self, value) -> None:
+        """Null does not reach the generated regular expression check."""
+        response = TaskQueryFilter.from_dict({"id": value})
+        assert response.id == value
+
+    def test_regex_rejects_invalid_value(self) -> None:
+        """Non-null response values retain their constraints."""
+        with pytest.raises(ValueError):
+            TaskQueryFilter.from_dict({"id": "Z"})
+
+    def test_enum_accepts_explicit_null(self) -> None:
+        """Response enum validators allow explicit null."""
+        response = ServiceApiKey.from_dict({"key_type": None})
+        assert response.key_type is None
+
+    @pytest.mark.parametrize(
+        "model", [TaskRun, AgentConfig, AgentRequestPreset, LLMMessage]
+    )
+    def test_extensible_response_fields_can_be_missing(self, model) -> None:
+        """Open-ended response models retain unknown fields and accept absent data."""
+        response = model.from_dict({"future_field": "value"})
+        assert response.additional_properties == {"future_field": "value"}
+        for name in model.model_fields:
+            if name != "additional_properties":
+                assert getattr(response, name) is None
+
+    @pytest.mark.parametrize(
+        "payload", [{}, {"name": "x"}, {"type": None}, {"type": "UNKNOWN"}]
+    )
+    def test_unidentified_union_raises_clear_error(self, payload) -> None:
+        """Optional variant fields cannot cause arbitrary union selection."""
+        with pytest.raises(
+            ValueError, match="Cannot identify SpaceRoleAssignment response"
+        ):
+            SpaceRoleAssignment.from_dict(payload)

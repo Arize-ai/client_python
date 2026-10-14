@@ -29,10 +29,10 @@ class CreatedServiceKeyBotUser(BaseModel):
     """
     CreatedServiceKeyBotUser
     """ # noqa: E501
-    id: StrictStr = Field(description="Global ID of the bot user.")
-    name: StrictStr = Field(description="Display name of the bot user.")
-    account_role: UserRoleAssignment = Field(description="Account-level role assigned to the bot user. Always present — defaults are resolved server-side.")
-    organizations: Annotated[List[ServiceKeyBotUserOrgAssignment], Field(min_length=1)] = Field(description="Organization access assignments for the service account, each containing nested space assignments. Always has at least one entry — creating a service key requires at least one organization. ")
+    id: Optional[StrictStr] = Field(default=None, description="Global ID of the bot user.")
+    name: Optional[StrictStr] = Field(default=None, description="Display name of the bot user.")
+    account_role: Optional[UserRoleAssignment] = Field(default=None, description="Account-level role assigned to the bot user. Always present — defaults are resolved server-side.")
+    organizations: Optional[Annotated[List[ServiceKeyBotUserOrgAssignment], Field(min_length=1)]] = Field(default=None, description="Organization access assignments for the service account, each containing nested space assignments. Always has at least one entry — creating a service key requires at least one organization. ")
     __properties: ClassVar[List[str]] = ["id", "name", "account_role", "organizations"]
 
     model_config = ConfigDict(
@@ -96,12 +96,12 @@ class CreatedServiceKeyBotUser(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "name": obj.get("name"),
             "account_role": UserRoleAssignment.from_dict(obj["account_role"]) if obj.get("account_role") is not None else None,
             "organizations": [ServiceKeyBotUserOrgAssignment.from_dict(_item) for _item in obj["organizations"]] if obj.get("organizations") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

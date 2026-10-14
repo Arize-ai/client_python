@@ -27,8 +27,8 @@ class ManualThresholdBound(BaseModel):
     """
     ManualThresholdBound
     """ # noqa: E501
-    operator: ThresholdOperator
-    value: Union[StrictFloat, StrictInt] = Field(description="The bound value the computed metric is compared against.")
+    operator: Optional[ThresholdOperator] = None
+    value: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, description="The bound value the computed metric is compared against.")
     __properties: ClassVar[List[str]] = ["operator", "value"]
 
     model_config = ConfigDict(
@@ -82,10 +82,10 @@ class ManualThresholdBound(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "operator": obj.get("operator"),
             "value": obj.get("value")
-        })
+        }.items() if key in obj})
         return _obj
 
 

@@ -28,10 +28,10 @@ class EvaluatorLlmConfig(BaseModel):
     """
     EvaluatorLlmConfig
     """ # noqa: E501
-    ai_integration_id: StrictStr = Field(description="AI integration identifier (base64)")
-    model_name: StrictStr = Field(description="Model name (e.g. gpt-4o)")
-    invocation_parameters: InvocationParams
-    provider_parameters: ProviderParams
+    ai_integration_id: Optional[StrictStr] = Field(default=None, description="AI integration identifier (base64)")
+    model_name: Optional[StrictStr] = Field(default=None, description="Model name (e.g. gpt-4o)")
+    invocation_parameters: Optional[InvocationParams] = None
+    provider_parameters: Optional[ProviderParams] = None
     __properties: ClassVar[List[str]] = ["ai_integration_id", "model_name", "invocation_parameters", "provider_parameters"]
 
     model_config = ConfigDict(
@@ -91,12 +91,12 @@ class EvaluatorLlmConfig(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "ai_integration_id": obj.get("ai_integration_id"),
             "model_name": obj.get("model_name"),
             "invocation_parameters": InvocationParams.from_dict(obj["invocation_parameters"]) if obj.get("invocation_parameters") is not None else None,
             "provider_parameters": ProviderParams.from_dict(obj["provider_parameters"]) if obj.get("provider_parameters") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

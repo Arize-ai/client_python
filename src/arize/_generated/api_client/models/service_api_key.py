@@ -29,22 +29,24 @@ class ServiceApiKey(BaseModel):
     """
     ServiceApiKey
     """ # noqa: E501
-    id: StrictStr = Field(description="Unique identifier for the API key.")
-    name: StrictStr = Field(description="User-defined name for the API key.")
+    id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the API key.")
+    name: Optional[StrictStr] = Field(default=None, description="User-defined name for the API key.")
     description: Optional[StrictStr] = Field(default=None, description="Optional user-defined description for the API key.")
-    key_type: StrictStr = Field(description="Discriminator value for service keys.")
-    status: ApiKeyStatus
-    redacted_key: StrictStr = Field(description="Redacted version of the key suitable for display (e.g., \"ak-abc...xyz\").")
-    created_at: datetime = Field(description="Timestamp when the key was created.")
+    key_type: Optional[StrictStr] = Field(default=None, description="Discriminator value for service keys.")
+    status: Optional[ApiKeyStatus] = None
+    redacted_key: Optional[StrictStr] = Field(default=None, description="Redacted version of the key suitable for display (e.g., \"ak-abc...xyz\").")
+    created_at: Optional[datetime] = Field(default=None, description="Timestamp when the key was created.")
     expires_at: Optional[datetime] = Field(default=None, description="Optional timestamp when the key will expire.")
-    created_by_user_id: StrictStr = Field(description="ID of the user who created the key.")
+    created_by_user_id: Optional[StrictStr] = Field(default=None, description="ID of the user who created the key.")
     last_used_at: Optional[datetime] = Field(default=None, description="Approximate timestamp when the key was last used for authentication. This value is periodically updated and may not reflect the most recent usage.")
-    bot_user: ServiceKeyBotUser
+    bot_user: Optional[ServiceKeyBotUser] = None
     __properties: ClassVar[List[str]] = ["id", "name", "description", "key_type", "status", "redacted_key", "created_at", "expires_at", "created_by_user_id", "last_used_at", "bot_user"]
 
     @field_validator('key_type')
     def key_type_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['SERVICE']):
             raise ValueError("must be one of enum values ('SERVICE')")
         return value
@@ -103,7 +105,7 @@ class ServiceApiKey(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "name": obj.get("name"),
             "description": obj.get("description"),
@@ -115,7 +117,7 @@ class ServiceApiKey(BaseModel):
             "created_by_user_id": obj.get("created_by_user_id"),
             "last_used_at": obj.get("last_used_at"),
             "bot_user": ServiceKeyBotUser.from_dict(obj["bot_user"]) if obj.get("bot_user") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

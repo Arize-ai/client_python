@@ -150,79 +150,29 @@ class LlmConfig(BaseModel):
     @classmethod
     def from_json(cls, json_str: str) -> Self:
         """Returns the object represented by the json string"""
-        instance = cls.model_construct()
-        error_messages = []
-        match = 0
-
-        # deserialize data into OpenAiConfig
-        try:
-            instance.actual_instance = OpenAiConfig.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-        # deserialize data into AnthropicConfig
-        try:
-            instance.actual_instance = AnthropicConfig.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-        # deserialize data into GeminiConfig
-        try:
-            instance.actual_instance = GeminiConfig.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-        # deserialize data into AwsBedrockConfig
-        try:
-            instance.actual_instance = AwsBedrockConfig.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-        # deserialize data into CustomConfig
-        try:
-            instance.actual_instance = CustomConfig.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-        # deserialize data into VertexAiConfig
-        try:
-            instance.actual_instance = VertexAiConfig.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-        # deserialize data into NvidiaNimConfig
-        try:
-            instance.actual_instance = NvidiaNimConfig.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-        # deserialize data into LiteLlmConfig
-        try:
-            instance.actual_instance = LiteLlmConfig.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-        # deserialize data into FireworksConfig
-        try:
-            instance.actual_instance = FireworksConfig.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-        # deserialize data into TogetherAiConfig
-        try:
-            instance.actual_instance = TogetherAiConfig.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-
-        if match > 1:
-            # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into LlmConfig with oneOf schemas: AnthropicConfig, AwsBedrockConfig, CustomConfig, FireworksConfig, GeminiConfig, LiteLlmConfig, NvidiaNimConfig, OpenAiConfig, TogetherAiConfig, VertexAiConfig. Details: " + ", ".join(error_messages))
-        elif match == 0:
-            # no match
-            raise ValueError("No match found when deserializing the JSON string into LlmConfig with oneOf schemas: AnthropicConfig, AwsBedrockConfig, CustomConfig, FireworksConfig, GeminiConfig, LiteLlmConfig, NvidiaNimConfig, OpenAiConfig, TogetherAiConfig, VertexAiConfig. Details: " + ", ".join(error_messages))
-        else:
-            return instance
+        payload = json.loads(json_str)
+        if isinstance(payload, dict) and 'provider' in payload:
+            if payload['provider'] == 'OPEN_AI':
+                return cls(actual_instance=OpenAiConfig.from_dict(payload))
+            if payload['provider'] == 'ANTHROPIC':
+                return cls(actual_instance=AnthropicConfig.from_dict(payload))
+            if payload['provider'] == 'GEMINI':
+                return cls(actual_instance=GeminiConfig.from_dict(payload))
+            if payload['provider'] == 'AWS_BEDROCK':
+                return cls(actual_instance=AwsBedrockConfig.from_dict(payload))
+            if payload['provider'] == 'CUSTOM':
+                return cls(actual_instance=CustomConfig.from_dict(payload))
+            if payload['provider'] == 'VERTEX_AI':
+                return cls(actual_instance=VertexAiConfig.from_dict(payload))
+            if payload['provider'] == 'NVIDIA_NIM':
+                return cls(actual_instance=NvidiaNimConfig.from_dict(payload))
+            if payload['provider'] == 'LITELLM':
+                return cls(actual_instance=LiteLlmConfig.from_dict(payload))
+            if payload['provider'] == 'FIREWORKS':
+                return cls(actual_instance=FireworksConfig.from_dict(payload))
+            if payload['provider'] == 'TOGETHER_AI':
+                return cls(actual_instance=TogetherAiConfig.from_dict(payload))
+        raise ValueError('Cannot identify LlmConfig response: expected a supported provider value')
 
     def to_json(self) -> str:
         """Returns the JSON representation of the actual instance"""

@@ -29,16 +29,16 @@ class Webhook(BaseModel):
     """
     A webhook is an organization-owned destination that receives event deliveries over HTTPS. Create webhook subscriptions to choose which prompt and evaluator events it receives.  Credentials are write-only: the bearer token and custom header values are never returned, and the HMAC signing secret is returned exactly once, in the create response — only its redacted hint is readable afterwards. 
     """ # noqa: E501
-    id: StrictStr = Field(description="Unique identifier for the webhook")
-    organization_id: StrictStr = Field(description="The unique identifier of the organization that owns the webhook")
-    name: Annotated[str, Field(strict=True, max_length=255)] = Field(description="Name of the webhook (unique within the organization)")
-    description: StrictStr = Field(description="A brief description of the webhook's purpose. Defaults to an empty string.")
-    url: StrictStr = Field(description="The HTTPS endpoint events are delivered to")
-    auth_type: WebhookAuthType = Field(description="How deliveries from this webhook are authenticated. Fixed at creation.")
+    id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the webhook")
+    organization_id: Optional[StrictStr] = Field(default=None, description="The unique identifier of the organization that owns the webhook")
+    name: Optional[Annotated[str, Field(strict=True, max_length=255)]] = Field(default=None, description="Name of the webhook (unique within the organization)")
+    description: Optional[StrictStr] = Field(default=None, description="A brief description of the webhook's purpose. Defaults to an empty string.")
+    url: Optional[StrictStr] = Field(default=None, description="The HTTPS endpoint events are delivered to")
+    auth_type: Optional[WebhookAuthType] = Field(default=None, description="How deliveries from this webhook are authenticated. Fixed at creation.")
     signing_secret_hint: Optional[StrictStr] = Field(default=None, description="Redacted hint of the signing secret (e.g. `whsec_…abcd`), useful for identifying which secret the webhook uses. Present only for `HMAC_SHA256` webhooks. The full secret is returned exactly once, in the create response, and cannot be retrieved afterwards. ")
-    timeout_ms: Annotated[int, Field(le=60000, strict=True, ge=1000)] = Field(description="How long a delivery request may run before it is abandoned, in milliseconds. Defaults to 30000.")
-    created_at: datetime = Field(description="Timestamp for when the webhook was created")
-    updated_at: datetime = Field(description="Timestamp for when the webhook was last updated")
+    timeout_ms: Optional[Annotated[int, Field(le=60000, strict=True, ge=1000)]] = Field(default=None, description="How long a delivery request may run before it is abandoned, in milliseconds. Defaults to 30000.")
+    created_at: Optional[datetime] = Field(default=None, description="Timestamp for when the webhook was created")
+    updated_at: Optional[datetime] = Field(default=None, description="Timestamp for when the webhook was last updated")
     created_by_user_id: Optional[StrictStr] = Field(default=None, description="The unique identifier of the user who created the webhook. Absent when that user has since been removed from the account.")
     __properties: ClassVar[List[str]] = ["id", "organization_id", "name", "description", "url", "auth_type", "signing_secret_hint", "timeout_ms", "created_at", "updated_at", "created_by_user_id"]
 
@@ -93,7 +93,7 @@ class Webhook(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "organization_id": obj.get("organization_id"),
             "name": obj.get("name"),
@@ -105,7 +105,7 @@ class Webhook(BaseModel):
             "created_at": obj.get("created_at"),
             "updated_at": obj.get("updated_at"),
             "created_by_user_id": obj.get("created_by_user_id")
-        })
+        }.items() if key in obj})
         return _obj
 
 

@@ -19,7 +19,7 @@ import json
 
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -27,12 +27,13 @@ class Space(BaseModel):
     """
     A space is a container within an organization for grouping related projects, datasets, and experiments. Spaces enable team collaboration or isolated experimentation with role-based access control. 
     """ # noqa: E501
-    id: StrictStr = Field(description="Unique identifier for the space")
-    name: StrictStr = Field(description="Name of the space")
-    description: StrictStr = Field(description="A brief description of the space's purpose")
-    created_at: datetime = Field(description="Timestamp for when the space was created")
-    is_private: StrictBool = Field(description="Whether the space is private. Private spaces are only visible to their members and account/org/space admins. ")
-    __properties: ClassVar[List[str]] = ["id", "name", "description", "created_at", "is_private"]
+    id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the space")
+    organization_id: Optional[StrictStr] = Field(default=None, description="The unique identifier of the organization that contains the space. Older server versions may omit this field.")
+    name: Optional[StrictStr] = Field(default=None, description="Name of the space")
+    description: Optional[StrictStr] = Field(default=None, description="A brief description of the space's purpose")
+    created_at: Optional[datetime] = Field(default=None, description="Timestamp for when the space was created")
+    is_private: Optional[StrictBool] = Field(default=None, description="Whether the space is private. Private spaces are only visible to their members and account/org/space admins. ")
+    __properties: ClassVar[List[str]] = ["id", "organization_id", "name", "description", "created_at", "is_private"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -85,13 +86,14 @@ class Space(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
+            "organization_id": obj.get("organization_id"),
             "name": obj.get("name"),
             "description": obj.get("description"),
             "created_at": obj.get("created_at"),
             "is_private": obj.get("is_private")
-        })
+        }.items() if key in obj})
         return _obj
 
 

@@ -27,14 +27,16 @@ class ManualSingleThreshold(BaseModel):
     """
     ManualSingleThreshold
     """ # noqa: E501
-    type: StrictStr = Field(description="Identifies this threshold as a single, manually-set value.")
-    operator: ThresholdOperator
-    value: Union[StrictFloat, StrictInt] = Field(description="The threshold value the computed metric is compared against.")
+    type: Optional[StrictStr] = Field(default=None, description="Identifies this threshold as a single, manually-set value.")
+    operator: Optional[ThresholdOperator] = None
+    value: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, description="The threshold value the computed metric is compared against.")
     __properties: ClassVar[List[str]] = ["type", "operator", "value"]
 
     @field_validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['MANUAL_SINGLE']):
             raise ValueError("must be one of enum values ('MANUAL_SINGLE')")
         return value
@@ -90,11 +92,11 @@ class ManualSingleThreshold(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "type": obj.get("type"),
             "operator": obj.get("operator"),
             "value": obj.get("value")
-        })
+        }.items() if key in obj})
         return _obj
 
 

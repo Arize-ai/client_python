@@ -28,12 +28,12 @@ class Trace(BaseModel):
     """
     A Trace is the collection of spans sharing a `trace_id`, anchored on a root span (a span with no parent). It captures a single end-to-end request through an LLM application, with lightweight roll-up metadata plus the full flat list of its spans. 
     """ # noqa: E501
-    trace_id: StrictStr = Field(description="Unique identifier for the trace.")
-    root_span_id: StrictStr = Field(description="Span ID of the root span (the span with no parent) that anchors this trace entry. A trace with more than one root span is returned as multiple entries sharing the same `trace_id`, distinguished by `root_span_id`. ")
+    trace_id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the trace.")
+    root_span_id: Optional[StrictStr] = Field(default=None, description="Span ID of the root span (the span with no parent) that anchors this trace entry. A trace with more than one root span is returned as multiple entries sharing the same `trace_id`, distinguished by `root_span_id`. ")
     start_time: Optional[datetime] = Field(default=None, description="Earliest span start time across the returned spans.")
     end_time: Optional[datetime] = Field(default=None, description="Latest span end time across the returned spans.")
-    spans_truncated: StrictBool = Field(description="`true` when more than 1,000 spans were fetched for this trace and its returned list was capped. Traces share a fetch allowance per page. If that allowance is exhausted, a trace can be incomplete even when this flag is `false`. Narrowing the time window can reduce this risk. To retrieve a trace's spans in full, paginate through `POST /v2/spans` filtered to that `trace_id` over a time window that covers the full trace. ")
-    spans: List[Span] = Field(description="Flat list of spans belonging to this trace. Each span has the same shape and enrichment as spans returned by `POST /v2/spans`. Reconstruct the trace tree client-side using each span's `parent_id`. ")
+    spans_truncated: Optional[StrictBool] = Field(default=None, description="`true` when more than 1,000 spans were fetched for this trace and its returned list was capped. Traces share a fetch allowance per page. If that allowance is exhausted, a trace can be incomplete even when this flag is `false`. Narrowing the time window can reduce this risk. To retrieve a trace's spans in full, paginate through `POST /v2/spans` filtered to that `trace_id` over a time window that covers the full trace. ")
+    spans: Optional[List[Span]] = Field(default=None, description="Flat list of spans belonging to this trace. Each span has the same shape and enrichment as spans returned by `POST /v2/spans`. Reconstruct the trace tree client-side using each span's `parent_id`. ")
     __properties: ClassVar[List[str]] = ["trace_id", "root_span_id", "start_time", "end_time", "spans_truncated", "spans"]
 
     model_config = ConfigDict(
@@ -94,14 +94,14 @@ class Trace(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "trace_id": obj.get("trace_id"),
             "root_span_id": obj.get("root_span_id"),
             "start_time": obj.get("start_time"),
             "end_time": obj.get("end_time"),
             "spans_truncated": obj.get("spans_truncated"),
             "spans": [Span.from_dict(_item) for _item in obj["spans"]] if obj.get("spans") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

@@ -28,9 +28,9 @@ class DatasetExample(BaseModel):
     """
     A dataset example with arbitrary user-defined fields. System-managed fields are included as read-only for responses. 
     """ # noqa: E501
-    id: StrictStr = Field(description="System-assigned unique ID for the example")
-    created_at: datetime = Field(description="Timestamp for when the example was created")
-    updated_at: datetime = Field(description="Timestamp for the last update of the example")
+    id: Optional[StrictStr] = Field(default=None, description="System-assigned unique ID for the example")
+    created_at: Optional[datetime] = Field(default=None, description="Timestamp for when the example was created")
+    updated_at: Optional[datetime] = Field(default=None, description="Timestamp for the last update of the example")
     annotations: Optional[List[Annotation]] = Field(default=None, description="List of human annotations on this dataset example")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["id", "created_at", "updated_at", "annotations"]
@@ -107,12 +107,12 @@ class DatasetExample(BaseModel):
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "created_at": obj.get("created_at"),
             "updated_at": obj.get("updated_at"),
             "annotations": [Annotation.from_dict(_item) for _item in obj["annotations"]] if obj.get("annotations") is not None else None
-        })
+        }.items() if key in obj})
         # store additional fields in additional_properties
         for _key in obj.keys():
             if _key not in cls.__properties:

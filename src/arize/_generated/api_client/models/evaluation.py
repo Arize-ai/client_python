@@ -26,7 +26,7 @@ class Evaluation(BaseModel):
     """
     An evaluation result on a record.
     """ # noqa: E501
-    name: StrictStr = Field(description="The name of the evaluation")
+    name: Optional[StrictStr] = Field(default=None, description="The name of the evaluation")
     score: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, description="Numeric score for the evaluation")
     label: Optional[StrictStr] = Field(default=None, description="Categorical label for the evaluation")
     explanation: Optional[StrictStr] = Field(default=None, description="Explanation for the evaluation result")
@@ -83,12 +83,12 @@ class Evaluation(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "name": obj.get("name"),
             "score": obj.get("score"),
             "label": obj.get("label"),
             "explanation": obj.get("explanation")
-        })
+        }.items() if key in obj})
         return _obj
 
 

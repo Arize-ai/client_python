@@ -109,7 +109,7 @@ class InvocationParams(BaseModel):
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "temperature": obj.get("temperature"),
             "max_tokens": obj.get("max_tokens"),
             "max_completion_tokens": obj.get("max_completion_tokens"),
@@ -125,7 +125,7 @@ class InvocationParams(BaseModel):
             "reasoning_effort": obj.get("reasoning_effort"),
             "verbosity": obj.get("verbosity"),
             "service_tier": obj.get("service_tier")
-        })
+        }.items() if key in obj})
         # store additional fields in additional_properties
         for _key in obj.keys():
             if _key not in cls.__properties:

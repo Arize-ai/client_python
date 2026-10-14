@@ -27,10 +27,10 @@ class SpaceMembership(BaseModel):
     """
     A space membership record. 
     """ # noqa: E501
-    id: StrictStr = Field(description="Unique identifier for the membership record")
-    user_id: StrictStr = Field(description="The unique identifier of the user")
-    space_id: StrictStr = Field(description="The unique identifier of the space")
-    role: SpaceRoleAssignment
+    id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the membership record")
+    user_id: Optional[StrictStr] = Field(default=None, description="The unique identifier of the user")
+    space_id: Optional[StrictStr] = Field(default=None, description="The unique identifier of the space")
+    role: Optional[SpaceRoleAssignment] = None
     __properties: ClassVar[List[str]] = ["id", "user_id", "space_id", "role"]
 
     model_config = ConfigDict(
@@ -87,12 +87,12 @@ class SpaceMembership(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "user_id": obj.get("user_id"),
             "space_id": obj.get("space_id"),
             "role": SpaceRoleAssignment.from_dict(obj["role"]) if obj.get("role") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

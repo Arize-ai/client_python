@@ -28,8 +28,8 @@ class ListResourceRestrictionsResponse(BaseModel):
     """
     ListResourceRestrictionsResponse
     """ # noqa: E501
-    resource_restrictions: List[ResourceRestriction] = Field(description="A list of resource restriction records.")
-    pagination: PaginationMetadata
+    resource_restrictions: Optional[List[ResourceRestriction]] = Field(default=None, description="A list of resource restriction records.")
+    pagination: Optional[PaginationMetadata] = None
     __properties: ClassVar[List[str]] = ["resource_restrictions", "pagination"]
 
     model_config = ConfigDict(
@@ -93,10 +93,10 @@ class ListResourceRestrictionsResponse(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "resource_restrictions": [ResourceRestriction.from_dict(_item) for _item in obj["resource_restrictions"]] if obj.get("resource_restrictions") is not None else None,
             "pagination": PaginationMetadata.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

@@ -28,13 +28,13 @@ class EvaluatorTemplate(BaseModel):
     """
     A built-in LLM-as-a-judge evaluator template. Templates are the same catalog offered in the product's create-evaluator flow, and are identical for every caller. They carry no space, account, or user data.  A template is a starting point for an evaluator. To create one from it, map its fields onto `POST /v2/evaluators`. See the field-by-field mapping and a complete example on `GET /v2/evaluator-templates`. 
     """ # noqa: E501
-    column_name: StrictStr = Field(description="Stable identifier for the template, and the eval column name it writes to by default (e.g. `hallucination`). Unique across all templates. ")
-    display_name: StrictStr = Field(description="Human-readable name shown in the product.")
-    template: StrictStr = Field(description="The judge prompt. Variables are single-brace, f-string style (e.g. `{input}`, `{output}`, `{context}`) and are bound to real data by a task's column mappings when the evaluator runs.  This is the only prompt you need. To have the judge explain its label, set `include_explanations` on `POST /v2/evaluators`. The explanation request is added at run time, not by editing this prompt. ")
-    rails: List[StrictStr] = Field(description="The labels the judge is allowed to return, in the order the product displays them. ")
-    classification_choices: Dict[str, Union[StrictFloat, StrictInt]] = Field(description="Maps each label to its numeric score. Pass this through unchanged when creating an evaluator, since the labels must match those named in the template. ")
-    direction: OptimizationDirection = Field(description="Whether a higher score is better (`MAXIMIZE`), worse (`MINIMIZE`), or neither (`NONE`). Controls how trends are rendered. Pass it through unchanged, since it must agree with `classification_choices`. If the two disagree, the product renders the trend backwards. ")
-    data_granularity: Optional[DataGranularity] = Field(description="The unit this template evaluates. `null` means span level, which is the default for most response-quality, RAG, and security templates. `SESSION` templates score a whole conversation and require spans that carry a session identifier. ")
+    column_name: Optional[StrictStr] = Field(default=None, description="Stable identifier for the template, and the eval column name it writes to by default (e.g. `hallucination`). Unique across all templates. ")
+    display_name: Optional[StrictStr] = Field(default=None, description="Human-readable name shown in the product.")
+    template: Optional[StrictStr] = Field(default=None, description="The judge prompt. Variables are single-brace, f-string style (e.g. `{input}`, `{output}`, `{context}`) and are bound to real data by a task's column mappings when the evaluator runs.  This is the only prompt you need. To have the judge explain its label, set `include_explanations` on `POST /v2/evaluators`. The explanation request is added at run time, not by editing this prompt. ")
+    rails: Optional[List[StrictStr]] = Field(default=None, description="The labels the judge is allowed to return, in the order the product displays them. ")
+    classification_choices: Optional[Dict[str, Union[StrictFloat, StrictInt]]] = Field(default=None, description="Maps each label to its numeric score. Pass this through unchanged when creating an evaluator, since the labels must match those named in the template. ")
+    direction: Optional[OptimizationDirection] = Field(default=None, description="Whether a higher score is better (`MAXIMIZE`), worse (`MINIMIZE`), or neither (`NONE`). Controls how trends are rendered. Pass it through unchanged, since it must agree with `classification_choices`. If the two disagree, the product renders the trend backwards. ")
+    data_granularity: Optional[DataGranularity] = Field(default=None, description="The unit this template evaluates. `null` means span level, which is the default for most response-quality, RAG, and security templates. `SESSION` templates score a whole conversation and require spans that carry a session identifier. ")
     __properties: ClassVar[List[str]] = ["column_name", "display_name", "template", "rails", "classification_choices", "direction", "data_granularity"]
 
     model_config = ConfigDict(
@@ -93,7 +93,7 @@ class EvaluatorTemplate(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "column_name": obj.get("column_name"),
             "display_name": obj.get("display_name"),
             "template": obj.get("template"),
@@ -101,7 +101,7 @@ class EvaluatorTemplate(BaseModel):
             "classification_choices": obj.get("classification_choices"),
             "direction": obj.get("direction"),
             "data_granularity": obj.get("data_granularity")
-        })
+        }.items() if key in obj})
         return _obj
 
 

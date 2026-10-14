@@ -28,8 +28,8 @@ class ListAnnotationConfigsResponse(BaseModel):
     """
     ListAnnotationConfigsResponse
     """ # noqa: E501
-    annotation_configs: List[AnnotationConfig] = Field(description="A list of annotation configs")
-    pagination: PaginationMetadata
+    annotation_configs: Optional[List[AnnotationConfig]] = Field(default=None, description="A list of annotation configs")
+    pagination: Optional[PaginationMetadata] = None
     __properties: ClassVar[List[str]] = ["annotation_configs", "pagination"]
 
     model_config = ConfigDict(
@@ -93,10 +93,10 @@ class ListAnnotationConfigsResponse(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "annotation_configs": [AnnotationConfig.from_dict(_item) for _item in obj["annotation_configs"]] if obj.get("annotation_configs") is not None else None,
             "pagination": PaginationMetadata.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

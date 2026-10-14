@@ -12,6 +12,7 @@ import pyarrow.parquet as pq
 import pytest
 
 from arize._generated.api_client import ExperimentsApi
+from arize._generated.api_client.models.dataset import Dataset
 from arize.experiments.client import ExperimentsClient
 from arize.experiments.types import ExperimentTaskFieldNames
 
@@ -1258,17 +1259,19 @@ class TestCreateFromFiles:
 class TestRunFlightUpload:
     """run() uploads its results as record batches over Flight."""
 
+    @pytest.mark.parametrize("dataset_name", [None, "Dataset"])
     def test_run_streams_output_batches(
         self,
         experiments_client: ExperimentsClient,
         mock_api: Mock,
         mock_sdk_config: Mock,
         run_experiment_df: pd.DataFrame,
+        dataset_name: str | None,
     ) -> None:
         mock_sdk_config.enable_caching = False
         mock_sdk_config.pyarrow_max_chunksize = 10
-        experiments_client._datasets_api.get_dataset.return_value = Mock(
-            space_id="space-1", updated_at=None
+        experiments_client._datasets_api.get_dataset.return_value = (
+            Dataset.from_dict({"space_id": "space-1", "name": dataset_name})
         )
         mock_api.get_experiment.return_value = Mock()
         flight_client = MagicMock()
@@ -1305,7 +1308,7 @@ class TestRunFlightUpload:
             patch(
                 "arize.experiments.client.run_experiment",
                 return_value=output_df,
-            ),
+            ) as run,
             patch(
                 "arize.experiments.client.ArizeFlightClient",
                 return_value=flight_client,
@@ -1317,6 +1320,12 @@ class TestRunFlightUpload:
             )
 
         assert result_df is output_df
+        metadata = run.call_args.kwargs["metadata"]
+        assert metadata["dataset_id"] == "dataset-1"
+        if dataset_name is None:
+            assert "dataset_name" not in metadata
+        else:
+            assert metadata["dataset_name"] == dataset_name
         kwargs = flight_client.log_arrow_table.call_args.kwargs
         assert kwargs["dataset_id"] == "dataset-1"
         assert kwargs["space_id"] == "space-1"

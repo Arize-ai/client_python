@@ -27,7 +27,7 @@ class CreateAnnotationQueueRecordResponse(BaseModel):
     """
     CreateAnnotationQueueRecordResponse
     """ # noqa: E501
-    record_sources: List[AnnotationQueueRecord] = Field(description="The created annotation queue records")
+    record_sources: Optional[List[AnnotationQueueRecord]] = Field(default=None, description="The created annotation queue records")
     __properties: ClassVar[List[str]] = ["record_sources"]
 
     model_config = ConfigDict(
@@ -88,9 +88,9 @@ class CreateAnnotationQueueRecordResponse(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "record_sources": [AnnotationQueueRecord.from_dict(_item) for _item in obj["record_sources"]] if obj.get("record_sources") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

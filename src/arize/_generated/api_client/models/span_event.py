@@ -27,8 +27,8 @@ class SpanEvent(BaseModel):
     """
     SpanEvent
     """ # noqa: E501
-    name: StrictStr = Field(description="Name of the event")
-    timestamp: datetime = Field(description="Timestamp when the event occurred")
+    name: Optional[StrictStr] = Field(default=None, description="Name of the event")
+    timestamp: Optional[datetime] = Field(default=None, description="Timestamp when the event occurred")
     attributes: Optional[Dict[str, Any]] = Field(default=None, description="Key-value pairs of event attributes")
     __properties: ClassVar[List[str]] = ["name", "timestamp", "attributes"]
 
@@ -83,11 +83,11 @@ class SpanEvent(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "name": obj.get("name"),
             "timestamp": obj.get("timestamp"),
             "attributes": obj.get("attributes")
-        })
+        }.items() if key in obj})
         return _obj
 
 

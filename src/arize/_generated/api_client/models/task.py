@@ -32,22 +32,22 @@ class Task(BaseModel):
     """
     A task is a typed, configurable unit of work that ties one or more evaluators to a data source (project or dataset). `RUN_EXPERIMENT` tasks additionally carry a `run_configuration` that defines the LLM, evaluator, or agent settings for each triggered run.  Evaluation tasks (`TEMPLATE_EVALUATION` and `CODE_EVALUATION`) use one of two mutually exclusive query-filter shapes depending on the granularity of the data each evaluator processes:  - **Span shape** — `query_filter` (task-level) plus per-evaluator   `column_mappings`/`query_filter`. For tasks where each evaluated unit is   a single span. `query_filters` is null. - **Trace/session shape** — `query_filters` (named `filters` plus optional   `expression`) at the task level, and per-evaluator `query_mappings`. For   tasks where each evaluated unit is a complete trace or session.   `query_filter` is null.  All evaluators on a task must use the same shape; mixing shapes returns 400. 
     """ # noqa: E501
-    id: StrictStr = Field(description="The unique identifier for the task")
-    name: StrictStr = Field(description="The name of the task")
-    type: TaskType
+    id: Optional[StrictStr] = Field(default=None, description="The unique identifier for the task")
+    name: Optional[StrictStr] = Field(default=None, description="The name of the task")
+    type: Optional[TaskType] = None
     project_id: Optional[StrictStr] = Field(default=None, description="The project identifier (base64). Present for project-based tasks.")
     dataset_id: Optional[StrictStr] = Field(default=None, description="The dataset identifier (base64). Present for dataset-based tasks.")
     sampling_rate: Optional[Union[Annotated[float, Field(le=1, strict=True, ge=0)], Annotated[int, Field(le=1, strict=True, ge=0)]]] = Field(default=None, description="Sampling rate between 0 and 1. Only applicable for project-based tasks.")
-    is_continuous: StrictBool = Field(description="Whether the task runs continuously on incoming data.")
-    query_filter: Optional[StrictStr] = Field(description="Task-level query filter applied to all data. Span-granularity shape only. Null when the task uses the trace/session shape (`query_filters`). Mutually exclusive with `query_filters`. ")
+    is_continuous: Optional[StrictBool] = Field(default=None, description="Whether the task runs continuously on incoming data.")
+    query_filter: Optional[StrictStr] = Field(default=None, description="Task-level query filter applied to all data. Span-granularity shape only. Null when the task uses the trace/session shape (`query_filters`). Mutually exclusive with `query_filters`. ")
     query_filters: Optional[TaskQueryFilters] = Field(default=None, description="Named query filters plus optional boolean expression for trace/session-granularity evaluators. Null for span-granularity tasks (which use `query_filter`). Mutually exclusive with `query_filter`. ")
-    evaluators: List[TaskEvaluator] = Field(description="The evaluators attached to this task. Empty for run_experiment tasks.")
-    experiment_ids: List[StrictStr] = Field(description="Experiment identifiers (base64) for dataset-based tasks.")
+    evaluators: Optional[List[TaskEvaluator]] = Field(default=None, description="The evaluators attached to this task. Empty for run_experiment tasks.")
+    experiment_ids: Optional[List[StrictStr]] = Field(default=None, description="Experiment identifiers (base64) for dataset-based tasks.")
     run_configuration: Optional[RunConfiguration] = Field(default=None, description="The run configuration for a `RUN_EXPERIMENT` task. Present only when `type` is `RUN_EXPERIMENT`. Null for all other task types. ")
-    last_run_at: Optional[datetime] = Field(description="When the task was last run.")
-    created_at: datetime = Field(description="When the task was created.")
-    updated_at: datetime = Field(description="When the task was last updated.")
-    created_by_user_id: Optional[StrictStr] = Field(description="The unique identifier for the user who created the task.")
+    last_run_at: Optional[datetime] = Field(default=None, description="When the task was last run.")
+    created_at: Optional[datetime] = Field(default=None, description="When the task was created.")
+    updated_at: Optional[datetime] = Field(default=None, description="When the task was last updated.")
+    created_by_user_id: Optional[StrictStr] = Field(default=None, description="The unique identifier for the user who created the task.")
     __properties: ClassVar[List[str]] = ["id", "name", "type", "project_id", "dataset_id", "sampling_rate", "is_continuous", "query_filter", "query_filters", "evaluators", "experiment_ids", "run_configuration", "last_run_at", "created_at", "updated_at", "created_by_user_id"]
 
     model_config = ConfigDict(
@@ -154,7 +154,7 @@ class Task(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "name": obj.get("name"),
             "type": obj.get("type"),
@@ -171,7 +171,7 @@ class Task(BaseModel):
             "created_at": obj.get("created_at"),
             "updated_at": obj.get("updated_at"),
             "created_by_user_id": obj.get("created_by_user_id")
-        })
+        }.items() if key in obj})
         return _obj
 
 

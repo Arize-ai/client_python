@@ -34,20 +34,20 @@ class PerformanceMonitor(BaseModel):
     """
     PerformanceMonitor
     """ # noqa: E501
-    id: StrictStr = Field(description="Unique identifier for the monitor (base64 global ID).")
-    name: StrictStr = Field(description="Human-readable name of the monitor.")
-    type: StrictStr = Field(description="Identifies this monitor as a performance monitor.")
-    project_id: StrictStr = Field(description="The project that the monitor belongs to (base64 global ID). ")
-    uri: StrictStr = Field(description="The UI deep link to the monitor.")
-    status: MonitorStatus = Field(description="Current evaluation state. Read-only.")
-    threshold: ThresholdConfig
-    notifications_enabled: StrictBool = Field(description="Whether notifications fire on a triggered transition.")
-    manual_evaluation_enabled: StrictBool = Field(description="Whether the monitor is evaluated manually rather than on the automatic cadence.")
-    created_by_user_id: StrictStr = Field(description="The user who created the monitor (base64 global ID).")
+    id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the monitor (base64 global ID).")
+    name: Optional[StrictStr] = Field(default=None, description="Human-readable name of the monitor.")
+    type: Optional[StrictStr] = Field(default=None, description="Identifies this monitor as a performance monitor.")
+    project_id: Optional[StrictStr] = Field(default=None, description="The project that the monitor belongs to (base64 global ID). ")
+    uri: Optional[StrictStr] = Field(default=None, description="The UI deep link to the monitor.")
+    status: Optional[MonitorStatus] = Field(default=None, description="Current evaluation state. Read-only.")
+    threshold: Optional[ThresholdConfig] = None
+    notifications_enabled: Optional[StrictBool] = Field(default=None, description="Whether notifications fire on a triggered transition.")
+    manual_evaluation_enabled: Optional[StrictBool] = Field(default=None, description="Whether the monitor is evaluated manually rather than on the automatic cadence.")
+    created_by_user_id: Optional[StrictStr] = Field(default=None, description="The user who created the monitor (base64 global ID).")
     filters: Optional[List[MonitorFilter]] = Field(default=None, description="Data filters applied to the monitor's metric. Omitted when the metric is computed over all data. ")
     notification_configs: Optional[List[NotificationConfig]] = Field(default=None, description="Notification channels (email / integration / webhook) notified on a triggered transition. Omitted when no channels are configured. ")
-    created_at: datetime = Field(description="When the monitor was created.")
-    updated_at: datetime = Field(description="When the monitor was last updated.")
+    created_at: Optional[datetime] = Field(default=None, description="When the monitor was created.")
+    updated_at: Optional[datetime] = Field(default=None, description="When the monitor was last updated.")
     downtime: Optional[DowntimeConfig] = None
     scheduled_runtime: Optional[ScheduledRuntimeConfig] = None
     evaluation_window_length_seconds: Optional[StrictInt] = Field(default=None, description="The length of the evaluation window in seconds. Omitted when unset. ")
@@ -55,8 +55,8 @@ class PerformanceMonitor(BaseModel):
     evaluated_at: Optional[datetime] = Field(default=None, description="The last time the metric was computed. Omitted if it has never been evaluated.")
     latest_computed_value: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, description="The most recently computed metric value. Omitted if it has never been evaluated.")
     notes: Optional[StrictStr] = Field(default=None, description="Free-form notes attached to the monitor. Omitted when unset.")
-    metric: PerformanceMetric
-    model_versions: List[StrictStr] = Field(description="The model versions the metric is scoped to. An empty array means all model versions. ")
+    metric: Optional[PerformanceMetric] = None
+    model_versions: Optional[List[StrictStr]] = Field(default=None, description="The model versions the metric is scoped to. An empty array means all model versions. ")
     positive_class_value: Optional[StrictStr] = Field(default=None, description="The positive class used for classification metrics. Omitted when unset.")
     metric_at_ranking_k_value: Optional[StrictInt] = Field(default=None, description="The `k` cutoff for ranking metrics (e.g. NDCG@k). Omitted when unset.")
     __properties: ClassVar[List[str]] = ["id", "name", "type", "project_id", "uri", "status", "threshold", "notifications_enabled", "manual_evaluation_enabled", "created_by_user_id", "filters", "notification_configs", "created_at", "updated_at", "downtime", "scheduled_runtime", "evaluation_window_length_seconds", "delay_seconds", "evaluated_at", "latest_computed_value", "notes", "metric", "model_versions", "positive_class_value", "metric_at_ranking_k_value"]
@@ -64,6 +64,8 @@ class PerformanceMonitor(BaseModel):
     @field_validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['PERFORMANCE']):
             raise ValueError("must be one of enum values ('PERFORMANCE')")
         return value
@@ -152,7 +154,7 @@ class PerformanceMonitor(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "name": obj.get("name"),
             "type": obj.get("type"),
@@ -178,7 +180,7 @@ class PerformanceMonitor(BaseModel):
             "model_versions": obj.get("model_versions"),
             "positive_class_value": obj.get("positive_class_value"),
             "metric_at_ranking_k_value": obj.get("metric_at_ranking_k_value")
-        })
+        }.items() if key in obj})
         return _obj
 
 

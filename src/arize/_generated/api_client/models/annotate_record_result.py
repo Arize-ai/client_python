@@ -27,8 +27,8 @@ class AnnotateRecordResult(BaseModel):
     """
     The annotation result for a single annotated record.
     """ # noqa: E501
-    record_id: StrictStr = Field(description="The record identifier — a span ID, session ID, dataset example ID, or experiment run ID, depending on the endpoint and (for spans) the `granularity` field.")
-    annotations: List[Annotation] = Field(description="The annotations that were written to this record.")
+    record_id: Optional[StrictStr] = Field(default=None, description="The record identifier — a span ID, session ID, dataset example ID, or experiment run ID, depending on the endpoint and (for spans) the `granularity` field.")
+    annotations: Optional[List[Annotation]] = Field(default=None, description="The annotations that were written to this record.")
     __properties: ClassVar[List[str]] = ["record_id", "annotations"]
 
     model_config = ConfigDict(
@@ -89,10 +89,10 @@ class AnnotateRecordResult(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "record_id": obj.get("record_id"),
             "annotations": [Annotation.from_dict(_item) for _item in obj["annotations"]] if obj.get("annotations") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

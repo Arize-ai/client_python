@@ -28,9 +28,9 @@ class ResourceRestriction(BaseModel):
     """
     ResourceRestriction
     """ # noqa: E501
-    resource_type: ResourceRestrictionType
-    resource_id: StrictStr = Field(description="The ID of the restricted resource")
-    created_at: datetime = Field(description="When the restriction was created")
+    resource_type: Optional[ResourceRestrictionType] = None
+    resource_id: Optional[StrictStr] = Field(default=None, description="The ID of the restricted resource")
+    created_at: Optional[datetime] = Field(default=None, description="When the restriction was created")
     __properties: ClassVar[List[str]] = ["resource_type", "resource_id", "created_at"]
 
     model_config = ConfigDict(
@@ -84,11 +84,11 @@ class ResourceRestriction(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "resource_type": obj.get("resource_type"),
             "resource_id": obj.get("resource_id"),
             "created_at": obj.get("created_at")
-        })
+        }.items() if key in obj})
         return _obj
 
 

@@ -18,6 +18,7 @@ from arize.users.types import (
     User,
 )
 from arize.utils.resolve import NotFoundError, _find_user_id_by_email
+from arize.utils.response import require_operation_value
 
 if TYPE_CHECKING:
     import builtins
@@ -131,8 +132,13 @@ class UsersClient:
         if "@" in user:
             response = self.list(email=user)
             needle = user.lower()
-            for u in response.users:
-                if u.email.lower() == needle:
+            for u in require_operation_value(
+                response.users, field="response.users"
+            ):
+                if (
+                    require_operation_value(u.email, field="user.email").lower()
+                    == needle
+                ):
                     return u
             return None
         return User.model_validate(

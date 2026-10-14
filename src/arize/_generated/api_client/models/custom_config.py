@@ -27,20 +27,22 @@ class CustomConfig(BaseModel):
     """
     Config for a custom OpenAI-compatible endpoint integration. `base_url` is the endpoint Arize sends requests to; it must implement the OpenAI API shape. Secrets are write-only: the API key surfaces as `has_api_key` and custom request headers surface as `header_names` (names only). `auth` is how the endpoint is authenticated.
     """ # noqa: E501
-    is_function_calling_enabled: StrictBool = Field(description="Whether function/tool calling is enabled.")
-    provider: StrictStr = Field(description="Discriminator identifying a custom OpenAI-compatible endpoint.")
-    has_api_key: StrictBool = Field(description="Whether an API key is configured (the key itself is never returned). An API key and OAuth credentials are mutually exclusive, and switching to `OAUTH2_CLIENT_CREDENTIALS` clears any stored key, so this reads false on an integration authenticated that way.")
-    base_url: StrictStr = Field(description="Endpoint URL requests are sent to.")
-    header_names: List[StrictStr] = Field(description="Names of the custom request headers configured on this integration. Empty when none are configured. Header values are write-only and never returned.")
-    is_default_models_enabled: StrictBool = Field(description="Whether Arize's default model catalog is enabled.")
-    model_names: List[StrictStr] = Field(description="Custom model names configured on this integration. Empty when none.")
-    auth: CustomAuth
+    is_function_calling_enabled: Optional[StrictBool] = Field(default=None, description="Whether function/tool calling is enabled.")
+    provider: Optional[StrictStr] = Field(default=None, description="Discriminator identifying a custom OpenAI-compatible endpoint.")
+    has_api_key: Optional[StrictBool] = Field(default=None, description="Whether an API key is configured (the key itself is never returned). An API key and OAuth credentials are mutually exclusive, and switching to `OAUTH2_CLIENT_CREDENTIALS` clears any stored key, so this reads false on an integration authenticated that way.")
+    base_url: Optional[StrictStr] = Field(default=None, description="Endpoint URL requests are sent to.")
+    header_names: Optional[List[StrictStr]] = Field(default=None, description="Names of the custom request headers configured on this integration. Empty when none are configured. Header values are write-only and never returned.")
+    is_default_models_enabled: Optional[StrictBool] = Field(default=None, description="Whether Arize's default model catalog is enabled.")
+    model_names: Optional[List[StrictStr]] = Field(default=None, description="Custom model names configured on this integration. Empty when none.")
+    auth: Optional[CustomAuth] = None
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["is_function_calling_enabled", "provider", "has_api_key", "base_url", "header_names", "is_default_models_enabled", "model_names", "auth"]
 
     @field_validator('provider')
     def provider_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['CUSTOM']):
             raise ValueError("must be one of enum values ('CUSTOM')")
         return value
@@ -105,7 +107,7 @@ class CustomConfig(BaseModel):
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "is_function_calling_enabled": obj.get("is_function_calling_enabled"),
             "provider": obj.get("provider"),
             "has_api_key": obj.get("has_api_key"),
@@ -114,7 +116,7 @@ class CustomConfig(BaseModel):
             "is_default_models_enabled": obj.get("is_default_models_enabled"),
             "model_names": obj.get("model_names"),
             "auth": CustomAuth.from_dict(obj["auth"]) if obj.get("auth") is not None else None
-        })
+        }.items() if key in obj})
         # store additional fields in additional_properties
         for _key in obj.keys():
             if _key not in cls.__properties:

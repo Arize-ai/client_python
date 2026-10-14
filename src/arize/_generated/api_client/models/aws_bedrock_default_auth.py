@@ -26,15 +26,17 @@ class AwsBedrockDefaultAuth(BaseModel):
     """
     Role-assumption auth for AWS Bedrock: Arize assumes the provided IAM role to call Bedrock. The role ARN and external ID are not secrets and are returned on read.
     """ # noqa: E501
-    auth_type: StrictStr = Field(description="Discriminator identifying role-assumption auth.")
-    role_arn: StrictStr = Field(description="AWS IAM role ARN Arize assumes for cross-account access.")
-    external_id: Optional[StrictStr] = Field(description="External ID on the assume-role policy. Null when not set.")
-    base_url: Optional[StrictStr] = Field(description="Custom Bedrock endpoint URL. Null when not set.")
+    auth_type: Optional[StrictStr] = Field(default=None, description="Discriminator identifying role-assumption auth.")
+    role_arn: Optional[StrictStr] = Field(default=None, description="AWS IAM role ARN Arize assumes for cross-account access.")
+    external_id: Optional[StrictStr] = Field(default=None, description="External ID on the assume-role policy. Null when not set.")
+    base_url: Optional[StrictStr] = Field(default=None, description="Custom Bedrock endpoint URL. Null when not set.")
     __properties: ClassVar[List[str]] = ["auth_type", "role_arn", "external_id", "base_url"]
 
     @field_validator('auth_type')
     def auth_type_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['DEFAULT']):
             raise ValueError("must be one of enum values ('DEFAULT')")
         return value
@@ -100,12 +102,12 @@ class AwsBedrockDefaultAuth(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "auth_type": obj.get("auth_type"),
             "role_arn": obj.get("role_arn"),
             "external_id": obj.get("external_id"),
             "base_url": obj.get("base_url")
-        })
+        }.items() if key in obj})
         return _obj
 
 

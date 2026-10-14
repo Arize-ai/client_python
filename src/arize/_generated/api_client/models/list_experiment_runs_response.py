@@ -28,8 +28,8 @@ class ListExperimentRunsResponse(BaseModel):
     """
     ListExperimentRunsResponse
     """ # noqa: E501
-    experiment_runs: List[ExperimentRun] = Field(description="Array of experiment run objects containing experiment fields and evaluations")
-    pagination: PaginationMetadata
+    experiment_runs: Optional[List[ExperimentRun]] = Field(default=None, description="Array of experiment run objects containing experiment fields and evaluations")
+    pagination: Optional[PaginationMetadata] = None
     __properties: ClassVar[List[str]] = ["experiment_runs", "pagination"]
 
     model_config = ConfigDict(
@@ -93,10 +93,10 @@ class ListExperimentRunsResponse(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "experiment_runs": [ExperimentRun.from_dict(_item) for _item in obj["experiment_runs"]] if obj.get("experiment_runs") is not None else None,
             "pagination": PaginationMetadata.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

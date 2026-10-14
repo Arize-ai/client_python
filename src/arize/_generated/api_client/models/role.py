@@ -28,13 +28,13 @@ class Role(BaseModel):
     """
     Role
     """ # noqa: E501
-    id: StrictStr = Field(description="Unique identifier for the role.")
-    name: StrictStr = Field(description="Human-readable name of the role.")
+    id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the role.")
+    name: Optional[StrictStr] = Field(default=None, description="Human-readable name of the role.")
     description: Optional[StrictStr] = Field(default=None, description="A brief description of the role's purpose.")
-    permissions: List[Permission] = Field(description="List of permissions granted by this role. Each value corresponds to a permission identifier (e.g. `PROJECT_READ`, `DATASET_CREATE`). Returned only to callers with `ROLE_READ`. ")
-    is_predefined: StrictBool = Field(description="Whether this role is a system-defined predefined role. Predefined roles cannot be updated or deleted. ")
-    created_at: datetime = Field(description="Timestamp when the role was created.")
-    updated_at: datetime = Field(description="Timestamp when the role was last updated.")
+    permissions: Optional[List[Permission]] = Field(default=None, description="List of permissions granted by this role. Each value corresponds to a permission identifier (e.g. `PROJECT_READ`, `DATASET_CREATE`). Returned only to callers with `ROLE_READ`. ")
+    is_predefined: Optional[StrictBool] = Field(default=None, description="Whether this role is a system-defined predefined role. Predefined roles cannot be updated or deleted. ")
+    created_at: Optional[datetime] = Field(default=None, description="Timestamp when the role was created.")
+    updated_at: Optional[datetime] = Field(default=None, description="Timestamp when the role was last updated.")
     __properties: ClassVar[List[str]] = ["id", "name", "description", "permissions", "is_predefined", "created_at", "updated_at"]
 
     model_config = ConfigDict(
@@ -88,7 +88,7 @@ class Role(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "name": obj.get("name"),
             "description": obj.get("description"),
@@ -96,7 +96,7 @@ class Role(BaseModel):
             "is_predefined": obj.get("is_predefined"),
             "created_at": obj.get("created_at"),
             "updated_at": obj.get("updated_at")
-        })
+        }.items() if key in obj})
         return _obj
 
 

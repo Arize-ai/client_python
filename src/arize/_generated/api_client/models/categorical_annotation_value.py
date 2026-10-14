@@ -26,7 +26,7 @@ class CategoricalAnnotationValue(BaseModel):
     """
     CategoricalAnnotationValue
     """ # noqa: E501
-    label: StrictStr = Field(description="The label value")
+    label: Optional[StrictStr] = Field(default=None, description="The label value")
     score: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, description="A score to associate with the label")
     __properties: ClassVar[List[str]] = ["label", "score"]
 
@@ -81,10 +81,10 @@ class CategoricalAnnotationValue(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "label": obj.get("label"),
             "score": obj.get("score")
-        })
+        }.items() if key in obj})
         return _obj
 
 

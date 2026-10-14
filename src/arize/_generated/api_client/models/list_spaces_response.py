@@ -28,8 +28,8 @@ class ListSpacesResponse(BaseModel):
     """
     ListSpacesResponse
     """ # noqa: E501
-    spaces: List[Space] = Field(description="A list of spaces")
-    pagination: PaginationMetadata
+    spaces: Optional[List[Space]] = Field(default=None, description="A list of spaces")
+    pagination: Optional[PaginationMetadata] = None
     __properties: ClassVar[List[str]] = ["spaces", "pagination"]
 
     model_config = ConfigDict(
@@ -93,10 +93,10 @@ class ListSpacesResponse(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "spaces": [Space.from_dict(_item) for _item in obj["spaces"]] if obj.get("spaces") is not None else None,
             "pagination": PaginationMetadata.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

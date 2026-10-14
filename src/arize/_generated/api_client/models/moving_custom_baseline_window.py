@@ -26,14 +26,16 @@ class MovingCustomBaselineWindow(BaseModel):
     """
     A custom comparison dataset using a moving window defined in seconds.
     """ # noqa: E501
-    type: StrictStr = Field(description="Identifies this comparison window as a moving window relative to now.")
-    moving_window_seconds: StrictInt = Field(description="The length of the moving comparison window, in seconds.")
-    moving_window_delay_seconds: StrictInt = Field(description="The delay before the moving comparison window, in seconds.")
+    type: Optional[StrictStr] = Field(default=None, description="Identifies this comparison window as a moving window relative to now.")
+    moving_window_seconds: Optional[StrictInt] = Field(default=None, description="The length of the moving comparison window, in seconds.")
+    moving_window_delay_seconds: Optional[StrictInt] = Field(default=None, description="The delay before the moving comparison window, in seconds.")
     __properties: ClassVar[List[str]] = ["type", "moving_window_seconds", "moving_window_delay_seconds"]
 
     @field_validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['MOVING']):
             raise ValueError("must be one of enum values ('MOVING')")
         return value
@@ -89,11 +91,11 @@ class MovingCustomBaselineWindow(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "type": obj.get("type"),
             "moving_window_seconds": obj.get("moving_window_seconds"),
             "moving_window_delay_seconds": obj.get("moving_window_delay_seconds")
-        })
+        }.items() if key in obj})
         return _obj
 
 

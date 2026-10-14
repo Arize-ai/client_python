@@ -28,8 +28,8 @@ class ListRoleBindingsResponse(BaseModel):
     """
     ListRoleBindingsResponse
     """ # noqa: E501
-    role_bindings: List[RoleBinding] = Field(description="A list of role bindings.")
-    pagination: PaginationMetadata
+    role_bindings: Optional[List[RoleBinding]] = Field(default=None, description="A list of role bindings.")
+    pagination: Optional[PaginationMetadata] = None
     __properties: ClassVar[List[str]] = ["role_bindings", "pagination"]
 
     model_config = ConfigDict(
@@ -93,10 +93,10 @@ class ListRoleBindingsResponse(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "role_bindings": [RoleBinding.from_dict(_item) for _item in obj["role_bindings"]] if obj.get("role_bindings") is not None else None,
             "pagination": PaginationMetadata.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

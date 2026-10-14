@@ -34,6 +34,7 @@ from arize._generated.api_client.models.space_role_assignment import (
     SpaceRoleAssignment,
 )
 from arize._generated.api_client.models.user_space_role import UserSpaceRole
+from arize.utils.response import coerce_response_role
 
 
 class PredefinedSpaceRole(PredefinedRoleAssignmentRequest):
@@ -83,22 +84,22 @@ _SpaceRoleField = Annotated[
 class SpaceMembership(BaseModel):
     """A space membership record with domain-typed role."""
 
-    id: str
-    user_id: str
-    space_id: str
-    role: _SpaceRoleField
+    id: str | None = None
+    user_id: str | None = None
+    space_id: str | None = None
+    role: _SpaceRoleField | None = None
 
     @field_validator("role", mode="before")
     @classmethod
     def _coerce_role(cls, v: object) -> object:
-        if isinstance(v, SpaceRoleAssignment):
-            actual = v.actual_instance
-            if isinstance(actual, PredefinedRoleAssignment):
-                return PredefinedSpaceRole(name=actual.name)
-            if isinstance(actual, CustomRoleAssignment):
-                return CustomSpaceRole(id=actual.id, name=actual.name)
-            raise TypeError(f"Unknown space role type: {type(actual)!r}")
-        return v
+        return coerce_response_role(
+            v,
+            wrapper_type=SpaceRoleAssignment,
+            predefined_response_type=PredefinedRoleAssignment,
+            custom_response_type=CustomRoleAssignment,
+            predefined_type=PredefinedSpaceRole,
+            custom_type=CustomSpaceRole,
+        )
 
 
 __all__ = [

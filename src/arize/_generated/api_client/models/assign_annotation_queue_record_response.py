@@ -29,11 +29,11 @@ class AssignAnnotationQueueRecordResponse(BaseModel):
     """
     A snapshot of the annotation queue record fields that were modified by an assign operation. Only the record identity fields and the resulting user assignments are returned. Annotations and evaluations are not fetched and are not included in this response for performance reasons; use the list records endpoint to retrieve the full record state.
     """ # noqa: E501
-    id: StrictStr = Field(description="The unique identifier for the record")
-    annotation_queue_id: StrictStr = Field(description="The annotation queue this record belongs to")
-    source_type: AnnotationQueueSourceType
+    id: Optional[StrictStr] = Field(default=None, description="The unique identifier for the record")
+    annotation_queue_id: Optional[StrictStr] = Field(default=None, description="The annotation queue this record belongs to")
+    source_type: Optional[AnnotationQueueSourceType] = None
     granularity: Optional[RecordGranularity] = Field(default=None, description="The granularity of the record, if applicable.")
-    assigned_users: List[AnnotationQueueAssignedUser] = Field(description="The users now assigned to this record after this operation")
+    assigned_users: Optional[List[AnnotationQueueAssignedUser]] = Field(default=None, description="The users now assigned to this record after this operation")
     __properties: ClassVar[List[str]] = ["id", "annotation_queue_id", "source_type", "granularity", "assigned_users"]
 
     model_config = ConfigDict(
@@ -99,13 +99,13 @@ class AssignAnnotationQueueRecordResponse(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "annotation_queue_id": obj.get("annotation_queue_id"),
             "source_type": obj.get("source_type"),
             "granularity": obj.get("granularity"),
             "assigned_users": [AnnotationQueueAssignedUser.from_dict(_item) for _item in obj["assigned_users"]] if obj.get("assigned_users") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

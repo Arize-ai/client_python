@@ -28,13 +28,13 @@ class Tag(BaseModel):
     """
     A tag is a reusable label defined once per space and attached to many resources across the platform, so the same vocabulary can be applied to projects, datasets, prompts, and more.  Tags are shared. Renaming a tag changes it everywhere it appears, and deleting a tag detaches it from every resource it was attached to. 
     """ # noqa: E501
-    id: StrictStr = Field(description="The unique identifier of the tag")
-    name: StrictStr = Field(description="The tag name. Unique within the space, compared case-insensitively.")
+    id: Optional[StrictStr] = Field(default=None, description="The unique identifier of the tag")
+    name: Optional[StrictStr] = Field(default=None, description="The tag name. Unique within the space, compared case-insensitively.")
     description: Optional[StrictStr] = Field(default=None, description="Free-form description of what the tag is for. `null` when no description has been set. ")
     color: Optional[TagColor] = Field(default=None, description="Display color for the tag. `null` when no color has been assigned, which clients render with a neutral treatment. ")
-    space_id: StrictStr = Field(description="The unique identifier of the space the tag belongs to")
-    created_at: datetime = Field(description="When the tag was created")
-    updated_at: datetime = Field(description="When the tag was last modified. Equal to `created_at` until the tag is updated. ")
+    space_id: Optional[StrictStr] = Field(default=None, description="The unique identifier of the space the tag belongs to")
+    created_at: Optional[datetime] = Field(default=None, description="When the tag was created")
+    updated_at: Optional[datetime] = Field(default=None, description="When the tag was last modified. Equal to `created_at` until the tag is updated. ")
     __properties: ClassVar[List[str]] = ["id", "name", "description", "color", "space_id", "created_at", "updated_at"]
 
     model_config = ConfigDict(
@@ -98,7 +98,7 @@ class Tag(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "name": obj.get("name"),
             "description": obj.get("description"),
@@ -106,7 +106,7 @@ class Tag(BaseModel):
             "space_id": obj.get("space_id"),
             "created_at": obj.get("created_at"),
             "updated_at": obj.get("updated_at")
-        })
+        }.items() if key in obj})
         return _obj
 
 

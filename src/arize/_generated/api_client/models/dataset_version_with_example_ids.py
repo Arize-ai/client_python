@@ -27,13 +27,13 @@ class DatasetVersionWithExampleIds(BaseModel):
     """
     A dataset with the IDs of examples that were inserted or updated. Includes the version the examples were written to and the list of affected example IDs. 
     """ # noqa: E501
-    id: StrictStr = Field(description="Unique identifier for the dataset")
-    name: StrictStr = Field(description="Name of the dataset")
-    space_id: StrictStr = Field(description="Unique identifier for the space this dataset belongs to")
-    created_at: datetime = Field(description="Timestamp for when the dataset was created")
-    updated_at: datetime = Field(description="Timestamp for the last update of the dataset")
-    dataset_version_id: StrictStr = Field(description="Unique identifier for the dataset version the examples were written to")
-    example_ids: List[StrictStr] = Field(description="IDs of the examples that were inserted or updated")
+    id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the dataset")
+    name: Optional[StrictStr] = Field(default=None, description="Name of the dataset")
+    space_id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the space this dataset belongs to")
+    created_at: Optional[datetime] = Field(default=None, description="Timestamp for when the dataset was created")
+    updated_at: Optional[datetime] = Field(default=None, description="Timestamp for the last update of the dataset")
+    dataset_version_id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the dataset version the examples were written to")
+    example_ids: Optional[List[StrictStr]] = Field(default=None, description="IDs of the examples that were inserted or updated")
     __properties: ClassVar[List[str]] = ["id", "name", "space_id", "created_at", "updated_at", "dataset_version_id", "example_ids"]
 
     model_config = ConfigDict(
@@ -87,7 +87,7 @@ class DatasetVersionWithExampleIds(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "name": obj.get("name"),
             "space_id": obj.get("space_id"),
@@ -95,7 +95,7 @@ class DatasetVersionWithExampleIds(BaseModel):
             "updated_at": obj.get("updated_at"),
             "dataset_version_id": obj.get("dataset_version_id"),
             "example_ids": obj.get("example_ids")
-        })
+        }.items() if key in obj})
         return _obj
 
 

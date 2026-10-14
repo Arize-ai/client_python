@@ -57,6 +57,7 @@ from arize.utils.resolve import (
     _find_experiment_id,
     _find_space_id,
 )
+from arize.utils.response import require_operation_value
 from arize.utils.size import to_json_records_within
 
 if TYPE_CHECKING:
@@ -646,7 +647,10 @@ class ExperimentsClient:
             dataset=dataset,
             space=space,
         )
-        space_id = self.get(experiment=experiment_id).space_id
+        space_id = require_operation_value(
+            self.get(experiment=experiment_id).space_id,
+            field="experiment.space_id",
+        )
 
         with ArizeFlightClient(sdk_config=self._sdk_config) as flight_client:
             flight_client.export_experiment_runs_to_parquet(
@@ -666,7 +670,9 @@ class ExperimentsClient:
         """
         experiment_obj = self.get(experiment=experiment_id)
         experiment_updated_at = getattr(experiment_obj, "updated_at", None)
-        space_id = experiment_obj.space_id
+        space_id = require_operation_value(
+            experiment_obj.space_id, field="experiment.space_id"
+        )
 
         experiment_df = None
         # try to load dataset from cache
@@ -942,7 +948,9 @@ class ExperimentsClient:
         # TODO(Kiko): Space ID should not be needed,
         # should work on server tech debt to remove this
         dataset_obj = self._datasets_api.get_dataset(dataset_id=dataset_id)
-        space_id = dataset_obj.space_id
+        space_id = require_operation_value(
+            dataset_obj.space_id, field="dataset.space_id"
+        )
         dataset_updated_at = getattr(dataset_obj, "updated_at", None)
 
         # --- Phase 1: init experiment ---
@@ -1037,7 +1045,11 @@ class ExperimentsClient:
 
         internal_metadata: dict[str, str] = {
             "dataset_id": dataset_id,
-            "dataset_name": dataset_obj.name,
+            **(
+                {"dataset_name": dataset_obj.name}
+                if dataset_obj.name is not None
+                else {}
+            ),
             **(
                 {"dataset_version_id": dataset_version_id}
                 if dataset_version_id
@@ -1220,7 +1232,9 @@ class ExperimentsClient:
         # TODO(Kiko): Space ID should not be needed,
         # should work on server tech debt to remove this
         dataset_obj = self._datasets_api.get_dataset(dataset_id=dataset_id)
-        return cast("str", dataset_obj.space_id)
+        return require_operation_value(
+            dataset_obj.space_id, field="dataset.space_id"
+        )
 
     def _post_experiment_runs_via_flight(
         self,

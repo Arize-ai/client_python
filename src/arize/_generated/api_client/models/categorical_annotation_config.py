@@ -29,18 +29,20 @@ class CategoricalAnnotationConfig(BaseModel):
     """
     CategoricalAnnotationConfig
     """ # noqa: E501
-    id: StrictStr = Field(description="The unique identifier for the annotation config")
-    name: StrictStr = Field(description="The name of the annotation config")
-    created_at: datetime = Field(description="The timestamp for when the annotation config was created")
-    space_id: StrictStr = Field(description="The space id the annotation config belongs to")
-    type: StrictStr = Field(description="Discriminator value identifying a categorical annotation config.")
-    values: List[CategoricalAnnotationValue] = Field(description="An array of categorical annotation values")
+    id: Optional[StrictStr] = Field(default=None, description="The unique identifier for the annotation config")
+    name: Optional[StrictStr] = Field(default=None, description="The name of the annotation config")
+    created_at: Optional[datetime] = Field(default=None, description="The timestamp for when the annotation config was created")
+    space_id: Optional[StrictStr] = Field(default=None, description="The space id the annotation config belongs to")
+    type: Optional[StrictStr] = Field(default=None, description="Discriminator value identifying a categorical annotation config.")
+    values: Optional[List[CategoricalAnnotationValue]] = Field(default=None, description="An array of categorical annotation values")
     optimization_direction: Optional[OptimizationDirection] = Field(default=None, description="Direction for optimization. When absent, the server treats the value as `NONE`.")
     __properties: ClassVar[List[str]] = ["id", "name", "created_at", "space_id", "type", "values", "optimization_direction"]
 
     @field_validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['CATEGORICAL']):
             raise ValueError("must be one of enum values ('CATEGORICAL')")
         return value
@@ -103,7 +105,7 @@ class CategoricalAnnotationConfig(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "name": obj.get("name"),
             "created_at": obj.get("created_at"),
@@ -111,7 +113,7 @@ class CategoricalAnnotationConfig(BaseModel):
             "type": obj.get("type"),
             "values": [CategoricalAnnotationValue.from_dict(_item) for _item in obj["values"]] if obj.get("values") is not None else None,
             "optimization_direction": obj.get("optimization_direction")
-        })
+        }.items() if key in obj})
         return _obj
 
 

@@ -28,11 +28,11 @@ class TemplateEvaluationRunConfig(BaseModel):
     """
     Configuration for running a template-based LLM evaluator against each dataset example.
     """ # noqa: E501
-    experiment_type: StrictStr = Field(description="Discriminator. Must be `\"TEMPLATE_EVALUATION\"`.")
-    ai_integration_id: StrictStr = Field(description="AI integration identifier (base64). The LLM that judges each example.")
+    experiment_type: Optional[StrictStr] = Field(default=None, description="Discriminator. Must be `\"TEMPLATE_EVALUATION\"`.")
+    ai_integration_id: Optional[StrictStr] = Field(default=None, description="AI integration identifier (base64). The LLM that judges each example.")
     model_name: Optional[StrictStr] = Field(default=None, description="Model name (e.g. `gpt-4o`). Falls back to the integration's default if omitted.")
-    template: Annotated[str, Field(min_length=1, strict=True)] = Field(description="The evaluation prompt template. Use `{{variable}}` placeholders that map to dataset column paths via `column_mapping`. ")
-    provide_explanation: StrictBool = Field(description="Whether to ask the LLM to include a written explanation alongside the score/label.")
+    template: Optional[Annotated[str, Field(min_length=1, strict=True)]] = Field(default=None, description="The evaluation prompt template. Use `{{variable}}` placeholders that map to dataset column paths via `column_mapping`. ")
+    provide_explanation: Optional[StrictBool] = Field(default=None, description="Whether to ask the LLM to include a written explanation alongside the score/label.")
     classification_choices: Optional[Dict[str, Union[StrictFloat, StrictInt]]] = Field(default=None, description="Map of choice label to numeric score (e.g. `{\"relevant\": 1, \"irrelevant\": 0}`).")
     column_mapping: Optional[Dict[str, StrictStr]] = Field(default=None, description="Maps template variable names to dataset column paths.")
     evaluator_version_id: Optional[StrictStr] = Field(default=None, description="EvaluatorVersion identifier (base64). Links this run to an Eval Hub evaluator version.")
@@ -44,6 +44,8 @@ class TemplateEvaluationRunConfig(BaseModel):
     @field_validator('experiment_type')
     def experiment_type_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['TEMPLATE_EVALUATION']):
             raise ValueError("must be one of enum values ('TEMPLATE_EVALUATION')")
         return value
@@ -113,7 +115,7 @@ class TemplateEvaluationRunConfig(BaseModel):
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "experiment_type": obj.get("experiment_type"),
             "ai_integration_id": obj.get("ai_integration_id"),
             "model_name": obj.get("model_name"),
@@ -124,7 +126,7 @@ class TemplateEvaluationRunConfig(BaseModel):
             "evaluator_version_id": obj.get("evaluator_version_id"),
             "invocation_parameters": InvocationParams.from_dict(obj["invocation_parameters"]) if obj.get("invocation_parameters") is not None else None,
             "provider_parameters": obj.get("provider_parameters")
-        })
+        }.items() if key in obj})
         # store additional fields in additional_properties
         for _key in obj.keys():
             if _key not in cls.__properties:

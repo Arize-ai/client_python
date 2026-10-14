@@ -27,9 +27,9 @@ class EvaluatorIntegrationConfig(BaseModel):
     """
     Configuration for `type: EVALUATOR` integrations: a customer-hosted HTTPS endpoint plus a JSON Schema describing the request payload. 
     """ # noqa: E501
-    endpoint: Annotated[str, Field(strict=True, max_length=2048)] = Field(description="HTTPS endpoint URL Arize calls for remote evaluation. Validated server-side for SSRF (must resolve to a public address). ")
-    has_headers: StrictBool = Field(description="Whether any headers are configured. Read-only — derived from `headers` on write. Header values are never returned. ")
-    input_schema: Dict[str, Any] = Field(description="JSON Schema (Draft-07) the endpoint's request body conforms to. The root schema must have `type: object`, must not define the reserved top-level `arize_metadata` field, and must not exceed 64 KiB. ")
+    endpoint: Optional[Annotated[str, Field(strict=True, max_length=2048)]] = Field(default=None, description="HTTPS endpoint URL Arize calls for remote evaluation. Validated server-side for SSRF (must resolve to a public address). ")
+    has_headers: Optional[StrictBool] = Field(default=None, description="Whether any headers are configured. Read-only — derived from `headers` on write. Header values are never returned. ")
+    input_schema: Optional[Dict[str, Any]] = Field(default=None, description="JSON Schema (Draft-07) the endpoint's request body conforms to. The root schema must have `type: object`, must not define the reserved top-level `arize_metadata` field, and must not exceed 64 KiB. ")
     __properties: ClassVar[List[str]] = ["endpoint", "has_headers", "input_schema"]
 
     model_config = ConfigDict(
@@ -85,11 +85,11 @@ class EvaluatorIntegrationConfig(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "endpoint": obj.get("endpoint"),
             "has_headers": obj.get("has_headers"),
             "input_schema": obj.get("input_schema")
-        })
+        }.items() if key in obj})
         return _obj
 
 

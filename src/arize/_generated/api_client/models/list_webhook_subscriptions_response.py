@@ -28,8 +28,8 @@ class ListWebhookSubscriptionsResponse(BaseModel):
     """
     ListWebhookSubscriptionsResponse
     """ # noqa: E501
-    subscriptions: List[WebhookSubscription] = Field(description="A list of webhook subscriptions, most recently created first")
-    pagination: PaginationMetadata
+    subscriptions: Optional[List[WebhookSubscription]] = Field(default=None, description="A list of webhook subscriptions, most recently created first")
+    pagination: Optional[PaginationMetadata] = None
     __properties: ClassVar[List[str]] = ["subscriptions", "pagination"]
 
     model_config = ConfigDict(
@@ -93,10 +93,10 @@ class ListWebhookSubscriptionsResponse(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "subscriptions": [WebhookSubscription.from_dict(_item) for _item in obj["subscriptions"]] if obj.get("subscriptions") is not None else None,
             "pagination": PaginationMetadata.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

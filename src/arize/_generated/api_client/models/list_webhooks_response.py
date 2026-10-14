@@ -28,8 +28,8 @@ class ListWebhooksResponse(BaseModel):
     """
     ListWebhooksResponse
     """ # noqa: E501
-    webhooks: List[Webhook] = Field(description="A list of webhooks")
-    pagination: PaginationMetadata
+    webhooks: Optional[List[Webhook]] = Field(default=None, description="A list of webhooks")
+    pagination: Optional[PaginationMetadata] = None
     __properties: ClassVar[List[str]] = ["webhooks", "pagination"]
 
     model_config = ConfigDict(
@@ -93,10 +93,10 @@ class ListWebhooksResponse(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "webhooks": [Webhook.from_dict(_item) for _item in obj["webhooks"]] if obj.get("webhooks") is not None else None,
             "pagination": PaginationMetadata.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

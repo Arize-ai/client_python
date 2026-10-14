@@ -31,11 +31,11 @@ class LlmGenerationRunConfig(BaseModel):
     """
     Configuration for running an LLM prompt against each dataset example.
     """ # noqa: E501
-    experiment_type: StrictStr = Field(description="Discriminator. Must be `\"LLM_GENERATION\"`.")
-    ai_integration_id: StrictStr = Field(description="AI integration identifier (base64).")
+    experiment_type: Optional[StrictStr] = Field(default=None, description="Discriminator. Must be `\"LLM_GENERATION\"`.")
+    ai_integration_id: Optional[StrictStr] = Field(default=None, description="AI integration identifier (base64).")
     model_name: Optional[StrictStr] = Field(default=None, description="Model name (e.g. `gpt-4o`). Falls back to the integration's default if omitted.")
-    messages: Annotated[List[LLMMessage], Field(min_length=1)] = Field(description="Array of message objects (at least one).")
-    input_variable_format: InputVariableFormat
+    messages: Optional[Annotated[List[LLMMessage], Field(min_length=1)]] = Field(default=None, description="Array of message objects (at least one).")
+    input_variable_format: Optional[InputVariableFormat] = None
     invocation_parameters: Optional[InvocationParams] = None
     provider_parameters: Optional[Dict[str, Any]] = Field(default=None, description="Provider-specific parameters. Defaults to `{}` (no overrides) if omitted.")
     tool_config: Optional[ToolConfig] = None
@@ -46,6 +46,8 @@ class LlmGenerationRunConfig(BaseModel):
     @field_validator('experiment_type')
     def experiment_type_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['LLM_GENERATION']):
             raise ValueError("must be one of enum values ('LLM_GENERATION')")
         return value
@@ -125,7 +127,7 @@ class LlmGenerationRunConfig(BaseModel):
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "experiment_type": obj.get("experiment_type"),
             "ai_integration_id": obj.get("ai_integration_id"),
             "model_name": obj.get("model_name"),
@@ -135,7 +137,7 @@ class LlmGenerationRunConfig(BaseModel):
             "provider_parameters": obj.get("provider_parameters"),
             "tool_config": ToolConfig.from_dict(obj["tool_config"]) if obj.get("tool_config") is not None else None,
             "prompt_version_id": obj.get("prompt_version_id")
-        })
+        }.items() if key in obj})
         # store additional fields in additional_properties
         for _key in obj.keys():
             if _key not in cls.__properties:

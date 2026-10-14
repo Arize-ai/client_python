@@ -31,17 +31,19 @@ class CustomCodeConfig(BaseModel):
     """ # noqa: E501
     data_granularity: Optional[DataGranularity] = Field(default=None, description="Data granularity level for evaluation. When omitted or null, no granularity filter is applied (span-level evaluation is used by default on the server). ")
     query_filter: Optional[StrictStr] = Field(default=None, description="Optional filter query over the chosen data granularity. When omitted or null, no filter is applied. ")
-    type: StrictStr = Field(description="Discriminator identifying this as a custom (user-supplied Python) code evaluator")
-    name: Annotated[str, Field(strict=True)] = Field(description="Eval column name. Must match ^[a-zA-Z0-9_\\s\\-&()]+$")
-    code: StrictStr = Field(description="Python source defining the evaluator class")
+    type: Optional[StrictStr] = Field(default=None, description="Discriminator identifying this as a custom (user-supplied Python) code evaluator")
+    name: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="Eval column name. Must match ^[a-zA-Z0-9_\\s\\-&()]+$")
+    code: Optional[StrictStr] = Field(default=None, description="Python source defining the evaluator class")
     imports: Optional[StrictStr] = Field(default=None, description="Optional package import block prepended when running the evaluator")
-    variables: List[StrictStr] = Field(description="Dataset columns or span attributes mapped to evaluate() arguments")
+    variables: Optional[List[StrictStr]] = Field(default=None, description="Dataset columns or span attributes mapped to evaluate() arguments")
     static_params: Optional[List[StaticParam]] = Field(default=None, description="Optional typed defaults accessible on the evaluator instance. Omit or pass an empty array when the custom class does not read any static parameters. ")
     __properties: ClassVar[List[str]] = ["data_granularity", "query_filter", "type", "name", "code", "imports", "variables", "static_params"]
 
     @field_validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['CUSTOM']):
             raise ValueError("must be one of enum values ('CUSTOM')")
         return value
@@ -49,6 +51,8 @@ class CustomCodeConfig(BaseModel):
     @field_validator('name')
     def name_validate_regular_expression(cls, value):
         """Validates the regular expression"""
+        if value is None:
+            return None
         if not re.match(r"^[a-zA-Z0-9_\s\-&()]+$", value):
             raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9_\s\-&()]+$/")
         return value
@@ -126,7 +130,7 @@ class CustomCodeConfig(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "data_granularity": obj.get("data_granularity"),
             "query_filter": obj.get("query_filter"),
             "type": obj.get("type"),
@@ -135,7 +139,7 @@ class CustomCodeConfig(BaseModel):
             "imports": obj.get("imports"),
             "variables": obj.get("variables"),
             "static_params": [StaticParam.from_dict(_item) for _item in obj["static_params"]] if obj.get("static_params") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

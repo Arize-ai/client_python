@@ -103,13 +103,13 @@ class ProviderParams(BaseModel):
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "azure_params": AzureParams.from_dict(obj["azure_params"]) if obj.get("azure_params") is not None else None,
             "anthropic_headers": AnthropicHeaders.from_dict(obj["anthropic_headers"]) if obj.get("anthropic_headers") is not None else None,
             "anthropic_version": obj.get("anthropic_version"),
             "bedrock_options": BedrockOptions.from_dict(obj["bedrock_options"]) if obj.get("bedrock_options") is not None else None,
             "region": obj.get("region")
-        })
+        }.items() if key in obj})
         # store additional fields in additional_properties
         for _key in obj.keys():
             if _key not in cls.__properties:

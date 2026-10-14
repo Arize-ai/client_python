@@ -91,10 +91,10 @@ class IntegrationScoping(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "organization_id": obj.get("organization_id"),
             "space_id": obj.get("space_id")
-        })
+        }.items() if key in obj})
         return _obj
 
 

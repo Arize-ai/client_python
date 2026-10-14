@@ -26,8 +26,8 @@ class SpanContext(BaseModel):
     """
     SpanContext
     """ # noqa: E501
-    trace_id: StrictStr = Field(description="Unique identifier for the trace this span belongs to")
-    span_id: StrictStr = Field(description="Unique identifier for the span")
+    trace_id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the trace this span belongs to")
+    span_id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the span")
     __properties: ClassVar[List[str]] = ["trace_id", "span_id"]
 
     model_config = ConfigDict(
@@ -81,10 +81,10 @@ class SpanContext(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "trace_id": obj.get("trace_id"),
             "span_id": obj.get("span_id")
-        })
+        }.items() if key in obj})
         return _obj
 
 

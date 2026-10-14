@@ -94,37 +94,15 @@ class Integration(BaseModel):
     @classmethod
     def from_json(cls, json_str: str) -> Self:
         """Returns the object represented by the json string"""
-        instance = cls.model_construct()
-        error_messages = []
-        match = 0
-
-        # deserialize data into LlmIntegration
-        try:
-            instance.actual_instance = LlmIntegration.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-        # deserialize data into AgentIntegration
-        try:
-            instance.actual_instance = AgentIntegration.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-        # deserialize data into EvaluatorIntegration
-        try:
-            instance.actual_instance = EvaluatorIntegration.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-
-        if match > 1:
-            # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into Integration with oneOf schemas: AgentIntegration, EvaluatorIntegration, LlmIntegration. Details: " + ", ".join(error_messages))
-        elif match == 0:
-            # no match
-            raise ValueError("No match found when deserializing the JSON string into Integration with oneOf schemas: AgentIntegration, EvaluatorIntegration, LlmIntegration. Details: " + ", ".join(error_messages))
-        else:
-            return instance
+        payload = json.loads(json_str)
+        if isinstance(payload, dict) and 'type' in payload:
+            if payload['type'] == 'LLM':
+                return cls(actual_instance=LlmIntegration.from_dict(payload))
+            if payload['type'] == 'AGENT':
+                return cls(actual_instance=AgentIntegration.from_dict(payload))
+            if payload['type'] == 'EVALUATOR':
+                return cls(actual_instance=EvaluatorIntegration.from_dict(payload))
+        raise ValueError('Cannot identify Integration response: expected a supported type value')
 
     def to_json(self) -> str:
         """Returns the JSON representation of the actual instance"""

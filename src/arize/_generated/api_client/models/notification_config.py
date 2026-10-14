@@ -94,37 +94,15 @@ class NotificationConfig(BaseModel):
     @classmethod
     def from_json(cls, json_str: str) -> Self:
         """Returns the object represented by the json string"""
-        instance = cls.model_construct()
-        error_messages = []
-        match = 0
-
-        # deserialize data into EmailNotificationConfig
-        try:
-            instance.actual_instance = EmailNotificationConfig.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-        # deserialize data into IntegrationNotificationConfig
-        try:
-            instance.actual_instance = IntegrationNotificationConfig.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-        # deserialize data into WebhookNotificationConfig
-        try:
-            instance.actual_instance = WebhookNotificationConfig.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-
-        if match > 1:
-            # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into NotificationConfig with oneOf schemas: EmailNotificationConfig, IntegrationNotificationConfig, WebhookNotificationConfig. Details: " + ", ".join(error_messages))
-        elif match == 0:
-            # no match
-            raise ValueError("No match found when deserializing the JSON string into NotificationConfig with oneOf schemas: EmailNotificationConfig, IntegrationNotificationConfig, WebhookNotificationConfig. Details: " + ", ".join(error_messages))
-        else:
-            return instance
+        payload = json.loads(json_str)
+        if isinstance(payload, dict) and 'type' in payload:
+            if payload['type'] == 'EMAIL':
+                return cls(actual_instance=EmailNotificationConfig.from_dict(payload))
+            if payload['type'] == 'INTEGRATION':
+                return cls(actual_instance=IntegrationNotificationConfig.from_dict(payload))
+            if payload['type'] == 'WEBHOOK':
+                return cls(actual_instance=WebhookNotificationConfig.from_dict(payload))
+        raise ValueError('Cannot identify NotificationConfig response: expected a supported type value')
 
     def to_json(self) -> str:
         """Returns the JSON representation of the actual instance"""

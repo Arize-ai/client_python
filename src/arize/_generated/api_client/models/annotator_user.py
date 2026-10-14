@@ -26,8 +26,8 @@ class AnnotatorUser(BaseModel):
     """
     A user assigned as an annotator, identified by ID and email.
     """ # noqa: E501
-    id: StrictStr = Field(description="The unique identifier for the user")
-    email: StrictStr = Field(description="An email address")
+    id: Optional[StrictStr] = Field(default=None, description="The unique identifier for the user")
+    email: Optional[StrictStr] = Field(default=None, description="An email address")
     __properties: ClassVar[List[str]] = ["id", "email"]
 
     model_config = ConfigDict(
@@ -81,10 +81,10 @@ class AnnotatorUser(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "email": obj.get("email")
-        })
+        }.items() if key in obj})
         return _obj
 
 

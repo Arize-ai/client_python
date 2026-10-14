@@ -28,8 +28,8 @@ class ListDatasetsResponse(BaseModel):
     """
     ListDatasetsResponse
     """ # noqa: E501
-    datasets: List[Dataset] = Field(description="A list of datasets")
-    pagination: PaginationMetadata
+    datasets: Optional[List[Dataset]] = Field(default=None, description="A list of datasets")
+    pagination: Optional[PaginationMetadata] = None
     __properties: ClassVar[List[str]] = ["datasets", "pagination"]
 
     model_config = ConfigDict(
@@ -93,10 +93,10 @@ class ListDatasetsResponse(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "datasets": [Dataset.from_dict(_item) for _item in obj["datasets"]] if obj.get("datasets") is not None else None,
             "pagination": PaginationMetadata.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

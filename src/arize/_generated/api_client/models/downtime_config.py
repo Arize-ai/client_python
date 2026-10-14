@@ -27,9 +27,9 @@ class DowntimeConfig(BaseModel):
     """
     DowntimeConfig
     """ # noqa: E501
-    start: datetime = Field(description="When the downtime window begins.")
-    duration_seconds: StrictInt = Field(description="How long each downtime window lasts, in seconds.")
-    frequency_days: StrictInt = Field(description="How often the downtime window repeats, in days.")
+    start: Optional[datetime] = Field(default=None, description="When the downtime window begins.")
+    duration_seconds: Optional[StrictInt] = Field(default=None, description="How long each downtime window lasts, in seconds.")
+    frequency_days: Optional[StrictInt] = Field(default=None, description="How often the downtime window repeats, in days.")
     __properties: ClassVar[List[str]] = ["start", "duration_seconds", "frequency_days"]
 
     model_config = ConfigDict(
@@ -83,11 +83,11 @@ class DowntimeConfig(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "start": obj.get("start"),
             "duration_seconds": obj.get("duration_seconds"),
             "frequency_days": obj.get("frequency_days")
-        })
+        }.items() if key in obj})
         return _obj
 
 

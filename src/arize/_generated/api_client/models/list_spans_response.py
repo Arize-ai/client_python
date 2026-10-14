@@ -28,8 +28,8 @@ class ListSpansResponse(BaseModel):
     """
     ListSpansResponse
     """ # noqa: E501
-    spans: List[Span] = Field(description="A list of spans ordered by `start_time` from newest to oldest. Spans with the same start time use their trace and span identifiers for a stable order. ")
-    pagination: PaginationMetadata
+    spans: Optional[List[Span]] = Field(default=None, description="A list of spans ordered by `start_time` from newest to oldest. Spans with the same start time use their trace and span identifiers for a stable order. ")
+    pagination: Optional[PaginationMetadata] = None
     __properties: ClassVar[List[str]] = ["spans", "pagination"]
 
     model_config = ConfigDict(
@@ -93,10 +93,10 @@ class ListSpansResponse(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "spans": [Span.from_dict(_item) for _item in obj["spans"]] if obj.get("spans") is not None else None,
             "pagination": PaginationMetadata.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

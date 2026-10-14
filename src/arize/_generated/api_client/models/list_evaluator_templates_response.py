@@ -27,7 +27,7 @@ class ListEvaluatorTemplatesResponse(BaseModel):
     """
     ListEvaluatorTemplatesResponse
     """ # noqa: E501
-    evaluator_templates: List[EvaluatorTemplate] = Field(description="Every built-in template, ordered by category as the product presents them (response quality, code quality, trajectory, RAG, security, session). ")
+    evaluator_templates: Optional[List[EvaluatorTemplate]] = Field(default=None, description="Every built-in template, ordered by category as the product presents them (response quality, code quality, trajectory, RAG, security, session). ")
     __properties: ClassVar[List[str]] = ["evaluator_templates"]
 
     model_config = ConfigDict(
@@ -88,9 +88,9 @@ class ListEvaluatorTemplatesResponse(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "evaluator_templates": [EvaluatorTemplate.from_dict(_item) for _item in obj["evaluator_templates"]] if obj.get("evaluator_templates") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

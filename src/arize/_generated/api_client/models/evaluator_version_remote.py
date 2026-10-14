@@ -29,19 +29,21 @@ class EvaluatorVersionRemote(BaseModel):
     """
     Evaluator version backed by a remote evaluator integration.
     """ # noqa: E501
-    id: StrictStr = Field(description="The unique identifier for this version")
-    evaluator_id: StrictStr = Field(description="The parent evaluator ID")
-    commit_hash: StrictStr = Field(description="A unique hash identifying this version")
-    commit_message: Optional[Annotated[str, Field(strict=True, max_length=1000)]] = Field(description="A message describing the changes in this version")
-    created_at: datetime = Field(description="When this version was created")
-    created_by_user_id: Optional[StrictStr] = Field(description="The unique identifier for the user who created this version")
-    type: StrictStr = Field(description="Discriminator identifying this as a remote evaluator version. Always `REMOTE` for this variant.")
-    remote_config: RemoteConfig
+    id: Optional[StrictStr] = Field(default=None, description="The unique identifier for this version")
+    evaluator_id: Optional[StrictStr] = Field(default=None, description="The parent evaluator ID")
+    commit_hash: Optional[StrictStr] = Field(default=None, description="A unique hash identifying this version")
+    commit_message: Optional[Annotated[str, Field(strict=True, max_length=1000)]] = Field(default=None, description="A message describing the changes in this version")
+    created_at: Optional[datetime] = Field(default=None, description="When this version was created")
+    created_by_user_id: Optional[StrictStr] = Field(default=None, description="The unique identifier for the user who created this version")
+    type: Optional[StrictStr] = Field(default=None, description="Discriminator identifying this as a remote evaluator version. Always `REMOTE` for this variant.")
+    remote_config: Optional[RemoteConfig] = None
     __properties: ClassVar[List[str]] = ["id", "evaluator_id", "commit_hash", "commit_message", "created_at", "created_by_user_id", "type", "remote_config"]
 
     @field_validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['REMOTE']):
             raise ValueError("must be one of enum values ('REMOTE')")
         return value
@@ -110,7 +112,7 @@ class EvaluatorVersionRemote(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "evaluator_id": obj.get("evaluator_id"),
             "commit_hash": obj.get("commit_hash"),
@@ -119,7 +121,7 @@ class EvaluatorVersionRemote(BaseModel):
             "created_by_user_id": obj.get("created_by_user_id"),
             "type": obj.get("type"),
             "remote_config": RemoteConfig.from_dict(obj["remote_config"]) if obj.get("remote_config") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

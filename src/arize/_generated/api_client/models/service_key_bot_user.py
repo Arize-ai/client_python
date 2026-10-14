@@ -28,10 +28,10 @@ class ServiceKeyBotUser(BaseModel):
     """
     ServiceKeyBotUser
     """ # noqa: E501
-    id: StrictStr = Field(description="Global ID of the bot user.")
-    name: StrictStr = Field(description="Display name of the bot user.")
-    account_role: UserRoleAssignment = Field(description="Account-level role assigned to the bot user. Always present — defaults are resolved server-side. In a list response (`GET /v2/api-keys`) for a bot user that could not be resolved, this is a `MEMBER` placeholder and `name` is empty. ")
-    organizations: List[ServiceKeyBotUserOrgAssignment] = Field(description="Organization access assignments for the service account, each containing nested space assignments. Always empty in a list response (`GET /v2/api-keys`) filtered by `space_id`. Also empty in a list response for a bot user whose bindings could not be resolved (e.g. a stale or otherwise unrecoverable bot user). `CreatedServiceKeyBotUser` (used in the `POST /v2/api-keys` response) tightens this to at least one entry, since creating a service key always requires an organization. ")
+    id: Optional[StrictStr] = Field(default=None, description="Global ID of the bot user.")
+    name: Optional[StrictStr] = Field(default=None, description="Display name of the bot user.")
+    account_role: Optional[UserRoleAssignment] = Field(default=None, description="Account-level role assigned to the bot user. Always present — defaults are resolved server-side. In a list response (`GET /v2/api-keys`) for a bot user that could not be resolved, this is a `MEMBER` placeholder and `name` is empty. ")
+    organizations: Optional[List[ServiceKeyBotUserOrgAssignment]] = Field(default=None, description="Organization access assignments for the service account, each containing nested space assignments. Always empty in a list response (`GET /v2/api-keys`) filtered by `space_id`. Also empty in a list response for a bot user whose bindings could not be resolved (e.g. a stale or otherwise unrecoverable bot user). `CreatedServiceKeyBotUser` (used in the `POST /v2/api-keys` response) tightens this to at least one entry, since creating a service key always requires an organization. ")
     __properties: ClassVar[List[str]] = ["id", "name", "account_role", "organizations"]
 
     model_config = ConfigDict(
@@ -95,12 +95,12 @@ class ServiceKeyBotUser(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "name": obj.get("name"),
             "account_role": UserRoleAssignment.from_dict(obj["account_role"]) if obj.get("account_role") is not None else None,
             "organizations": [ServiceKeyBotUserOrgAssignment.from_dict(_item) for _item in obj["organizations"]] if obj.get("organizations") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

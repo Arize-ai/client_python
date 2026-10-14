@@ -27,8 +27,8 @@ class DynamicThresholdBound(BaseModel):
     """
     DynamicThresholdBound
     """ # noqa: E501
-    operator: ThresholdOperator
-    multiplier: Union[StrictFloat, StrictInt] = Field(description="The multiplier applied to the calculation (e.g. number of standard deviations) to derive this bound. ")
+    operator: Optional[ThresholdOperator] = None
+    multiplier: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, description="The multiplier applied to the calculation (e.g. number of standard deviations) to derive this bound. ")
     __properties: ClassVar[List[str]] = ["operator", "multiplier"]
 
     model_config = ConfigDict(
@@ -82,10 +82,10 @@ class DynamicThresholdBound(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "operator": obj.get("operator"),
             "multiplier": obj.get("multiplier")
-        })
+        }.items() if key in obj})
         return _obj
 
 

@@ -80,9 +80,9 @@ class RemoteConfig(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "integration_id": obj.get("integration_id")
-        })
+        }.items() if key in obj})
         return _obj
 
 

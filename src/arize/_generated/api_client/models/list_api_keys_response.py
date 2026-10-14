@@ -28,8 +28,8 @@ class ListApiKeysResponse(BaseModel):
     """
     ListApiKeysResponse
     """ # noqa: E501
-    api_keys: List[ApiKey] = Field(description="API keys matching the request filters.")
-    pagination: PaginationMetadata
+    api_keys: Optional[List[ApiKey]] = Field(default=None, description="API keys matching the request filters.")
+    pagination: Optional[PaginationMetadata] = None
     __properties: ClassVar[List[str]] = ["api_keys", "pagination"]
 
     model_config = ConfigDict(
@@ -93,10 +93,10 @@ class ListApiKeysResponse(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "api_keys": [ApiKey.from_dict(_item) for _item in obj["api_keys"]] if obj.get("api_keys") is not None else None,
             "pagination": PaginationMetadata.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

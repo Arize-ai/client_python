@@ -29,12 +29,12 @@ class WebhookSubscription(BaseModel):
     """
     A subscription delivers one event from one prompt or evaluator to one webhook. A webhook that should receive several events from the same resource has one subscription per event. 
     """ # noqa: E501
-    id: StrictStr = Field(description="Unique identifier for the subscription")
-    webhook_id: StrictStr = Field(description="The unique identifier of the webhook that receives the event")
-    source_type: WebhookSourceType = Field(description="The kind of resource the subscription is attached to")
-    source_id: StrictStr = Field(description="The unique identifier of the prompt or evaluator the subscription is attached to")
-    event: WebhookEventType = Field(description="The event delivered to the webhook")
-    created_at: datetime = Field(description="Timestamp for when the subscription was created")
+    id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the subscription")
+    webhook_id: Optional[StrictStr] = Field(default=None, description="The unique identifier of the webhook that receives the event")
+    source_type: Optional[WebhookSourceType] = Field(default=None, description="The kind of resource the subscription is attached to")
+    source_id: Optional[StrictStr] = Field(default=None, description="The unique identifier of the prompt or evaluator the subscription is attached to")
+    event: Optional[WebhookEventType] = Field(default=None, description="The event delivered to the webhook")
+    created_at: Optional[datetime] = Field(default=None, description="Timestamp for when the subscription was created")
     __properties: ClassVar[List[str]] = ["id", "webhook_id", "source_type", "source_id", "event", "created_at"]
 
     model_config = ConfigDict(
@@ -88,14 +88,14 @@ class WebhookSubscription(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "webhook_id": obj.get("webhook_id"),
             "source_type": obj.get("source_type"),
             "source_id": obj.get("source_id"),
             "event": obj.get("event"),
             "created_at": obj.get("created_at")
-        })
+        }.items() if key in obj})
         return _obj
 
 

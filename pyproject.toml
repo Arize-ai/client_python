@@ -55,6 +55,7 @@ dynamic = ["version"]
 dev = [
     "mypy==1.19.1",
     "pandas-stubs>=2.2.0",
+    "PyYAML>=6, <7",
     "pytest-cov==6.0.0",
     "pytest==9.0.3",
     "ruff==0.14.9",

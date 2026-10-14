@@ -27,10 +27,10 @@ class Organization(BaseModel):
     """
     An organization is a top-level container within an account for grouping spaces and managing access control. Organizations enable team separation with role-based access control at the organization level. 
     """ # noqa: E501
-    id: StrictStr = Field(description="Unique identifier for the organization")
-    name: StrictStr = Field(description="Name of the organization")
-    description: StrictStr = Field(description="A brief description of the organization's purpose")
-    created_at: datetime = Field(description="Timestamp for when the organization was created")
+    id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the organization")
+    name: Optional[StrictStr] = Field(default=None, description="Name of the organization")
+    description: Optional[StrictStr] = Field(default=None, description="A brief description of the organization's purpose")
+    created_at: Optional[datetime] = Field(default=None, description="Timestamp for when the organization was created")
     __properties: ClassVar[List[str]] = ["id", "name", "description", "created_at"]
 
     model_config = ConfigDict(
@@ -84,12 +84,12 @@ class Organization(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "name": obj.get("name"),
             "description": obj.get("description"),
             "created_at": obj.get("created_at")
-        })
+        }.items() if key in obj})
         return _obj
 
 

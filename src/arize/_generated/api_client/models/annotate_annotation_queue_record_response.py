@@ -29,11 +29,11 @@ class AnnotateAnnotationQueueRecordResponse(BaseModel):
     """
     A snapshot of the annotation queue record fields that were modified by an annotate operation. Only the record identity fields and the submitted annotations are returned. Evaluations and user assignments are not fetched and are not included in this response for performance reasons; use the list records endpoint to retrieve the full record state.
     """ # noqa: E501
-    id: StrictStr = Field(description="The unique identifier for the record")
-    annotation_queue_id: StrictStr = Field(description="The annotation queue this record belongs to")
-    source_type: AnnotationQueueSourceType
+    id: Optional[StrictStr] = Field(default=None, description="The unique identifier for the record")
+    annotation_queue_id: Optional[StrictStr] = Field(default=None, description="The annotation queue this record belongs to")
+    source_type: Optional[AnnotationQueueSourceType] = None
     granularity: Optional[RecordGranularity] = Field(default=None, description="The granularity of the record, if applicable.")
-    annotations: List[Annotation] = Field(description="The annotations that were submitted in this request")
+    annotations: Optional[List[Annotation]] = Field(default=None, description="The annotations that were submitted in this request")
     __properties: ClassVar[List[str]] = ["id", "annotation_queue_id", "source_type", "granularity", "annotations"]
 
     model_config = ConfigDict(
@@ -99,13 +99,13 @@ class AnnotateAnnotationQueueRecordResponse(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "annotation_queue_id": obj.get("annotation_queue_id"),
             "source_type": obj.get("source_type"),
             "granularity": obj.get("granularity"),
             "annotations": [Annotation.from_dict(_item) for _item in obj["annotations"]] if obj.get("annotations") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

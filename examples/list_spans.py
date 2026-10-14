@@ -12,6 +12,8 @@ def main() -> None:
         project=os.environ["ARIZE_PROJECT_ID"],
         excluded_columns=["attributes.embedding.vectors"],
     )
+    if response.spans is None:
+        raise ValueError("Server response omits spans")
     for span in response.spans:
         print(span.name)
 

@@ -31,21 +31,21 @@ class AiIntegration(BaseModel):
     """
     An AI integration configures access to an external LLM provider (e.g. OpenAI, Azure OpenAI, AWS Bedrock, Vertex AI). Integrations can be scoped to the entire account, a specific organization, or a specific space. 
     """ # noqa: E501
-    id: StrictStr = Field(description="The integration ID")
-    name: StrictStr = Field(description="The integration name")
-    provider: AiIntegrationProvider
-    has_api_key: StrictBool = Field(description="Whether an API key is configured (the key itself is never returned)")
+    id: Optional[StrictStr] = Field(default=None, description="The integration ID")
+    name: Optional[StrictStr] = Field(default=None, description="The integration name")
+    provider: Optional[AiIntegrationProvider] = None
+    has_api_key: Optional[StrictBool] = Field(default=None, description="Whether an API key is configured (the key itself is never returned)")
     base_url: Optional[StrictStr] = Field(default=None, description="Custom base URL for the provider")
     model_names: Optional[List[StrictStr]] = Field(default=None, description="Supported model names")
     headers: Optional[Dict[str, StrictStr]] = Field(default=None, description="Custom headers included in requests")
-    enable_default_models: StrictBool = Field(description="Whether the provider's default model list is enabled")
-    function_calling_enabled: StrictBool = Field(description="Whether function/tool calling is enabled")
-    auth_type: AiIntegrationAuthType
+    enable_default_models: Optional[StrictBool] = Field(default=None, description="Whether the provider's default model list is enabled")
+    function_calling_enabled: Optional[StrictBool] = Field(default=None, description="Whether function/tool calling is enabled")
+    auth_type: Optional[AiIntegrationAuthType] = None
     provider_metadata: Optional[ProviderMetadata] = Field(default=None, description="Provider-specific configuration. For AWS_BEDROCK, must include role_arn. For VERTEX_AI, must include project_id, location, and project_access_label.")
-    scopings: List[AiIntegrationScoping] = Field(description="Visibility scoping rules")
-    created_at: datetime = Field(description="When the integration was created")
-    updated_at: datetime = Field(description="When the integration was last updated")
-    created_by_user_id: StrictStr = Field(description="The user ID of the user who created the integration")
+    scopings: Optional[List[AiIntegrationScoping]] = Field(default=None, description="Visibility scoping rules")
+    created_at: Optional[datetime] = Field(default=None, description="When the integration was created")
+    updated_at: Optional[datetime] = Field(default=None, description="When the integration was last updated")
+    created_by_user_id: Optional[StrictStr] = Field(default=None, description="The user ID of the user who created the integration")
     __properties: ClassVar[List[str]] = ["id", "name", "provider", "has_api_key", "base_url", "model_names", "headers", "enable_default_models", "function_calling_enabled", "auth_type", "provider_metadata", "scopings", "created_at", "updated_at", "created_by_user_id"]
 
     model_config = ConfigDict(
@@ -129,7 +129,7 @@ class AiIntegration(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "name": obj.get("name"),
             "provider": obj.get("provider"),
@@ -145,7 +145,7 @@ class AiIntegration(BaseModel):
             "created_at": obj.get("created_at"),
             "updated_at": obj.get("updated_at"),
             "created_by_user_id": obj.get("created_by_user_id")
-        })
+        }.items() if key in obj})
         return _obj
 
 

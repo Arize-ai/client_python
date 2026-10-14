@@ -28,12 +28,12 @@ class WebhookDeliveryAttempt(BaseModel):
     """
     A single attempt to deliver an event to a webhook's endpoint.
     """ # noqa: E501
-    event_id: StrictStr = Field(description="Unique identifier of the event that triggered this delivery")
-    attempt_number: Annotated[int, Field(strict=True, ge=1)] = Field(description="Which attempt this was for the event, starting at 1. Failed deliveries are retried.")
-    payload: Dict[str, Any] = Field(description="The JSON payload sent to the webhook's endpoint")
+    event_id: Optional[StrictStr] = Field(default=None, description="Unique identifier of the event that triggered this delivery")
+    attempt_number: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, description="Which attempt this was for the event, starting at 1. Failed deliveries are retried.")
+    payload: Optional[Dict[str, Any]] = Field(default=None, description="The JSON payload sent to the webhook's endpoint")
     status_code: Optional[StrictInt] = Field(default=None, description="HTTP status code returned by the endpoint. `null` when no response was received.")
     error_message: Optional[StrictStr] = Field(default=None, description="Why the delivery failed. `null` for successful deliveries.")
-    created_at: datetime = Field(description="Timestamp for when the delivery was attempted")
+    created_at: Optional[datetime] = Field(default=None, description="Timestamp for when the delivery was attempted")
     __properties: ClassVar[List[str]] = ["event_id", "attempt_number", "payload", "status_code", "error_message", "created_at"]
 
     model_config = ConfigDict(
@@ -97,14 +97,14 @@ class WebhookDeliveryAttempt(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "event_id": obj.get("event_id"),
             "attempt_number": obj.get("attempt_number"),
             "payload": obj.get("payload"),
             "status_code": obj.get("status_code"),
             "error_message": obj.get("error_message"),
             "created_at": obj.get("created_at")
-        })
+        }.items() if key in obj})
         return _obj
 
 

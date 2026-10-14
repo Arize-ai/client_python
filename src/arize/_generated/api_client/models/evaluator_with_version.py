@@ -29,15 +29,15 @@ class EvaluatorWithVersion(BaseModel):
     """
     EvaluatorWithVersion
     """ # noqa: E501
-    id: StrictStr = Field(description="The unique identifier for the evaluator")
-    name: StrictStr = Field(description="The name of the evaluator")
+    id: Optional[StrictStr] = Field(default=None, description="The unique identifier for the evaluator")
+    name: Optional[StrictStr] = Field(default=None, description="The name of the evaluator")
     description: Optional[StrictStr] = Field(default=None, description="The description of the evaluator")
-    type: EvaluatorType
-    space_id: StrictStr = Field(description="The unique identifier for the space the evaluator belongs to")
-    created_at: datetime = Field(description="When the evaluator was created")
-    updated_at: datetime = Field(description="When the evaluator was last updated")
-    created_by_user_id: Optional[StrictStr] = Field(description="The unique identifier for the user who created the evaluator")
-    version: EvaluatorVersion
+    type: Optional[EvaluatorType] = None
+    space_id: Optional[StrictStr] = Field(default=None, description="The unique identifier for the space the evaluator belongs to")
+    created_at: Optional[datetime] = Field(default=None, description="When the evaluator was created")
+    updated_at: Optional[datetime] = Field(default=None, description="When the evaluator was last updated")
+    created_by_user_id: Optional[StrictStr] = Field(default=None, description="The unique identifier for the user who created the evaluator")
+    version: Optional[EvaluatorVersion] = None
     __properties: ClassVar[List[str]] = ["id", "name", "description", "type", "space_id", "created_at", "updated_at", "created_by_user_id", "version"]
 
     model_config = ConfigDict(
@@ -104,7 +104,7 @@ class EvaluatorWithVersion(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "name": obj.get("name"),
             "description": obj.get("description"),
@@ -114,7 +114,7 @@ class EvaluatorWithVersion(BaseModel):
             "updated_at": obj.get("updated_at"),
             "created_by_user_id": obj.get("created_by_user_id"),
             "version": EvaluatorVersion.from_dict(obj["version"]) if obj.get("version") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

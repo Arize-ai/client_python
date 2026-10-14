@@ -39,6 +39,7 @@ from arize.utils.resolve import (
     _find_task_id,
     _resolve_resource,
 )
+from arize.utils.response import require_operation_value
 from arize.utils.unset import _UNSET, UNSET, is_provided
 
 if TYPE_CHECKING:
@@ -61,8 +62,15 @@ def _build_query_filters_input(
 ) -> TaskQueryFiltersInput:
     return TaskQueryFiltersInput(
         filters=[
-            TaskQueryFilterInput(id=f.id, filter=f.filter)
-            for f in query_filters.filters
+            TaskQueryFilterInput(
+                id=require_operation_value(f.id, field="query_filter.id"),
+                filter=require_operation_value(
+                    f.filter, field="query_filter.filter"
+                ),
+            )
+            for f in require_operation_value(
+                query_filters.filters, field="query_filters.filters"
+            )
         ],
         expression=query_filters.expression,
     )

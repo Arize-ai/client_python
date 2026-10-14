@@ -28,8 +28,8 @@ class ListAiIntegrationsResponse(BaseModel):
     """
     ListAiIntegrationsResponse
     """ # noqa: E501
-    ai_integrations: List[AiIntegration] = Field(description="A list of AI integrations")
-    pagination: PaginationMetadata
+    ai_integrations: Optional[List[AiIntegration]] = Field(default=None, description="A list of AI integrations")
+    pagination: Optional[PaginationMetadata] = None
     __properties: ClassVar[List[str]] = ["ai_integrations", "pagination"]
 
     model_config = ConfigDict(
@@ -93,10 +93,10 @@ class ListAiIntegrationsResponse(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "ai_integrations": [AiIntegration.from_dict(_item) for _item in obj["ai_integrations"]] if obj.get("ai_integrations") is not None else None,
             "pagination": PaginationMetadata.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

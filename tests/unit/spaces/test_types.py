@@ -143,7 +143,7 @@ class TestSpaceMembership:
     def test_coerce_role_unknown_raises(self) -> None:
         assignment = self._make_role_assignment(object())
 
-        with pytest.raises(TypeError, match="Unknown space role type"):
+        with pytest.raises(TypeError, match="Unknown role type"):
             SpaceMembership(
                 id="mem-2",
                 user_id="user-2",

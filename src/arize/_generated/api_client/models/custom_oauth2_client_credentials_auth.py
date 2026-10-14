@@ -26,17 +26,19 @@ class CustomOauth2ClientCredentialsAuth(BaseModel):
     """
     OAuth 2.0 client-credentials auth (RFC 6749 section 4.4). Arize exchanges the stored credentials at `token_url` for a short-lived bearer token and sends it as `Authorization: Bearer` on every request to the endpoint. The client secret is write-only and surfaces as `has_client_secret`.
     """ # noqa: E501
-    auth_type: StrictStr = Field(description="Discriminator identifying OAuth 2.0 client-credentials auth.")
-    token_url: StrictStr = Field(description="Token endpoint Arize exchanges the client credentials at.")
-    client_id: StrictStr = Field(description="OAuth client ID. Not a secret, so it is returned on read.")
-    has_client_secret: StrictBool = Field(description="Whether a client secret is configured (the secret itself is never returned).")
-    scopes: Optional[StrictStr] = Field(description="Space-separated scopes requested at the token endpoint. Null when not set.")
-    audience: Optional[StrictStr] = Field(description="Audience requested at the token endpoint. Null when not set.")
+    auth_type: Optional[StrictStr] = Field(default=None, description="Discriminator identifying OAuth 2.0 client-credentials auth.")
+    token_url: Optional[StrictStr] = Field(default=None, description="Token endpoint Arize exchanges the client credentials at.")
+    client_id: Optional[StrictStr] = Field(default=None, description="OAuth client ID. Not a secret, so it is returned on read.")
+    has_client_secret: Optional[StrictBool] = Field(default=None, description="Whether a client secret is configured (the secret itself is never returned).")
+    scopes: Optional[StrictStr] = Field(default=None, description="Space-separated scopes requested at the token endpoint. Null when not set.")
+    audience: Optional[StrictStr] = Field(default=None, description="Audience requested at the token endpoint. Null when not set.")
     __properties: ClassVar[List[str]] = ["auth_type", "token_url", "client_id", "has_client_secret", "scopes", "audience"]
 
     @field_validator('auth_type')
     def auth_type_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['OAUTH2_CLIENT_CREDENTIALS']):
             raise ValueError("must be one of enum values ('OAUTH2_CLIENT_CREDENTIALS')")
         return value
@@ -102,14 +104,14 @@ class CustomOauth2ClientCredentialsAuth(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "auth_type": obj.get("auth_type"),
             "token_url": obj.get("token_url"),
             "client_id": obj.get("client_id"),
             "has_client_secret": obj.get("has_client_secret"),
             "scopes": obj.get("scopes"),
             "audience": obj.get("audience")
-        })
+        }.items() if key in obj})
         return _obj
 
 

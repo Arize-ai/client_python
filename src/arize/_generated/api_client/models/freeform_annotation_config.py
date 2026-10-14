@@ -27,16 +27,18 @@ class FreeformAnnotationConfig(BaseModel):
     """
     FreeformAnnotationConfig
     """ # noqa: E501
-    id: StrictStr = Field(description="The unique identifier for the annotation config")
-    name: StrictStr = Field(description="The name of the annotation config")
-    created_at: datetime = Field(description="The timestamp for when the annotation config was created")
-    space_id: StrictStr = Field(description="The space id the annotation config belongs to")
-    type: StrictStr = Field(description="Discriminator value identifying a freeform annotation config.")
+    id: Optional[StrictStr] = Field(default=None, description="The unique identifier for the annotation config")
+    name: Optional[StrictStr] = Field(default=None, description="The name of the annotation config")
+    created_at: Optional[datetime] = Field(default=None, description="The timestamp for when the annotation config was created")
+    space_id: Optional[StrictStr] = Field(default=None, description="The space id the annotation config belongs to")
+    type: Optional[StrictStr] = Field(default=None, description="Discriminator value identifying a freeform annotation config.")
     __properties: ClassVar[List[str]] = ["id", "name", "created_at", "space_id", "type"]
 
     @field_validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['FREEFORM']):
             raise ValueError("must be one of enum values ('FREEFORM')")
         return value
@@ -92,13 +94,13 @@ class FreeformAnnotationConfig(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "name": obj.get("name"),
             "created_at": obj.get("created_at"),
             "space_id": obj.get("space_id"),
             "type": obj.get("type")
-        })
+        }.items() if key in obj})
         return _obj
 
 

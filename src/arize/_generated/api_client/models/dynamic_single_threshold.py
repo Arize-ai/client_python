@@ -28,15 +28,17 @@ class DynamicSingleThreshold(BaseModel):
     """
     DynamicSingleThreshold
     """ # noqa: E501
-    type: StrictStr = Field(description="Identifies this threshold as a single value derived from a statistical calculation.")
-    calculation: ThresholdCalculation
-    operator: ThresholdOperator
-    multiplier: Union[StrictFloat, StrictInt] = Field(description="The multiplier applied to the calculation (e.g. number of standard deviations) to derive the threshold. ")
+    type: Optional[StrictStr] = Field(default=None, description="Identifies this threshold as a single value derived from a statistical calculation.")
+    calculation: Optional[ThresholdCalculation] = None
+    operator: Optional[ThresholdOperator] = None
+    multiplier: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, description="The multiplier applied to the calculation (e.g. number of standard deviations) to derive the threshold. ")
     __properties: ClassVar[List[str]] = ["type", "calculation", "operator", "multiplier"]
 
     @field_validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['DYNAMIC_SINGLE']):
             raise ValueError("must be one of enum values ('DYNAMIC_SINGLE')")
         return value
@@ -92,12 +94,12 @@ class DynamicSingleThreshold(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "type": obj.get("type"),
             "calculation": obj.get("calculation"),
             "operator": obj.get("operator"),
             "multiplier": obj.get("multiplier")
-        })
+        }.items() if key in obj})
         return _obj
 
 

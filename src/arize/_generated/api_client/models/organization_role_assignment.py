@@ -86,31 +86,13 @@ class OrganizationRoleAssignment(BaseModel):
     @classmethod
     def from_json(cls, json_str: str) -> Self:
         """Returns the object represented by the json string"""
-        instance = cls.model_construct()
-        error_messages = []
-        match = 0
-
-        # deserialize data into OrganizationPredefinedRoleAssignment
-        try:
-            instance.actual_instance = OrganizationPredefinedRoleAssignment.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-        # deserialize data into OrganizationCustomRoleAssignment
-        try:
-            instance.actual_instance = OrganizationCustomRoleAssignment.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-
-        if match > 1:
-            # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into OrganizationRoleAssignment with oneOf schemas: OrganizationCustomRoleAssignment, OrganizationPredefinedRoleAssignment. Details: " + ", ".join(error_messages))
-        elif match == 0:
-            # no match
-            raise ValueError("No match found when deserializing the JSON string into OrganizationRoleAssignment with oneOf schemas: OrganizationCustomRoleAssignment, OrganizationPredefinedRoleAssignment. Details: " + ", ".join(error_messages))
-        else:
-            return instance
+        payload = json.loads(json_str)
+        if isinstance(payload, dict) and 'type' in payload:
+            if payload['type'] == 'PREDEFINED':
+                return cls(actual_instance=OrganizationPredefinedRoleAssignment.from_dict(payload))
+            if payload['type'] == 'CUSTOM':
+                return cls(actual_instance=OrganizationCustomRoleAssignment.from_dict(payload))
+        raise ValueError('Cannot identify OrganizationRoleAssignment response: expected a supported type value')
 
     def to_json(self) -> str:
         """Returns the JSON representation of the actual instance"""

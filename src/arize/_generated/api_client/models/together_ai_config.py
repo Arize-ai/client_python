@@ -26,17 +26,19 @@ class TogetherAiConfig(BaseModel):
     """
     Config for a Together AI integration. Together AI is a single hosted service, so there is no endpoint field and no custom request headers. The API key is write-only and surfaces as `has_api_key`. `model_names` lists only the model names configured on this integration; models resolved live from the Together AI account are served through the Arize UI and are not returned here.
     """ # noqa: E501
-    is_function_calling_enabled: StrictBool = Field(description="Whether function/tool calling is enabled.")
-    provider: StrictStr = Field(description="Discriminator identifying the Together AI provider.")
-    has_api_key: StrictBool = Field(description="Whether an API key is configured (the key itself is never returned).")
-    is_default_models_enabled: StrictBool = Field(description="Whether Arize's default model catalog is enabled.")
-    model_names: List[StrictStr] = Field(description="Custom model names configured on this integration. Empty when none.")
+    is_function_calling_enabled: Optional[StrictBool] = Field(default=None, description="Whether function/tool calling is enabled.")
+    provider: Optional[StrictStr] = Field(default=None, description="Discriminator identifying the Together AI provider.")
+    has_api_key: Optional[StrictBool] = Field(default=None, description="Whether an API key is configured (the key itself is never returned).")
+    is_default_models_enabled: Optional[StrictBool] = Field(default=None, description="Whether Arize's default model catalog is enabled.")
+    model_names: Optional[List[StrictStr]] = Field(default=None, description="Custom model names configured on this integration. Empty when none.")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["is_function_calling_enabled", "provider", "has_api_key", "is_default_models_enabled", "model_names"]
 
     @field_validator('provider')
     def provider_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['TOGETHER_AI']):
             raise ValueError("must be one of enum values ('TOGETHER_AI')")
         return value
@@ -98,13 +100,13 @@ class TogetherAiConfig(BaseModel):
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "is_function_calling_enabled": obj.get("is_function_calling_enabled"),
             "provider": obj.get("provider"),
             "has_api_key": obj.get("has_api_key"),
             "is_default_models_enabled": obj.get("is_default_models_enabled"),
             "model_names": obj.get("model_names")
-        })
+        }.items() if key in obj})
         # store additional fields in additional_properties
         for _key in obj.keys():
             if _key not in cls.__properties:

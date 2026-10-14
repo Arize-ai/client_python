@@ -29,17 +29,17 @@ class RefreshApiKeyResponse(BaseModel):
     """
     The refreshed API key credential and its metadata. Refresh replaces the key secret but preserves the key's identity (ID, name, type, bindings). Unlike key creation, refresh does **not** return `bot_user` details — refresh never creates a new service account and the existing bot user's bindings are unchanged. 
     """ # noqa: E501
-    id: StrictStr = Field(description="Unique identifier for the API key.")
-    name: StrictStr = Field(description="User-defined name for the API key.")
+    id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the API key.")
+    name: Optional[StrictStr] = Field(default=None, description="User-defined name for the API key.")
     description: Optional[StrictStr] = Field(default=None, description="Optional user-defined description for the API key.")
-    key_type: ApiKeyType
-    status: ApiKeyStatus
-    redacted_key: StrictStr = Field(description="Redacted version of the key suitable for display (e.g., \"ak-abc...xyz\").")
-    created_at: datetime = Field(description="Timestamp when the key was created.")
+    key_type: Optional[ApiKeyType] = None
+    status: Optional[ApiKeyStatus] = None
+    redacted_key: Optional[StrictStr] = Field(default=None, description="Redacted version of the key suitable for display (e.g., \"ak-abc...xyz\").")
+    created_at: Optional[datetime] = Field(default=None, description="Timestamp when the key was created.")
     expires_at: Optional[datetime] = Field(default=None, description="Optional timestamp when the key will expire.")
-    created_by_user_id: StrictStr = Field(description="ID of the user who created the key.")
+    created_by_user_id: Optional[StrictStr] = Field(default=None, description="ID of the user who created the key.")
     last_used_at: Optional[datetime] = Field(default=None, description="Approximate timestamp when the key was last used for authentication. This value is periodically updated and may not reflect the most recent usage.")
-    key: StrictStr = Field(description="The full replacement API key value. **Only returned once** during refresh. Store it securely — it cannot be retrieved again. ")
+    key: Optional[StrictStr] = Field(default=None, description="The full replacement API key value. **Only returned once** during refresh. Store it securely — it cannot be retrieved again. ")
     __properties: ClassVar[List[str]] = ["id", "name", "description", "key_type", "status", "redacted_key", "created_at", "expires_at", "created_by_user_id", "last_used_at", "key"]
 
     model_config = ConfigDict(
@@ -93,7 +93,7 @@ class RefreshApiKeyResponse(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "name": obj.get("name"),
             "description": obj.get("description"),
@@ -105,7 +105,7 @@ class RefreshApiKeyResponse(BaseModel):
             "created_by_user_id": obj.get("created_by_user_id"),
             "last_used_at": obj.get("last_used_at"),
             "key": obj.get("key")
-        })
+        }.items() if key in obj})
         return _obj
 
 

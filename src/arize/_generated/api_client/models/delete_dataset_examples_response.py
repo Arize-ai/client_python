@@ -26,9 +26,9 @@ class DeleteDatasetExamplesResponse(BaseModel):
     """
     Result of a DELETE dataset examples request.  The delete is partial-tolerant: examples that exist in the selected version are deleted, and every requested ID that was not deleted is reported in `not_deleted_example_ids` so the caller can act on it.  A `200 OK` response always includes: - `completed` — `true` if the operation finished and no retry is needed;   `false` if it could not fully complete (retry the full request). - `deleted_example_ids` — example IDs confirmed deleted in this request. - `not_deleted_example_ids` — requested IDs not deleted: either not found in   the selected version (never added, or already deleted), or whose deletion   did not complete when `completed` is `false`. 
     """ # noqa: E501
-    completed: StrictBool = Field(description="`true` when the operation finished and no retry is needed. `false` when the operation could not fully complete — retry the original full request (the delete is idempotent). ")
-    deleted_example_ids: List[StrictStr] = Field(description="Example IDs confirmed deleted in this request.")
-    not_deleted_example_ids: List[StrictStr] = Field(description="Requested example IDs that were not deleted: either not found in the selected version (never added, or already deleted), or whose deletion did not complete when `completed` is `false`. ")
+    completed: Optional[StrictBool] = Field(default=None, description="`true` when the operation finished and no retry is needed. `false` when the operation could not fully complete — retry the original full request (the delete is idempotent). ")
+    deleted_example_ids: Optional[List[StrictStr]] = Field(default=None, description="Example IDs confirmed deleted in this request.")
+    not_deleted_example_ids: Optional[List[StrictStr]] = Field(default=None, description="Requested example IDs that were not deleted: either not found in the selected version (never added, or already deleted), or whose deletion did not complete when `completed` is `false`. ")
     __properties: ClassVar[List[str]] = ["completed", "deleted_example_ids", "not_deleted_example_ids"]
 
     model_config = ConfigDict(
@@ -82,11 +82,11 @@ class DeleteDatasetExamplesResponse(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "completed": obj.get("completed"),
             "deleted_example_ids": obj.get("deleted_example_ids"),
             "not_deleted_example_ids": obj.get("not_deleted_example_ids")
-        })
+        }.items() if key in obj})
         return _obj
 
 

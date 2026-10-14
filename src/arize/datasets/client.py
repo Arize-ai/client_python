@@ -41,6 +41,7 @@ from arize.utils.resolve import (
     _find_space_id,
     _resolve_resource,
 )
+from arize.utils.response import require_operation_value
 from arize.utils.size import to_json_records_within
 
 if TYPE_CHECKING:
@@ -455,7 +456,9 @@ class DatasetsClient:
         dataset_updated_at = getattr(dataset_obj, "updated_at", None)
         # TODO(Kiko): Space ID should not be needed,
         # should work on server tech debt to remove this
-        space_id = dataset_obj.space_id
+        space_id = require_operation_value(
+            dataset_obj.space_id, field="dataset.space_id"
+        )
 
         dataset_df = None
         # try to load dataset from cache
@@ -557,7 +560,9 @@ class DatasetsClient:
             dataset=dataset,
             space=space,
         )
-        space_id = self.get(dataset=dataset_id).space_id
+        space_id = require_operation_value(
+            self.get(dataset=dataset_id).space_id, field="dataset.space_id"
+        )
 
         with ArizeFlightClient(sdk_config=self._sdk_config) as flight_client:
             flight_client.export_dataset_examples_to_parquet(

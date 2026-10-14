@@ -28,8 +28,8 @@ class OrganizationPredefinedRoleAssignment(BaseModel):
     """
     A predefined organization role assignment.
     """ # noqa: E501
-    type: OrganizationRoleAssignmentType = Field(description="Discriminator identifying this as a predefined role assignment. Always `PREDEFINED` for this variant.")
-    name: OrganizationRole
+    type: Optional[OrganizationRoleAssignmentType] = Field(default=None, description="Discriminator identifying this as a predefined role assignment. Always `PREDEFINED` for this variant.")
+    name: Optional[OrganizationRole] = None
     __properties: ClassVar[List[str]] = ["type", "name"]
 
     model_config = ConfigDict(
@@ -83,10 +83,10 @@ class OrganizationPredefinedRoleAssignment(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "type": obj.get("type"),
             "name": obj.get("name")
-        })
+        }.items() if key in obj})
         return _obj
 
 

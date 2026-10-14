@@ -26,13 +26,15 @@ class IntegrationNotificationConfig(BaseModel):
     """
     IntegrationNotificationConfig
     """ # noqa: E501
-    type: StrictStr = Field(description="Identifies this notification channel as a connected integration.")
-    integration_id: StrictStr = Field(description="The integration to notify (base64 global ID).")
+    type: Optional[StrictStr] = Field(default=None, description="Identifies this notification channel as a connected integration.")
+    integration_id: Optional[StrictStr] = Field(default=None, description="The integration to notify (base64 global ID).")
     __properties: ClassVar[List[str]] = ["type", "integration_id"]
 
     @field_validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['INTEGRATION']):
             raise ValueError("must be one of enum values ('INTEGRATION')")
         return value
@@ -88,10 +90,10 @@ class IntegrationNotificationConfig(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "type": obj.get("type"),
             "integration_id": obj.get("integration_id")
-        })
+        }.items() if key in obj})
         return _obj
 
 

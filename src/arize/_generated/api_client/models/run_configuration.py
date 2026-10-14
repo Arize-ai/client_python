@@ -94,37 +94,15 @@ class RunConfiguration(BaseModel):
     @classmethod
     def from_json(cls, json_str: str) -> Self:
         """Returns the object represented by the json string"""
-        instance = cls.model_construct()
-        error_messages = []
-        match = 0
-
-        # deserialize data into LlmGenerationRunConfig
-        try:
-            instance.actual_instance = LlmGenerationRunConfig.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-        # deserialize data into TemplateEvaluationRunConfig
-        try:
-            instance.actual_instance = TemplateEvaluationRunConfig.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-        # deserialize data into AgentCallRunConfig
-        try:
-            instance.actual_instance = AgentCallRunConfig.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-
-        if match > 1:
-            # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into RunConfiguration with oneOf schemas: AgentCallRunConfig, LlmGenerationRunConfig, TemplateEvaluationRunConfig. Details: " + ", ".join(error_messages))
-        elif match == 0:
-            # no match
-            raise ValueError("No match found when deserializing the JSON string into RunConfiguration with oneOf schemas: AgentCallRunConfig, LlmGenerationRunConfig, TemplateEvaluationRunConfig. Details: " + ", ".join(error_messages))
-        else:
-            return instance
+        payload = json.loads(json_str)
+        if isinstance(payload, dict) and 'experiment_type' in payload:
+            if payload['experiment_type'] == 'LLM_GENERATION':
+                return cls(actual_instance=LlmGenerationRunConfig.from_dict(payload))
+            if payload['experiment_type'] == 'TEMPLATE_EVALUATION':
+                return cls(actual_instance=TemplateEvaluationRunConfig.from_dict(payload))
+            if payload['experiment_type'] == 'AGENT_CALL':
+                return cls(actual_instance=AgentCallRunConfig.from_dict(payload))
+        raise ValueError('Cannot identify RunConfiguration response: expected a supported experiment_type value')
 
     def to_json(self) -> str:
         """Returns the JSON representation of the actual instance"""

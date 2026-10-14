@@ -26,16 +26,18 @@ class VertexAiConfig(BaseModel):
     """
     Config for a Google Vertex AI integration. Vertex stores no credentials: Arize accesses Vertex through the configured GCP project. All fields are returned on read.
     """ # noqa: E501
-    provider: StrictStr = Field(description="Discriminator identifying the Vertex AI provider.")
-    project_id: StrictStr = Field(description="GCP project ID Arize accesses Vertex through.")
-    location: StrictStr = Field(description="GCP region (e.g. us-central1).")
-    project_access_label: StrictStr = Field(description="Label used to verify Arize's access to the GCP project.")
+    provider: Optional[StrictStr] = Field(default=None, description="Discriminator identifying the Vertex AI provider.")
+    project_id: Optional[StrictStr] = Field(default=None, description="GCP project ID Arize accesses Vertex through.")
+    location: Optional[StrictStr] = Field(default=None, description="GCP region (e.g. us-central1).")
+    project_access_label: Optional[StrictStr] = Field(default=None, description="Label used to verify Arize's access to the GCP project.")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["provider", "project_id", "location", "project_access_label"]
 
     @field_validator('provider')
     def provider_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['VERTEX_AI']):
             raise ValueError("must be one of enum values ('VERTEX_AI')")
         return value
@@ -97,12 +99,12 @@ class VertexAiConfig(BaseModel):
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "provider": obj.get("provider"),
             "project_id": obj.get("project_id"),
             "location": obj.get("location"),
             "project_access_label": obj.get("project_access_label")
-        })
+        }.items() if key in obj})
         # store additional fields in additional_properties
         for _key in obj.keys():
             if _key not in cls.__properties:

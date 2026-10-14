@@ -26,9 +26,9 @@ class DeleteSpansResponse(BaseModel):
     """
     Result of a DELETE /v2/spans request.  `deleted_span_ids` lists every span ID confirmed deleted. `not_deleted_span_ids` lists every requested span ID that was **not** deleted.  `completed` indicates whether the server fully processed all data for the request — **not** whether all spans were found and deleted. A span may appear in `not_deleted_span_ids` even when `completed` is `true` if it was not found in the system (never ingested or already deleted).  When `completed` is `true`, every requested ID appears in exactly one of `deleted_span_ids` or `not_deleted_span_ids`. No retry is needed.  When `completed` is `false`, the server could not fully process all data. Some IDs in `not_deleted_span_ids` may still be deletable — retry the original full request to resolve them. The delete is idempotent. 
     """ # noqa: E501
-    completed: StrictBool = Field(description="`true` when the server fully processed all data for the request — both lists are complete and no retry is needed. `false` when processing could not fully complete; retry the original request. Note: `completed` reflects whether all data was processed, not whether all requested spans existed. ")
-    deleted_span_ids: List[StrictStr] = Field(description="Span IDs confirmed deleted in this request.")
-    not_deleted_span_ids: List[StrictStr] = Field(description="Requested span IDs that were not deleted. When `completed` is `true`, these were not found in the system (never ingested or already deleted). When `completed` is `false`, some IDs may not have been reached — retry to resolve them. ")
+    completed: Optional[StrictBool] = Field(default=None, description="`true` when the server fully processed all data for the request — both lists are complete and no retry is needed. `false` when processing could not fully complete; retry the original request. Note: `completed` reflects whether all data was processed, not whether all requested spans existed. ")
+    deleted_span_ids: Optional[List[StrictStr]] = Field(default=None, description="Span IDs confirmed deleted in this request.")
+    not_deleted_span_ids: Optional[List[StrictStr]] = Field(default=None, description="Requested span IDs that were not deleted. When `completed` is `true`, these were not found in the system (never ingested or already deleted). When `completed` is `false`, some IDs may not have been reached — retry to resolve them. ")
     __properties: ClassVar[List[str]] = ["completed", "deleted_span_ids", "not_deleted_span_ids"]
 
     model_config = ConfigDict(
@@ -82,11 +82,11 @@ class DeleteSpansResponse(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "completed": obj.get("completed"),
             "deleted_span_ids": obj.get("deleted_span_ids"),
             "not_deleted_span_ids": obj.get("not_deleted_span_ids")
-        })
+        }.items() if key in obj})
         return _obj
 
 

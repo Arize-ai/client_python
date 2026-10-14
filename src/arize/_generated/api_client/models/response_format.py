@@ -86,10 +86,10 @@ class ResponseFormat(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "type": obj.get("type"),
             "json_schema": JsonSchemaConfig.from_dict(obj["json_schema"]) if obj.get("json_schema") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

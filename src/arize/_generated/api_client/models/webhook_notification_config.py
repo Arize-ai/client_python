@@ -26,14 +26,16 @@ class WebhookNotificationConfig(BaseModel):
     """
     WebhookNotificationConfig
     """ # noqa: E501
-    type: StrictStr = Field(description="Identifies this notification channel as a webhook.")
-    id: StrictStr = Field(description="The webhook to notify (base64 global ID).")
+    type: Optional[StrictStr] = Field(default=None, description="Identifies this notification channel as a webhook.")
+    id: Optional[StrictStr] = Field(default=None, description="The webhook to notify (base64 global ID).")
     url: Optional[StrictStr] = Field(default=None, description="The webhook endpoint URL.")
     __properties: ClassVar[List[str]] = ["type", "id", "url"]
 
     @field_validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['WEBHOOK']):
             raise ValueError("must be one of enum values ('WEBHOOK')")
         return value
@@ -94,11 +96,11 @@ class WebhookNotificationConfig(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "type": obj.get("type"),
             "id": obj.get("id"),
             "url": obj.get("url")
-        })
+        }.items() if key in obj})
         return _obj
 
 

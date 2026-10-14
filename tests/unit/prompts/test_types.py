@@ -294,10 +294,16 @@ class TestPromptVersionStr:
 class TestPromptWithVersion:
     """Tests for PromptWithVersion."""
 
-    def test_version_field_is_prompt_version_subclass(self) -> None:
-        """The version field annotation should be our SDK PromptVersion."""
+    def test_version_field_is_nullable_prompt_version(self) -> None:
+        """The response field retains the SDK version type and allows None."""
         annotation = PromptWithVersion.model_fields["version"].annotation
-        assert annotation is PromptVersion
+        assert annotation == PromptVersion | None
+
+    @pytest.mark.parametrize("payload", [{}, {"version": None}])
+    def test_missing_or_null_version_is_none(self, payload: dict) -> None:
+        """A response can omit its version without a validation error."""
+        prompt = PromptWithVersion.model_validate(payload)
+        assert prompt.version is None
 
     def test_version_accessible_as_prompt_version(self) -> None:
         pv = _make_version(commit_message="test")

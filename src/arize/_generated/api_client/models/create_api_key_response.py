@@ -86,31 +86,13 @@ class CreateApiKeyResponse(BaseModel):
     @classmethod
     def from_json(cls, json_str: str) -> Self:
         """Returns the object represented by the json string"""
-        instance = cls.model_construct()
-        error_messages = []
-        match = 0
-
-        # deserialize data into CreatedUserApiKey
-        try:
-            instance.actual_instance = CreatedUserApiKey.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-        # deserialize data into CreatedServiceApiKey
-        try:
-            instance.actual_instance = CreatedServiceApiKey.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-
-        if match > 1:
-            # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into CreateApiKeyResponse with oneOf schemas: CreatedServiceApiKey, CreatedUserApiKey. Details: " + ", ".join(error_messages))
-        elif match == 0:
-            # no match
-            raise ValueError("No match found when deserializing the JSON string into CreateApiKeyResponse with oneOf schemas: CreatedServiceApiKey, CreatedUserApiKey. Details: " + ", ".join(error_messages))
-        else:
-            return instance
+        payload = json.loads(json_str)
+        if isinstance(payload, dict) and 'key_type' in payload:
+            if payload['key_type'] == 'USER':
+                return cls(actual_instance=CreatedUserApiKey.from_dict(payload))
+            if payload['key_type'] == 'SERVICE':
+                return cls(actual_instance=CreatedServiceApiKey.from_dict(payload))
+        raise ValueError('Cannot identify CreateApiKeyResponse response: expected a supported key_type value')
 
     def to_json(self) -> str:
         """Returns the JSON representation of the actual instance"""

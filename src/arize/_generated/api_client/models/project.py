@@ -28,10 +28,10 @@ class Project(BaseModel):
     """
     A project represents an LLM application and serves as the primary container for observability data. Each project collects traces and spans that capture the execution flow of your application, enabling you to debug issues, monitor latency, and analyze token usage. Projects belong to a space and provide a centralized view of your application's performance. Use projects to organize related traces, run experiments against datasets, and track improvements over time. 
     """ # noqa: E501
-    id: StrictStr = Field(description="The project ID")
-    name: StrictStr = Field(description="The project name")
-    space_id: StrictStr = Field(description="The space ID the project belongs to")
-    created_at: datetime = Field(description="When the project was created")
+    id: Optional[StrictStr] = Field(default=None, description="The project ID")
+    name: Optional[StrictStr] = Field(default=None, description="The project name")
+    space_id: Optional[StrictStr] = Field(default=None, description="The space ID the project belongs to")
+    created_at: Optional[datetime] = Field(default=None, description="When the project was created")
     project_type: Optional[ProjectType] = Field(default=None, description="The project type for generative LLM projects. Null for projects that have not been assigned a type. ")
     __properties: ClassVar[List[str]] = ["id", "name", "space_id", "created_at", "project_type"]
 
@@ -91,13 +91,13 @@ class Project(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "name": obj.get("name"),
             "space_id": obj.get("space_id"),
             "created_at": obj.get("created_at"),
             "project_type": obj.get("project_type")
-        })
+        }.items() if key in obj})
         return _obj
 
 

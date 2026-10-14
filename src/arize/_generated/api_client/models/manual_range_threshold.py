@@ -27,14 +27,16 @@ class ManualRangeThreshold(BaseModel):
     """
     ManualRangeThreshold
     """ # noqa: E501
-    type: StrictStr = Field(description="Identifies this threshold as a manually-set lower/upper bound range.")
-    lower: ManualThresholdBound = Field(description="The lower bound of the range. Its operator must be `GREATER_THAN` or `GREATER_THAN_OR_EQUAL`. ")
-    upper: ManualThresholdBound = Field(description="The upper bound of the range. Its `operator` must be `LESS_THAN` or `LESS_THAN_OR_EQUAL`. ")
+    type: Optional[StrictStr] = Field(default=None, description="Identifies this threshold as a manually-set lower/upper bound range.")
+    lower: Optional[ManualThresholdBound] = Field(default=None, description="The lower bound of the range. Its operator must be `GREATER_THAN` or `GREATER_THAN_OR_EQUAL`. ")
+    upper: Optional[ManualThresholdBound] = Field(default=None, description="The upper bound of the range. Its `operator` must be `LESS_THAN` or `LESS_THAN_OR_EQUAL`. ")
     __properties: ClassVar[List[str]] = ["type", "lower", "upper"]
 
     @field_validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['MANUAL_RANGE']):
             raise ValueError("must be one of enum values ('MANUAL_RANGE')")
         return value
@@ -96,11 +98,11 @@ class ManualRangeThreshold(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "type": obj.get("type"),
             "lower": ManualThresholdBound.from_dict(obj["lower"]) if obj.get("lower") is not None else None,
             "upper": ManualThresholdBound.from_dict(obj["upper"]) if obj.get("upper") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

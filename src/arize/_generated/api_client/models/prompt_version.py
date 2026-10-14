@@ -32,18 +32,18 @@ class PromptVersion(BaseModel):
     """
     A prompt version represents a specific snapshot of a prompt's configuration. Each version captures the messages, model settings, and parameters at a point in time. Versions are immutable once created and are identified by a commit hash. 
     """ # noqa: E501
-    id: StrictStr = Field(description="The prompt version ID")
-    prompt_id: StrictStr = Field(description="The prompt ID this version belongs to")
-    commit_hash: StrictStr = Field(description="The commit hash of this version")
-    commit_message: StrictStr = Field(description="The commit message describing the changes in this version")
-    messages: List[LLMMessage] = Field(description="The messages that make up the prompt template")
-    input_variable_format: InputVariableFormat
-    provider: LlmProvider
-    model: StrictStr = Field(description="The model to use for the call")
+    id: Optional[StrictStr] = Field(default=None, description="The prompt version ID")
+    prompt_id: Optional[StrictStr] = Field(default=None, description="The prompt ID this version belongs to")
+    commit_hash: Optional[StrictStr] = Field(default=None, description="The commit hash of this version")
+    commit_message: Optional[StrictStr] = Field(default=None, description="The commit message describing the changes in this version")
+    messages: Optional[List[LLMMessage]] = Field(default=None, description="The messages that make up the prompt template")
+    input_variable_format: Optional[InputVariableFormat] = None
+    provider: Optional[LlmProvider] = None
+    model: Optional[StrictStr] = Field(default=None, description="The model to use for the call")
     invocation_params: Optional[InvocationParams] = Field(default=None, description="LLM invocation parameters for this version. When absent, no invocation parameters were set on this version.")
     provider_params: Optional[ProviderParams] = Field(default=None, description="Provider-specific parameters for this version. When absent, no provider-specific parameters were set on this version.")
-    created_at: datetime = Field(description="When the version was created")
-    created_by_user_id: StrictStr = Field(description="The user ID of the user who created this version")
+    created_at: Optional[datetime] = Field(default=None, description="When the version was created")
+    created_by_user_id: Optional[StrictStr] = Field(default=None, description="The user ID of the user who created this version")
     labels: Optional[List[StrictStr]] = Field(default=None, description="Label names currently pointing to this version (e.g., \"production\", \"staging\"). Labels are case-sensitive.")
     __properties: ClassVar[List[str]] = ["id", "prompt_id", "commit_hash", "commit_message", "messages", "input_variable_format", "provider", "model", "invocation_params", "provider_params", "created_at", "created_by_user_id", "labels"]
 
@@ -111,7 +111,7 @@ class PromptVersion(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "prompt_id": obj.get("prompt_id"),
             "commit_hash": obj.get("commit_hash"),
@@ -125,7 +125,7 @@ class PromptVersion(BaseModel):
             "created_at": obj.get("created_at"),
             "created_by_user_id": obj.get("created_by_user_id"),
             "labels": obj.get("labels")
-        })
+        }.items() if key in obj})
         return _obj
 
 

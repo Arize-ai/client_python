@@ -86,31 +86,13 @@ class ProviderMetadata(BaseModel):
     @classmethod
     def from_json(cls, json_str: str) -> Self:
         """Returns the object represented by the json string"""
-        instance = cls.model_construct()
-        error_messages = []
-        match = 0
-
-        # deserialize data into AwsProviderMetadata
-        try:
-            instance.actual_instance = AwsProviderMetadata.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-        # deserialize data into GcpProviderMetadata
-        try:
-            instance.actual_instance = GcpProviderMetadata.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-
-        if match > 1:
-            # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into ProviderMetadata with oneOf schemas: AwsProviderMetadata, GcpProviderMetadata. Details: " + ", ".join(error_messages))
-        elif match == 0:
-            # no match
-            raise ValueError("No match found when deserializing the JSON string into ProviderMetadata with oneOf schemas: AwsProviderMetadata, GcpProviderMetadata. Details: " + ", ".join(error_messages))
-        else:
-            return instance
+        payload = json.loads(json_str)
+        if isinstance(payload, dict) and 'kind' in payload:
+            if payload['kind'] == 'AWS':
+                return cls(actual_instance=AwsProviderMetadata.from_dict(payload))
+            if payload['kind'] == 'GCP':
+                return cls(actual_instance=GcpProviderMetadata.from_dict(payload))
+        raise ValueError('Cannot identify ProviderMetadata response: expected a supported kind value')
 
     def to_json(self) -> str:
         """Returns the JSON representation of the actual instance"""

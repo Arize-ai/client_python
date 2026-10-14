@@ -28,9 +28,9 @@ class StaticParam(BaseModel):
     """
     StaticParam
     """ # noqa: E501
-    name: StrictStr = Field(description="Parameter name (matches the managed evaluator's argument name)")
-    type: StaticParamType
-    default_value: StaticParamDefaultValue
+    name: Optional[StrictStr] = Field(default=None, description="Parameter name (matches the managed evaluator's argument name)")
+    type: Optional[StaticParamType] = None
+    default_value: Optional[StaticParamDefaultValue] = None
     __properties: ClassVar[List[str]] = ["name", "type", "default_value"]
 
     model_config = ConfigDict(
@@ -87,11 +87,11 @@ class StaticParam(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "name": obj.get("name"),
             "type": obj.get("type"),
             "default_value": StaticParamDefaultValue.from_dict(obj["default_value"]) if obj.get("default_value") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

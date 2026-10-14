@@ -30,14 +30,14 @@ class CreateUserResponse(BaseModel):
     """
     CreateUserResponse
     """ # noqa: E501
-    id: StrictStr = Field(description="Unique identifier for the user")
-    name: StrictStr = Field(description="Full name of the user")
-    email: StrictStr = Field(description="Email address of the user")
-    role: UserRoleAssignment
-    created_at: datetime = Field(description="Timestamp for when the user was created")
-    status: UserStatus
-    is_developer: StrictBool = Field(description="Whether the user has developer permissions (can use the Arize API)")
-    invite_mode: InviteMode = Field(description="The invite mode used when the user was created.")
+    id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the user")
+    name: Optional[StrictStr] = Field(default=None, description="Full name of the user")
+    email: Optional[StrictStr] = Field(default=None, description="Email address of the user")
+    role: Optional[UserRoleAssignment] = None
+    created_at: Optional[datetime] = Field(default=None, description="Timestamp for when the user was created")
+    status: Optional[UserStatus] = None
+    is_developer: Optional[StrictBool] = Field(default=None, description="Whether the user has developer permissions (can use the Arize API)")
+    invite_mode: Optional[InviteMode] = Field(default=None, description="The invite mode used when the user was created.")
     temporary_password: Optional[SecretStr] = Field(default=None, description="Temporary password issued when `invite_mode` is `TEMPORARY_PASSWORD`. Only present in the `POST /v2/users` 201 Created response.  **Security notice:** this value is returned in the JSON response body (not out-of-band). Callers must treat it as a secret: avoid logging the full response, ensure transport is TLS-only, and instruct the user to change the password on first login. ")
     __properties: ClassVar[List[str]] = ["id", "name", "email", "role", "created_at", "status", "is_developer", "invite_mode", "temporary_password"]
 
@@ -95,7 +95,7 @@ class CreateUserResponse(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "name": obj.get("name"),
             "email": obj.get("email"),
@@ -105,7 +105,7 @@ class CreateUserResponse(BaseModel):
             "is_developer": obj.get("is_developer"),
             "invite_mode": obj.get("invite_mode"),
             "temporary_password": obj.get("temporary_password")
-        })
+        }.items() if key in obj})
         return _obj
 
 

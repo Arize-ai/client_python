@@ -27,11 +27,11 @@ class TaskEvaluator(BaseModel):
     """
     TaskEvaluator
     """ # noqa: E501
-    evaluator_id: StrictStr = Field(description="Evaluator identifier (base64).")
-    evaluator_name: StrictStr = Field(description="The name of the attached evaluator.")
-    evaluator_version_id: Optional[StrictStr] = Field(description="The evaluator version this attachment is pinned to (base64). Null is the default and means the attachment is not pinned, so it runs the evaluator's latest version. ")
-    query_filter: Optional[StrictStr] = Field(description="Per-evaluator query filter, combined with the task-level filter (AND). Span-granularity shape only; null for trace/session evaluators. ")
-    column_mappings: Optional[Dict[str, StrictStr]] = Field(description="Maps evaluator template variable names to data source column names. Span-granularity shape only; null for trace/session evaluators (which use `query_mappings`). ")
+    evaluator_id: Optional[StrictStr] = Field(default=None, description="Evaluator identifier (base64).")
+    evaluator_name: Optional[StrictStr] = Field(default=None, description="The name of the attached evaluator.")
+    evaluator_version_id: Optional[StrictStr] = Field(default=None, description="The evaluator version this attachment is pinned to (base64). Null is the default and means the attachment is not pinned, so it runs the evaluator's latest version. ")
+    query_filter: Optional[StrictStr] = Field(default=None, description="Per-evaluator query filter, combined with the task-level filter (AND). Span-granularity shape only; null for trace/session evaluators. ")
+    column_mappings: Optional[Dict[str, StrictStr]] = Field(default=None, description="Maps evaluator template variable names to data source column names. Span-granularity shape only; null for trace/session evaluators (which use `query_mappings`). ")
     query_mappings: Optional[List[TaskQueryMapping]] = Field(default=None, description="Maps each evaluator variable to one or more declared query ids plus an attribute path, for trace/session evaluators. Present only on trace/session tasks; null on span tasks (which use `column_mappings`). ")
     __properties: ClassVar[List[str]] = ["evaluator_id", "evaluator_name", "evaluator_version_id", "query_filter", "column_mappings", "query_mappings"]
 
@@ -113,14 +113,14 @@ class TaskEvaluator(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "evaluator_id": obj.get("evaluator_id"),
             "evaluator_name": obj.get("evaluator_name"),
             "evaluator_version_id": obj.get("evaluator_version_id"),
             "query_filter": obj.get("query_filter"),
             "column_mappings": obj.get("column_mappings"),
             "query_mappings": [TaskQueryMapping.from_dict(_item) for _item in obj["query_mappings"]] if obj.get("query_mappings") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

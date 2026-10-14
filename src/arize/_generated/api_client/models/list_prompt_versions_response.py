@@ -28,8 +28,8 @@ class ListPromptVersionsResponse(BaseModel):
     """
     ListPromptVersionsResponse
     """ # noqa: E501
-    prompt_versions: List[PromptVersion] = Field(description="A list of prompt versions")
-    pagination: PaginationMetadata
+    prompt_versions: Optional[List[PromptVersion]] = Field(default=None, description="A list of prompt versions")
+    pagination: Optional[PaginationMetadata] = None
     __properties: ClassVar[List[str]] = ["prompt_versions", "pagination"]
 
     model_config = ConfigDict(
@@ -93,10 +93,10 @@ class ListPromptVersionsResponse(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "prompt_versions": [PromptVersion.from_dict(_item) for _item in obj["prompt_versions"]] if obj.get("prompt_versions") is not None else None,
             "pagination": PaginationMetadata.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

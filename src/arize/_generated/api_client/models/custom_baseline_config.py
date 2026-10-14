@@ -28,15 +28,17 @@ class CustomBaselineConfig(BaseModel):
     """
     Uses a custom fixed or moving window as the comparison dataset. 
     """ # noqa: E501
-    type: StrictStr = Field(description="Identifies this comparison dataset as a custom fixed or moving window.")
-    filters: List[MonitorFilter] = Field(description="Filters applied to the comparison dataset. An empty array means no comparison dataset filters are configured. ")
-    model_versions: List[StrictStr] = Field(description="Model versions included in the comparison dataset. An empty array means all model versions. ")
-    window: CustomBaselineWindow
+    type: Optional[StrictStr] = Field(default=None, description="Identifies this comparison dataset as a custom fixed or moving window.")
+    filters: Optional[List[MonitorFilter]] = Field(default=None, description="Filters applied to the comparison dataset. An empty array means no comparison dataset filters are configured. ")
+    model_versions: Optional[List[StrictStr]] = Field(default=None, description="Model versions included in the comparison dataset. An empty array means all model versions. ")
+    window: Optional[CustomBaselineWindow] = None
     __properties: ClassVar[List[str]] = ["type", "filters", "model_versions", "window"]
 
     @field_validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['CUSTOM_BASELINE']):
             raise ValueError("must be one of enum values ('CUSTOM_BASELINE')")
         return value
@@ -102,12 +104,12 @@ class CustomBaselineConfig(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "type": obj.get("type"),
             "filters": [MonitorFilter.from_dict(_item) for _item in obj["filters"]] if obj.get("filters") is not None else None,
             "model_versions": obj.get("model_versions"),
             "window": CustomBaselineWindow.from_dict(obj["window"]) if obj.get("window") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

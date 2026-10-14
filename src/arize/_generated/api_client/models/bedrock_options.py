@@ -80,9 +80,9 @@ class BedrockOptions(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "use_converse_endpoint": obj.get("use_converse_endpoint") if obj.get("use_converse_endpoint") is not None else False
-        })
+        }.items() if key in obj})
         return _obj
 
 

@@ -2,15 +2,18 @@
 
 from __future__ import annotations
 
+from types import SimpleNamespace
 from unittest.mock import MagicMock
 
 import pytest
 
+from arize.exceptions import MissingResponseFieldError
 from arize.exceptions.spaces import AmbiguousNameError
 from arize.utils.resolve import (
     NotFoundError,
     _find_dataset_id,
     _find_project_id,
+    _find_user_id_by_email,
     _find_webhook_id,
 )
 
@@ -373,3 +376,54 @@ class TestFindWebhookId:
 
         assert excinfo.value.resource_type == "webhook"
         assert excinfo.value.available_names == ["deploy-a", "deploy-b"]
+
+
+@pytest.mark.unit
+class TestMissingLookupData:
+    """Incomplete response data must not become a false not-found result."""
+
+    def test_missing_pagination_raises(self) -> None:
+        """Lookup cannot conclude the result set ends without pagination."""
+        api = MagicMock()
+        api.list_users.return_value = SimpleNamespace(users=[], pagination=None)
+        with pytest.raises(
+            MissingResponseFieldError, match=r"user_list\.pagination"
+        ):
+            _find_user_id_by_email(api, "person@example.com")
+
+    def test_matching_user_requires_id(self) -> None:
+        """A matching record without an ID fails at the operation boundary."""
+        api = MagicMock()
+        api.list_users.return_value = SimpleNamespace(
+            users=[SimpleNamespace(email="person@example.com", id=None)],
+            pagination=SimpleNamespace(next_cursor=None),
+        )
+        with pytest.raises(MissingResponseFieldError, match=r"user\.id"):
+            _find_user_id_by_email(api, "person@example.com")
+
+    def test_missing_user_email_raises(self) -> None:
+        """Email lookup requires the email field supplied by the API contract."""
+        api = MagicMock()
+        api.list_users.return_value = SimpleNamespace(
+            users=[SimpleNamespace(email=None, id="user-1")],
+            pagination=SimpleNamespace(next_cursor=None),
+        )
+        with pytest.raises(MissingResponseFieldError, match=r"user\.email"):
+            _find_user_id_by_email(api, "person@example.com")
+
+    def test_lookup_follows_next_cursor(self) -> None:
+        """A match on a later page is returned without inventing an empty page."""
+        api = MagicMock()
+        api.list_users.side_effect = [
+            SimpleNamespace(
+                users=[], pagination=SimpleNamespace(next_cursor="page-2")
+            ),
+            SimpleNamespace(
+                users=[
+                    SimpleNamespace(email="Person@example.com", id="user-1")
+                ],
+                pagination=SimpleNamespace(next_cursor=None),
+            ),
+        ]
+        assert _find_user_id_by_email(api, "person@example.com") == "user-1"
+        assert api.list_users.call_args.kwargs["cursor"] == "page-2"

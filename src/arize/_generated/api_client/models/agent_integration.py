@@ -29,20 +29,22 @@ class AgentIntegration(BaseModel):
     """
     An agent integration (type=AGENT): a customer-hosted HTTPS endpoint plus a JSON Schema describing the request payload. 
     """ # noqa: E501
-    id: StrictStr = Field(description="The unique identifier for the integration.")
-    type: StrictStr = Field(description="Discriminator identifying an agent integration.")
-    name: StrictStr = Field(description="The integration name. Unique among active AGENT and EVALUATOR integrations in the account.")
+    id: Optional[StrictStr] = Field(default=None, description="The unique identifier for the integration.")
+    type: Optional[StrictStr] = Field(default=None, description="Discriminator identifying an agent integration.")
+    name: Optional[StrictStr] = Field(default=None, description="The integration name. Unique among active AGENT and EVALUATOR integrations in the account.")
     description: Optional[StrictStr] = Field(default=None, description="Optional human-readable description of the integration.")
-    scopings: List[IntegrationScoping] = Field(description="Visibility scoping rules. Account-wide when empty.")
-    created_at: datetime = Field(description="When the integration was created.")
-    updated_at: datetime = Field(description="When the integration was last updated.")
-    created_by_user_id: Optional[StrictStr] = Field(description="Unique identifier of the user who created the integration. Null if that user has since been deleted.")
-    config: AgentConfig
+    scopings: Optional[List[IntegrationScoping]] = Field(default=None, description="Visibility scoping rules. Account-wide when empty.")
+    created_at: Optional[datetime] = Field(default=None, description="When the integration was created.")
+    updated_at: Optional[datetime] = Field(default=None, description="When the integration was last updated.")
+    created_by_user_id: Optional[StrictStr] = Field(default=None, description="Unique identifier of the user who created the integration. Null if that user has since been deleted.")
+    config: Optional[AgentConfig] = None
     __properties: ClassVar[List[str]] = ["id", "type", "name", "description", "scopings", "created_at", "updated_at", "created_by_user_id", "config"]
 
     @field_validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['AGENT']):
             raise ValueError("must be one of enum values ('AGENT')")
         return value
@@ -118,7 +120,7 @@ class AgentIntegration(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "type": obj.get("type"),
             "name": obj.get("name"),
@@ -128,7 +130,7 @@ class AgentIntegration(BaseModel):
             "updated_at": obj.get("updated_at"),
             "created_by_user_id": obj.get("created_by_user_id"),
             "config": AgentConfig.from_dict(obj["config"]) if obj.get("config") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

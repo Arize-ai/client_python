@@ -28,8 +28,8 @@ class ListEvaluatorsResponse(BaseModel):
     """
     ListEvaluatorsResponse
     """ # noqa: E501
-    evaluators: List[Evaluator] = Field(description="A list of evaluators")
-    pagination: PaginationMetadata
+    evaluators: Optional[List[Evaluator]] = Field(default=None, description="A list of evaluators")
+    pagination: Optional[PaginationMetadata] = None
     __properties: ClassVar[List[str]] = ["evaluators", "pagination"]
 
     model_config = ConfigDict(
@@ -93,10 +93,10 @@ class ListEvaluatorsResponse(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "evaluators": [Evaluator.from_dict(_item) for _item in obj["evaluators"]] if obj.get("evaluators") is not None else None,
             "pagination": PaginationMetadata.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

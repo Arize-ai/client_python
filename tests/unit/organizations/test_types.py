@@ -161,7 +161,7 @@ class TestOrganizationMembership:
     def test_coerce_role_unknown_raises(self) -> None:
         assignment = self._make_role_assignment(object())
 
-        with pytest.raises(TypeError, match="Unknown org role type"):
+        with pytest.raises(TypeError, match="Unknown role type"):
             OrganizationMembership(
                 id="mem-1",
                 user_id="user-1",

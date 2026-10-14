@@ -28,8 +28,8 @@ class ListAuditLogsResponse(BaseModel):
     """
     ListAuditLogsResponse
     """ # noqa: E501
-    logs: List[AuditLog] = Field(description="A list of audit log entries, newest first.")
-    pagination: PaginationMetadata
+    logs: Optional[List[AuditLog]] = Field(default=None, description="A list of audit log entries, newest first.")
+    pagination: Optional[PaginationMetadata] = None
     __properties: ClassVar[List[str]] = ["logs", "pagination"]
 
     model_config = ConfigDict(
@@ -93,10 +93,10 @@ class ListAuditLogsResponse(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "logs": [AuditLog.from_dict(_item) for _item in obj["logs"]] if obj.get("logs") is not None else None,
             "pagination": PaginationMetadata.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

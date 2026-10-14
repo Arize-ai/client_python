@@ -28,19 +28,19 @@ class TaskRun(BaseModel):
     """
     A task run is an async job that executes the work defined on a task. Runs are created by triggering an existing task (`POST /v2/tasks/{task_id}/trigger`). For `RUN_EXPERIMENT` tasks, `experiment_id` is populated after the experiment is provisioned; poll `GET /v2/task-runs/{run_id}` until `status` reaches a terminal state. 
     """ # noqa: E501
-    id: StrictStr = Field(description="The unique identifier for the task run.")
-    task_id: StrictStr = Field(description="The parent task identifier (base64).")
+    id: Optional[StrictStr] = Field(default=None, description="The unique identifier for the task run.")
+    task_id: Optional[StrictStr] = Field(default=None, description="The parent task identifier (base64).")
     experiment_id: Optional[StrictStr] = Field(default=None, description="Created experiment identifier (base64). Present only for `RUN_EXPERIMENT` task runs; null for all other task types. ")
-    status: TaskRunStatus
-    run_started_at: Optional[datetime] = Field(description="When the run started processing.")
-    run_finished_at: Optional[datetime] = Field(description="When the run finished processing.")
-    data_start_time: Optional[datetime] = Field(description="Start of the data window evaluated. Null for run_experiment runs.")
-    data_end_time: Optional[datetime] = Field(description="End of the data window evaluated. Null for run_experiment runs.")
-    num_successes: StrictInt = Field(description="Number of successfully evaluated items.")
-    num_errors: StrictInt = Field(description="Number of items that errored during evaluation.")
-    num_skipped: StrictInt = Field(description="Number of items that were skipped.")
-    created_at: datetime = Field(description="When the run was created.")
-    created_by_user_id: Optional[StrictStr] = Field(description="The unique identifier for the user who triggered the run.")
+    status: Optional[TaskRunStatus] = None
+    run_started_at: Optional[datetime] = Field(default=None, description="When the run started processing.")
+    run_finished_at: Optional[datetime] = Field(default=None, description="When the run finished processing.")
+    data_start_time: Optional[datetime] = Field(default=None, description="Start of the data window evaluated. Null for run_experiment runs.")
+    data_end_time: Optional[datetime] = Field(default=None, description="End of the data window evaluated. Null for run_experiment runs.")
+    num_successes: Optional[StrictInt] = Field(default=None, description="Number of successfully evaluated items.")
+    num_errors: Optional[StrictInt] = Field(default=None, description="Number of items that errored during evaluation.")
+    num_skipped: Optional[StrictInt] = Field(default=None, description="Number of items that were skipped.")
+    created_at: Optional[datetime] = Field(default=None, description="When the run was created.")
+    created_by_user_id: Optional[StrictStr] = Field(default=None, description="The unique identifier for the user who triggered the run.")
     failure_reason: Optional[StrictStr] = Field(default=None, description="Human-readable explanation of why the run failed or was cancelled; null for successful runs. For example, when all matching data already has evaluation labels from a previous run, the task cancels with zero successes, errors, and skipped items, and this field explains that the task must be re-triggered with `override_evaluations` enabled to re-evaluate it. ")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["id", "task_id", "experiment_id", "status", "run_started_at", "run_finished_at", "data_start_time", "data_end_time", "num_successes", "num_errors", "num_skipped", "created_at", "created_by_user_id", "failure_reason"]
@@ -137,7 +137,7 @@ class TaskRun(BaseModel):
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "task_id": obj.get("task_id"),
             "experiment_id": obj.get("experiment_id"),
@@ -152,7 +152,7 @@ class TaskRun(BaseModel):
             "created_at": obj.get("created_at"),
             "created_by_user_id": obj.get("created_by_user_id"),
             "failure_reason": obj.get("failure_reason")
-        })
+        }.items() if key in obj})
         # store additional fields in additional_properties
         for _key in obj.keys():
             if _key not in cls.__properties:

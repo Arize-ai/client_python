@@ -27,13 +27,15 @@ class ModelBaselineConfig(BaseModel):
     """
     Uses the model's primary baseline as the comparison dataset. 
     """ # noqa: E501
-    type: StrictStr = Field(description="Identifies this comparison dataset as the model's primary baseline.")
-    filters: List[MonitorFilter] = Field(description="Filters applied to the comparison dataset. An empty array means no comparison dataset filters are configured. ")
+    type: Optional[StrictStr] = Field(default=None, description="Identifies this comparison dataset as the model's primary baseline.")
+    filters: Optional[List[MonitorFilter]] = Field(default=None, description="Filters applied to the comparison dataset. An empty array means no comparison dataset filters are configured. ")
     __properties: ClassVar[List[str]] = ["type", "filters"]
 
     @field_validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
+        if value is None:
+            return None
         if value not in set(['MODEL_BASELINE']):
             raise ValueError("must be one of enum values ('MODEL_BASELINE')")
         return value
@@ -96,10 +98,10 @@ class ModelBaselineConfig(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "type": obj.get("type"),
             "filters": [MonitorFilter.from_dict(_item) for _item in obj["filters"]] if obj.get("filters") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

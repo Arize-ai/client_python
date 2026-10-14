@@ -28,11 +28,11 @@ class Dataset(BaseModel):
     """
     A dataset is a structured collection of examples used to test and evaluate LLM applications. Datasets allow you to test models consistently across any real-world scenarios and edge cases, quickly identify regressions, and track measurable improvements. 
     """ # noqa: E501
-    id: StrictStr = Field(description="Unique identifier for the dataset")
-    name: StrictStr = Field(description="Name of the dataset")
-    space_id: StrictStr = Field(description="Unique identifier for the space this dataset belongs to")
-    created_at: datetime = Field(description="Timestamp for when the dataset was created")
-    updated_at: datetime = Field(description="Timestamp for the last update of the dataset")
+    id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the dataset")
+    name: Optional[StrictStr] = Field(default=None, description="Name of the dataset")
+    space_id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the space this dataset belongs to")
+    created_at: Optional[datetime] = Field(default=None, description="Timestamp for when the dataset was created")
+    updated_at: Optional[datetime] = Field(default=None, description="Timestamp for the last update of the dataset")
     versions: Optional[List[DatasetVersion]] = Field(default=None, description="List of versions associated with this dataset")
     __properties: ClassVar[List[str]] = ["id", "name", "space_id", "created_at", "updated_at", "versions"]
 
@@ -94,14 +94,14 @@ class Dataset(BaseModel):
             return cls.model_validate(obj)
 
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "id": obj.get("id"),
             "name": obj.get("name"),
             "space_id": obj.get("space_id"),
             "created_at": obj.get("created_at"),
             "updated_at": obj.get("updated_at"),
             "versions": [DatasetVersion.from_dict(_item) for _item in obj["versions"]] if obj.get("versions") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 
