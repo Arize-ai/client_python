@@ -12,6 +12,11 @@ Name | Type | Description | Notes
 **description** | **str** | A brief description of the space&#39;s purpose | 
 **created_at** | **datetime** | Timestamp for when the space was created | 
 **is_private** | **bool** | Whether the space is private. Private spaces are only visible to their members and account/org/space admins.  | 
+**default_llm_integration** | [**DefaultLLMIntegrationResponse**](DefaultLLMIntegrationResponse.md) |  | [optional] 
+**ml_models_enabled** | **bool** | Whether machine learning models are enabled for the space. | [optional] 
+**gradient_start_color** | **str** | The first color in the gradient used for the space&#39;s avatar. | [optional] 
+**gradient_end_color** | **str** | The second color in the gradient used for the space&#39;s avatar. | [optional] 
+**default_agent_runtime** | [**DefaultAgentRuntimeResponse**](DefaultAgentRuntimeResponse.md) |  | [optional] 
 
 ## Example
 

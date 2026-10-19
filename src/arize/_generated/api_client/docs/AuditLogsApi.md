@@ -8,7 +8,7 @@ Method | HTTP request | Description
 
 
 # **list_audit_logs**
-> ListAuditLogsResponse list_audit_logs(start_time=start_time, end_time=end_time, user_id=user_id, operation_type=operation_type, limit=limit, cursor=cursor)
+> ListAuditLogsResponse list_audit_logs(start_time=start_time, end_time=end_time, user_id=user_id, operation_name=operation_name, operation_type=operation_type, limit=limit, cursor=cursor)
 
 List audit logs
 
@@ -58,13 +58,14 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     start_time = '2026-04-18T00:00:00Z' # datetime | Inclusive lower bound on `created_at` (ISO 8601 datetime). Defaults to 30 days before `end_time` when omitted.  (optional)
     end_time = '2026-05-18T23:59:59Z' # datetime | Inclusive upper bound on `created_at` (ISO 8601 datetime). Defaults to the current time when omitted.  (optional)
     user_id = 'VXNlcjoxMjM0NQ==' # str | Filter results by user (base64 global user ID). When provided, only records associated with this user are returned. Access requirements vary by endpoint — some endpoints restrict this filter to account admins.  (optional)
+    operation_name = ['[\"createUserApiKey\",\"revokeApiKey\"]'] # List[str] | Filter results to exact, case-sensitive operation names. Repeat this parameter to select more than one name. Keep the same names when requesting the next page. (optional)
     operation_type = arize._generated.api_client.AuditLogOperationType() # AuditLogOperationType | Filter results to a specific operation type. (optional)
     limit = 50 # int | Maximum items to return. Defaults to 50 if omitted; maximum is 100. (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
     try:
         # List audit logs
-        api_response = api_instance.list_audit_logs(start_time=start_time, end_time=end_time, user_id=user_id, operation_type=operation_type, limit=limit, cursor=cursor)
+        api_response = api_instance.list_audit_logs(start_time=start_time, end_time=end_time, user_id=user_id, operation_name=operation_name, operation_type=operation_type, limit=limit, cursor=cursor)
         print("The response of AuditLogsApi->list_audit_logs:\n")
         pprint(api_response)
     except Exception as e:
@@ -81,6 +82,7 @@ Name | Type | Description  | Notes
  **start_time** | **datetime**| Inclusive lower bound on &#x60;created_at&#x60; (ISO 8601 datetime). Defaults to 30 days before &#x60;end_time&#x60; when omitted.  | [optional] 
  **end_time** | **datetime**| Inclusive upper bound on &#x60;created_at&#x60; (ISO 8601 datetime). Defaults to the current time when omitted.  | [optional] 
  **user_id** | **str**| Filter results by user (base64 global user ID). When provided, only records associated with this user are returned. Access requirements vary by endpoint — some endpoints restrict this filter to account admins.  | [optional] 
+ **operation_name** | [**List[str]**](str.md)| Filter results to exact, case-sensitive operation names. Repeat this parameter to select more than one name. Keep the same names when requesting the next page. | [optional] 
  **operation_type** | [**AuditLogOperationType**](.md)| Filter results to a specific operation type. | [optional] 
  **limit** | **int**| Maximum items to return. Defaults to 50 if omitted; maximum is 100. | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 

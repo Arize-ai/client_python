@@ -17,20 +17,27 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
+from arize._generated.api_client.models.default_agent_runtime import DefaultAgentRuntime
+from arize._generated.api_client.models.default_llm_integration import DefaultLLMIntegration
 from typing import Optional, Set
 from typing_extensions import Self
 
 class UpdateSpaceRequest(BaseModel):
     """
-    UpdateSpaceRequest
+    Fields to update on a space. Omitted fields keep their current value, `null` clears a clearable field, and an object value replaces the existing setting. 
     """ # noqa: E501
     name: Optional[Annotated[str, Field(strict=True, max_length=255)]] = Field(default=None, description="Updated name of the space")
     description: Optional[Annotated[str, Field(strict=True, max_length=1000)]] = Field(default=None, description="Updated description of the space. Set to `null` to clear it. An empty string is rejected.")
     is_private: Optional[StrictBool] = Field(default=None, description="Updated visibility for the space. Set to `true` to make the space private (visible only to members and admins), or `false` to make it public. When omitted, the existing visibility is preserved. ")
-    __properties: ClassVar[List[str]] = ["name", "description", "is_private"]
+    default_llm_integration: Optional[DefaultLLMIntegration] = None
+    ml_models_enabled: Optional[StrictBool] = Field(default=None, description="Whether machine learning models are enabled for the space.")
+    gradient_start_color: Optional[StrictStr] = Field(default=None, description="The starting color of the space's visual gradient.")
+    gradient_end_color: Optional[StrictStr] = Field(default=None, description="The ending color of the space's visual gradient.")
+    default_agent_runtime: Optional[DefaultAgentRuntime] = None
+    __properties: ClassVar[List[str]] = ["name", "description", "is_private", "default_llm_integration", "ml_models_enabled", "gradient_start_color", "gradient_end_color", "default_agent_runtime"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -71,10 +78,26 @@ class UpdateSpaceRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of default_llm_integration
+        if self.default_llm_integration:
+            _dict['default_llm_integration'] = self.default_llm_integration.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of default_agent_runtime
+        if self.default_agent_runtime:
+            _dict['default_agent_runtime'] = self.default_agent_runtime.to_dict()
         # set to None if description (nullable) is None
         # and model_fields_set contains the field
         if self.description is None and "description" in self.model_fields_set:
             _dict['description'] = None
+
+        # set to None if default_llm_integration (nullable) is None
+        # and model_fields_set contains the field
+        if self.default_llm_integration is None and "default_llm_integration" in self.model_fields_set:
+            _dict['default_llm_integration'] = None
+
+        # set to None if default_agent_runtime (nullable) is None
+        # and model_fields_set contains the field
+        if self.default_agent_runtime is None and "default_agent_runtime" in self.model_fields_set:
+            _dict['default_agent_runtime'] = None
 
         return _dict
 
@@ -95,7 +118,12 @@ class UpdateSpaceRequest(BaseModel):
         _obj = cls.model_validate({
             "name": obj.get("name"),
             "description": obj.get("description"),
-            "is_private": obj.get("is_private")
+            "is_private": obj.get("is_private"),
+            "default_llm_integration": DefaultLLMIntegration.from_dict(obj["default_llm_integration"]) if obj.get("default_llm_integration") is not None else None,
+            "ml_models_enabled": obj.get("ml_models_enabled"),
+            "gradient_start_color": obj.get("gradient_start_color"),
+            "gradient_end_color": obj.get("gradient_end_color"),
+            "default_agent_runtime": DefaultAgentRuntime.from_dict(obj["default_agent_runtime"]) if obj.get("default_agent_runtime") is not None else None
         })
         return _obj
 

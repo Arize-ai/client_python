@@ -7,8 +7,18 @@ from unittest.mock import MagicMock
 import pytest
 
 import arize.spaces.types as types_module
+from arize._generated.api_client.models.default_agent_runtime import (
+    DefaultAgentRuntime,
+)
+from arize._generated.api_client.models.default_llm_integration import (
+    DefaultLLMIntegration,
+)
+from arize._generated.api_client.models.space import Space as GeneratedSpace
 from arize._generated.api_client.models.space_role_assignment_type import (
     SpaceRoleAssignmentType,
+)
+from arize._generated.api_client.models.update_space_request import (
+    UpdateSpaceRequest,
 )
 from arize.spaces.types import (
     CustomSpaceRole,
@@ -43,6 +53,69 @@ class TestSpacesTypes:
 
     def test_list_spaces_response_is_class(self) -> None:
         assert isinstance(ListSpacesResponse, type)
+
+    def test_generated_space_serializes_all_settings_from_a_response(
+        self,
+    ) -> None:
+        space = GeneratedSpace.from_dict(
+            {
+                "id": "space-1",
+                "name": "space",
+                "description": "",
+                "created_at": "2026-10-12T00:00:00Z",
+                "is_private": False,
+                "default_llm_integration": {
+                    "integration_id": "integration-1",
+                    "model_name": "claude-sonnet-4",
+                },
+                "ml_models_enabled": True,
+                "gradient_start_color": "#123456",
+                "gradient_end_color": "#abcdef",
+                "default_agent_runtime": {"integration_id": "runtime-1"},
+            }
+        )
+
+        serialized = space.to_dict()
+        assert serialized["default_llm_integration"] == {
+            "integration_id": "integration-1",
+            "model_name": "claude-sonnet-4",
+        }
+        assert serialized["ml_models_enabled"] is True
+        assert serialized["gradient_start_color"] == "#123456"
+        assert serialized["gradient_end_color"] == "#abcdef"
+        assert serialized["default_agent_runtime"] == {
+            "integration_id": "runtime-1"
+        }
+
+    def test_generated_patch_serialization_distinguishes_omitted_null_and_value(
+        self,
+    ) -> None:
+        omitted = UpdateSpaceRequest().to_dict()
+        cleared = UpdateSpaceRequest(
+            default_llm_integration=None,
+            default_agent_runtime=None,
+        ).to_dict()
+        configured = UpdateSpaceRequest(
+            default_llm_integration=DefaultLLMIntegration(
+                integration_id="integration-1",
+                model_name="claude-sonnet-4",
+            ),
+            default_agent_runtime=DefaultAgentRuntime(
+                integration_id="runtime-1"
+            ),
+        ).to_dict()
+
+        assert "default_llm_integration" not in omitted
+        assert "default_agent_runtime" not in omitted
+        assert cleared["default_llm_integration"] is None
+        assert cleared["default_agent_runtime"] is None
+        assert configured["default_llm_integration"] == {
+            "integration_id": "integration-1",
+            "model_name": "claude-sonnet-4",
+        }
+        assert configured["default_agent_runtime"] == {
+            "integration_id": "runtime-1"
+        }
 
 
 @pytest.mark.unit

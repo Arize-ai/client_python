@@ -1836,7 +1836,7 @@ class SpacesApi:
     ) -> Space:
         """Update a space
 
-        Update a space's metadata by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name`, `description`, or `is_private` must be provided. - If `name` is provided, it must be unique within the organization. - System-managed fields (`id`, `created_at`) cannot be modified.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Update a space's settings by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name`, `description`, `is_private`, `default_llm_integration`,   `ml_models_enabled`, `gradient_start_color`, `gradient_end_color`, or   `default_agent_runtime` must be provided. - Omitted fields keep their current value. `description`, `default_llm_integration`,   and `default_agent_runtime` can be set to `null` to clear them. - If `name` is provided, it must be unique within the organization. - System-managed fields (`id`, `created_at`) cannot be modified.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param space_id: The unique space identifier (base64) (required)
         :type space_id: str
@@ -1914,7 +1914,7 @@ class SpacesApi:
     ) -> ApiResponse[Space]:
         """Update a space
 
-        Update a space's metadata by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name`, `description`, or `is_private` must be provided. - If `name` is provided, it must be unique within the organization. - System-managed fields (`id`, `created_at`) cannot be modified.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Update a space's settings by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name`, `description`, `is_private`, `default_llm_integration`,   `ml_models_enabled`, `gradient_start_color`, `gradient_end_color`, or   `default_agent_runtime` must be provided. - Omitted fields keep their current value. `description`, `default_llm_integration`,   and `default_agent_runtime` can be set to `null` to clear them. - If `name` is provided, it must be unique within the organization. - System-managed fields (`id`, `created_at`) cannot be modified.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param space_id: The unique space identifier (base64) (required)
         :type space_id: str
@@ -1992,7 +1992,7 @@ class SpacesApi:
     ) -> RESTResponseType:
         """Update a space
 
-        Update a space's metadata by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name`, `description`, or `is_private` must be provided. - If `name` is provided, it must be unique within the organization. - System-managed fields (`id`, `created_at`) cannot be modified.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Update a space's settings by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name`, `description`, `is_private`, `default_llm_integration`,   `ml_models_enabled`, `gradient_start_color`, `gradient_end_color`, or   `default_agent_runtime` must be provided. - Omitted fields keep their current value. `description`, `default_llm_integration`,   and `default_agent_runtime` can be set to `null` to clear them. - If `name` is provided, it must be unique within the organization. - System-managed fields (`id`, `created_at`) cannot be modified.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param space_id: The unique space identifier (base64) (required)
         :type space_id: str

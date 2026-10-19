@@ -1,5 +1,13 @@
 # Changelog
 
+## [8.60.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.59.1...arize-python-sdk/v8.60.0) (2026-10-19)
+
+
+### 🎁 New Features
+
+* **api:** [1/4] update space default settings via REST ([#90730](https://github.com/Arize-ai/arize/issues/90730)) ([dc0cdbc](https://github.com/Arize-ai/arize/commit/dc0cdbc91df728990ccc7014beab473ef1716074))
+* **audit-logs:** filter authenticated logs by operation name ([#89110](https://github.com/Arize-ai/arize/issues/89110)) ([087349e](https://github.com/Arize-ai/arize/commit/087349e0d4dafc66761453821d24661ede5c4a74))
+
 ## [8.59.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.59.0...arize-python-sdk/v8.59.1) (2026-10-14)
 
 

@@ -572,10 +572,14 @@ void (empty response body)
 
 Update a space
 
-Update a space's metadata by its ID. At least one field must be provided.
+Update a space's settings by its ID. At least one field must be provided.
 
 **Payload Requirements**
-- At least one of `name`, `description`, or `is_private` must be provided.
+- At least one of `name`, `description`, `is_private`, `default_llm_integration`,
+  `ml_models_enabled`, `gradient_start_color`, `gradient_end_color`, or
+  `default_agent_runtime` must be provided.
+- Omitted fields keep their current value. `description`, `default_llm_integration`,
+  and `default_agent_runtime` can be set to `null` to clear them.
 - If `name` is provided, it must be unique within the organization.
 - System-managed fields (`id`, `created_at`) cannot be modified.
 
@@ -614,7 +618,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.SpacesApi(api_client)
     space_id = 'U3BhY2U6MTIzNDU=' # str | The unique space identifier (base64)
-    update_space_request = {"name":"Updated Space Name","description":"Updated space description"} # UpdateSpaceRequest | Body containing space update parameters. At least one field must be provided.
+    update_space_request = {"default_llm_integration":{"integration_id":"TGxtSW50ZWdyYXRpb246MTIz","model_name":"claude-sonnet-4"}} # UpdateSpaceRequest | Body containing space update parameters. At least one field must be provided.
 
     try:
         # Update a space

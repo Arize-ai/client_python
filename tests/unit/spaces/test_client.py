@@ -334,7 +334,7 @@ class TestSpacesClientUpdate:
         """update() should raise if neither name nor description is provided."""
         with pytest.raises(
             ValueError,
-            match="At least one of 'name', 'description', or 'is_private' must be provided",
+            match="At least one field to update must be provided",
         ):
             spaces_client.update(space="U3BhY2U6OTA1MDoxSmtS")
 
@@ -344,7 +344,7 @@ class TestSpacesClientUpdate:
         """update() should treat is_private=None as an omitted field."""
         with pytest.raises(
             ValueError,
-            match="At least one of 'name', 'description', or 'is_private' must be provided",
+            match="At least one field to update must be provided",
         ):
             spaces_client.update(
                 space="U3BhY2U6OTA1MDoxSmtS",

@@ -20,6 +20,8 @@ import json
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
+from arize._generated.api_client.models.default_agent_runtime_response import DefaultAgentRuntimeResponse
+from arize._generated.api_client.models.default_llm_integration_response import DefaultLLMIntegrationResponse
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -33,7 +35,12 @@ class Space(BaseModel):
     description: Optional[StrictStr] = Field(default=None, description="A brief description of the space's purpose")
     created_at: Optional[datetime] = Field(default=None, description="Timestamp for when the space was created")
     is_private: Optional[StrictBool] = Field(default=None, description="Whether the space is private. Private spaces are only visible to their members and account/org/space admins. ")
-    __properties: ClassVar[List[str]] = ["id", "organization_id", "name", "description", "created_at", "is_private"]
+    default_llm_integration: Optional[DefaultLLMIntegrationResponse] = None
+    ml_models_enabled: Optional[StrictBool] = Field(default=None, description="Whether machine learning models are enabled for the space.")
+    gradient_start_color: Optional[StrictStr] = Field(default=None, description="The first color in the gradient used for the space's avatar.")
+    gradient_end_color: Optional[StrictStr] = Field(default=None, description="The second color in the gradient used for the space's avatar.")
+    default_agent_runtime: Optional[DefaultAgentRuntimeResponse] = None
+    __properties: ClassVar[List[str]] = ["id", "organization_id", "name", "description", "created_at", "is_private", "default_llm_integration", "ml_models_enabled", "gradient_start_color", "gradient_end_color", "default_agent_runtime"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -74,6 +81,22 @@ class Space(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of default_llm_integration
+        if self.default_llm_integration:
+            _dict['default_llm_integration'] = self.default_llm_integration.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of default_agent_runtime
+        if self.default_agent_runtime:
+            _dict['default_agent_runtime'] = self.default_agent_runtime.to_dict()
+        # set to None if default_llm_integration (nullable) is None
+        # and model_fields_set contains the field
+        if self.default_llm_integration is None and "default_llm_integration" in self.model_fields_set:
+            _dict['default_llm_integration'] = None
+
+        # set to None if default_agent_runtime (nullable) is None
+        # and model_fields_set contains the field
+        if self.default_agent_runtime is None and "default_agent_runtime" in self.model_fields_set:
+            _dict['default_agent_runtime'] = None
+
         return _dict
 
     @classmethod
@@ -92,7 +115,12 @@ class Space(BaseModel):
             "name": obj.get("name"),
             "description": obj.get("description"),
             "created_at": obj.get("created_at"),
-            "is_private": obj.get("is_private")
+            "is_private": obj.get("is_private"),
+            "default_llm_integration": DefaultLLMIntegrationResponse.from_dict(obj["default_llm_integration"]) if obj.get("default_llm_integration") is not None else None,
+            "ml_models_enabled": obj.get("ml_models_enabled"),
+            "gradient_start_color": obj.get("gradient_start_color"),
+            "gradient_end_color": obj.get("gradient_end_color"),
+            "default_agent_runtime": DefaultAgentRuntimeResponse.from_dict(obj["default_agent_runtime"]) if obj.get("default_agent_runtime") is not None else None
         }.items() if key in obj})
         return _obj
 

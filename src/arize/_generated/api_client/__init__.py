@@ -201,6 +201,10 @@ __all__ = [
     "DatasetExample",
     "DatasetVersion",
     "DatasetVersionWithExampleIds",
+    "DefaultAgentRuntime",
+    "DefaultAgentRuntimeResponse",
+    "DefaultLLMIntegration",
+    "DefaultLLMIntegrationResponse",
     "DeleteAnnotationQueueRecordsRequest",
     "DeleteDatasetExamplesProblem",
     "DeleteDatasetExamplesRequest",
@@ -241,6 +245,7 @@ __all__ = [
     "FilterOperator",
     "FireworksConfig",
     "FixedCustomBaselineWindow",
+    "ForbiddenProblem",
     "FreeformAnnotationConfig",
     "GcpProviderMetadata",
     "GcpProviderMetadataKind",
@@ -459,6 +464,7 @@ __all__ = [
     "UpdateTaskRequest",
     "UpdateUserRequest",
     "UpdateWebhookRequest",
+    "UpgradePlan",
     "User",
     "UserApiKey",
     "UserRole",
@@ -665,6 +671,10 @@ from arize._generated.api_client.models.dataset import Dataset as Dataset
 from arize._generated.api_client.models.dataset_example import DatasetExample as DatasetExample
 from arize._generated.api_client.models.dataset_version import DatasetVersion as DatasetVersion
 from arize._generated.api_client.models.dataset_version_with_example_ids import DatasetVersionWithExampleIds as DatasetVersionWithExampleIds
+from arize._generated.api_client.models.default_agent_runtime import DefaultAgentRuntime as DefaultAgentRuntime
+from arize._generated.api_client.models.default_agent_runtime_response import DefaultAgentRuntimeResponse as DefaultAgentRuntimeResponse
+from arize._generated.api_client.models.default_llm_integration import DefaultLLMIntegration as DefaultLLMIntegration
+from arize._generated.api_client.models.default_llm_integration_response import DefaultLLMIntegrationResponse as DefaultLLMIntegrationResponse
 from arize._generated.api_client.models.delete_annotation_queue_records_request import DeleteAnnotationQueueRecordsRequest as DeleteAnnotationQueueRecordsRequest
 from arize._generated.api_client.models.delete_dataset_examples_problem import DeleteDatasetExamplesProblem as DeleteDatasetExamplesProblem
 from arize._generated.api_client.models.delete_dataset_examples_request import DeleteDatasetExamplesRequest as DeleteDatasetExamplesRequest
@@ -705,6 +715,7 @@ from arize._generated.api_client.models.experiment_with_run_ids import Experimen
 from arize._generated.api_client.models.filter_operator import FilterOperator as FilterOperator
 from arize._generated.api_client.models.fireworks_config import FireworksConfig as FireworksConfig
 from arize._generated.api_client.models.fixed_custom_baseline_window import FixedCustomBaselineWindow as FixedCustomBaselineWindow
+from arize._generated.api_client.models.forbidden_problem import ForbiddenProblem as ForbiddenProblem
 from arize._generated.api_client.models.freeform_annotation_config import FreeformAnnotationConfig as FreeformAnnotationConfig
 from arize._generated.api_client.models.gcp_provider_metadata import GcpProviderMetadata as GcpProviderMetadata
 from arize._generated.api_client.models.gcp_provider_metadata_kind import GcpProviderMetadataKind as GcpProviderMetadataKind
@@ -923,6 +934,7 @@ from arize._generated.api_client.models.update_tag_request import UpdateTagReque
 from arize._generated.api_client.models.update_task_request import UpdateTaskRequest as UpdateTaskRequest
 from arize._generated.api_client.models.update_user_request import UpdateUserRequest as UpdateUserRequest
 from arize._generated.api_client.models.update_webhook_request import UpdateWebhookRequest as UpdateWebhookRequest
+from arize._generated.api_client.models.upgrade_plan import UpgradePlan as UpgradePlan
 from arize._generated.api_client.models.user import User as User
 from arize._generated.api_client.models.user_api_key import UserApiKey as UserApiKey
 from arize._generated.api_client.models.user_role import UserRole as UserRole

@@ -18,7 +18,7 @@ from typing_extensions import Annotated
 
 from datetime import datetime
 from pydantic import Field, StrictStr
-from typing import Optional
+from typing import List, Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.audit_log_operation_type import AuditLogOperationType
 from arize._generated.api_client.models.list_audit_logs_response import ListAuditLogsResponse
@@ -47,6 +47,7 @@ class AuditLogsApi:
         start_time: Annotated[Optional[datetime], Field(description="Inclusive lower bound on `created_at` (ISO 8601 datetime). Defaults to 30 days before `end_time` when omitted. ")] = None,
         end_time: Annotated[Optional[datetime], Field(description="Inclusive upper bound on `created_at` (ISO 8601 datetime). Defaults to the current time when omitted. ")] = None,
         user_id: Annotated[Optional[StrictStr], Field(description="Filter results by user (base64 global user ID). When provided, only records associated with this user are returned. Access requirements vary by endpoint — some endpoints restrict this filter to account admins. ")] = None,
+        operation_name: Annotated[Optional[Annotated[List[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(min_length=1, max_length=50)]], Field(description="Filter results to exact, case-sensitive operation names. Repeat this parameter to select more than one name. Keep the same names when requesting the next page.")] = None,
         operation_type: Annotated[Optional[AuditLogOperationType], Field(description="Filter results to a specific operation type.")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
@@ -73,6 +74,8 @@ class AuditLogsApi:
         :type end_time: datetime
         :param user_id: Filter results by user (base64 global user ID). When provided, only records associated with this user are returned. Access requirements vary by endpoint — some endpoints restrict this filter to account admins. 
         :type user_id: str
+        :param operation_name: Filter results to exact, case-sensitive operation names. Repeat this parameter to select more than one name. Keep the same names when requesting the next page.
+        :type operation_name: List[str]
         :param operation_type: Filter results to a specific operation type.
         :type operation_type: AuditLogOperationType
         :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
@@ -105,6 +108,7 @@ class AuditLogsApi:
             start_time=start_time,
             end_time=end_time,
             user_id=user_id,
+            operation_name=operation_name,
             operation_type=operation_type,
             limit=limit,
             cursor=cursor,
@@ -138,6 +142,7 @@ class AuditLogsApi:
         start_time: Annotated[Optional[datetime], Field(description="Inclusive lower bound on `created_at` (ISO 8601 datetime). Defaults to 30 days before `end_time` when omitted. ")] = None,
         end_time: Annotated[Optional[datetime], Field(description="Inclusive upper bound on `created_at` (ISO 8601 datetime). Defaults to the current time when omitted. ")] = None,
         user_id: Annotated[Optional[StrictStr], Field(description="Filter results by user (base64 global user ID). When provided, only records associated with this user are returned. Access requirements vary by endpoint — some endpoints restrict this filter to account admins. ")] = None,
+        operation_name: Annotated[Optional[Annotated[List[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(min_length=1, max_length=50)]], Field(description="Filter results to exact, case-sensitive operation names. Repeat this parameter to select more than one name. Keep the same names when requesting the next page.")] = None,
         operation_type: Annotated[Optional[AuditLogOperationType], Field(description="Filter results to a specific operation type.")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
@@ -164,6 +169,8 @@ class AuditLogsApi:
         :type end_time: datetime
         :param user_id: Filter results by user (base64 global user ID). When provided, only records associated with this user are returned. Access requirements vary by endpoint — some endpoints restrict this filter to account admins. 
         :type user_id: str
+        :param operation_name: Filter results to exact, case-sensitive operation names. Repeat this parameter to select more than one name. Keep the same names when requesting the next page.
+        :type operation_name: List[str]
         :param operation_type: Filter results to a specific operation type.
         :type operation_type: AuditLogOperationType
         :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
@@ -196,6 +203,7 @@ class AuditLogsApi:
             start_time=start_time,
             end_time=end_time,
             user_id=user_id,
+            operation_name=operation_name,
             operation_type=operation_type,
             limit=limit,
             cursor=cursor,
@@ -229,6 +237,7 @@ class AuditLogsApi:
         start_time: Annotated[Optional[datetime], Field(description="Inclusive lower bound on `created_at` (ISO 8601 datetime). Defaults to 30 days before `end_time` when omitted. ")] = None,
         end_time: Annotated[Optional[datetime], Field(description="Inclusive upper bound on `created_at` (ISO 8601 datetime). Defaults to the current time when omitted. ")] = None,
         user_id: Annotated[Optional[StrictStr], Field(description="Filter results by user (base64 global user ID). When provided, only records associated with this user are returned. Access requirements vary by endpoint — some endpoints restrict this filter to account admins. ")] = None,
+        operation_name: Annotated[Optional[Annotated[List[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(min_length=1, max_length=50)]], Field(description="Filter results to exact, case-sensitive operation names. Repeat this parameter to select more than one name. Keep the same names when requesting the next page.")] = None,
         operation_type: Annotated[Optional[AuditLogOperationType], Field(description="Filter results to a specific operation type.")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
@@ -255,6 +264,8 @@ class AuditLogsApi:
         :type end_time: datetime
         :param user_id: Filter results by user (base64 global user ID). When provided, only records associated with this user are returned. Access requirements vary by endpoint — some endpoints restrict this filter to account admins. 
         :type user_id: str
+        :param operation_name: Filter results to exact, case-sensitive operation names. Repeat this parameter to select more than one name. Keep the same names when requesting the next page.
+        :type operation_name: List[str]
         :param operation_type: Filter results to a specific operation type.
         :type operation_type: AuditLogOperationType
         :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
@@ -287,6 +298,7 @@ class AuditLogsApi:
             start_time=start_time,
             end_time=end_time,
             user_id=user_id,
+            operation_name=operation_name,
             operation_type=operation_type,
             limit=limit,
             cursor=cursor,
@@ -315,6 +327,7 @@ class AuditLogsApi:
         start_time,
         end_time,
         user_id,
+        operation_name,
         operation_type,
         limit,
         cursor,
@@ -327,6 +340,7 @@ class AuditLogsApi:
         _host = None
 
         _collection_formats: Dict[str, str] = {
+            'operation_name': 'multi',
         }
 
         _path_params: Dict[str, str] = {}
@@ -369,6 +383,10 @@ class AuditLogsApi:
         if user_id is not None:
             
             _query_params.append(('user_id', user_id))
+            
+        if operation_name is not None:
+            
+            _query_params.append(('operation_name', operation_name))
             
         if operation_type is not None:
             

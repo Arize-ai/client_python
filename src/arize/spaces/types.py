@@ -20,6 +20,12 @@ from arize._generated.api_client.models.custom_role_assignment import (
 from arize._generated.api_client.models.custom_role_assignment_request import (
     CustomRoleAssignmentRequest,
 )
+from arize._generated.api_client.models.default_agent_runtime import (
+    DefaultAgentRuntime,
+)
+from arize._generated.api_client.models.default_llm_integration import (
+    DefaultLLMIntegration,
+)
 from arize._generated.api_client.models.list_spaces_response import (
     ListSpacesResponse,
 )
@@ -105,6 +111,8 @@ class SpaceMembership(BaseModel):
 __all__ = [
     "AddSpaceUserRequest",
     "CustomSpaceRole",
+    "DefaultAgentRuntime",
+    "DefaultLLMIntegration",
     "ListSpacesResponse",
     "PredefinedSpaceRole",
     "Space",

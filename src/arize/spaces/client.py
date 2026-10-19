@@ -16,6 +16,8 @@ if TYPE_CHECKING:
     from arize.config import SDKConfiguration
     from arize.spaces.types import (
         CustomSpaceRole,
+        DefaultAgentRuntime,
+        DefaultLLMIntegration,
         ListSpacesResponse,
         PredefinedSpaceRole,
         Space,
@@ -178,6 +180,11 @@ class SpacesClient:
         name: str | None | UNSET = _UNSET,
         description: str | None | UNSET = _UNSET,
         is_private: bool | None = None,
+        default_llm_integration: DefaultLLMIntegration | None | UNSET = _UNSET,
+        ml_models_enabled: bool | UNSET = _UNSET,
+        gradient_start_color: str | UNSET = _UNSET,
+        gradient_end_color: str | UNSET = _UNSET,
+        default_agent_runtime: DefaultAgentRuntime | None | UNSET = _UNSET,
     ) -> Space:
         """Update a space by ID or name.
 
@@ -193,13 +200,22 @@ class SpacesClient:
                 make the space private (visible only to members and admins), or
                 ``False`` to make it public. When ``None``, the existing
                 visibility is preserved.
+            default_llm_integration: Default LLM integration and model. Pass
+                ``None`` to clear it; omit it to preserve the current value.
+            ml_models_enabled: Whether ML models are enabled. Omit it to
+                preserve the current value.
+            gradient_start_color: Avatar gradient starting color. Omit it to
+                preserve the current value.
+            gradient_end_color: Avatar gradient ending color. Omit it to
+                preserve the current value.
+            default_agent_runtime: Default agent-runtime integration. Pass
+                ``None`` to clear it; omit it to preserve the current value.
 
         Returns:
             The updated space object.
 
         Raises:
-            ValueError: If none of ``name``, ``description``, or ``is_private``
-                is provided.
+            ValueError: If no field to update is provided.
             ApiException: If the API request fails
                 (for example, space not found or insufficient permissions).
         """
@@ -210,11 +226,19 @@ class SpacesClient:
             kwargs["description"] = description
         if is_private is not None:
             kwargs["is_private"] = is_private
+        if is_provided(default_llm_integration):
+            kwargs["default_llm_integration"] = default_llm_integration
+        if is_provided(ml_models_enabled):
+            kwargs["ml_models_enabled"] = ml_models_enabled
+        if is_provided(gradient_start_color):
+            kwargs["gradient_start_color"] = gradient_start_color
+        if is_provided(gradient_end_color):
+            kwargs["gradient_end_color"] = gradient_end_color
+        if is_provided(default_agent_runtime):
+            kwargs["default_agent_runtime"] = default_agent_runtime
 
         if not kwargs:
-            raise ValueError(
-                "At least one of 'name', 'description', or 'is_private' must be provided"
-            )
+            raise ValueError("At least one field to update must be provided")
 
         if is_private:
             logger.warning(

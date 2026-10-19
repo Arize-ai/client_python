@@ -200,6 +200,8 @@ A permission identifier following the pattern {RESOURCE}_{ACTION}. Auto-generate
 
 * `PROJECT_SPAN_DELETE` (value: `'PROJECT_SPAN_DELETE'`)
 
+* `PROJECT_SPAN_EVAL_FEEDBACK_UPDATE` (value: `'PROJECT_SPAN_EVAL_FEEDBACK_UPDATE'`)
+
 * `PROJECT_SPAN_READ` (value: `'PROJECT_SPAN_READ'`)
 
 * `PROJECT_SPAN_UPDATE` (value: `'PROJECT_SPAN_UPDATE'`)

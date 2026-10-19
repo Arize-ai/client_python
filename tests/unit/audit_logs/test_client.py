@@ -77,6 +77,7 @@ class TestAuditLogsClientList:
             end_time=None,
             user_id=None,
             operation_type=None,
+            operation_name=None,
             limit=50,
             cursor=None,
         )
@@ -93,6 +94,7 @@ class TestAuditLogsClientList:
             end_time=end,
             user_id="VXNlcjoxMjM0NQ==",
             operation_type=AuditLogOperationType.MUTATION,
+            operation_names=["createUserApiKey", "revokeApiKey"],
             limit=25,
             cursor="cursor-xyz",
         )
@@ -102,6 +104,7 @@ class TestAuditLogsClientList:
             end_time=end,
             user_id="VXNlcjoxMjM0NQ==",
             operation_type=AuditLogOperationType.MUTATION,
+            operation_name=["createUserApiKey", "revokeApiKey"],
             limit=25,
             cursor="cursor-xyz",
         )
@@ -128,6 +131,7 @@ class TestAuditLogsClientList:
             end_time=None,
             user_id=None,
             operation_type=AuditLogOperationType.QUERY,
+            operation_name=None,
             limit=50,
             cursor=None,
         )

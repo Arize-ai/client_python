@@ -164,6 +164,10 @@ from arize._generated.api_client.models.dataset import Dataset
 from arize._generated.api_client.models.dataset_example import DatasetExample
 from arize._generated.api_client.models.dataset_version import DatasetVersion
 from arize._generated.api_client.models.dataset_version_with_example_ids import DatasetVersionWithExampleIds
+from arize._generated.api_client.models.default_agent_runtime import DefaultAgentRuntime
+from arize._generated.api_client.models.default_agent_runtime_response import DefaultAgentRuntimeResponse
+from arize._generated.api_client.models.default_llm_integration import DefaultLLMIntegration
+from arize._generated.api_client.models.default_llm_integration_response import DefaultLLMIntegrationResponse
 from arize._generated.api_client.models.delete_annotation_queue_records_request import DeleteAnnotationQueueRecordsRequest
 from arize._generated.api_client.models.delete_dataset_examples_problem import DeleteDatasetExamplesProblem
 from arize._generated.api_client.models.delete_dataset_examples_request import DeleteDatasetExamplesRequest
@@ -204,6 +208,7 @@ from arize._generated.api_client.models.experiment_with_run_ids import Experimen
 from arize._generated.api_client.models.filter_operator import FilterOperator
 from arize._generated.api_client.models.fireworks_config import FireworksConfig
 from arize._generated.api_client.models.fixed_custom_baseline_window import FixedCustomBaselineWindow
+from arize._generated.api_client.models.forbidden_problem import ForbiddenProblem
 from arize._generated.api_client.models.freeform_annotation_config import FreeformAnnotationConfig
 from arize._generated.api_client.models.gcp_provider_metadata import GcpProviderMetadata
 from arize._generated.api_client.models.gcp_provider_metadata_kind import GcpProviderMetadataKind
@@ -422,6 +427,7 @@ from arize._generated.api_client.models.update_tag_request import UpdateTagReque
 from arize._generated.api_client.models.update_task_request import UpdateTaskRequest
 from arize._generated.api_client.models.update_user_request import UpdateUserRequest
 from arize._generated.api_client.models.update_webhook_request import UpdateWebhookRequest
+from arize._generated.api_client.models.upgrade_plan import UpgradePlan
 from arize._generated.api_client.models.user import User
 from arize._generated.api_client.models.user_api_key import UserApiKey
 from arize._generated.api_client.models.user_role import UserRole

@@ -52,6 +52,7 @@ class AuditLogsClient:
         end_time: datetime | None = None,
         user_id: str | None = None,
         operation_type: AuditLogOperationType | None = None,
+        operation_names: list[str] | None = None,
         limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
     ) -> ListAuditLogsResponse:
@@ -72,6 +73,8 @@ class AuditLogsClient:
                 is applied.
             operation_type: Optional operation type filter. When omitted, all
                 operation types are returned.
+            operation_names: Optional exact, case-sensitive operation names.
+                When omitted, all operation names are returned.
             limit: Maximum number of entries to return (1-100).
             cursor: Opaque pagination cursor from a previous response.
 
@@ -87,6 +90,7 @@ class AuditLogsClient:
             end_time=end_time,
             user_id=user_id,
             operation_type=operation_type,
+            operation_name=operation_names,
             limit=limit,
             cursor=cursor,
         )
