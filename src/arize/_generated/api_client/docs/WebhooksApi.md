@@ -131,25 +131,40 @@ Name | Type | Description  | Notes
 
 Create a webhook subscription
 
-Subscribe a webhook to one event on a prompt or evaluator. To deliver
-several events to the same webhook, create one subscription per event.
+Subscribe a webhook to one event on a prompt, evaluator, evaluation
+task, or space. To deliver several events to the same webhook, create
+one subscription per event. A `SPACE` subscription covers every evaluation task in the
+space, including tasks created later.
 
 **Payload Requirements**
 - `webhook_id`, `source_type`, `source_id`, and `event` are required.
 - `webhook_id` must be a webhook in the source's organization; unknown
   webhooks yield a 404.
 - `event` must belong to the source type: prompt events for `PROMPT`
-  sources and evaluator events for `EVALUATOR` sources.
+  sources, evaluator events for `EVALUATOR` sources, and
+  `ONLINE_TASK_RUN_FAILED` for `ONLINE_TASK` and `SPACE` sources.
   Other combinations are rejected with a 422.
+- An `ONLINE_TASK` source must be an evaluation task; other task types
+  are rejected with a 422.
 - A webhook can subscribe to a given event on a given source only once
   (409 on conflict).
 - At most 200 webhooks may subscribe to the same event on a source;
   requests that would exceed this limit are rejected with a 422.
 
-Creating a subscription requires `PROMPT_UPDATE` for a prompt source or
-`EVALUATOR_UPDATE` for an evaluator source. Callers with the matching
-`PROMPT_READ` or `EVALUATOR_READ` permission but not the required update
-permission receive a 403; sources the caller cannot read yield a 404.
+Creating a subscription requires `PROMPT_UPDATE` for a prompt source,
+`EVALUATOR_UPDATE` for an evaluator source, `PROJECT_EVAL_TASK_UPDATE`
+(or `EXPERIMENT_EVAL_TASK_UPDATE` for a dataset task) for a task source,
+or a space, organization, or account admin role for a space source,
+since a space subscription covers every task in the space, including
+tasks in restricted projects. Callers who can read the source
+(`PROMPT_READ`, `EVALUATOR_READ`, `PROJECT_EVAL_TASK_READ` or
+`EXPERIMENT_EVAL_TASK_READ`) but lack the required permission receive
+a 403; sources the caller cannot read yield a 404.
+
+Checks run in this order, and the first failure is returned: request
+body validation (422), source access (404 or 403), source task type
+(422), webhook lookup (404), then duplicate subscription (409) and the
+per-source webhook limit (422).
 
 <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
 
@@ -327,10 +342,15 @@ Delete a webhook subscription by its ID. The webhook stops receiving
 that event from the source. Other subscriptions on the source and the
 webhook itself are unaffected.
 
-Deleting a subscription requires `PROMPT_UPDATE` for a prompt source or
-`EVALUATOR_UPDATE` for an evaluator source. Callers with the matching
-`PROMPT_READ` or `EVALUATOR_READ` permission but not the required update
-permission receive a 403; sources the caller cannot read yield a 404.
+Deleting a subscription requires `PROMPT_UPDATE` for a prompt source,
+`EVALUATOR_UPDATE` for an evaluator source, `PROJECT_EVAL_TASK_UPDATE`
+(or `EXPERIMENT_EVAL_TASK_UPDATE` for a dataset task) for a task source,
+or a space, organization, or account admin role for a space source,
+since a space subscription covers every task in the space, including
+tasks in restricted projects. Callers who can read the source
+(`PROMPT_READ`, `EVALUATOR_READ`, `PROJECT_EVAL_TASK_READ` or
+`EXPERIMENT_EVAL_TASK_READ`) but lack the required permission receive
+a 403; sources the caller cannot read yield a 404.
 
 <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
 
@@ -676,16 +696,17 @@ Name | Type | Description  | Notes
 
 List webhook subscriptions
 
-List webhook subscriptions attached to prompts and evaluators the caller
-can read, most recently created first. To list one source, provide both
-`source_type` and `source_id`; providing only one returns a 400. An
-unfiltered list returns a 403 when the caller can read no prompt or
-evaluator at all.
+List webhook subscriptions attached to prompts, evaluators, tasks and
+spaces the caller can read, most recently created first. To list one
+source, provide both `source_type` and `source_id`; providing only one
+returns a 400. An unfiltered list returns a 403 when the caller can read
+no prompt, evaluator or task at all.
 
 Each subscription delivers one event to one webhook, so a webhook that
 receives several events from the source appears once per event.
-Subscriptions whose webhook has since been deleted are omitted after
-the page is read, so a page may hold fewer than `limit` items, or none,
+Subscriptions whose webhook has since been deleted, and task
+subscriptions on tasks the caller cannot read, are omitted after the
+page is read, so a page may hold fewer than `limit` items, or none,
 while `has_more` is still `true`. Keep paging until `has_more` is
 `false`.
 
@@ -727,7 +748,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.WebhooksApi(api_client)
     source_type = arize._generated.api_client.WebhookSourceType() # WebhookSourceType | Filter subscriptions to one kind of source. Must be paired with `source_id`. When both filters are omitted, subscriptions from every supported source type are returned.  (optional)
-    source_id = 'UHJvbXB0OjEyMzQ1' # str | Filter subscriptions to one prompt or evaluator. Must be paired with `source_type`. When both filters are omitted, subscriptions from every readable supported source are returned.  (optional)
+    source_id = 'UHJvbXB0OjEyMzQ1' # str | Filter subscriptions to one prompt, evaluator, evaluation task, or space. Must be paired with `source_type`. When both filters are omitted, subscriptions from every readable supported source are returned.  (optional)
     limit = 50 # int | Maximum items to return. Defaults to 50 if omitted; maximum is 100. (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
@@ -748,7 +769,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **source_type** | [**WebhookSourceType**](.md)| Filter subscriptions to one kind of source. Must be paired with &#x60;source_id&#x60;. When both filters are omitted, subscriptions from every supported source type are returned.  | [optional] 
- **source_id** | **str**| Filter subscriptions to one prompt or evaluator. Must be paired with &#x60;source_type&#x60;. When both filters are omitted, subscriptions from every readable supported source are returned.  | [optional] 
+ **source_id** | **str**| Filter subscriptions to one prompt, evaluator, evaluation task, or space. Must be paired with &#x60;source_type&#x60;. When both filters are omitted, subscriptions from every readable supported source are returned.  | [optional] 
  **limit** | **int**| Maximum items to return. Defaults to 50 if omitted; maximum is 100. | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
 

@@ -6,6 +6,7 @@ arize/_generated/api_client/api/annotation_configs_api.py
 arize/_generated/api_client/api/annotation_queues_api.py
 arize/_generated/api_client/api/api_keys_api.py
 arize/_generated/api_client/api/audit_logs_api.py
+arize/_generated/api_client/api/dashboards_api.py
 arize/_generated/api_client/api/datasets_api.py
 arize/_generated/api_client/api/evaluators_api.py
 arize/_generated/api_client/api/experiments_api.py
@@ -90,6 +91,7 @@ arize/_generated/api_client/docs/AwsProviderMetadataKind.md
 arize/_generated/api_client/docs/AwsProviderMetadataRequest.md
 arize/_generated/api_client/docs/AzureParams.md
 arize/_generated/api_client/docs/AzureParamsRequest.md
+arize/_generated/api_client/docs/BarChartWidget.md
 arize/_generated/api_client/docs/BaselineConfig.md
 arize/_generated/api_client/docs/BedrockOptions.md
 arize/_generated/api_client/docs/BedrockOptionsRequest.md
@@ -176,11 +178,14 @@ arize/_generated/api_client/docs/CustomRoleAssignment.md
 arize/_generated/api_client/docs/CustomRoleAssignmentRequest.md
 arize/_generated/api_client/docs/CustomUserRoleAssignment.md
 arize/_generated/api_client/docs/CustomUserRoleAssignmentRequest.md
+arize/_generated/api_client/docs/DashboardsApi.md
 arize/_generated/api_client/docs/DataGranularity.md
 arize/_generated/api_client/docs/DataQualityMetric.md
 arize/_generated/api_client/docs/DataQualityMonitor.md
 arize/_generated/api_client/docs/Dataset.md
+arize/_generated/api_client/docs/DatasetColumnSourceField.md
 arize/_generated/api_client/docs/DatasetExample.md
+arize/_generated/api_client/docs/DatasetSource.md
 arize/_generated/api_client/docs/DatasetVersion.md
 arize/_generated/api_client/docs/DatasetVersionWithExampleIds.md
 arize/_generated/api_client/docs/DatasetsApi.md
@@ -223,6 +228,8 @@ arize/_generated/api_client/docs/EvaluatorVersionTemplate.md
 arize/_generated/api_client/docs/EvaluatorWithVersion.md
 arize/_generated/api_client/docs/EvaluatorsApi.md
 arize/_generated/api_client/docs/Experiment.md
+arize/_generated/api_client/docs/ExperimentChartWidget.md
+arize/_generated/api_client/docs/ExperimentChartWidgetPlot.md
 arize/_generated/api_client/docs/ExperimentRun.md
 arize/_generated/api_client/docs/ExperimentRunInput.md
 arize/_generated/api_client/docs/ExperimentWithRunIds.md
@@ -252,6 +259,8 @@ arize/_generated/api_client/docs/JsonSchemaConfig.md
 arize/_generated/api_client/docs/JsonSchemaConfigRequest.md
 arize/_generated/api_client/docs/LLMMessage.md
 arize/_generated/api_client/docs/LLMMessageRequest.md
+arize/_generated/api_client/docs/LineChartType.md
+arize/_generated/api_client/docs/LineChartWidget.md
 arize/_generated/api_client/docs/ListAiIntegrationsResponse.md
 arize/_generated/api_client/docs/ListAnnotationConfigsResponse.md
 arize/_generated/api_client/docs/ListAnnotationQueueRecordsResponse.md
@@ -308,6 +317,7 @@ arize/_generated/api_client/docs/MonitorStatus.md
 arize/_generated/api_client/docs/MonitorType.md
 arize/_generated/api_client/docs/MonitorsApi.md
 arize/_generated/api_client/docs/MovingCustomBaselineWindow.md
+arize/_generated/api_client/docs/NestedJsonFieldSourceField.md
 arize/_generated/api_client/docs/NotificationConfig.md
 arize/_generated/api_client/docs/NvidiaNimConfig.md
 arize/_generated/api_client/docs/OpenAiConfig.md
@@ -327,6 +337,8 @@ arize/_generated/api_client/docs/PaginationMetadata.md
 arize/_generated/api_client/docs/PerformanceMetric.md
 arize/_generated/api_client/docs/PerformanceMonitor.md
 arize/_generated/api_client/docs/Permission.md
+arize/_generated/api_client/docs/PivotTableColumn.md
+arize/_generated/api_client/docs/PivotTableWidget.md
 arize/_generated/api_client/docs/PredefinedRoleAssignment.md
 arize/_generated/api_client/docs/PredefinedRoleAssignmentRequest.md
 arize/_generated/api_client/docs/PredefinedUserRoleAssignment.md
@@ -391,6 +403,7 @@ arize/_generated/api_client/docs/StaticParam.md
 arize/_generated/api_client/docs/StaticParamDefaultValue.md
 arize/_generated/api_client/docs/StaticParamRequest.md
 arize/_generated/api_client/docs/StaticParamType.md
+arize/_generated/api_client/docs/StatisticWidget.md
 arize/_generated/api_client/docs/Tag.md
 arize/_generated/api_client/docs/TagColor.md
 arize/_generated/api_client/docs/TagsApi.md
@@ -412,6 +425,7 @@ arize/_generated/api_client/docs/TemplateConfigInput.md
 arize/_generated/api_client/docs/TemplateEvaluationRunConfig.md
 arize/_generated/api_client/docs/TemplateEvaluationRunConfigRequest.md
 arize/_generated/api_client/docs/TestWebhookResponse.md
+arize/_generated/api_client/docs/TextWidget.md
 arize/_generated/api_client/docs/ThresholdCalculation.md
 arize/_generated/api_client/docs/ThresholdConfig.md
 arize/_generated/api_client/docs/ThresholdOperator.md
@@ -481,6 +495,18 @@ arize/_generated/api_client/docs/WebhookNotificationConfig.md
 arize/_generated/api_client/docs/WebhookSourceType.md
 arize/_generated/api_client/docs/WebhookSubscription.md
 arize/_generated/api_client/docs/WebhooksApi.md
+arize/_generated/api_client/docs/Widget.md
+arize/_generated/api_client/docs/WidgetCreationStatus.md
+arize/_generated/api_client/docs/WidgetFilter.md
+arize/_generated/api_client/docs/WidgetPlot.md
+arize/_generated/api_client/docs/WidgetPlotComparisonFixedReferenceValue.md
+arize/_generated/api_client/docs/WidgetPlotComparisonMovingReferenceValue.md
+arize/_generated/api_client/docs/WidgetPlotComparisonReferenceSource.md
+arize/_generated/api_client/docs/WidgetPlotComparisonReferenceValue.md
+arize/_generated/api_client/docs/WidgetSourceDataType.md
+arize/_generated/api_client/docs/WidgetSourceField.md
+arize/_generated/api_client/docs/WidgetSourceFieldKind.md
+arize/_generated/api_client/docs/WidgetType.md
 arize/_generated/api_client/exceptions.py
 arize/_generated/api_client/models/__init__.py
 arize/_generated/api_client/models/add_annotation_queue_records_request.py
@@ -541,6 +567,7 @@ arize/_generated/api_client/models/aws_provider_metadata_kind.py
 arize/_generated/api_client/models/aws_provider_metadata_request.py
 arize/_generated/api_client/models/azure_params.py
 arize/_generated/api_client/models/azure_params_request.py
+arize/_generated/api_client/models/bar_chart_widget.py
 arize/_generated/api_client/models/baseline_config.py
 arize/_generated/api_client/models/bedrock_options.py
 arize/_generated/api_client/models/bedrock_options_request.py
@@ -631,7 +658,9 @@ arize/_generated/api_client/models/data_granularity.py
 arize/_generated/api_client/models/data_quality_metric.py
 arize/_generated/api_client/models/data_quality_monitor.py
 arize/_generated/api_client/models/dataset.py
+arize/_generated/api_client/models/dataset_column_source_field.py
 arize/_generated/api_client/models/dataset_example.py
+arize/_generated/api_client/models/dataset_source.py
 arize/_generated/api_client/models/dataset_version.py
 arize/_generated/api_client/models/dataset_version_with_example_ids.py
 arize/_generated/api_client/models/default_agent_runtime.py
@@ -672,6 +701,8 @@ arize/_generated/api_client/models/evaluator_version_remote.py
 arize/_generated/api_client/models/evaluator_version_template.py
 arize/_generated/api_client/models/evaluator_with_version.py
 arize/_generated/api_client/models/experiment.py
+arize/_generated/api_client/models/experiment_chart_widget.py
+arize/_generated/api_client/models/experiment_chart_widget_plot.py
 arize/_generated/api_client/models/experiment_run.py
 arize/_generated/api_client/models/experiment_run_input.py
 arize/_generated/api_client/models/experiment_with_run_ids.py
@@ -697,6 +728,8 @@ arize/_generated/api_client/models/invocation_params.py
 arize/_generated/api_client/models/invocation_params_request.py
 arize/_generated/api_client/models/json_schema_config.py
 arize/_generated/api_client/models/json_schema_config_request.py
+arize/_generated/api_client/models/line_chart_type.py
+arize/_generated/api_client/models/line_chart_widget.py
 arize/_generated/api_client/models/list_ai_integrations_response.py
 arize/_generated/api_client/models/list_annotation_configs_response.py
 arize/_generated/api_client/models/list_annotation_queue_records_response.py
@@ -754,6 +787,7 @@ arize/_generated/api_client/models/monitor_filter.py
 arize/_generated/api_client/models/monitor_status.py
 arize/_generated/api_client/models/monitor_type.py
 arize/_generated/api_client/models/moving_custom_baseline_window.py
+arize/_generated/api_client/models/nested_json_field_source_field.py
 arize/_generated/api_client/models/notification_config.py
 arize/_generated/api_client/models/nvidia_nim_config.py
 arize/_generated/api_client/models/open_ai_config.py
@@ -772,6 +806,8 @@ arize/_generated/api_client/models/pagination_metadata.py
 arize/_generated/api_client/models/performance_metric.py
 arize/_generated/api_client/models/performance_monitor.py
 arize/_generated/api_client/models/permission.py
+arize/_generated/api_client/models/pivot_table_column.py
+arize/_generated/api_client/models/pivot_table_widget.py
 arize/_generated/api_client/models/predefined_role_assignment.py
 arize/_generated/api_client/models/predefined_role_assignment_request.py
 arize/_generated/api_client/models/predefined_user_role_assignment.py
@@ -829,6 +865,7 @@ arize/_generated/api_client/models/static_param.py
 arize/_generated/api_client/models/static_param_default_value.py
 arize/_generated/api_client/models/static_param_request.py
 arize/_generated/api_client/models/static_param_type.py
+arize/_generated/api_client/models/statistic_widget.py
 arize/_generated/api_client/models/tag.py
 arize/_generated/api_client/models/tag_color.py
 arize/_generated/api_client/models/task.py
@@ -848,6 +885,7 @@ arize/_generated/api_client/models/template_config_input.py
 arize/_generated/api_client/models/template_evaluation_run_config.py
 arize/_generated/api_client/models/template_evaluation_run_config_request.py
 arize/_generated/api_client/models/test_webhook_response.py
+arize/_generated/api_client/models/text_widget.py
 arize/_generated/api_client/models/threshold_calculation.py
 arize/_generated/api_client/models/threshold_config.py
 arize/_generated/api_client/models/threshold_operator.py
@@ -914,6 +952,18 @@ arize/_generated/api_client/models/webhook_event_type.py
 arize/_generated/api_client/models/webhook_notification_config.py
 arize/_generated/api_client/models/webhook_source_type.py
 arize/_generated/api_client/models/webhook_subscription.py
+arize/_generated/api_client/models/widget.py
+arize/_generated/api_client/models/widget_creation_status.py
+arize/_generated/api_client/models/widget_filter.py
+arize/_generated/api_client/models/widget_plot.py
+arize/_generated/api_client/models/widget_plot_comparison_fixed_reference_value.py
+arize/_generated/api_client/models/widget_plot_comparison_moving_reference_value.py
+arize/_generated/api_client/models/widget_plot_comparison_reference_source.py
+arize/_generated/api_client/models/widget_plot_comparison_reference_value.py
+arize/_generated/api_client/models/widget_source_data_type.py
+arize/_generated/api_client/models/widget_source_field.py
+arize/_generated/api_client/models/widget_source_field_kind.py
+arize/_generated/api_client/models/widget_type.py
 arize/_generated/api_client/rest.py
 arize/_generated/api_client/test/__init__.py
 arize/_generated/api_client/test/test_add_tags_request.py
@@ -946,6 +996,7 @@ arize/_generated/api_client/test/test_audit_log.py
 arize/_generated/api_client/test/test_audit_log_operation_type.py
 arize/_generated/api_client/test/test_audit_logs_api.py
 arize/_generated/api_client/test/test_aws_provider_metadata_kind.py
+arize/_generated/api_client/test/test_bar_chart_widget.py
 arize/_generated/api_client/test/test_categorical_annotation_config.py
 arize/_generated/api_client/test/test_categorical_annotation_value.py
 arize/_generated/api_client/test/test_code_config.py
@@ -973,8 +1024,11 @@ arize/_generated/api_client/test/test_custom_auth.py
 arize/_generated/api_client/test/test_custom_code_config.py
 arize/_generated/api_client/test/test_custom_default_auth.py
 arize/_generated/api_client/test/test_custom_oauth2_client_credentials_auth.py
+arize/_generated/api_client/test/test_dashboards_api.py
 arize/_generated/api_client/test/test_data_granularity.py
+arize/_generated/api_client/test/test_dataset_column_source_field.py
 arize/_generated/api_client/test/test_dataset_example.py
+arize/_generated/api_client/test/test_dataset_source.py
 arize/_generated/api_client/test/test_dataset_version_with_example_ids.py
 arize/_generated/api_client/test/test_default_agent_runtime.py
 arize/_generated/api_client/test/test_default_agent_runtime_response.py
@@ -994,6 +1048,8 @@ arize/_generated/api_client/test/test_evaluator_version_remote.py
 arize/_generated/api_client/test/test_evaluator_version_template.py
 arize/_generated/api_client/test/test_evaluator_with_version.py
 arize/_generated/api_client/test/test_experiment.py
+arize/_generated/api_client/test/test_experiment_chart_widget.py
+arize/_generated/api_client/test/test_experiment_chart_widget_plot.py
 arize/_generated/api_client/test/test_experiment_with_run_ids.py
 arize/_generated/api_client/test/test_fireworks_config.py
 arize/_generated/api_client/test/test_forbidden_problem.py
@@ -1002,6 +1058,8 @@ arize/_generated/api_client/test/test_integration_scoping.py
 arize/_generated/api_client/test/test_integration_type.py
 arize/_generated/api_client/test/test_integrations_api.py
 arize/_generated/api_client/test/test_invocation_params.py
+arize/_generated/api_client/test/test_line_chart_type.py
+arize/_generated/api_client/test/test_line_chart_widget.py
 arize/_generated/api_client/test/test_list_monitors_response.py
 arize/_generated/api_client/test/test_list_spans_request.py
 arize/_generated/api_client/test/test_list_tags_response.py
@@ -1017,11 +1075,14 @@ arize/_generated/api_client/test/test_llm_message.py
 arize/_generated/api_client/test/test_managed_code_config.py
 arize/_generated/api_client/test/test_managed_code_evaluator.py
 arize/_generated/api_client/test/test_message_role.py
+arize/_generated/api_client/test/test_nested_json_field_source_field.py
 arize/_generated/api_client/test/test_open_ai_config.py
 arize/_generated/api_client/test/test_optimization_direction.py
 arize/_generated/api_client/test/test_organization.py
 arize/_generated/api_client/test/test_pagination_metadata.py
 arize/_generated/api_client/test/test_permission.py
+arize/_generated/api_client/test/test_pivot_table_column.py
+arize/_generated/api_client/test/test_pivot_table_widget.py
 arize/_generated/api_client/test/test_predefined_role_assignment.py
 arize/_generated/api_client/test/test_predefined_user_role_assignment.py
 arize/_generated/api_client/test/test_project_type.py
@@ -1052,6 +1113,7 @@ arize/_generated/api_client/test/test_span_status_code.py
 arize/_generated/api_client/test/test_static_param.py
 arize/_generated/api_client/test/test_static_param_default_value.py
 arize/_generated/api_client/test/test_static_param_type.py
+arize/_generated/api_client/test/test_statistic_widget.py
 arize/_generated/api_client/test/test_tag.py
 arize/_generated/api_client/test/test_tag_color.py
 arize/_generated/api_client/test/test_tags_api.py
@@ -1066,6 +1128,7 @@ arize/_generated/api_client/test/test_task_run.py
 arize/_generated/api_client/test/test_task_run_status.py
 arize/_generated/api_client/test/test_task_type.py
 arize/_generated/api_client/test/test_test_webhook_response.py
+arize/_generated/api_client/test/test_text_widget.py
 arize/_generated/api_client/test/test_together_ai_config.py
 arize/_generated/api_client/test/test_tool_call.py
 arize/_generated/api_client/test/test_tool_call_function.py
@@ -1091,4 +1154,16 @@ arize/_generated/api_client/test/test_webhook_event_type.py
 arize/_generated/api_client/test/test_webhook_source_type.py
 arize/_generated/api_client/test/test_webhook_subscription.py
 arize/_generated/api_client/test/test_webhooks_api.py
+arize/_generated/api_client/test/test_widget.py
+arize/_generated/api_client/test/test_widget_creation_status.py
+arize/_generated/api_client/test/test_widget_filter.py
+arize/_generated/api_client/test/test_widget_plot.py
+arize/_generated/api_client/test/test_widget_plot_comparison_fixed_reference_value.py
+arize/_generated/api_client/test/test_widget_plot_comparison_moving_reference_value.py
+arize/_generated/api_client/test/test_widget_plot_comparison_reference_source.py
+arize/_generated/api_client/test/test_widget_plot_comparison_reference_value.py
+arize/_generated/api_client/test/test_widget_source_data_type.py
+arize/_generated/api_client/test/test_widget_source_field.py
+arize/_generated/api_client/test/test_widget_source_field_kind.py
+arize/_generated/api_client/test/test_widget_type.py
 arize/_generated/api_client_README.md

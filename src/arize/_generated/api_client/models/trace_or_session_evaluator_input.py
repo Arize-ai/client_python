@@ -100,11 +100,11 @@ class TraceOrSessionEvaluatorInput(BaseModel):
             if _key not in cls.__properties:
                 raise ValueError("Error due to additional fields (not defined in TraceOrSessionEvaluatorInput) in the input: " + _key)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "evaluator_id": obj.get("evaluator_id"),
             "evaluator_version_id": obj.get("evaluator_version_id"),
             "query_mappings": [TaskQueryMappingInput.from_dict(_item) for _item in obj["query_mappings"]] if obj.get("query_mappings") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

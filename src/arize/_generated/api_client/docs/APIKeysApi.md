@@ -36,6 +36,11 @@ Create a new API key for the authenticated user.
 When developer access is disabled for an account, users cannot create user keys or service
 keys. Existing service keys remain active with their assigned roles.
 
+**Account key lifetime limit:** Your account may limit the maximum lifetime of API keys.
+The limit applies to both user keys and service keys. When it is set and `expires_at` is
+omitted, the key expires at the maximum lifetime from now. An `expires_at` beyond the
+maximum is rejected with `422 Unprocessable Entity`.
+
 The full API key value (`key`) is **only returned once** in the creation response.
 Store it securely — it cannot be retrieved again. Use the `redacted_key` field on
 subsequent reads.
@@ -269,6 +274,11 @@ returns `403`.
 For unbounded existing keys, `expires_at` may be omitted (the replacement is also
 unbounded) or supplied to add a specific expiry. The value must not be later than the
 existing key's expiry; to issue a key with a longer lifetime, use `POST /v2/api-keys`.
+
+**Account key lifetime limit:** If your account limits the maximum API key lifetime, an
+`expires_at` beyond that maximum is rejected with `422`. When the existing key has no
+expiry and `expires_at` is omitted, the refreshed key expires at the maximum lifetime from
+now. To bring a key that exceeds the limit into compliance, supply a compliant `expires_at`.
 
 **Grace period:** Supply `grace_period_seconds` in the request body to keep the old key
 valid for that many seconds after the refresh. If not supplied, the old key is revoked immediately.

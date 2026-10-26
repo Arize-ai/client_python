@@ -7,7 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **webhook_id** | **str** | The unique identifier of the webhook to deliver the event to. Must belong to the source&#39;s organization. | 
 **source_type** | [**WebhookSourceType**](WebhookSourceType.md) | The kind of resource to attach the webhook to | 
-**source_id** | **str** | The unique identifier of the prompt or evaluator to attach the webhook to | 
+**source_id** | **str** | The unique identifier of the prompt, evaluator, evaluation task, or space to attach the webhook to  | 
 **event** | [**WebhookEventType**](WebhookEventType.md) | The event to deliver. Must belong to the source type. | 
 
 ## Example

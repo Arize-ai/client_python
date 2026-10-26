@@ -90,10 +90,10 @@ class ToolConfigRequest(BaseModel):
             if _key not in cls.__properties:
                 raise ValueError("Error due to additional fields (not defined in ToolConfigRequest) in the input: " + _key)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "tools": obj.get("tools"),
             "tool_choice": obj.get("tool_choice")
-        })
+        }.items() if key in obj})
         return _obj
 
 

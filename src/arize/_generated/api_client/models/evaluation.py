@@ -30,7 +30,8 @@ class Evaluation(BaseModel):
     score: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, description="Numeric score for the evaluation")
     label: Optional[StrictStr] = Field(default=None, description="Categorical label for the evaluation")
     explanation: Optional[StrictStr] = Field(default=None, description="Explanation for the evaluation result")
-    __properties: ClassVar[List[str]] = ["name", "score", "label", "explanation"]
+    metadata: Optional[Dict[str, Any]] = Field(default=None, description="Metadata associated with the evaluation, including task and run identifiers when available. Omitted when no metadata is available. ")
+    __properties: ClassVar[List[str]] = ["name", "score", "label", "explanation", "metadata"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -87,7 +88,8 @@ class Evaluation(BaseModel):
             "name": obj.get("name"),
             "score": obj.get("score"),
             "label": obj.get("label"),
-            "explanation": obj.get("explanation")
+            "explanation": obj.get("explanation"),
+            "metadata": obj.get("metadata")
         }.items() if key in obj})
         return _obj
 

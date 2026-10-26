@@ -114,7 +114,7 @@ class UpdateLlmConfig(BaseModel):
             if _key not in cls.__properties:
                 raise ValueError("Error due to additional fields (not defined in UpdateLlmConfig) in the input: " + _key)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "provider": obj.get("provider"),
             "api_key": obj.get("api_key"),
             "is_function_calling_enabled": obj.get("is_function_calling_enabled"),
@@ -126,7 +126,7 @@ class UpdateLlmConfig(BaseModel):
             "project_id": obj.get("project_id"),
             "location": obj.get("location"),
             "project_access_label": obj.get("project_access_label")
-        })
+        }.items() if key in obj})
         return _obj
 
 

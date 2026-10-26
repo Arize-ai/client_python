@@ -92,11 +92,11 @@ class UpdateEvaluatorIntegrationConfigInput(BaseModel):
             if _key not in cls.__properties:
                 raise ValueError("Error due to additional fields (not defined in UpdateEvaluatorIntegrationConfigInput) in the input: " + _key)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "endpoint": obj.get("endpoint"),
             "headers": obj.get("headers"),
             "input_schema": obj.get("input_schema")
-        })
+        }.items() if key in obj})
         return _obj
 
 

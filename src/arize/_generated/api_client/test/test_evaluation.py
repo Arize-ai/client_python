@@ -38,7 +38,8 @@ class TestEvaluation(unittest.TestCase):
                 name = '',
                 score = 1.337,
                 label = '',
-                explanation = ''
+                explanation = '',
+                metadata = { }
             )
         else:
             return Evaluation(

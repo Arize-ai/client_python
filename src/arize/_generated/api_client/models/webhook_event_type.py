@@ -20,7 +20,7 @@ from typing_extensions import Self
 
 class WebhookEventType(str, Enum):
     """
-    An event that a webhook can subscribe to. - `PROMPT_VERSION_CREATED` — a new version of the prompt was created. - `PROMPT_VERSION_LABELED` — a label was added to a version of the prompt. - `PROMPT_VERSION_UNLABELED` — a label was removed from a version of the prompt. - `EVALUATOR_VERSION_CREATED` — a new version of the evaluator was created.  Prompt events are valid only for `PROMPT` sources, and evaluator events only for `EVALUATOR` sources. 
+    An event that a webhook can subscribe to. - `PROMPT_VERSION_CREATED` — a new version of the prompt was created. - `PROMPT_VERSION_LABELED` — a label was added to a version of the prompt. - `PROMPT_VERSION_UNLABELED` — a label was removed from a version of the prompt. - `EVALUATOR_VERSION_CREATED` — a new version of the evaluator was created. - `ONLINE_TASK_RUN_FAILED` — a run of an evaluation task failed, or   wrote some evaluations and then stopped on an error. Sent once when   a task starts failing and again each time the cause changes.  Prompt events are valid only for `PROMPT` sources, evaluator events only for `EVALUATOR` sources, and task run events only for `ONLINE_TASK` and `SPACE` sources. 
     """
 
     """
@@ -30,6 +30,7 @@ class WebhookEventType(str, Enum):
     PROMPT_VERSION_LABELED = 'PROMPT_VERSION_LABELED'
     PROMPT_VERSION_UNLABELED = 'PROMPT_VERSION_UNLABELED'
     EVALUATOR_VERSION_CREATED = 'EVALUATOR_VERSION_CREATED'
+    ONLINE_TASK_RUN_FAILED = 'ONLINE_TASK_RUN_FAILED'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

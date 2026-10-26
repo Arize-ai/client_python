@@ -1,5 +1,17 @@
 # Changelog
 
+## [8.61.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.60.0...arize-python-sdk/v8.61.0) (2026-10-26)
+
+
+### 🎁 New Features
+
+* **api:** add ONLINE_TASK and SPACE webhook subscription sources ([#91537](https://github.com/Arize-ai/arize/issues/91537)) ([7619ff8](https://github.com/Arize-ai/arize/commit/7619ff889904c860d2682d7e675ad3e7082dbd15))
+
+
+### 🐛 Bug Fixes
+
+* **sdk:** authenticate HTTP CONNECT proxies ([#92474](https://github.com/Arize-ai/arize/issues/92474)) ([45ebcb8](https://github.com/Arize-ai/arize/commit/45ebcb886570f9170b5734ee04973be39688f082))
+
 ## [8.60.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.59.1...arize-python-sdk/v8.60.0) (2026-10-19)
 
 

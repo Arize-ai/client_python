@@ -1,9 +1,12 @@
 """Unit tests for src/arize/_client_factory.py."""
 
+import base64
 import threading
+from http.server import BaseHTTPRequestHandler, HTTPServer
 from unittest.mock import Mock, patch
 
 import pytest
+from urllib3.exceptions import ProxyError
 
 from arize._client_factory import GeneratedClientFactory
 
@@ -237,3 +240,134 @@ class TestGetClient:
 
         # Should return cached client without needing to import or lock
         assert result is mock_client
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    ("proxy_url", "credentials"),
+    [
+        ("http://user:password@localhost:8080", "user:password"),
+        ("https://user:password@localhost:8080", "user:password"),
+        ("http://user%40corp:p%3Aa%2Bss@localhost:8080", "user@corp:p:a+ss"),
+        ("http://user+name:p+ss@localhost:8080", "user+name:p+ss"),
+        (
+            "http://user:%E2%82%AC%E5%AF%86%E7%A2%BC@localhost:8080",
+            "user:€密碼",
+        ),
+        ("http://user:caf%C3%A9@localhost:8080", "user:café"),
+        ("http://user@localhost:8080", "user:"),
+        ("http://:password@localhost:8080", ":password"),
+        ("http://localhost:8080", None),
+        ("", None),
+    ],
+)
+def test_proxy_credentials_stay_out_of_origin_headers(
+    mock_sdk_config: Mock, proxy_url: str, credentials: str | None
+) -> None:
+    """The real REST transport receives proxy-only, URL-decoded credentials."""
+    mock_sdk_config.proxy_url = proxy_url
+    client = GeneratedClientFactory(mock_sdk_config).get_client()
+    try:
+        expected = (
+            {
+                "proxy-authorization": "Basic "
+                + base64.b64encode(credentials.encode()).decode()
+            }
+            if credentials is not None
+            else None
+        )
+        assert client.configuration.proxy_headers == expected
+        if proxy_url:
+            assert client.rest_client.pool_manager.proxy_headers == (
+                expected or {}
+            )
+        assert "proxy-authorization" not in {
+            k.lower() for k in client.default_headers
+        }
+        assert client.configuration.access_token == mock_sdk_config.api_key
+    finally:
+        client.rest_client.pool_manager.clear()
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    ("proxy_url", "expected_url"),
+    [
+        ("http://user:p%40ss@localhost:8080", "http://localhost:8080"),
+        ("https://user:password@localhost", "https://localhost"),
+        ("http://user:password@[::1]:8080", "http://[::1]:8080"),
+        ("https://user:password@[::1]", "https://[::1]"),
+    ],
+)
+def test_http_proxy_url_excludes_credentials(
+    mock_sdk_config: Mock, proxy_url: str, expected_url: str
+) -> None:
+    """Proxy URLs omit credentials while retaining the configured address."""
+    mock_sdk_config.proxy_url = proxy_url
+    client = GeneratedClientFactory(mock_sdk_config).get_client()
+    try:
+        assert client.configuration.proxy == expected_url
+        assert client.rest_client.pool_manager.proxy.auth is None
+        expected_transport_url = (
+            f"{expected_url}:443"
+            if expected_url.startswith("https:")
+            else expected_url
+        )
+        assert (
+            client.rest_client.pool_manager.proxy.url == expected_transport_url
+        )
+    finally:
+        client.rest_client.pool_manager.clear()
+
+
+@pytest.mark.unit
+def test_socks_proxy_keeps_url_authentication(mock_sdk_config: Mock) -> None:
+    """SOCKS authentication remains in its URL, without HTTP proxy headers."""
+    mock_sdk_config.proxy_url = "socks5h://user:password@localhost:1080"
+    with patch("arize._generated.api_client.ApiClient") as constructor:
+        GeneratedClientFactory(mock_sdk_config).get_client()
+    config = constructor.call_args.args[0]
+    assert config.proxy == mock_sdk_config.proxy_url
+    assert config.proxy_headers is None
+
+
+@pytest.mark.unit
+def test_authenticated_proxy_connect(mock_sdk_config: Mock) -> None:
+    """CONNECT carries the proxy credential without forwarding the API key."""
+    received = []
+
+    class ProxyHandler(BaseHTTPRequestHandler):
+        def do_CONNECT(self) -> None:
+            received.append((self.path, dict(self.headers)))
+            self.send_error(502)
+
+        def log_message(self, format: str, *args: object) -> None:
+            pass
+
+    with HTTPServer(("127.0.0.1", 0), ProxyHandler) as server:
+        server.timeout = 2
+        worker = threading.Thread(target=server.handle_request, daemon=True)
+        worker.start()
+        mock_sdk_config.proxy_url = (
+            f"http://user:p%40ss@127.0.0.1:{server.server_port}"
+        )
+        client = GeneratedClientFactory(mock_sdk_config).get_client()
+        try:
+            with pytest.raises(ProxyError):
+                client.rest_client.pool_manager.request(
+                    "GET",
+                    "https://origin.invalid/spans",
+                    headers={"Authorization": "Bearer dummy-api-key"},
+                    retries=False,
+                    timeout=1,
+                )
+        finally:
+            client.rest_client.pool_manager.clear()
+            worker.join(timeout=3)
+        assert not worker.is_alive()
+    assert len(received) == 1
+    target, headers = received[0]
+    assert target == "origin.invalid:443"
+    headers = {key.lower(): value for key, value in headers.items()}
+    assert headers["proxy-authorization"] == "Basic dXNlcjpwQHNz"
+    assert "authorization" not in headers

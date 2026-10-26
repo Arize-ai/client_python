@@ -92,11 +92,11 @@ class AwsProviderMetadataRequest(BaseModel):
             if _key not in cls.__properties:
                 raise ValueError("Error due to additional fields (not defined in AwsProviderMetadataRequest) in the input: " + _key)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "kind": obj.get("kind"),
             "role_arn": obj.get("role_arn"),
             "external_id": obj.get("external_id")
-        })
+        }.items() if key in obj})
         return _obj
 
 

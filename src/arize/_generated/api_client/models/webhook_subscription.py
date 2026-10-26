@@ -27,12 +27,12 @@ from typing_extensions import Self
 
 class WebhookSubscription(BaseModel):
     """
-    A subscription delivers one event from one prompt or evaluator to one webhook. A webhook that should receive several events from the same resource has one subscription per event. 
+    A subscription delivers one event from one prompt, evaluator, task or space to one webhook. A webhook that should receive several events from the same resource has one subscription per event. 
     """ # noqa: E501
     id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the subscription")
     webhook_id: Optional[StrictStr] = Field(default=None, description="The unique identifier of the webhook that receives the event")
     source_type: Optional[WebhookSourceType] = Field(default=None, description="The kind of resource the subscription is attached to")
-    source_id: Optional[StrictStr] = Field(default=None, description="The unique identifier of the prompt or evaluator the subscription is attached to")
+    source_id: Optional[StrictStr] = Field(default=None, description="The unique identifier of the prompt, evaluator, evaluation task, or space the subscription is attached to ")
     event: Optional[WebhookEventType] = Field(default=None, description="The event delivered to the webhook")
     created_at: Optional[datetime] = Field(default=None, description="Timestamp for when the subscription was created")
     __properties: ClassVar[List[str]] = ["id", "webhook_id", "source_type", "source_id", "event", "created_at"]

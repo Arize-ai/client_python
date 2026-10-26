@@ -113,12 +113,12 @@ class CreateExperimentRequest(BaseModel):
             if _key not in cls.__properties:
                 raise ValueError("Error due to additional fields (not defined in CreateExperimentRequest) in the input: " + _key)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "name": obj.get("name"),
             "dataset_id": obj.get("dataset_id"),
             "space_id": obj.get("space_id"),
             "experiment_runs": [ExperimentRunInput.from_dict(_item) for _item in obj["experiment_runs"]] if obj.get("experiment_runs") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

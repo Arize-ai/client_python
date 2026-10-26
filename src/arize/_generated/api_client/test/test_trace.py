@@ -76,7 +76,8 @@ class TestTrace(unittest.TestCase):
                                 name = '', 
                                 score = 1.337, 
                                 label = '', 
-                                explanation = '', )
+                                explanation = '', 
+                                metadata = { }, )
                             ], 
                         events = [
                             arize._generated.api_client.models.span_event.SpanEvent(
@@ -126,7 +127,8 @@ class TestTrace(unittest.TestCase):
                                 name = '', 
                                 score = 1.337, 
                                 label = '', 
-                                explanation = '', )
+                                explanation = '', 
+                                metadata = { }, )
                             ], 
                         events = [
                             arize._generated.api_client.models.span_event.SpanEvent(

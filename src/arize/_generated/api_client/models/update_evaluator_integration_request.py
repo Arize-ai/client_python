@@ -112,13 +112,13 @@ class UpdateEvaluatorIntegrationRequest(BaseModel):
             if _key not in cls.__properties:
                 raise ValueError("Error due to additional fields (not defined in UpdateEvaluatorIntegrationRequest) in the input: " + _key)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "type": obj.get("type"),
             "name": obj.get("name"),
             "description": obj.get("description"),
             "scopings": [IntegrationScopingRequest.from_dict(_item) for _item in obj["scopings"]] if obj.get("scopings") is not None else None,
             "config": UpdateEvaluatorIntegrationConfigInput.from_dict(obj["config"]) if obj.get("config") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

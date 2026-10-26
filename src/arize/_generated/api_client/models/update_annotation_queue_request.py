@@ -99,13 +99,13 @@ class UpdateAnnotationQueueRequest(BaseModel):
             if _key not in cls.__properties:
                 raise ValueError("Error due to additional fields (not defined in UpdateAnnotationQueueRequest) in the input: " + _key)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "name": obj.get("name"),
             "instructions": obj.get("instructions"),
             "annotation_config_ids": obj.get("annotation_config_ids"),
             "annotator_emails": obj.get("annotator_emails"),
             "column_allowlist": obj.get("column_allowlist")
-        })
+        }.items() if key in obj})
         return _obj
 
 

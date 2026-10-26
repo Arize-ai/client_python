@@ -128,7 +128,7 @@ class UpdateAiIntegrationRequest(BaseModel):
             if _key not in cls.__properties:
                 raise ValueError("Error due to additional fields (not defined in UpdateAiIntegrationRequest) in the input: " + _key)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "name": obj.get("name"),
             "provider": obj.get("provider"),
             "api_key": obj.get("api_key"),
@@ -140,7 +140,7 @@ class UpdateAiIntegrationRequest(BaseModel):
             "auth_type": obj.get("auth_type"),
             "provider_metadata": ProviderMetadataRequest.from_dict(obj["provider_metadata"]) if obj.get("provider_metadata") is not None else None,
             "scopings": [AiIntegrationScopingRequest.from_dict(_item) for _item in obj["scopings"]] if obj.get("scopings") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

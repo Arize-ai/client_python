@@ -103,7 +103,7 @@ class TemplateConfigInput(BaseModel):
             if _key not in cls.__properties:
                 raise ValueError("Error due to additional fields (not defined in TemplateConfigInput) in the input: " + _key)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "name": obj.get("name"),
             "template": obj.get("template"),
             "include_explanations": obj.get("include_explanations"),
@@ -113,7 +113,7 @@ class TemplateConfigInput(BaseModel):
             "direction": obj.get("direction"),
             "data_granularity": obj.get("data_granularity"),
             "llm_config": EvaluatorLlmConfigRequest.from_dict(obj["llm_config"]) if obj.get("llm_config") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

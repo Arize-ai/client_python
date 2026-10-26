@@ -92,12 +92,12 @@ class SpanEvaluatorInput(BaseModel):
             if _key not in cls.__properties:
                 raise ValueError("Error due to additional fields (not defined in SpanEvaluatorInput) in the input: " + _key)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "evaluator_id": obj.get("evaluator_id"),
             "evaluator_version_id": obj.get("evaluator_version_id"),
             "query_filter": obj.get("query_filter"),
             "column_mappings": obj.get("column_mappings")
-        })
+        }.items() if key in obj})
         return _obj
 
 

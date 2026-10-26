@@ -8,7 +8,7 @@ Name | Type | Description | Notes
 **key_type** | **str** | Must be &#x60;\&quot;USER\&quot;&#x60;. | 
 **name** | **str** | User-defined name for the API key. | 
 **description** | **str** | Optional user-defined description for the API key. | [optional] 
-**expires_at** | **datetime** | Optional expiration timestamp. If omitted the key never expires. | [optional] 
+**expires_at** | **datetime** | Optional expiration timestamp. If the account has no maximum API key lifetime, omitting this value creates a key that never expires. If a maximum is configured, an omitted value defaults to that maximum, and an explicit value exceeding it is rejected with 422.  | [optional] 
 
 ## Example
 

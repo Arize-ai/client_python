@@ -89,9 +89,9 @@ class AnthropicHeadersRequest(BaseModel):
             if _key not in cls.__properties:
                 raise ValueError("Error due to additional fields (not defined in AnthropicHeadersRequest) in the input: " + _key)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "anthropic_beta": obj.get("anthropic_beta")
-        })
+        }.items() if key in obj})
         return _obj
 
 

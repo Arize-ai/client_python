@@ -101,12 +101,12 @@ class LLMMessageRequest(BaseModel):
             if _key not in cls.__properties:
                 raise ValueError("Error due to additional fields (not defined in LLMMessageRequest) in the input: " + _key)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "role": obj.get("role"),
             "content": obj.get("content"),
             "tool_call_id": obj.get("tool_call_id"),
             "tool_calls": [ToolCallRequest.from_dict(_item) for _item in obj["tool_calls"]] if obj.get("tool_calls") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

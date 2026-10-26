@@ -10,6 +10,7 @@ Name | Type | Description | Notes
 **score** | **float** | Numeric score for the evaluation | [optional] 
 **label** | **str** | Categorical label for the evaluation | [optional] 
 **explanation** | **str** | Explanation for the evaluation result | [optional] 
+**metadata** | **Dict[str, object]** | Metadata associated with the evaluation, including task and run identifiers when available. Omitted when no metadata is available.  | [optional] 
 
 ## Example
 

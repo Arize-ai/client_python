@@ -6,6 +6,7 @@ from arize._generated.api_client.api.api_keys_api import APIKeysApi
 from arize._generated.api_client.api.annotation_configs_api import AnnotationConfigsApi
 from arize._generated.api_client.api.annotation_queues_api import AnnotationQueuesApi
 from arize._generated.api_client.api.audit_logs_api import AuditLogsApi
+from arize._generated.api_client.api.dashboards_api import DashboardsApi
 from arize._generated.api_client.api.datasets_api import DatasetsApi
 from arize._generated.api_client.api.evaluators_api import EvaluatorsApi
 from arize._generated.api_client.api.experiments_api import ExperimentsApi

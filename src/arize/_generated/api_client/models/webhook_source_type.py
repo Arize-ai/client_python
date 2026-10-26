@@ -20,7 +20,7 @@ from typing_extensions import Self
 
 class WebhookSourceType(str, Enum):
     """
-    The kind of resource a webhook subscription is attached to. - `PROMPT` — `source_id` is a prompt id. Prompt events apply. - `EVALUATOR` — `source_id` is an evaluator id. Evaluator events apply. 
+    The kind of resource a webhook subscription is attached to. - `PROMPT` — `source_id` is a prompt id. Prompt events apply. - `EVALUATOR` — `source_id` is an evaluator id. Evaluator events apply. - `ONLINE_TASK` — `source_id` is an evaluation task id. Task run events apply. - `SPACE` — `source_id` is a space id. Task run events apply to every   evaluation task in the space, including tasks created later. 
     """
 
     """
@@ -28,6 +28,8 @@ class WebhookSourceType(str, Enum):
     """
     PROMPT = 'PROMPT'
     EVALUATOR = 'EVALUATOR'
+    ONLINE_TASK = 'ONLINE_TASK'
+    SPACE = 'SPACE'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

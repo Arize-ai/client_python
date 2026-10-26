@@ -63,12 +63,13 @@ class TestWebhooksTypes:
         assert issubclass(enum_cls, Enum)
 
     def test_event_type_values(self) -> None:
-        """The event enum carries the four subscribable events."""
+        """The event enum carries the five subscribable events."""
         assert {e.value for e in WebhookEventType} == {
             "PROMPT_VERSION_CREATED",
             "PROMPT_VERSION_LABELED",
             "PROMPT_VERSION_UNLABELED",
             "EVALUATOR_VERSION_CREATED",
+            "ONLINE_TASK_RUN_FAILED",
         }
 
     @pytest.mark.parametrize(

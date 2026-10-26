@@ -110,7 +110,7 @@ class TemplateEvaluationRunConfigRequest(BaseModel):
             if _key not in cls.__properties:
                 raise ValueError("Error due to additional fields (not defined in TemplateEvaluationRunConfigRequest) in the input: " + _key)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "experiment_type": obj.get("experiment_type"),
             "ai_integration_id": obj.get("ai_integration_id"),
             "model_name": obj.get("model_name"),
@@ -121,7 +121,7 @@ class TemplateEvaluationRunConfigRequest(BaseModel):
             "evaluator_version_id": obj.get("evaluator_version_id"),
             "invocation_parameters": InvocationParamsRequest.from_dict(obj["invocation_parameters"]) if obj.get("invocation_parameters") is not None else None,
             "provider_parameters": obj.get("provider_parameters")
-        })
+        }.items() if key in obj})
         return _obj
 
 

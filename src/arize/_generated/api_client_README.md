@@ -102,6 +102,7 @@ Class | Method | HTTP request | Description
 *AnnotationQueuesApi* | [**list_annotation_queues**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#list_annotation_queues) | **GET** /v2/annotation-queues | List annotation queues
 *AnnotationQueuesApi* | [**update_annotation_queue**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#update_annotation_queue) | **PATCH** /v2/annotation-queues/{annotation_queue_id} | Update an annotation queue
 *AuditLogsApi* | [**list_audit_logs**](arize/_generated/api_client/docs/AuditLogsApi.md#list_audit_logs) | **GET** /v2/audit-logs | List audit logs
+*DashboardsApi* | [**get_dashboard_widget**](arize/_generated/api_client/docs/DashboardsApi.md#get_dashboard_widget) | **GET** /v2/dashboards/{dashboard_id}/widgets/{widget_id} | Get a dashboard widget
 *DatasetsApi* | [**add_dataset_tags**](arize/_generated/api_client/docs/DatasetsApi.md#add_dataset_tags) | **POST** /v2/datasets/{dataset_id}/tags | Attach tags to a dataset
 *DatasetsApi* | [**annotate_dataset_examples**](arize/_generated/api_client/docs/DatasetsApi.md#annotate_dataset_examples) | **POST** /v2/datasets/{dataset_id}/examples/annotate | Annotate a batch of dataset examples
 *DatasetsApi* | [**create_dataset**](arize/_generated/api_client/docs/DatasetsApi.md#create_dataset) | **POST** /v2/datasets | Create a dataset
@@ -294,6 +295,7 @@ Class | Method | HTTP request | Description
  - [AwsProviderMetadataRequest](arize/_generated/api_client/docs/AwsProviderMetadataRequest.md)
  - [AzureParams](arize/_generated/api_client/docs/AzureParams.md)
  - [AzureParamsRequest](arize/_generated/api_client/docs/AzureParamsRequest.md)
+ - [BarChartWidget](arize/_generated/api_client/docs/BarChartWidget.md)
  - [BaselineConfig](arize/_generated/api_client/docs/BaselineConfig.md)
  - [BedrockOptions](arize/_generated/api_client/docs/BedrockOptions.md)
  - [BedrockOptionsRequest](arize/_generated/api_client/docs/BedrockOptionsRequest.md)
@@ -384,7 +386,9 @@ Class | Method | HTTP request | Description
  - [DataQualityMetric](arize/_generated/api_client/docs/DataQualityMetric.md)
  - [DataQualityMonitor](arize/_generated/api_client/docs/DataQualityMonitor.md)
  - [Dataset](arize/_generated/api_client/docs/Dataset.md)
+ - [DatasetColumnSourceField](arize/_generated/api_client/docs/DatasetColumnSourceField.md)
  - [DatasetExample](arize/_generated/api_client/docs/DatasetExample.md)
+ - [DatasetSource](arize/_generated/api_client/docs/DatasetSource.md)
  - [DatasetVersion](arize/_generated/api_client/docs/DatasetVersion.md)
  - [DatasetVersionWithExampleIds](arize/_generated/api_client/docs/DatasetVersionWithExampleIds.md)
  - [DefaultAgentRuntime](arize/_generated/api_client/docs/DefaultAgentRuntime.md)
@@ -425,6 +429,8 @@ Class | Method | HTTP request | Description
  - [EvaluatorVersionTemplate](arize/_generated/api_client/docs/EvaluatorVersionTemplate.md)
  - [EvaluatorWithVersion](arize/_generated/api_client/docs/EvaluatorWithVersion.md)
  - [Experiment](arize/_generated/api_client/docs/Experiment.md)
+ - [ExperimentChartWidget](arize/_generated/api_client/docs/ExperimentChartWidget.md)
+ - [ExperimentChartWidgetPlot](arize/_generated/api_client/docs/ExperimentChartWidgetPlot.md)
  - [ExperimentRun](arize/_generated/api_client/docs/ExperimentRun.md)
  - [ExperimentRunInput](arize/_generated/api_client/docs/ExperimentRunInput.md)
  - [ExperimentWithRunIds](arize/_generated/api_client/docs/ExperimentWithRunIds.md)
@@ -452,6 +458,8 @@ Class | Method | HTTP request | Description
  - [JsonSchemaConfigRequest](arize/_generated/api_client/docs/JsonSchemaConfigRequest.md)
  - [LLMMessage](arize/_generated/api_client/docs/LLMMessage.md)
  - [LLMMessageRequest](arize/_generated/api_client/docs/LLMMessageRequest.md)
+ - [LineChartType](arize/_generated/api_client/docs/LineChartType.md)
+ - [LineChartWidget](arize/_generated/api_client/docs/LineChartWidget.md)
  - [ListAiIntegrationsResponse](arize/_generated/api_client/docs/ListAiIntegrationsResponse.md)
  - [ListAnnotationConfigsResponse](arize/_generated/api_client/docs/ListAnnotationConfigsResponse.md)
  - [ListAnnotationQueueRecordsResponse](arize/_generated/api_client/docs/ListAnnotationQueueRecordsResponse.md)
@@ -507,6 +515,7 @@ Class | Method | HTTP request | Description
  - [MonitorStatus](arize/_generated/api_client/docs/MonitorStatus.md)
  - [MonitorType](arize/_generated/api_client/docs/MonitorType.md)
  - [MovingCustomBaselineWindow](arize/_generated/api_client/docs/MovingCustomBaselineWindow.md)
+ - [NestedJsonFieldSourceField](arize/_generated/api_client/docs/NestedJsonFieldSourceField.md)
  - [NotificationConfig](arize/_generated/api_client/docs/NotificationConfig.md)
  - [NvidiaNimConfig](arize/_generated/api_client/docs/NvidiaNimConfig.md)
  - [OpenAiConfig](arize/_generated/api_client/docs/OpenAiConfig.md)
@@ -525,6 +534,8 @@ Class | Method | HTTP request | Description
  - [PerformanceMetric](arize/_generated/api_client/docs/PerformanceMetric.md)
  - [PerformanceMonitor](arize/_generated/api_client/docs/PerformanceMonitor.md)
  - [Permission](arize/_generated/api_client/docs/Permission.md)
+ - [PivotTableColumn](arize/_generated/api_client/docs/PivotTableColumn.md)
+ - [PivotTableWidget](arize/_generated/api_client/docs/PivotTableWidget.md)
  - [PredefinedRoleAssignment](arize/_generated/api_client/docs/PredefinedRoleAssignment.md)
  - [PredefinedRoleAssignmentRequest](arize/_generated/api_client/docs/PredefinedRoleAssignmentRequest.md)
  - [PredefinedUserRoleAssignment](arize/_generated/api_client/docs/PredefinedUserRoleAssignment.md)
@@ -582,6 +593,7 @@ Class | Method | HTTP request | Description
  - [StaticParamDefaultValue](arize/_generated/api_client/docs/StaticParamDefaultValue.md)
  - [StaticParamRequest](arize/_generated/api_client/docs/StaticParamRequest.md)
  - [StaticParamType](arize/_generated/api_client/docs/StaticParamType.md)
+ - [StatisticWidget](arize/_generated/api_client/docs/StatisticWidget.md)
  - [Tag](arize/_generated/api_client/docs/Tag.md)
  - [TagColor](arize/_generated/api_client/docs/TagColor.md)
  - [Task](arize/_generated/api_client/docs/Task.md)
@@ -601,6 +613,7 @@ Class | Method | HTTP request | Description
  - [TemplateEvaluationRunConfig](arize/_generated/api_client/docs/TemplateEvaluationRunConfig.md)
  - [TemplateEvaluationRunConfigRequest](arize/_generated/api_client/docs/TemplateEvaluationRunConfigRequest.md)
  - [TestWebhookResponse](arize/_generated/api_client/docs/TestWebhookResponse.md)
+ - [TextWidget](arize/_generated/api_client/docs/TextWidget.md)
  - [ThresholdCalculation](arize/_generated/api_client/docs/ThresholdCalculation.md)
  - [ThresholdConfig](arize/_generated/api_client/docs/ThresholdConfig.md)
  - [ThresholdOperator](arize/_generated/api_client/docs/ThresholdOperator.md)
@@ -667,6 +680,18 @@ Class | Method | HTTP request | Description
  - [WebhookNotificationConfig](arize/_generated/api_client/docs/WebhookNotificationConfig.md)
  - [WebhookSourceType](arize/_generated/api_client/docs/WebhookSourceType.md)
  - [WebhookSubscription](arize/_generated/api_client/docs/WebhookSubscription.md)
+ - [Widget](arize/_generated/api_client/docs/Widget.md)
+ - [WidgetCreationStatus](arize/_generated/api_client/docs/WidgetCreationStatus.md)
+ - [WidgetFilter](arize/_generated/api_client/docs/WidgetFilter.md)
+ - [WidgetPlot](arize/_generated/api_client/docs/WidgetPlot.md)
+ - [WidgetPlotComparisonFixedReferenceValue](arize/_generated/api_client/docs/WidgetPlotComparisonFixedReferenceValue.md)
+ - [WidgetPlotComparisonMovingReferenceValue](arize/_generated/api_client/docs/WidgetPlotComparisonMovingReferenceValue.md)
+ - [WidgetPlotComparisonReferenceSource](arize/_generated/api_client/docs/WidgetPlotComparisonReferenceSource.md)
+ - [WidgetPlotComparisonReferenceValue](arize/_generated/api_client/docs/WidgetPlotComparisonReferenceValue.md)
+ - [WidgetSourceDataType](arize/_generated/api_client/docs/WidgetSourceDataType.md)
+ - [WidgetSourceField](arize/_generated/api_client/docs/WidgetSourceField.md)
+ - [WidgetSourceFieldKind](arize/_generated/api_client/docs/WidgetSourceFieldKind.md)
+ - [WidgetType](arize/_generated/api_client/docs/WidgetType.md)
 
 
 <a id="documentation-for-authorization"></a>

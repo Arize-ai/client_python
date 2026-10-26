@@ -125,7 +125,7 @@ class ManagedCodeConfigRequest(BaseModel):
             if _key not in cls.__properties:
                 raise ValueError("Error due to additional fields (not defined in ManagedCodeConfigRequest) in the input: " + _key)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "data_granularity": obj.get("data_granularity"),
             "query_filter": obj.get("query_filter"),
             "type": obj.get("type"),
@@ -133,7 +133,7 @@ class ManagedCodeConfigRequest(BaseModel):
             "managed_evaluator": obj.get("managed_evaluator"),
             "variables": obj.get("variables"),
             "static_params": [StaticParamRequest.from_dict(_item) for _item in obj["static_params"]] if obj.get("static_params") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

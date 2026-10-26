@@ -95,10 +95,10 @@ class IntegrationScopingRequest(BaseModel):
             if _key not in cls.__properties:
                 raise ValueError("Error due to additional fields (not defined in IntegrationScopingRequest) in the input: " + _key)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "organization_id": obj.get("organization_id"),
             "space_id": obj.get("space_id")
-        })
+        }.items() if key in obj})
         return _obj
 
 

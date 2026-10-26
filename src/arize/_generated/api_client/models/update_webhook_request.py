@@ -95,14 +95,14 @@ class UpdateWebhookRequest(BaseModel):
             if _key not in cls.__properties:
                 raise ValueError("Error due to additional fields (not defined in UpdateWebhookRequest) in the input: " + _key)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "name": obj.get("name"),
             "description": obj.get("description"),
             "url": obj.get("url"),
             "auth_token": obj.get("auth_token"),
             "timeout_ms": obj.get("timeout_ms"),
             "headers": obj.get("headers")
-        })
+        }.items() if key in obj})
         return _obj
 
 

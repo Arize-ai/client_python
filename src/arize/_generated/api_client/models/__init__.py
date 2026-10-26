@@ -71,6 +71,7 @@ from arize._generated.api_client.models.aws_provider_metadata_kind import AwsPro
 from arize._generated.api_client.models.aws_provider_metadata_request import AwsProviderMetadataRequest
 from arize._generated.api_client.models.azure_params import AzureParams
 from arize._generated.api_client.models.azure_params_request import AzureParamsRequest
+from arize._generated.api_client.models.bar_chart_widget import BarChartWidget
 from arize._generated.api_client.models.baseline_config import BaselineConfig
 from arize._generated.api_client.models.bedrock_options import BedrockOptions
 from arize._generated.api_client.models.bedrock_options_request import BedrockOptionsRequest
@@ -161,7 +162,9 @@ from arize._generated.api_client.models.data_granularity import DataGranularity
 from arize._generated.api_client.models.data_quality_metric import DataQualityMetric
 from arize._generated.api_client.models.data_quality_monitor import DataQualityMonitor
 from arize._generated.api_client.models.dataset import Dataset
+from arize._generated.api_client.models.dataset_column_source_field import DatasetColumnSourceField
 from arize._generated.api_client.models.dataset_example import DatasetExample
+from arize._generated.api_client.models.dataset_source import DatasetSource
 from arize._generated.api_client.models.dataset_version import DatasetVersion
 from arize._generated.api_client.models.dataset_version_with_example_ids import DatasetVersionWithExampleIds
 from arize._generated.api_client.models.default_agent_runtime import DefaultAgentRuntime
@@ -202,6 +205,8 @@ from arize._generated.api_client.models.evaluator_version_remote import Evaluato
 from arize._generated.api_client.models.evaluator_version_template import EvaluatorVersionTemplate
 from arize._generated.api_client.models.evaluator_with_version import EvaluatorWithVersion
 from arize._generated.api_client.models.experiment import Experiment
+from arize._generated.api_client.models.experiment_chart_widget import ExperimentChartWidget
+from arize._generated.api_client.models.experiment_chart_widget_plot import ExperimentChartWidgetPlot
 from arize._generated.api_client.models.experiment_run import ExperimentRun
 from arize._generated.api_client.models.experiment_run_input import ExperimentRunInput
 from arize._generated.api_client.models.experiment_with_run_ids import ExperimentWithRunIds
@@ -229,6 +234,8 @@ from arize._generated.api_client.models.json_schema_config import JsonSchemaConf
 from arize._generated.api_client.models.json_schema_config_request import JsonSchemaConfigRequest
 from arize._generated.api_client.models.llm_message import LLMMessage
 from arize._generated.api_client.models.llm_message_request import LLMMessageRequest
+from arize._generated.api_client.models.line_chart_type import LineChartType
+from arize._generated.api_client.models.line_chart_widget import LineChartWidget
 from arize._generated.api_client.models.list_ai_integrations_response import ListAiIntegrationsResponse
 from arize._generated.api_client.models.list_annotation_configs_response import ListAnnotationConfigsResponse
 from arize._generated.api_client.models.list_annotation_queue_records_response import ListAnnotationQueueRecordsResponse
@@ -284,6 +291,7 @@ from arize._generated.api_client.models.monitor_filter import MonitorFilter
 from arize._generated.api_client.models.monitor_status import MonitorStatus
 from arize._generated.api_client.models.monitor_type import MonitorType
 from arize._generated.api_client.models.moving_custom_baseline_window import MovingCustomBaselineWindow
+from arize._generated.api_client.models.nested_json_field_source_field import NestedJsonFieldSourceField
 from arize._generated.api_client.models.notification_config import NotificationConfig
 from arize._generated.api_client.models.nvidia_nim_config import NvidiaNimConfig
 from arize._generated.api_client.models.open_ai_config import OpenAiConfig
@@ -302,6 +310,8 @@ from arize._generated.api_client.models.pagination_metadata import PaginationMet
 from arize._generated.api_client.models.performance_metric import PerformanceMetric
 from arize._generated.api_client.models.performance_monitor import PerformanceMonitor
 from arize._generated.api_client.models.permission import Permission
+from arize._generated.api_client.models.pivot_table_column import PivotTableColumn
+from arize._generated.api_client.models.pivot_table_widget import PivotTableWidget
 from arize._generated.api_client.models.predefined_role_assignment import PredefinedRoleAssignment
 from arize._generated.api_client.models.predefined_role_assignment_request import PredefinedRoleAssignmentRequest
 from arize._generated.api_client.models.predefined_user_role_assignment import PredefinedUserRoleAssignment
@@ -359,6 +369,7 @@ from arize._generated.api_client.models.static_param import StaticParam
 from arize._generated.api_client.models.static_param_default_value import StaticParamDefaultValue
 from arize._generated.api_client.models.static_param_request import StaticParamRequest
 from arize._generated.api_client.models.static_param_type import StaticParamType
+from arize._generated.api_client.models.statistic_widget import StatisticWidget
 from arize._generated.api_client.models.tag import Tag
 from arize._generated.api_client.models.tag_color import TagColor
 from arize._generated.api_client.models.task import Task
@@ -378,6 +389,7 @@ from arize._generated.api_client.models.template_config_input import TemplateCon
 from arize._generated.api_client.models.template_evaluation_run_config import TemplateEvaluationRunConfig
 from arize._generated.api_client.models.template_evaluation_run_config_request import TemplateEvaluationRunConfigRequest
 from arize._generated.api_client.models.test_webhook_response import TestWebhookResponse
+from arize._generated.api_client.models.text_widget import TextWidget
 from arize._generated.api_client.models.threshold_calculation import ThresholdCalculation
 from arize._generated.api_client.models.threshold_config import ThresholdConfig
 from arize._generated.api_client.models.threshold_operator import ThresholdOperator
@@ -444,4 +456,16 @@ from arize._generated.api_client.models.webhook_event_type import WebhookEventTy
 from arize._generated.api_client.models.webhook_notification_config import WebhookNotificationConfig
 from arize._generated.api_client.models.webhook_source_type import WebhookSourceType
 from arize._generated.api_client.models.webhook_subscription import WebhookSubscription
+from arize._generated.api_client.models.widget import Widget
+from arize._generated.api_client.models.widget_creation_status import WidgetCreationStatus
+from arize._generated.api_client.models.widget_filter import WidgetFilter
+from arize._generated.api_client.models.widget_plot import WidgetPlot
+from arize._generated.api_client.models.widget_plot_comparison_fixed_reference_value import WidgetPlotComparisonFixedReferenceValue
+from arize._generated.api_client.models.widget_plot_comparison_moving_reference_value import WidgetPlotComparisonMovingReferenceValue
+from arize._generated.api_client.models.widget_plot_comparison_reference_source import WidgetPlotComparisonReferenceSource
+from arize._generated.api_client.models.widget_plot_comparison_reference_value import WidgetPlotComparisonReferenceValue
+from arize._generated.api_client.models.widget_source_data_type import WidgetSourceDataType
+from arize._generated.api_client.models.widget_source_field import WidgetSourceField
+from arize._generated.api_client.models.widget_source_field_kind import WidgetSourceFieldKind
+from arize._generated.api_client.models.widget_type import WidgetType
 

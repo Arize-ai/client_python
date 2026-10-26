@@ -2293,15 +2293,32 @@ client = ArizeClient(
 ```
 
 The `proxy_url` field reads from `ARIZE_PROXY_URL`. It applies to the **REST API**
-transport only — Arrow Flight (gRPC) does not support HTTP CONNECT proxies. For
-system-wide proxy configuration (including `NO_PROXY` exclusions), set the standard
-`HTTPS_PROXY` / `HTTP_PROXY` environment variables instead; Python's `urllib3`
-honours those automatically for REST requests without requiring `proxy_url`.
+transport only — Arrow Flight (gRPC) does not support HTTP CONNECT proxies.
 
-```bash
-# System-wide proxy (recommended — also respects NO_PROXY)
-export HTTPS_PROXY=http://proxy.corp.example.com:8080
+For a proxy that requires Basic authentication, include URL-encoded credentials:
+
+```python
+from urllib.parse import quote
+
+client = ArizeClient(
+    api_key=API_KEY,
+    proxy_url=(
+        f"http://{quote(PROXY_USERNAME, safe='')}:{quote(PROXY_PASSWORD, safe='')}"
+        "@proxy.corp.example.com:8080"
+    ),
+)
 ```
+
+Credentials use UTF-8 before Base64 encoding.
+Basic authentication uses Base64 encoding, not encryption. Use an `https://` proxy
+when the connection to the proxy needs TLS protection. With an `http://` proxy,
+the CONNECT request sends the proxy credential without encryption, even when
+the destination uses HTTPS.
+
+The REST transport sends these credentials in `Proxy-Authorization` to the proxy,
+separate from the Arize API credential. Configure `proxy_url` or `ARIZE_PROXY_URL`
+explicitly; the generated urllib3 transport does not automatically read
+`HTTPS_PROXY`, `HTTP_PROXY`, or `NO_PROXY`.
 
 > **Note:** `proxy_url` configures an egress CONNECT proxy (traffic passes *through*
 > the proxy to reach Arize). This is different from `single_host`/`single_port`,

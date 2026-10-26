@@ -115,7 +115,7 @@ class UpdateSpaceRequest(BaseModel):
             if _key not in cls.__properties:
                 raise ValueError("Error due to additional fields (not defined in UpdateSpaceRequest) in the input: " + _key)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "name": obj.get("name"),
             "description": obj.get("description"),
             "is_private": obj.get("is_private"),
@@ -124,7 +124,7 @@ class UpdateSpaceRequest(BaseModel):
             "gradient_start_color": obj.get("gradient_start_color"),
             "gradient_end_color": obj.get("gradient_end_color"),
             "default_agent_runtime": DefaultAgentRuntime.from_dict(obj["default_agent_runtime"]) if obj.get("default_agent_runtime") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

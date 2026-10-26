@@ -92,11 +92,11 @@ class UpdateAgentRequestPresetInput(BaseModel):
             if _key not in cls.__properties:
                 raise ValueError("Error due to additional fields (not defined in UpdateAgentRequestPresetInput) in the input: " + _key)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "name": obj.get("name"),
             "description": obj.get("description"),
             "config": obj.get("config")
-        })
+        }.items() if key in obj})
         return _obj
 
 

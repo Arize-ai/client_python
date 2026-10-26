@@ -31,7 +31,7 @@ class CreateUserApiKeyRequest(BaseModel):
     key_type: StrictStr = Field(description="Must be `\"USER\"`.")
     name: Annotated[str, Field(strict=True, max_length=256)] = Field(description="User-defined name for the API key.")
     description: Optional[Annotated[str, Field(strict=True, max_length=1000)]] = Field(default=None, description="Optional user-defined description for the API key.")
-    expires_at: Optional[datetime] = Field(default=None, description="Optional expiration timestamp. If omitted the key never expires.")
+    expires_at: Optional[datetime] = Field(default=None, description="Optional expiration timestamp. If the account has no maximum API key lifetime, omitting this value creates a key that never expires. If a maximum is configured, an omitted value defaults to that maximum, and an explicit value exceeding it is rejected with 422. ")
     __properties: ClassVar[List[str]] = ["key_type", "name", "description", "expires_at"]
 
     @field_validator('key_type')

@@ -122,7 +122,7 @@ class LlmGenerationRunConfigRequest(BaseModel):
             if _key not in cls.__properties:
                 raise ValueError("Error due to additional fields (not defined in LlmGenerationRunConfigRequest) in the input: " + _key)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "experiment_type": obj.get("experiment_type"),
             "ai_integration_id": obj.get("ai_integration_id"),
             "model_name": obj.get("model_name"),
@@ -132,7 +132,7 @@ class LlmGenerationRunConfigRequest(BaseModel):
             "provider_parameters": obj.get("provider_parameters"),
             "tool_config": ToolConfigRequest.from_dict(obj["tool_config"]) if obj.get("tool_config") is not None else None,
             "prompt_version_id": obj.get("prompt_version_id")
-        })
+        }.items() if key in obj})
         return _obj
 
 

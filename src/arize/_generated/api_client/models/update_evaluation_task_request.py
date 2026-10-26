@@ -112,14 +112,14 @@ class UpdateEvaluationTaskRequest(BaseModel):
             if _key not in cls.__properties:
                 raise ValueError("Error due to additional fields (not defined in UpdateEvaluationTaskRequest) in the input: " + _key)
 
-        _obj = cls.model_validate({
+        _obj = cls.model_validate({key: value for key, value in {
             "name": obj.get("name"),
             "sampling_rate": obj.get("sampling_rate"),
             "is_continuous": obj.get("is_continuous"),
             "query_filter": obj.get("query_filter"),
             "query_filters": TaskQueryFiltersInput.from_dict(obj["query_filters"]) if obj.get("query_filters") is not None else None,
             "evaluators": [TaskEvaluatorInput.from_dict(_item) for _item in obj["evaluators"]] if obj.get("evaluators") is not None else None
-        })
+        }.items() if key in obj})
         return _obj
 
 

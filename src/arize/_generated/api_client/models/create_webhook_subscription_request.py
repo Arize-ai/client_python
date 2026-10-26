@@ -30,7 +30,7 @@ class CreateWebhookSubscriptionRequest(BaseModel):
     """ # noqa: E501
     webhook_id: StrictStr = Field(description="The unique identifier of the webhook to deliver the event to. Must belong to the source's organization.")
     source_type: WebhookSourceType = Field(description="The kind of resource to attach the webhook to")
-    source_id: StrictStr = Field(description="The unique identifier of the prompt or evaluator to attach the webhook to")
+    source_id: StrictStr = Field(description="The unique identifier of the prompt, evaluator, evaluation task, or space to attach the webhook to ")
     event: WebhookEventType = Field(description="The event to deliver. Must belong to the source type.")
     __properties: ClassVar[List[str]] = ["webhook_id", "source_type", "source_id", "event"]
 

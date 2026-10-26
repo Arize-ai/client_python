@@ -2,10 +2,14 @@
 
 from __future__ import annotations
 
+import base64
 import threading
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
+from urllib.parse import unquote, urlsplit
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from arize._generated.api_client.api_client import ApiClient
     from arize.config import SDKConfiguration
 
@@ -58,6 +62,22 @@ class GeneratedClientFactory:
                 cfg.ssl_ca_cert = self._sdk_config.ssl_ca_cert
             if self._sdk_config.proxy_url:
                 cfg.proxy = self._sdk_config.proxy_url
+                proxy = urlsplit(self._sdk_config.proxy_url)
+                if (
+                    proxy.scheme in ("http", "https")
+                    and proxy.username is not None
+                ):
+                    cfg.proxy = proxy._replace(
+                        netloc=proxy.netloc.rsplit("@", 1)[1]
+                    ).geturl()
+                    username = unquote(proxy.username)
+                    password = unquote(proxy.password or "")
+                    token = base64.b64encode(
+                        f"{username}:{password}".encode()
+                    ).decode("ascii")
+                    cast("Any", cfg).proxy_headers = {
+                        "proxy-authorization": f"Basic {token}"
+                    }
             if self._connection_pool_maxsize is not None:
                 cfg.connection_pool_maxsize = self._connection_pool_maxsize
             self._client = gen.ApiClient(cfg)
