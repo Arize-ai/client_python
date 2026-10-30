@@ -31,6 +31,9 @@ class TestAiIntegrationsTypes:
             "AiIntegrationAuthType",
             "AiIntegrationProvider",
             "AiIntegrationScoping",
+            "CloudflareProviderMetadata",
+            "CloudflareProviderMetadataKind",
+            "CloudflareProviderMetadataRequest",
             "ListAiIntegrationsResponse",
         }
         assert expected.issubset(set(types_module.__all__))

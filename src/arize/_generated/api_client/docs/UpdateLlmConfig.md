@@ -1,14 +1,14 @@
 # UpdateLlmConfig
 
-Partial LLM config for PATCH. `provider` is immutable; if present it must match the stored value. Invalid provider/field combinations return 422.  Provider-specific fields: - `api_key`, `is_function_calling_enabled`: all except `AWS_BEDROCK`, `VERTEX_AI` - `auth`: `AWS_BEDROCK`, `CUSTOM` - `base_url`: `ANTHROPIC`, `CUSTOM`, `LITELLM`, `NVIDIA_NIM` - `headers`: `CUSTOM`, `LITELLM`, `NVIDIA_NIM` - `is_default_models_enabled`: `AWS_BEDROCK`, `CUSTOM`, `FIREWORKS`, `NVIDIA_NIM`, `TOGETHER_AI` - `model_names`: `AWS_BEDROCK`, `CUSTOM`, `FIREWORKS`, `LITELLM`, `NVIDIA_NIM`, `TOGETHER_AI` - `project_id`, `location`, `project_access_label`: `VERTEX_AI` only 
+Partial LLM config for PATCH. `provider` is immutable; if present it must match the stored value. Invalid provider/field combinations return 422.  Provider-specific fields: - `api_key`: all except `AWS_BEDROCK`, `VERTEX_AI` - `is_function_calling_enabled`: all except `AWS_BEDROCK`, `VERTEX_AI`, `TYPE_SAFE_AI`, `PERPLEXITY`, `CLOUDFLARE` - `auth`: `AWS_BEDROCK`, `CUSTOM` - `base_url`: `ANTHROPIC`, `CUSTOM`, `LITELLM`, `NVIDIA_NIM` - `headers`: `CUSTOM`, `LITELLM`, `NVIDIA_NIM` - `is_default_models_enabled`: `AWS_BEDROCK`, `CUSTOM`, `FIREWORKS`, `NVIDIA_NIM`, `TOGETHER_AI` - `model_names`: `AWS_BEDROCK`, `CUSTOM`, `FIREWORKS`, `LITELLM`, `NVIDIA_NIM`, `TOGETHER_AI` - `project_id`, `location`, `project_access_label`: `VERTEX_AI` only - `account_id`: `CLOUDFLARE` only  `TYPE_SAFE_AI`, `PERPLEXITY`, and `CLOUDFLARE` integrations are used only by Decision Judge evaluators. Their API key can be rotated but not cleared. 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **provider** | [**LlmIntegrationProvider**](LlmIntegrationProvider.md) |  | [optional] 
-**api_key** | **str** | Rotate the API key. Pass null to clear it. Omit to keep unchanged. Not valid for &#x60;AWS_BEDROCK&#x60; (bearer tokens are rotated via &#x60;auth&#x60;) or &#x60;VERTEX_AI&#x60;. For &#x60;CUSTOM&#x60; it cannot be combined with &#x60;auth&#x60; in the same request; use one or the other. | [optional] 
-**is_function_calling_enabled** | **bool** | Enable or disable function/tool calling. Omit to keep unchanged. Not valid for &#x60;AWS_BEDROCK&#x60; or &#x60;VERTEX_AI&#x60;. | [optional] 
+**api_key** | **str** | Rotate the API key. Pass null to clear it. Omit to keep unchanged. Not valid for &#x60;AWS_BEDROCK&#x60; (bearer tokens are rotated via &#x60;auth&#x60;) or &#x60;VERTEX_AI&#x60;. For &#x60;CUSTOM&#x60; it cannot be combined with &#x60;auth&#x60; in the same request; use one or the other. For &#x60;TYPE_SAFE_AI&#x60;, &#x60;PERPLEXITY&#x60;, and &#x60;CLOUDFLARE&#x60; the key is required on the resource, so null is rejected with 422. | [optional] 
+**is_function_calling_enabled** | **bool** | Enable or disable function/tool calling. Omit to keep unchanged. Not valid for &#x60;AWS_BEDROCK&#x60;, &#x60;VERTEX_AI&#x60;, &#x60;TYPE_SAFE_AI&#x60;, &#x60;PERPLEXITY&#x60;, or &#x60;CLOUDFLARE&#x60;. | [optional] 
 **auth** | [**UpdateLlmAuth**](UpdateLlmAuth.md) |  | [optional] 
 **base_url** | **str** | (&#x60;CUSTOM&#x60;, &#x60;NVIDIA_NIM&#x60;, &#x60;LITELLM&#x60;, and &#x60;ANTHROPIC&#x60; only) New endpoint URL. For &#x60;NVIDIA_NIM&#x60; and &#x60;ANTHROPIC&#x60; the field is optional on the resource, so null clears it (falling back to the provider default endpoint). For &#x60;CUSTOM&#x60; and &#x60;LITELLM&#x60; it is required on the resource — null is rejected with 422. Omit to keep unchanged. | [optional] 
 **headers** | **Dict[str, str]** | (&#x60;CUSTOM&#x60;, &#x60;NVIDIA_NIM&#x60;, and &#x60;LITELLM&#x60; only) Replaces the configured custom request headers: the provided map becomes the full header set. Pass null to clear all headers. Omit to keep unchanged. Write-only; names are exposed as &#x60;header_names&#x60; on read. The serialized header map must not exceed 8,175 bytes. | [optional] 
@@ -17,6 +17,7 @@ Name | Type | Description | Notes
 **project_id** | **str** | (&#x60;VERTEX_AI&#x60; only) New GCP project ID. Required on the resource, so it may be changed but never cleared; omitted fields keep their stored values (per-scalar deep-merge). | [optional] 
 **location** | **str** | (&#x60;VERTEX_AI&#x60; only) New GCP region. Required on the resource, so it may be changed but never cleared; omitted fields keep their stored values (per-scalar deep-merge). | [optional] 
 **project_access_label** | **str** | (&#x60;VERTEX_AI&#x60; only) New project-access label. Required on the resource, so it may be changed but never cleared; omitted fields keep their stored values (per-scalar deep-merge). | [optional] 
+**account_id** | **str** | (&#x60;CLOUDFLARE&#x60; only) New 32-character Cloudflare account ID. Required on the resource, so it may be changed but never cleared. Omit to keep unchanged. | [optional] 
 
 ## Example
 

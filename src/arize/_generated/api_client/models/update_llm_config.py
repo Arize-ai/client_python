@@ -17,8 +17,9 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
 from arize._generated.api_client.models.llm_integration_provider import LlmIntegrationProvider
 from arize._generated.api_client.models.update_llm_auth import UpdateLlmAuth
 from typing import Optional, Set
@@ -26,11 +27,11 @@ from typing_extensions import Self
 
 class UpdateLlmConfig(BaseModel):
     """
-    Partial LLM config for PATCH. `provider` is immutable; if present it must match the stored value. Invalid provider/field combinations return 422.  Provider-specific fields: - `api_key`, `is_function_calling_enabled`: all except `AWS_BEDROCK`, `VERTEX_AI` - `auth`: `AWS_BEDROCK`, `CUSTOM` - `base_url`: `ANTHROPIC`, `CUSTOM`, `LITELLM`, `NVIDIA_NIM` - `headers`: `CUSTOM`, `LITELLM`, `NVIDIA_NIM` - `is_default_models_enabled`: `AWS_BEDROCK`, `CUSTOM`, `FIREWORKS`, `NVIDIA_NIM`, `TOGETHER_AI` - `model_names`: `AWS_BEDROCK`, `CUSTOM`, `FIREWORKS`, `LITELLM`, `NVIDIA_NIM`, `TOGETHER_AI` - `project_id`, `location`, `project_access_label`: `VERTEX_AI` only 
+    Partial LLM config for PATCH. `provider` is immutable; if present it must match the stored value. Invalid provider/field combinations return 422.  Provider-specific fields: - `api_key`: all except `AWS_BEDROCK`, `VERTEX_AI` - `is_function_calling_enabled`: all except `AWS_BEDROCK`, `VERTEX_AI`, `TYPE_SAFE_AI`, `PERPLEXITY`, `CLOUDFLARE` - `auth`: `AWS_BEDROCK`, `CUSTOM` - `base_url`: `ANTHROPIC`, `CUSTOM`, `LITELLM`, `NVIDIA_NIM` - `headers`: `CUSTOM`, `LITELLM`, `NVIDIA_NIM` - `is_default_models_enabled`: `AWS_BEDROCK`, `CUSTOM`, `FIREWORKS`, `NVIDIA_NIM`, `TOGETHER_AI` - `model_names`: `AWS_BEDROCK`, `CUSTOM`, `FIREWORKS`, `LITELLM`, `NVIDIA_NIM`, `TOGETHER_AI` - `project_id`, `location`, `project_access_label`: `VERTEX_AI` only - `account_id`: `CLOUDFLARE` only  `TYPE_SAFE_AI`, `PERPLEXITY`, and `CLOUDFLARE` integrations are used only by Decision Judge evaluators. Their API key can be rotated but not cleared. 
     """ # noqa: E501
     provider: Optional[LlmIntegrationProvider] = None
-    api_key: Optional[StrictStr] = Field(default=None, description="Rotate the API key. Pass null to clear it. Omit to keep unchanged. Not valid for `AWS_BEDROCK` (bearer tokens are rotated via `auth`) or `VERTEX_AI`. For `CUSTOM` it cannot be combined with `auth` in the same request; use one or the other.")
-    is_function_calling_enabled: Optional[StrictBool] = Field(default=None, description="Enable or disable function/tool calling. Omit to keep unchanged. Not valid for `AWS_BEDROCK` or `VERTEX_AI`.")
+    api_key: Optional[StrictStr] = Field(default=None, description="Rotate the API key. Pass null to clear it. Omit to keep unchanged. Not valid for `AWS_BEDROCK` (bearer tokens are rotated via `auth`) or `VERTEX_AI`. For `CUSTOM` it cannot be combined with `auth` in the same request; use one or the other. For `TYPE_SAFE_AI`, `PERPLEXITY`, and `CLOUDFLARE` the key is required on the resource, so null is rejected with 422.")
+    is_function_calling_enabled: Optional[StrictBool] = Field(default=None, description="Enable or disable function/tool calling. Omit to keep unchanged. Not valid for `AWS_BEDROCK`, `VERTEX_AI`, `TYPE_SAFE_AI`, `PERPLEXITY`, or `CLOUDFLARE`.")
     auth: Optional[UpdateLlmAuth] = None
     base_url: Optional[StrictStr] = Field(default=None, description="(`CUSTOM`, `NVIDIA_NIM`, `LITELLM`, and `ANTHROPIC` only) New endpoint URL. For `NVIDIA_NIM` and `ANTHROPIC` the field is optional on the resource, so null clears it (falling back to the provider default endpoint). For `CUSTOM` and `LITELLM` it is required on the resource — null is rejected with 422. Omit to keep unchanged.")
     headers: Optional[Dict[str, StrictStr]] = Field(default=None, description="(`CUSTOM`, `NVIDIA_NIM`, and `LITELLM` only) Replaces the configured custom request headers: the provided map becomes the full header set. Pass null to clear all headers. Omit to keep unchanged. Write-only; names are exposed as `header_names` on read. The serialized header map must not exceed 8,175 bytes.")
@@ -39,7 +40,18 @@ class UpdateLlmConfig(BaseModel):
     project_id: Optional[StrictStr] = Field(default=None, description="(`VERTEX_AI` only) New GCP project ID. Required on the resource, so it may be changed but never cleared; omitted fields keep their stored values (per-scalar deep-merge).")
     location: Optional[StrictStr] = Field(default=None, description="(`VERTEX_AI` only) New GCP region. Required on the resource, so it may be changed but never cleared; omitted fields keep their stored values (per-scalar deep-merge).")
     project_access_label: Optional[StrictStr] = Field(default=None, description="(`VERTEX_AI` only) New project-access label. Required on the resource, so it may be changed but never cleared; omitted fields keep their stored values (per-scalar deep-merge).")
-    __properties: ClassVar[List[str]] = ["provider", "api_key", "is_function_calling_enabled", "auth", "base_url", "headers", "is_default_models_enabled", "model_names", "project_id", "location", "project_access_label"]
+    account_id: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="(`CLOUDFLARE` only) New 32-character Cloudflare account ID. Required on the resource, so it may be changed but never cleared. Omit to keep unchanged.")
+    __properties: ClassVar[List[str]] = ["provider", "api_key", "is_function_calling_enabled", "auth", "base_url", "headers", "is_default_models_enabled", "model_names", "project_id", "location", "project_access_label", "account_id"]
+
+    @field_validator('account_id')
+    def account_id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
+        if not re.match(r"^[A-Za-z0-9]{32}$", value):
+            raise ValueError(r"must validate the regular expression /^[A-Za-z0-9]{32}$/")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -125,7 +137,8 @@ class UpdateLlmConfig(BaseModel):
             "model_names": obj.get("model_names"),
             "project_id": obj.get("project_id"),
             "location": obj.get("location"),
-            "project_access_label": obj.get("project_access_label")
+            "project_access_label": obj.get("project_access_label"),
+            "account_id": obj.get("account_id")
         }.items() if key in obj})
         return _obj
 

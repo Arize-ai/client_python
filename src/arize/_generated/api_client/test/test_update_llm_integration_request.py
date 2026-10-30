@@ -57,7 +57,8 @@ class TestUpdateLlmIntegrationRequest(unittest.TestCase):
                         ], 
                     project_id = '', 
                     location = '', 
-                    project_access_label = '', )
+                    project_access_label = '', 
+                    account_id = 'gCu2LC4aWwWL9Y864DZtaGRyyGFZKkkp', )
             )
         else:
             return UpdateLlmIntegrationRequest(

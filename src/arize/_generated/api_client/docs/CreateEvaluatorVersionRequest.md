@@ -1,6 +1,6 @@
 # CreateEvaluatorVersionRequest
 
-Payload for an evaluator version: exactly one of `template_config`, `code_config`, or `remote_config`. Used both when creating an evaluator (initial `version`) and when appending a version. 
+Payload for an evaluator version: exactly one of `template_config`, `code_config`, `remote_config`, or `decision_judge_config`. Used both when creating an evaluator (initial `version`) and when appending a version. 
 
 ## Properties
 
@@ -10,6 +10,7 @@ Name | Type | Description | Notes
 **template_config** | [**TemplateConfigInput**](TemplateConfigInput.md) |  | 
 **code_config** | [**CodeConfigRequest**](CodeConfigRequest.md) |  | 
 **remote_config** | [**RemoteConfigInput**](RemoteConfigInput.md) |  | 
+**decision_judge_config** | [**DecisionJudgeConfigInput**](DecisionJudgeConfigInput.md) |  | 
 
 ## Example
 

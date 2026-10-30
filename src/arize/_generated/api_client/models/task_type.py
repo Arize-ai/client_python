@@ -20,7 +20,7 @@ from typing_extensions import Self
 
 class TaskType(str, Enum):
     """
-    The task type. - TEMPLATE_EVALUATION - An LLM template-based evaluation task. - CODE_EVALUATION - A code-based evaluation task. - RUN_EXPERIMENT - A task that runs experiments. 
+    The task type. - TEMPLATE_EVALUATION - An LLM template-based evaluation task. - CODE_EVALUATION - A code-based evaluation task. - RUN_EXPERIMENT - A task that runs experiments. - DECISION_JUDGE_EVALUATION - A task that runs Decision Judge evaluators on   the spans of a project. `GET /v2/tasks` returns these tasks only when   `type=DECISION_JUDGE_EVALUATION` is passed. 
     """
 
     """
@@ -29,6 +29,7 @@ class TaskType(str, Enum):
     TEMPLATE_EVALUATION = 'TEMPLATE_EVALUATION'
     CODE_EVALUATION = 'CODE_EVALUATION'
     RUN_EXPERIMENT = 'RUN_EXPERIMENT'
+    DECISION_JUDGE_EVALUATION = 'DECISION_JUDGE_EVALUATION'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

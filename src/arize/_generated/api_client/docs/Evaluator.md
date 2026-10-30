@@ -1,6 +1,6 @@
 # Evaluator
 
-An evaluator defines reusable evaluation logic that can be attached to evaluation tasks. The type field determines the kind of evaluation: TEMPLATE (LLM-based template evaluation), CODE (custom code evaluation), or REMOTE (externally hosted evaluation). 
+An evaluator defines reusable evaluation logic that can be attached to evaluation tasks. The type field determines the kind of evaluation: TEMPLATE (LLM-based template evaluation), CODE (custom code evaluation), REMOTE (externally hosted evaluation), or DECISION_JUDGE (typed questions answered by a Decision Judge model). 
 
 ## Properties
 

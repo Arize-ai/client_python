@@ -24,28 +24,51 @@ Create a new account user with explicit invite control.
 - `NONE` — add the user directly with no invitation (for SSO-only accounts). The user
   is immediately active and can log in via the configured identity provider.
 - `EMAIL_LINK` — create an `INVITED` invitation and send the user an email with a
-  verification link to complete registration.
+  link to complete the invitation flow. The response
+  has `INVITED` status, an opaque invitation ID, and the email address as its name.
+  This response does not identify whether the recipient has another account.
 - `TEMPORARY_PASSWORD` — create an `INVITED` invitation with a temporary password
   (returned once in the response). The user must reset it on first login.
 
-**Idempotency on `email`** (applies when `invite_mode != "NONE"`)
+**Idempotency on `email`**
+
+For `EMAIL_LINK`, an identical pending invitation with a valid link returns
+`200 OK` after another email delivery attempt succeeds. A retry keeps the saved
+invitation and its valid link. If delivery fails, the request returns a service
+error and can be retried. Revoke a pending invitation before changing its requested access.
+An expired invitation can be replaced with a new link (`201 Created`).
+New requests return `201 Created` regardless of the recipient’s account status.
+Responses do not reveal the recipient’s account or move eligibility.
+
+For `TEMPORARY_PASSWORD`:
 
 | Existing state | Behavior | Response |
 | --- | --- | --- |
-| No prior invitation | Create a new `INVITED` invitation | `201 Created` |
-| `INVITED` (not yet accepted) | Return the existing invitation as-is; do not resend | `200 OK` |
+| No prior invitation | Create an `INVITED` user with a temporary password | `201 Created` |
+| `INVITED` (not yet accepted) | Return the existing invitation without a password | `200 OK` |
 | `ACTIVE` | Email belongs to an existing member | `409 Conflict` |
-| `EXPIRED` | Create a new `INVITED` invitation | `201 Created` |
+| `EXPIRED` | Create a new invitation with a temporary password | `201 Created` |
 | `inactive` | User has been deactivated and cannot be re-invited | `409 Conflict` |
 
 When `invite_mode` is `NONE` and the email already belongs to an active account member,
 the request returns `409 Conflict`.
+
+If email delivery fails after the invitation is saved, repeat the identical
+creation request or find the invitation in the users list and call its resend
+endpoint. Both paths attempt delivery again. Concurrent identical creation
+requests can send more than one email with the same valid link. A pending
+invitation with different requested access must be revoked before replacement.
 
 **Payload requirements**
 - `name` — required, 1–255 characters
 - `email` — required, must be a valid email address; used as the idempotency key
 - `role` — required, one of `ADMIN`, `MEMBER`, `ANNOTATOR`; sets the account-level role
 - `invite_mode` — required, one of `NONE`, `EMAIL_LINK`, `TEMPORARY_PASSWORD`
+
+For accounts that require SAML, new recipients receive a SAML sign-in link.
+Existing recipients follow the account-move flow and must satisfy the destination
+account's SAML requirements. Invitation links do not bypass SAML authentication.
+For `EMAIL_LINK`, the supplied name does not replace the recipient's profile name.
 
 Requires account admin or member role. Admins can assign any role;
 members can only assign `MEMBER` or `ANNOTATOR`.
@@ -138,12 +161,16 @@ Name | Type | Description  | Notes
 
 Delete a user
 
-Permanently block a user from the account. The user's status is set to
+Delete an account user, including an invited user, and revoke their pending
+invitations. An invitation ID revokes the invitation and deletes any unverified
+user it represents in this account. It does not change a recipient's user in
+another account. The user's status is set to
 `inactive` and they can no longer log in. The operation cascades to:
 - Organization memberships
 - Space memberships
 - User API keys
 - Role bindings
+- Pending invitations
 
 Blocked users cannot be re-invited via the create endpoint — `inactive`
 is a terminal state. Callers cannot delete themselves. The operation is
@@ -322,7 +349,12 @@ Name | Type | Description  | Notes
 List users
 
 List users in the account with cursor-based pagination. Results are sorted by
-creation date ascending (oldest first).
+creation date ascending (oldest first). The list includes members and pending
+invitations, including invitations whose links have expired.
+
+When filtering by status, including `ACTIVE`, a page can contain fewer than
+`limit` users or be empty while `has_more` is true. Continue with
+`next_cursor` until `has_more` is false.
 
 Requires account admin role, account member role, or USER_READ permission at the
 account level.
@@ -418,17 +450,21 @@ Name | Type | Description  | Notes
 Resend a user invitation
 
 Resend the invitation email for a pending (unverified) user. Generates a
-new verification token and sends a fresh email to the user's address.
+new invitation link and sends a fresh email to the user's address.
+Existing valid legacy links remain supported until they expire.
 
-The target user must be in the `INVITED` state (unverified and active).
-Returns 400 if the user has already verified their account, or if
-SAML/IdP login is enforced for the account.
+The target user must have a pending email invitation (`INVITED` or `EXPIRED`).
+Returns 400 if the user has already verified their account.
+Table invitations support accounts that require SAML. New recipients receive
+a SAML sign-in link; existing recipients follow the account-move flow.
+Legacy email invitations return 400 when SAML/IdP login is enforced.
 
-This is a fire-and-forget operation: a 204 response means the token was
-regenerated and the email dispatch was accepted. If the email fails to send,
-the endpoint still returns 204 and logs the error internally.
+A 204 response means the email dispatch was accepted. If delivery fails,
+retry the resend request later. An expired legacy
+invitation is replaced with a new invitation.
 
-Requires account admin role or USER_CREATE permission.
+Requires account admin or member role, or USER_CREATE permission, subject
+to the requested-role limit.
 
 <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 

@@ -9,7 +9,7 @@ Name | Type | Description | Notes
 **name** | **str** | Full name of the user | 
 **email** | **str** | Email address of the user | 
 **role** | [**UserRoleAssignment**](UserRoleAssignment.md) |  | 
-**created_at** | **datetime** | Timestamp for when the user was created | 
+**created_at** | **datetime** | Timestamp for when the user or invitation was created | 
 **status** | [**UserStatus**](UserStatus.md) |  | 
 **is_developer** | **bool** | Whether the user has developer permissions (can use the Arize API) | 
 **invite_mode** | [**InviteMode**](InviteMode.md) | The invite mode used when the user was created. | 

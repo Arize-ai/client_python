@@ -1393,3 +1393,539 @@ class TestEvaluatorsClientCreateRemoteVersion:
 
         _, kwargs = mock_api.create_evaluator_version.call_args
         assert kwargs["evaluator_id"] == _EVALUATOR_ID
+
+
+_DJ_INTEGRATION_ID = "TGxtSW50ZWdyYXRpb246MTI6YUJjRA=="
+
+
+def _dj_questions() -> list:
+    from arize.evaluators.types import (
+        DecisionJudgeBooleanCriteriaInput,
+        DecisionJudgeBooleanQuestionInput,
+        DecisionJudgeChoiceCriteriaInput,
+        DecisionJudgeChoiceQuestionInput,
+    )
+
+    return [
+        DecisionJudgeBooleanQuestionInput(
+            name="resolved",
+            type="BOOLEAN",
+            instructions="Does the reply resolve the issue?",
+            criteria=DecisionJudgeBooleanCriteriaInput(
+                true_means="Resolved", false_means="Still open"
+            ),
+        ),
+        DecisionJudgeChoiceQuestionInput(
+            name="tone",
+            type="CHOICE",
+            instructions="What is the tone?",
+            criteria=DecisionJudgeChoiceCriteriaInput(
+                options={"friendly": "Warm", "rude": "Dismissive"}
+            ),
+        ),
+        {
+            "name": "helpfulness",
+            "type": "SCORE",
+            "instructions": "How helpful is the reply?",
+            "criteria": {"levels": ["Not helpful", "Very helpful"]},
+            "direction": "MAXIMIZE",
+        },
+    ]
+
+
+def _dj_config(questions: list | None = None) -> dict:
+    return {
+        "ai_integration_id": _DJ_INTEGRATION_ID,
+        "model_name": "gpt-6-luna",
+        "state_template": "{input}",
+        "questions": _dj_questions() if questions is None else questions,
+    }
+
+
+_DJ_VERSION_JSON = {
+    "id": "RXZhbHVhdG9yVmVyc2lvbjo0MDpRclN0",
+    "evaluator_id": _EVALUATOR_ID,
+    "commit_hash": "b7c2d0e5",
+    "commit_message": "Initial version",
+    "created_at": "2026-10-20T15:04:05Z",
+    "created_by_user_id": None,
+    "type": "DECISION_JUDGE",
+    "decision_judge_config": {
+        "ai_integration_id": _DJ_INTEGRATION_ID,
+        "model_name": "gpt-6-luna",
+        "state_template": "{input}",
+        "questions": [
+            {
+                "name": "resolved",
+                "type": "BOOLEAN",
+                "instructions": "Does the reply resolve the issue?",
+            },
+            {
+                "name": "helpfulness",
+                "type": "SCORE",
+                "instructions": "How helpful is the reply?",
+                "criteria": {"levels": ["Not helpful", "Very helpful"]},
+                "direction": "MAXIMIZE",
+            },
+        ],
+        "data_granularity": "SPAN",
+    },
+}
+
+
+@pytest.mark.unit
+class TestEvaluatorsClientListTypeFilter:
+    """Tests for the evaluator_type filter on EvaluatorsClient.list()."""
+
+    def test_list_forwards_evaluator_type(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        from arize.evaluators.types import EvaluatorType
+
+        evaluators_client.list(evaluator_type=EvaluatorType.DECISION_JUDGE)
+
+        mock_api.list_evaluators.assert_called_once_with(
+            space_id=None,
+            space_name=None,
+            name=None,
+            limit=50,
+            cursor=None,
+            type=EvaluatorType.DECISION_JUDGE,
+        )
+
+
+@pytest.mark.unit
+class TestEvaluatorsClientCreateDecisionJudgeEvaluator:
+    """Tests for EvaluatorsClient.create_decision_judge_evaluator()."""
+
+    @pytest.fixture(autouse=True)
+    def _bypass_model_validate(self) -> None:
+        with patch.object(
+            EvaluatorWithVersion,
+            "model_validate",
+            side_effect=lambda v, **kw: v,
+        ):
+            yield
+
+    def _create(
+        self,
+        client: EvaluatorsClient,
+        questions: list | None = None,
+        **overrides: object,
+    ) -> None:
+        kwargs: dict = {
+            "name": "support reply",
+            "space": _SPACE_ID,
+            "decision_judge_config": _dj_config(questions),
+            "commit_message": "Initial version",
+        }
+        kwargs.update(overrides)
+        client.create_decision_judge_evaluator(**kwargs)
+
+    def test_sends_decision_judge_type_and_config(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        mock_api.create_evaluator.return_value = Mock()
+
+        self._create(evaluators_client, description="Checks replies")
+
+        mock_api.create_evaluator.assert_called_once()
+        body = mock_api.create_evaluator.call_args.kwargs[
+            "create_evaluator_request"
+        ]
+        assert body.type.value == "DECISION_JUDGE"
+        assert body.space_id == _SPACE_ID
+        assert body.description == "Checks replies"
+        inner = body.version.actual_instance
+        assert inner.commit_message == "Initial version"
+        config = inner.decision_judge_config
+        assert config.ai_integration_id == _DJ_INTEGRATION_ID
+        assert config.model_name == "gpt-6-luna"
+        assert config.state_template == "{input}"
+
+    def test_wire_payload_has_typed_questions(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        mock_api.create_evaluator.return_value = Mock()
+
+        self._create(evaluators_client)
+
+        body = mock_api.create_evaluator.call_args.kwargs[
+            "create_evaluator_request"
+        ]
+        wire = body.to_dict()
+        assert (
+            "data_granularity" not in wire["version"]["decision_judge_config"]
+        )
+        assert wire["version"]["decision_judge_config"]["questions"] == [
+            {
+                "name": "resolved",
+                "type": "BOOLEAN",
+                "instructions": "Does the reply resolve the issue?",
+                "criteria": {
+                    "true_means": "Resolved",
+                    "false_means": "Still open",
+                },
+            },
+            {
+                "name": "tone",
+                "type": "CHOICE",
+                "instructions": "What is the tone?",
+                "criteria": {
+                    "options": {"friendly": "Warm", "rude": "Dismissive"}
+                },
+            },
+            {
+                "name": "helpfulness",
+                "type": "SCORE",
+                "instructions": "How helpful is the reply?",
+                "criteria": {"levels": ["Not helpful", "Very helpful"]},
+                "direction": "MAXIMIZE",
+            },
+        ]
+
+    def test_accepts_prewrapped_question(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        from arize.evaluators.types import (
+            DecisionJudgeBooleanQuestionInput,
+            DecisionJudgeQuestionInput,
+        )
+
+        mock_api.create_evaluator.return_value = Mock()
+        wrapped = DecisionJudgeQuestionInput(
+            DecisionJudgeBooleanQuestionInput(
+                name="resolved", type="BOOLEAN", instructions="Resolved?"
+            )
+        )
+
+        self._create(evaluators_client, questions=[wrapped])
+
+        body = mock_api.create_evaluator.call_args.kwargs[
+            "create_evaluator_request"
+        ]
+        questions = body.version.actual_instance.decision_judge_config.questions
+        assert questions == [wrapped]
+
+    def test_rejects_unknown_question_type(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        with pytest.raises(TypeError, match="each question must be"):
+            self._create(evaluators_client, questions=["not a question"])
+        mock_api.create_evaluator.assert_not_called()
+
+    def test_rejects_dict_matching_no_shape(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        with pytest.raises(ValueError, match="No match found"):
+            self._create(
+                evaluators_client,
+                questions=[
+                    {"name": "x", "type": "CHOICE", "instructions": "Pick"}
+                ],
+            )
+        mock_api.create_evaluator.assert_not_called()
+
+
+@pytest.mark.unit
+class TestEvaluatorsClientDecisionJudgeResponses:
+    """Decision Judge responses come back with questions unwrapped."""
+
+    def test_create_returns_unwrapped_questions(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        from arize._generated.api_client.models.evaluator_with_version import (
+            EvaluatorWithVersion as GenEvaluatorWithVersion,
+        )
+        from arize.evaluators.types import (
+            DecisionJudgeBooleanQuestion,
+            DecisionJudgeScoreQuestion,
+            EvaluatorVersionDecisionJudge,
+        )
+
+        mock_api.create_evaluator.return_value = (
+            GenEvaluatorWithVersion.from_dict(
+                {
+                    "id": _EVALUATOR_ID,
+                    "name": "support reply",
+                    "type": "DECISION_JUDGE",
+                    "space_id": _SPACE_ID,
+                    "created_at": "2026-10-20T15:04:04Z",
+                    "updated_at": "2026-10-20T15:04:05Z",
+                    "version": _DJ_VERSION_JSON,
+                }
+            )
+        )
+
+        result = evaluators_client.create_decision_judge_evaluator(
+            name="support reply",
+            space=_SPACE_ID,
+            decision_judge_config=_dj_config(),
+            commit_message="Initial version",
+        )
+
+        assert isinstance(result.version, EvaluatorVersionDecisionJudge)
+        boolean, score = result.version.decision_judge_config.questions
+        assert isinstance(boolean, DecisionJudgeBooleanQuestion)
+        assert isinstance(score, DecisionJudgeScoreQuestion)
+
+    def test_get_version_returns_unwrapped_questions(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        from arize._generated.api_client.models.evaluator_version import (
+            EvaluatorVersion as GenEvaluatorVersion,
+        )
+        from arize.evaluators.types import (
+            DecisionJudgeScoreQuestion,
+            EvaluatorVersionDecisionJudge,
+        )
+
+        mock_api.get_evaluator_version.return_value = (
+            GenEvaluatorVersion.from_dict(_DJ_VERSION_JSON)
+        )
+
+        result = evaluators_client.get_version(version_id="ver-1")
+
+        assert isinstance(result, EvaluatorVersionDecisionJudge)
+        score = result.decision_judge_config.questions[1]
+        assert isinstance(score, DecisionJudgeScoreQuestion)
+        assert score.criteria.levels == ["Not helpful", "Very helpful"]
+
+
+@pytest.mark.unit
+class TestEvaluatorsClientCreateDecisionJudgeVersion:
+    """Tests for EvaluatorsClient.create_decision_judge_version()."""
+
+    def test_sends_config_and_returns_unwrapped_version(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        from arize._generated.api_client.models.evaluator_version import (
+            EvaluatorVersion as GenEvaluatorVersion,
+        )
+        from arize.evaluators.types import (
+            DecisionJudgeBooleanQuestion,
+            EvaluatorVersionDecisionJudge,
+        )
+
+        mock_api.create_evaluator_version.return_value = (
+            GenEvaluatorVersion.from_dict(_DJ_VERSION_JSON)
+        )
+
+        result = evaluators_client.create_decision_judge_version(
+            evaluator=_EVALUATOR_ID,
+            decision_judge_config=_dj_config(),
+            commit_message="Add tone",
+        )
+
+        kwargs = mock_api.create_evaluator_version.call_args.kwargs
+        assert kwargs["evaluator_id"] == _EVALUATOR_ID
+        inner = kwargs["create_evaluator_version_request"].actual_instance
+        assert inner.commit_message == "Add tone"
+        config = inner.decision_judge_config
+        assert config.model_name == "gpt-6-luna"
+        assert [q.actual_instance.type for q in config.questions] == [
+            "BOOLEAN",
+            "CHOICE",
+            "SCORE",
+        ]
+        assert isinstance(result, EvaluatorVersionDecisionJudge)
+        assert isinstance(
+            result.decision_judge_config.questions[0],
+            DecisionJudgeBooleanQuestion,
+        )
+
+    def test_resolves_name_with_decision_judge_type(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        from arize._generated.api_client.models.evaluator_version import (
+            EvaluatorVersion as GenEvaluatorVersion,
+        )
+
+        found = Mock()
+        found.name = "support reply"
+        found.id = _EVALUATOR_ID
+        mock_api.list_evaluators.return_value = Mock(
+            evaluators=[found], pagination=Mock(next_cursor=None)
+        )
+        mock_api.create_evaluator_version.return_value = (
+            GenEvaluatorVersion.from_dict(_DJ_VERSION_JSON)
+        )
+
+        evaluators_client.create_decision_judge_version(
+            evaluator="support reply",
+            space=_SPACE_ID,
+            decision_judge_config=_dj_config(),
+            commit_message="Add tone",
+        )
+
+        mock_api.list_evaluators.assert_called_once()
+        assert (
+            mock_api.list_evaluators.call_args.kwargs["type"].value
+            == "DECISION_JUDGE"
+        )
+        assert (
+            mock_api.create_evaluator_version.call_args.kwargs["evaluator_id"]
+            == _EVALUATOR_ID
+        )
+
+
+@pytest.mark.unit
+class TestDecisionJudgeConfigCoercion:
+    """decision_judge_config accepts input, read, and dict shapes."""
+
+    def _sent_config(self, mock_api: Mock) -> dict:
+        req = mock_api.create_evaluator_version.call_args.kwargs[
+            "create_evaluator_version_request"
+        ]
+        return req.actual_instance.decision_judge_config.to_dict()
+
+    def test_read_questions_round_trip_into_a_new_version(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        """Append one question to the questions read from an existing version."""
+        from arize._generated.api_client.models.evaluator_version import (
+            EvaluatorVersion as GenEvaluatorVersion,
+        )
+        from arize.evaluators.types import DecisionJudgeChoiceQuestionInput
+
+        mock_api.get_evaluator_version.return_value = (
+            GenEvaluatorVersion.from_dict(_DJ_VERSION_JSON)
+        )
+        mock_api.create_evaluator_version.return_value = (
+            GenEvaluatorVersion.from_dict(_DJ_VERSION_JSON)
+        )
+        current = evaluators_client.get_version(version_id="ver-1")
+        config = current.decision_judge_config  # type: ignore[union-attr]
+
+        evaluators_client.create_decision_judge_version(
+            evaluator=_EVALUATOR_ID,
+            commit_message="Add tone",
+            decision_judge_config={
+                "ai_integration_id": config.ai_integration_id,
+                "model_name": config.model_name,
+                "state_template": config.state_template,
+                "questions": [
+                    *config.questions,
+                    DecisionJudgeChoiceQuestionInput.from_dict(
+                        {
+                            "name": "tone",
+                            "type": "CHOICE",
+                            "instructions": "What is the tone?",
+                            "criteria": {
+                                "options": {"friendly": "Warm", "rude": "Rude"}
+                            },
+                        }
+                    ),
+                ],
+            },
+        )
+
+        sent = self._sent_config(mock_api)
+        assert [q["name"] for q in sent["questions"]] == [
+            "resolved",
+            "helpfulness",
+            "tone",
+        ]
+        assert sent["questions"][1] == {
+            "name": "helpfulness",
+            "type": "SCORE",
+            "instructions": "How helpful is the reply?",
+            "criteria": {"levels": ["Not helpful", "Very helpful"]},
+            "direction": "MAXIMIZE",
+        }
+
+    def test_read_config_is_accepted_and_drops_data_granularity(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        from arize._generated.api_client.models.evaluator_version import (
+            EvaluatorVersion as GenEvaluatorVersion,
+        )
+
+        mock_api.get_evaluator_version.return_value = (
+            GenEvaluatorVersion.from_dict(_DJ_VERSION_JSON)
+        )
+        mock_api.create_evaluator_version.return_value = (
+            GenEvaluatorVersion.from_dict(_DJ_VERSION_JSON)
+        )
+        current = evaluators_client.get_version(version_id="ver-1")
+
+        evaluators_client.create_decision_judge_version(
+            evaluator=_EVALUATOR_ID,
+            commit_message="Copy",
+            decision_judge_config=current.decision_judge_config,  # type: ignore[union-attr]
+        )
+
+        sent = self._sent_config(mock_api)
+        assert "data_granularity" not in sent
+        assert sent["ai_integration_id"] == _DJ_INTEGRATION_ID
+        assert [q["type"] for q in sent["questions"]] == ["BOOLEAN", "SCORE"]
+
+    def test_dict_with_data_granularity_is_accepted(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        from arize._generated.api_client.models.evaluator_version import (
+            EvaluatorVersion as GenEvaluatorVersion,
+        )
+
+        mock_api.create_evaluator_version.return_value = (
+            GenEvaluatorVersion.from_dict(_DJ_VERSION_JSON)
+        )
+        config = dict(_DJ_VERSION_JSON["decision_judge_config"])  # type: ignore[call-overload]
+
+        evaluators_client.create_decision_judge_version(
+            evaluator=_EVALUATOR_ID,
+            commit_message="Copy",
+            decision_judge_config=config,
+        )
+
+        assert "data_granularity" not in self._sent_config(mock_api)
+
+    def test_config_input_is_passed_through(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        from arize._generated.api_client.models.evaluator_version import (
+            EvaluatorVersion as GenEvaluatorVersion,
+        )
+        from arize.evaluators.types import (
+            DecisionJudgeBooleanQuestionInput,
+            DecisionJudgeConfigInput,
+            DecisionJudgeQuestionInput,
+        )
+
+        mock_api.create_evaluator_version.return_value = (
+            GenEvaluatorVersion.from_dict(_DJ_VERSION_JSON)
+        )
+        config = DecisionJudgeConfigInput(
+            ai_integration_id=_DJ_INTEGRATION_ID,
+            model_name="gpt-6-luna",
+            state_template="{input}",
+            questions=[
+                DecisionJudgeQuestionInput(
+                    DecisionJudgeBooleanQuestionInput(
+                        name="resolved", type="BOOLEAN", instructions="?"
+                    )
+                )
+            ],
+        )
+
+        evaluators_client.create_decision_judge_version(
+            evaluator=_EVALUATOR_ID,
+            commit_message="v2",
+            decision_judge_config=config,
+        )
+
+        req = mock_api.create_evaluator_version.call_args.kwargs[
+            "create_evaluator_version_request"
+        ]
+        assert req.actual_instance.decision_judge_config is config
+
+    def test_rejects_unsupported_config_type(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        with pytest.raises(TypeError, match="decision_judge_config must be"):
+            evaluators_client.create_decision_judge_version(
+                evaluator=_EVALUATOR_ID,
+                commit_message="v2",
+                decision_judge_config="not a config",  # type: ignore[arg-type]
+            )
+        mock_api.create_evaluator_version.assert_not_called()

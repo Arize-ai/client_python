@@ -1195,9 +1195,6 @@ class TestCreateFromFiles:
             )
         find.assert_not_called()
 
-    def test_get_keeps_prerelease_decorator(self) -> None:
-        assert hasattr(ExperimentsClient.get, "__wrapped__")
-
     def test_path_without_dataset_raises(
         self, experiments_client: ExperimentsClient, runs_file: Path
     ) -> None:

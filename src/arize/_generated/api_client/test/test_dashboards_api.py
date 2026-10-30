@@ -26,10 +26,38 @@ class TestDashboardsApi(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
+    def test_create_dashboard(self) -> None:
+        """Test case for create_dashboard
+
+        Create a dashboard
+        """
+        pass
+
+    def test_get_dashboard(self) -> None:
+        """Test case for get_dashboard
+
+        Get a dashboard
+        """
+        pass
+
     def test_get_dashboard_widget(self) -> None:
         """Test case for get_dashboard_widget
 
         Get a dashboard widget
+        """
+        pass
+
+    def test_list_dashboard_widgets(self) -> None:
+        """Test case for list_dashboard_widgets
+
+        List dashboard widgets
+        """
+        pass
+
+    def test_list_dashboards(self) -> None:
+        """Test case for list_dashboards
+
+        List dashboards
         """
         pass
 

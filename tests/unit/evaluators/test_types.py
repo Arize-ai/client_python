@@ -18,6 +18,9 @@ from arize._generated.api_client.models.evaluator_version import (
 from arize._generated.api_client.models.evaluator_version_code import (
     EvaluatorVersionCode as _GenEvaluatorVersionCode,
 )
+from arize._generated.api_client.models.evaluator_version_decision_judge import (
+    EvaluatorVersionDecisionJudge as _GenEvaluatorVersionDecisionJudge,
+)
 from arize._generated.api_client.models.evaluator_version_harness import (
     EvaluatorVersionHarness,
 )
@@ -34,9 +37,14 @@ from arize._generated.api_client.models.pagination_metadata import (
     PaginationMetadata,
 )
 from arize.evaluators.types import (
+    DecisionJudgeBooleanQuestion,
+    DecisionJudgeChoiceQuestion,
+    DecisionJudgeConfig,
+    DecisionJudgeScoreQuestion,
     Evaluator,
     EvaluatorLlmConfig,
     EvaluatorVersionCode,
+    EvaluatorVersionDecisionJudge,
     EvaluatorWithVersion,
     ListEvaluatorVersionsResponse,
     TemplateConfig,
@@ -474,3 +482,195 @@ class TestEvaluatorVersionsListCoercion:
         )
 
         assert response.evaluator_versions == []
+
+
+_DECISION_JUDGE_VERSION_JSON = {
+    "id": "v5",
+    "evaluator_id": "e1",
+    "commit_hash": "ccc333",
+    "commit_message": "Initial version",
+    "created_at": "2026-10-20T15:04:05Z",
+    "created_by_user_id": None,
+    "type": "DECISION_JUDGE",
+    "decision_judge_config": {
+        "ai_integration_id": "TGxtSW50ZWdyYXRpb246MTI6YUJjRA==",
+        "model_name": "gpt-6-luna",
+        "state_template": '{"input": "{input}"}',
+        "questions": [
+            {
+                "name": "resolved",
+                "type": "BOOLEAN",
+                "instructions": "Is the issue resolved?",
+            },
+            {
+                "name": "tone",
+                "type": "CHOICE",
+                "instructions": "What is the tone?",
+                "criteria": {"options": {"friendly": "Warm", "rude": "Rude"}},
+            },
+            {
+                "name": "helpfulness",
+                "type": "SCORE",
+                "instructions": "How helpful is it?",
+                "criteria": {"levels": ["Low", "High"]},
+                "direction": "MAXIMIZE",
+            },
+        ],
+        "data_granularity": "SPAN",
+    },
+}
+
+
+@pytest.mark.unit
+class TestDecisionJudgeVersion:
+    """Decision Judge versions parse through the generated oneOf and the SDK wrappers."""
+
+    def test_generated_union_resolves_decision_judge(self) -> None:
+        gen_version = _GenEvaluatorVersion.from_dict(
+            _DECISION_JUDGE_VERSION_JSON
+        )
+
+        assert isinstance(
+            gen_version.actual_instance, _GenEvaluatorVersionDecisionJudge
+        )
+        config = gen_version.actual_instance.decision_judge_config
+        assert config.model_name == "gpt-6-luna"
+        assert [q.actual_instance.type for q in config.questions] == [
+            "BOOLEAN",
+            "CHOICE",
+            "SCORE",
+        ]
+
+    def test_evaluator_with_version_accepts_decision_judge(self) -> None:
+        gen_version = _GenEvaluatorVersion.from_dict(
+            _DECISION_JUDGE_VERSION_JSON
+        )
+
+        result = EvaluatorWithVersion(
+            id="e1",
+            name="support reply",
+            type=EvaluatorType.DECISION_JUDGE,
+            space_id="s1",
+            created_at=datetime(2026, 10, 20),
+            updated_at=datetime(2026, 10, 20),
+            version=gen_version,
+        )
+
+        assert isinstance(result.version, EvaluatorVersionDecisionJudge)
+        assert result.version.type == "DECISION_JUDGE"
+        questions = result.version.decision_judge_config.questions
+        assert isinstance(questions[0], DecisionJudgeBooleanQuestion)
+        assert isinstance(questions[1], DecisionJudgeChoiceQuestion)
+        assert isinstance(questions[2], DecisionJudgeScoreQuestion)
+
+    def test_list_versions_accepts_decision_judge(self) -> None:
+        gen_version = _GenEvaluatorVersion.from_dict(
+            _DECISION_JUDGE_VERSION_JSON
+        )
+
+        response = ListEvaluatorVersionsResponse(
+            evaluator_versions=[gen_version],
+            pagination=PaginationMetadata.model_construct(has_more=False),
+        )
+
+        assert isinstance(
+            response.evaluator_versions[0], EvaluatorVersionDecisionJudge
+        )
+        questions = response.evaluator_versions[
+            0
+        ].decision_judge_config.questions  # type: ignore[union-attr]
+        assert [q.type for q in questions] == ["BOOLEAN", "CHOICE", "SCORE"]
+
+    def test_version_wrapper_unwraps_questions(self) -> None:
+        gen_version = _GenEvaluatorVersion.from_dict(
+            _DECISION_JUDGE_VERSION_JSON
+        ).actual_instance
+
+        version = EvaluatorVersionDecisionJudge.model_validate(
+            gen_version, from_attributes=True
+        )
+
+        config = version.decision_judge_config
+        assert isinstance(config, DecisionJudgeConfig)
+        assert config.ai_integration_id == "TGxtSW50ZWdyYXRpb246MTI6YUJjRA=="
+        assert config.data_granularity == "SPAN"
+        boolean, choice, score = config.questions
+        assert isinstance(boolean, DecisionJudgeBooleanQuestion)
+        assert boolean.criteria is None
+        assert isinstance(choice, DecisionJudgeChoiceQuestion)
+        assert choice.criteria.options == {"friendly": "Warm", "rude": "Rude"}
+        assert isinstance(score, DecisionJudgeScoreQuestion)
+        assert score.criteria.levels == ["Low", "High"]
+        assert score.direction == "MAXIMIZE"
+        assert version.model_dump()["decision_judge_config"]["questions"][1][
+            "criteria"
+        ] == {"options": {"friendly": "Warm", "rude": "Rude"}}
+
+    def test_config_accepts_already_unwrapped_questions(self) -> None:
+        question = DecisionJudgeBooleanQuestion(
+            name="resolved", type="BOOLEAN", instructions="Resolved?"
+        )
+
+        config = DecisionJudgeConfig(
+            ai_integration_id="i1",
+            model_name="gpt-6-luna",
+            state_template="{input}",
+            questions=[question],
+        )
+
+        assert config.questions == [question]
+
+    def test_config_rejects_empty_question_wrapper(self) -> None:
+        from arize._generated.api_client.models.decision_judge_question import (
+            DecisionJudgeQuestion as _GenDecisionJudgeQuestion,
+        )
+
+        with pytest.raises(ValueError, match="actual_instance=None"):
+            DecisionJudgeConfig(
+                ai_integration_id="i1",
+                model_name="gpt-6-luna",
+                state_template="{input}",
+                questions=[_GenDecisionJudgeQuestion.model_construct()],
+            )
+
+    def test_version_wrapper_accepts_sdk_config(self) -> None:
+        config = DecisionJudgeConfig(
+            ai_integration_id="i1",
+            model_name="gpt-6-luna",
+            state_template="{input}",
+            questions=[],
+        )
+
+        version = EvaluatorVersionDecisionJudge(
+            id="v1",
+            evaluator_id="e1",
+            commit_hash="abc",
+            created_at=datetime(2026, 10, 20),
+            type="DECISION_JUDGE",
+            decision_judge_config=config,
+        )
+
+        assert version.decision_judge_config is config
+
+    def test_decision_judge_types_are_exported(self) -> None:
+        for name in (
+            "CreateDecisionJudgeEvaluatorVersionRequest",
+            "DecisionJudgeBooleanCriteria",
+            "DecisionJudgeBooleanCriteriaInput",
+            "DecisionJudgeBooleanQuestion",
+            "DecisionJudgeBooleanQuestionInput",
+            "DecisionJudgeChoiceCriteria",
+            "DecisionJudgeChoiceCriteriaInput",
+            "DecisionJudgeChoiceQuestion",
+            "DecisionJudgeChoiceQuestionInput",
+            "DecisionJudgeConfig",
+            "DecisionJudgeConfigInput",
+            "DecisionJudgeQuestionInput",
+            "DecisionJudgeScoreCriteria",
+            "DecisionJudgeScoreCriteriaInput",
+            "DecisionJudgeScoreQuestion",
+            "DecisionJudgeScoreQuestionInput",
+            "EvaluatorVersionDecisionJudge",
+        ):
+            assert name in types_module.__all__
+            assert hasattr(types_module, name)

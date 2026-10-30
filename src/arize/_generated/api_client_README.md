@@ -102,7 +102,11 @@ Class | Method | HTTP request | Description
 *AnnotationQueuesApi* | [**list_annotation_queues**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#list_annotation_queues) | **GET** /v2/annotation-queues | List annotation queues
 *AnnotationQueuesApi* | [**update_annotation_queue**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#update_annotation_queue) | **PATCH** /v2/annotation-queues/{annotation_queue_id} | Update an annotation queue
 *AuditLogsApi* | [**list_audit_logs**](arize/_generated/api_client/docs/AuditLogsApi.md#list_audit_logs) | **GET** /v2/audit-logs | List audit logs
+*DashboardsApi* | [**create_dashboard**](arize/_generated/api_client/docs/DashboardsApi.md#create_dashboard) | **POST** /v2/dashboards | Create a dashboard
+*DashboardsApi* | [**get_dashboard**](arize/_generated/api_client/docs/DashboardsApi.md#get_dashboard) | **GET** /v2/dashboards/{dashboard_id} | Get a dashboard
 *DashboardsApi* | [**get_dashboard_widget**](arize/_generated/api_client/docs/DashboardsApi.md#get_dashboard_widget) | **GET** /v2/dashboards/{dashboard_id}/widgets/{widget_id} | Get a dashboard widget
+*DashboardsApi* | [**list_dashboard_widgets**](arize/_generated/api_client/docs/DashboardsApi.md#list_dashboard_widgets) | **GET** /v2/dashboards/{dashboard_id}/widgets | List dashboard widgets
+*DashboardsApi* | [**list_dashboards**](arize/_generated/api_client/docs/DashboardsApi.md#list_dashboards) | **GET** /v2/dashboards | List dashboards
 *DatasetsApi* | [**add_dataset_tags**](arize/_generated/api_client/docs/DatasetsApi.md#add_dataset_tags) | **POST** /v2/datasets/{dataset_id}/tags | Attach tags to a dataset
 *DatasetsApi* | [**annotate_dataset_examples**](arize/_generated/api_client/docs/DatasetsApi.md#annotate_dataset_examples) | **POST** /v2/datasets/{dataset_id}/examples/annotate | Annotate a batch of dataset examples
 *DatasetsApi* | [**create_dataset**](arize/_generated/api_client/docs/DatasetsApi.md#create_dataset) | **POST** /v2/datasets | Create a dataset
@@ -302,6 +306,10 @@ Class | Method | HTTP request | Description
  - [CategoricalAnnotationConfig](arize/_generated/api_client/docs/CategoricalAnnotationConfig.md)
  - [CategoricalAnnotationValue](arize/_generated/api_client/docs/CategoricalAnnotationValue.md)
  - [CategoricalAnnotationValueRequest](arize/_generated/api_client/docs/CategoricalAnnotationValueRequest.md)
+ - [CloudflareConfig](arize/_generated/api_client/docs/CloudflareConfig.md)
+ - [CloudflareProviderMetadata](arize/_generated/api_client/docs/CloudflareProviderMetadata.md)
+ - [CloudflareProviderMetadataKind](arize/_generated/api_client/docs/CloudflareProviderMetadataKind.md)
+ - [CloudflareProviderMetadataRequest](arize/_generated/api_client/docs/CloudflareProviderMetadataRequest.md)
  - [CodeConfig](arize/_generated/api_client/docs/CodeConfig.md)
  - [CodeConfigRequest](arize/_generated/api_client/docs/CodeConfigRequest.md)
  - [ContinuousAnnotationConfig](arize/_generated/api_client/docs/ContinuousAnnotationConfig.md)
@@ -321,6 +329,7 @@ Class | Method | HTTP request | Description
  - [CreateAwsBedrockDefaultAuth](arize/_generated/api_client/docs/CreateAwsBedrockDefaultAuth.md)
  - [CreateAwsBedrockProxyWithHeadersAuth](arize/_generated/api_client/docs/CreateAwsBedrockProxyWithHeadersAuth.md)
  - [CreateCategoricalAnnotationConfigRequest](arize/_generated/api_client/docs/CreateCategoricalAnnotationConfigRequest.md)
+ - [CreateCloudflareConfig](arize/_generated/api_client/docs/CreateCloudflareConfig.md)
  - [CreateCodeEvaluationTaskRequest](arize/_generated/api_client/docs/CreateCodeEvaluationTaskRequest.md)
  - [CreateCodeEvaluatorVersionRequest](arize/_generated/api_client/docs/CreateCodeEvaluatorVersionRequest.md)
  - [CreateContinuousAnnotationConfigRequest](arize/_generated/api_client/docs/CreateContinuousAnnotationConfigRequest.md)
@@ -328,7 +337,10 @@ Class | Method | HTTP request | Description
  - [CreateCustomConfig](arize/_generated/api_client/docs/CreateCustomConfig.md)
  - [CreateCustomDefaultAuth](arize/_generated/api_client/docs/CreateCustomDefaultAuth.md)
  - [CreateCustomOauth2ClientCredentialsAuth](arize/_generated/api_client/docs/CreateCustomOauth2ClientCredentialsAuth.md)
+ - [CreateDashboardRequest](arize/_generated/api_client/docs/CreateDashboardRequest.md)
  - [CreateDatasetRequest](arize/_generated/api_client/docs/CreateDatasetRequest.md)
+ - [CreateDecisionJudgeEvaluationTaskRequest](arize/_generated/api_client/docs/CreateDecisionJudgeEvaluationTaskRequest.md)
+ - [CreateDecisionJudgeEvaluatorVersionRequest](arize/_generated/api_client/docs/CreateDecisionJudgeEvaluatorVersionRequest.md)
  - [CreateEvaluatorIntegrationConfigInput](arize/_generated/api_client/docs/CreateEvaluatorIntegrationConfigInput.md)
  - [CreateEvaluatorIntegrationRequest](arize/_generated/api_client/docs/CreateEvaluatorIntegrationRequest.md)
  - [CreateEvaluatorRequest](arize/_generated/api_client/docs/CreateEvaluatorRequest.md)
@@ -344,6 +356,7 @@ Class | Method | HTTP request | Description
  - [CreateNvidiaNimConfig](arize/_generated/api_client/docs/CreateNvidiaNimConfig.md)
  - [CreateOpenAiConfig](arize/_generated/api_client/docs/CreateOpenAiConfig.md)
  - [CreateOrganizationRequest](arize/_generated/api_client/docs/CreateOrganizationRequest.md)
+ - [CreatePerplexityConfig](arize/_generated/api_client/docs/CreatePerplexityConfig.md)
  - [CreateProjectRequest](arize/_generated/api_client/docs/CreateProjectRequest.md)
  - [CreatePromptRequest](arize/_generated/api_client/docs/CreatePromptRequest.md)
  - [CreatePromptVersionRequest](arize/_generated/api_client/docs/CreatePromptVersionRequest.md)
@@ -359,6 +372,7 @@ Class | Method | HTTP request | Description
  - [CreateTemplateEvaluationTaskRequest](arize/_generated/api_client/docs/CreateTemplateEvaluationTaskRequest.md)
  - [CreateTemplateEvaluatorVersionRequest](arize/_generated/api_client/docs/CreateTemplateEvaluatorVersionRequest.md)
  - [CreateTogetherAiConfig](arize/_generated/api_client/docs/CreateTogetherAiConfig.md)
+ - [CreateTypeSafeAiConfig](arize/_generated/api_client/docs/CreateTypeSafeAiConfig.md)
  - [CreateUserApiKeyRequest](arize/_generated/api_client/docs/CreateUserApiKeyRequest.md)
  - [CreateUserRequest](arize/_generated/api_client/docs/CreateUserRequest.md)
  - [CreateUserResponse](arize/_generated/api_client/docs/CreateUserResponse.md)
@@ -382,6 +396,10 @@ Class | Method | HTTP request | Description
  - [CustomRoleAssignmentRequest](arize/_generated/api_client/docs/CustomRoleAssignmentRequest.md)
  - [CustomUserRoleAssignment](arize/_generated/api_client/docs/CustomUserRoleAssignment.md)
  - [CustomUserRoleAssignmentRequest](arize/_generated/api_client/docs/CustomUserRoleAssignmentRequest.md)
+ - [Dashboard](arize/_generated/api_client/docs/Dashboard.md)
+ - [DashboardStatus](arize/_generated/api_client/docs/DashboardStatus.md)
+ - [DashboardSummary](arize/_generated/api_client/docs/DashboardSummary.md)
+ - [DashboardTagSummary](arize/_generated/api_client/docs/DashboardTagSummary.md)
  - [DataGranularity](arize/_generated/api_client/docs/DataGranularity.md)
  - [DataQualityMetric](arize/_generated/api_client/docs/DataQualityMetric.md)
  - [DataQualityMonitor](arize/_generated/api_client/docs/DataQualityMonitor.md)
@@ -391,6 +409,22 @@ Class | Method | HTTP request | Description
  - [DatasetSource](arize/_generated/api_client/docs/DatasetSource.md)
  - [DatasetVersion](arize/_generated/api_client/docs/DatasetVersion.md)
  - [DatasetVersionWithExampleIds](arize/_generated/api_client/docs/DatasetVersionWithExampleIds.md)
+ - [DecisionJudgeBooleanCriteria](arize/_generated/api_client/docs/DecisionJudgeBooleanCriteria.md)
+ - [DecisionJudgeBooleanCriteriaInput](arize/_generated/api_client/docs/DecisionJudgeBooleanCriteriaInput.md)
+ - [DecisionJudgeBooleanQuestion](arize/_generated/api_client/docs/DecisionJudgeBooleanQuestion.md)
+ - [DecisionJudgeBooleanQuestionInput](arize/_generated/api_client/docs/DecisionJudgeBooleanQuestionInput.md)
+ - [DecisionJudgeChoiceCriteria](arize/_generated/api_client/docs/DecisionJudgeChoiceCriteria.md)
+ - [DecisionJudgeChoiceCriteriaInput](arize/_generated/api_client/docs/DecisionJudgeChoiceCriteriaInput.md)
+ - [DecisionJudgeChoiceQuestion](arize/_generated/api_client/docs/DecisionJudgeChoiceQuestion.md)
+ - [DecisionJudgeChoiceQuestionInput](arize/_generated/api_client/docs/DecisionJudgeChoiceQuestionInput.md)
+ - [DecisionJudgeConfig](arize/_generated/api_client/docs/DecisionJudgeConfig.md)
+ - [DecisionJudgeConfigInput](arize/_generated/api_client/docs/DecisionJudgeConfigInput.md)
+ - [DecisionJudgeQuestion](arize/_generated/api_client/docs/DecisionJudgeQuestion.md)
+ - [DecisionJudgeQuestionInput](arize/_generated/api_client/docs/DecisionJudgeQuestionInput.md)
+ - [DecisionJudgeScoreCriteria](arize/_generated/api_client/docs/DecisionJudgeScoreCriteria.md)
+ - [DecisionJudgeScoreCriteriaInput](arize/_generated/api_client/docs/DecisionJudgeScoreCriteriaInput.md)
+ - [DecisionJudgeScoreQuestion](arize/_generated/api_client/docs/DecisionJudgeScoreQuestion.md)
+ - [DecisionJudgeScoreQuestionInput](arize/_generated/api_client/docs/DecisionJudgeScoreQuestionInput.md)
  - [DefaultAgentRuntime](arize/_generated/api_client/docs/DefaultAgentRuntime.md)
  - [DefaultAgentRuntimeResponse](arize/_generated/api_client/docs/DefaultAgentRuntimeResponse.md)
  - [DefaultLLMIntegration](arize/_generated/api_client/docs/DefaultLLMIntegration.md)
@@ -424,6 +458,7 @@ Class | Method | HTTP request | Description
  - [EvaluatorVersion](arize/_generated/api_client/docs/EvaluatorVersion.md)
  - [EvaluatorVersionCode](arize/_generated/api_client/docs/EvaluatorVersionCode.md)
  - [EvaluatorVersionCommon](arize/_generated/api_client/docs/EvaluatorVersionCommon.md)
+ - [EvaluatorVersionDecisionJudge](arize/_generated/api_client/docs/EvaluatorVersionDecisionJudge.md)
  - [EvaluatorVersionHarness](arize/_generated/api_client/docs/EvaluatorVersionHarness.md)
  - [EvaluatorVersionRemote](arize/_generated/api_client/docs/EvaluatorVersionRemote.md)
  - [EvaluatorVersionTemplate](arize/_generated/api_client/docs/EvaluatorVersionTemplate.md)
@@ -466,6 +501,8 @@ Class | Method | HTTP request | Description
  - [ListAnnotationQueuesResponse](arize/_generated/api_client/docs/ListAnnotationQueuesResponse.md)
  - [ListApiKeysResponse](arize/_generated/api_client/docs/ListApiKeysResponse.md)
  - [ListAuditLogsResponse](arize/_generated/api_client/docs/ListAuditLogsResponse.md)
+ - [ListDashboardWidgetsResponse](arize/_generated/api_client/docs/ListDashboardWidgetsResponse.md)
+ - [ListDashboardsResponse](arize/_generated/api_client/docs/ListDashboardsResponse.md)
  - [ListDatasetExamplesResponse](arize/_generated/api_client/docs/ListDatasetExamplesResponse.md)
  - [ListDatasetsResponse](arize/_generated/api_client/docs/ListDatasetsResponse.md)
  - [ListEvaluatorTemplatesResponse](arize/_generated/api_client/docs/ListEvaluatorTemplatesResponse.md)
@@ -534,6 +571,7 @@ Class | Method | HTTP request | Description
  - [PerformanceMetric](arize/_generated/api_client/docs/PerformanceMetric.md)
  - [PerformanceMonitor](arize/_generated/api_client/docs/PerformanceMonitor.md)
  - [Permission](arize/_generated/api_client/docs/Permission.md)
+ - [PerplexityConfig](arize/_generated/api_client/docs/PerplexityConfig.md)
  - [PivotTableColumn](arize/_generated/api_client/docs/PivotTableColumn.md)
  - [PivotTableWidget](arize/_generated/api_client/docs/PivotTableWidget.md)
  - [PredefinedRoleAssignment](arize/_generated/api_client/docs/PredefinedRoleAssignment.md)
@@ -632,6 +670,7 @@ Class | Method | HTTP request | Description
  - [TriggerEvaluationTaskRunRequest](arize/_generated/api_client/docs/TriggerEvaluationTaskRunRequest.md)
  - [TriggerRunExperimentTaskRunRequest](arize/_generated/api_client/docs/TriggerRunExperimentTaskRunRequest.md)
  - [TriggerTaskRunRequest](arize/_generated/api_client/docs/TriggerTaskRunRequest.md)
+ - [TypeSafeAiConfig](arize/_generated/api_client/docs/TypeSafeAiConfig.md)
  - [UpdateAgentConfig](arize/_generated/api_client/docs/UpdateAgentConfig.md)
  - [UpdateAgentIntegrationRequest](arize/_generated/api_client/docs/UpdateAgentIntegrationRequest.md)
  - [UpdateAgentRequestPresetInput](arize/_generated/api_client/docs/UpdateAgentRequestPresetInput.md)
@@ -691,6 +730,7 @@ Class | Method | HTTP request | Description
  - [WidgetSourceDataType](arize/_generated/api_client/docs/WidgetSourceDataType.md)
  - [WidgetSourceField](arize/_generated/api_client/docs/WidgetSourceField.md)
  - [WidgetSourceFieldKind](arize/_generated/api_client/docs/WidgetSourceFieldKind.md)
+ - [WidgetSummary](arize/_generated/api_client/docs/WidgetSummary.md)
  - [WidgetType](arize/_generated/api_client/docs/WidgetType.md)
 
 

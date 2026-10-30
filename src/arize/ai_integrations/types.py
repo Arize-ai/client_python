@@ -22,6 +22,15 @@ from arize._generated.api_client.models.aws_provider_metadata_kind import (
 from arize._generated.api_client.models.aws_provider_metadata_request import (
     AwsProviderMetadataRequest,
 )
+from arize._generated.api_client.models.cloudflare_provider_metadata import (
+    CloudflareProviderMetadata,
+)
+from arize._generated.api_client.models.cloudflare_provider_metadata_kind import (
+    CloudflareProviderMetadataKind,
+)
+from arize._generated.api_client.models.cloudflare_provider_metadata_request import (
+    CloudflareProviderMetadataRequest,
+)
 from arize._generated.api_client.models.gcp_provider_metadata import (
     GcpProviderMetadata,
 )
@@ -44,6 +53,9 @@ __all__ = [
     "AwsProviderMetadata",
     "AwsProviderMetadataKind",
     "AwsProviderMetadataRequest",
+    "CloudflareProviderMetadata",
+    "CloudflareProviderMetadataKind",
+    "CloudflareProviderMetadataRequest",
     "GcpProviderMetadata",
     "GcpProviderMetadataKind",
     "GcpProviderMetadataRequest",

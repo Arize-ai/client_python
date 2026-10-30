@@ -20,6 +20,7 @@ from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.ai_integration import AiIntegration
+from arize._generated.api_client.models.ai_integration_provider import AiIntegrationProvider
 from arize._generated.api_client.models.create_ai_integration_request import CreateAiIntegrationRequest
 from arize._generated.api_client.models.list_ai_integrations_response import ListAiIntegrationsResponse
 from arize._generated.api_client.models.update_ai_integration_request import UpdateAiIntegrationRequest
@@ -61,7 +62,7 @@ class AIIntegrationsApi:
     ) -> AiIntegration:
         """Create an AI integration
 
-        Create a new AI integration for an external LLM provider.  **Payload Requirements** - `name` and `provider` are required. - The integration name must be unique within the account. - `provider` must be one of: `OPEN_AI`, `AZURE_OPEN_AI`, `AWS_BEDROCK`, `VERTEX_AI`, `ANTHROPIC`, `NVIDIA_NIM`, `GEMINI`, `CUSTOM`, `LITELLM`, `FIREWORKS`, `TOGETHER_AI`. - If `scopings` is omitted, the integration defaults to account-wide visibility. - `enable_default_models` defaults to `false` if not provided. - `function_calling_enabled` defaults to `true` if not provided. - `auth_type` defaults to `DEFAULT` if not provided. - For `AWS_BEDROCK` provider, `provider_metadata` must include `role_arn`. - For `VERTEX_AI` provider, `provider_metadata` must include `project_id`, `location`, and `project_access_label`.  **Valid example** ```json {   \"name\": \"Production OpenAI\",   \"provider\": \"OPEN_AI\",   \"api_key\": \"sk-abc123...\",   \"model_names\": [\"gpt-4\", \"gpt-4o\"],   \"enable_default_models\": true } ```  **Invalid example** (missing required `provider`) ```json {   \"name\": \"My Integration\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new AI integration for an external LLM provider.  **Payload Requirements** - `name` and `provider` are required. - The integration name must be unique within the account. - `provider` must be one of: `OPEN_AI`, `AZURE_OPEN_AI`, `AWS_BEDROCK`, `VERTEX_AI`, `ANTHROPIC`, `NVIDIA_NIM`, `GEMINI`, `CUSTOM`, `LITELLM`, `FIREWORKS`, `TOGETHER_AI`, `TYPE_SAFE_AI`, `PERPLEXITY`, `CLOUDFLARE`. - If `scopings` is omitted, the integration defaults to account-wide visibility. - `enable_default_models` defaults to `false` if not provided. - `function_calling_enabled` defaults to `true` if not provided. - `auth_type` defaults to `DEFAULT` if not provided. - For `AWS_BEDROCK` provider, `provider_metadata` must include `role_arn`. - For `VERTEX_AI` provider, `provider_metadata` must include `project_id`, `location`, and `project_access_label`. - `TYPE_SAFE_AI`, `PERPLEXITY`, and `CLOUDFLARE` integrations are used only by Decision Judge evaluators. They require `api_key`. A `base_url`, a non-empty `model_names` or `headers`, `enable_default_models: true`, `function_calling_enabled: true`, or an `auth_type` other than `DEFAULT` returns `422`. Creating one returns `400` when this deployment has not enabled the provider. That is a deployment setting, separate from the account's Decision Judge access that the evaluator and task endpoints report as `403`. - For `CLOUDFLARE` provider, `provider_metadata` must be `{\"kind\": \"CLOUDFLARE\", \"account_id\": \"<32-character account ID>\"}`.  **Valid example** ```json {   \"name\": \"Production OpenAI\",   \"provider\": \"OPEN_AI\",   \"api_key\": \"sk-abc123...\",   \"model_names\": [\"gpt-4\", \"gpt-4o\"],   \"enable_default_models\": true } ```  **Invalid example** (missing required `provider`) ```json {   \"name\": \"My Integration\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param create_ai_integration_request: Body containing AI integration creation parameters (required)
         :type create_ai_integration_request: CreateAiIntegrationRequest
@@ -135,7 +136,7 @@ class AIIntegrationsApi:
     ) -> ApiResponse[AiIntegration]:
         """Create an AI integration
 
-        Create a new AI integration for an external LLM provider.  **Payload Requirements** - `name` and `provider` are required. - The integration name must be unique within the account. - `provider` must be one of: `OPEN_AI`, `AZURE_OPEN_AI`, `AWS_BEDROCK`, `VERTEX_AI`, `ANTHROPIC`, `NVIDIA_NIM`, `GEMINI`, `CUSTOM`, `LITELLM`, `FIREWORKS`, `TOGETHER_AI`. - If `scopings` is omitted, the integration defaults to account-wide visibility. - `enable_default_models` defaults to `false` if not provided. - `function_calling_enabled` defaults to `true` if not provided. - `auth_type` defaults to `DEFAULT` if not provided. - For `AWS_BEDROCK` provider, `provider_metadata` must include `role_arn`. - For `VERTEX_AI` provider, `provider_metadata` must include `project_id`, `location`, and `project_access_label`.  **Valid example** ```json {   \"name\": \"Production OpenAI\",   \"provider\": \"OPEN_AI\",   \"api_key\": \"sk-abc123...\",   \"model_names\": [\"gpt-4\", \"gpt-4o\"],   \"enable_default_models\": true } ```  **Invalid example** (missing required `provider`) ```json {   \"name\": \"My Integration\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new AI integration for an external LLM provider.  **Payload Requirements** - `name` and `provider` are required. - The integration name must be unique within the account. - `provider` must be one of: `OPEN_AI`, `AZURE_OPEN_AI`, `AWS_BEDROCK`, `VERTEX_AI`, `ANTHROPIC`, `NVIDIA_NIM`, `GEMINI`, `CUSTOM`, `LITELLM`, `FIREWORKS`, `TOGETHER_AI`, `TYPE_SAFE_AI`, `PERPLEXITY`, `CLOUDFLARE`. - If `scopings` is omitted, the integration defaults to account-wide visibility. - `enable_default_models` defaults to `false` if not provided. - `function_calling_enabled` defaults to `true` if not provided. - `auth_type` defaults to `DEFAULT` if not provided. - For `AWS_BEDROCK` provider, `provider_metadata` must include `role_arn`. - For `VERTEX_AI` provider, `provider_metadata` must include `project_id`, `location`, and `project_access_label`. - `TYPE_SAFE_AI`, `PERPLEXITY`, and `CLOUDFLARE` integrations are used only by Decision Judge evaluators. They require `api_key`. A `base_url`, a non-empty `model_names` or `headers`, `enable_default_models: true`, `function_calling_enabled: true`, or an `auth_type` other than `DEFAULT` returns `422`. Creating one returns `400` when this deployment has not enabled the provider. That is a deployment setting, separate from the account's Decision Judge access that the evaluator and task endpoints report as `403`. - For `CLOUDFLARE` provider, `provider_metadata` must be `{\"kind\": \"CLOUDFLARE\", \"account_id\": \"<32-character account ID>\"}`.  **Valid example** ```json {   \"name\": \"Production OpenAI\",   \"provider\": \"OPEN_AI\",   \"api_key\": \"sk-abc123...\",   \"model_names\": [\"gpt-4\", \"gpt-4o\"],   \"enable_default_models\": true } ```  **Invalid example** (missing required `provider`) ```json {   \"name\": \"My Integration\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param create_ai_integration_request: Body containing AI integration creation parameters (required)
         :type create_ai_integration_request: CreateAiIntegrationRequest
@@ -209,7 +210,7 @@ class AIIntegrationsApi:
     ) -> RESTResponseType:
         """Create an AI integration
 
-        Create a new AI integration for an external LLM provider.  **Payload Requirements** - `name` and `provider` are required. - The integration name must be unique within the account. - `provider` must be one of: `OPEN_AI`, `AZURE_OPEN_AI`, `AWS_BEDROCK`, `VERTEX_AI`, `ANTHROPIC`, `NVIDIA_NIM`, `GEMINI`, `CUSTOM`, `LITELLM`, `FIREWORKS`, `TOGETHER_AI`. - If `scopings` is omitted, the integration defaults to account-wide visibility. - `enable_default_models` defaults to `false` if not provided. - `function_calling_enabled` defaults to `true` if not provided. - `auth_type` defaults to `DEFAULT` if not provided. - For `AWS_BEDROCK` provider, `provider_metadata` must include `role_arn`. - For `VERTEX_AI` provider, `provider_metadata` must include `project_id`, `location`, and `project_access_label`.  **Valid example** ```json {   \"name\": \"Production OpenAI\",   \"provider\": \"OPEN_AI\",   \"api_key\": \"sk-abc123...\",   \"model_names\": [\"gpt-4\", \"gpt-4o\"],   \"enable_default_models\": true } ```  **Invalid example** (missing required `provider`) ```json {   \"name\": \"My Integration\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new AI integration for an external LLM provider.  **Payload Requirements** - `name` and `provider` are required. - The integration name must be unique within the account. - `provider` must be one of: `OPEN_AI`, `AZURE_OPEN_AI`, `AWS_BEDROCK`, `VERTEX_AI`, `ANTHROPIC`, `NVIDIA_NIM`, `GEMINI`, `CUSTOM`, `LITELLM`, `FIREWORKS`, `TOGETHER_AI`, `TYPE_SAFE_AI`, `PERPLEXITY`, `CLOUDFLARE`. - If `scopings` is omitted, the integration defaults to account-wide visibility. - `enable_default_models` defaults to `false` if not provided. - `function_calling_enabled` defaults to `true` if not provided. - `auth_type` defaults to `DEFAULT` if not provided. - For `AWS_BEDROCK` provider, `provider_metadata` must include `role_arn`. - For `VERTEX_AI` provider, `provider_metadata` must include `project_id`, `location`, and `project_access_label`. - `TYPE_SAFE_AI`, `PERPLEXITY`, and `CLOUDFLARE` integrations are used only by Decision Judge evaluators. They require `api_key`. A `base_url`, a non-empty `model_names` or `headers`, `enable_default_models: true`, `function_calling_enabled: true`, or an `auth_type` other than `DEFAULT` returns `422`. Creating one returns `400` when this deployment has not enabled the provider. That is a deployment setting, separate from the account's Decision Judge access that the evaluator and task endpoints report as `403`. - For `CLOUDFLARE` provider, `provider_metadata` must be `{\"kind\": \"CLOUDFLARE\", \"account_id\": \"<32-character account ID>\"}`.  **Valid example** ```json {   \"name\": \"Production OpenAI\",   \"provider\": \"OPEN_AI\",   \"api_key\": \"sk-abc123...\",   \"model_names\": [\"gpt-4\", \"gpt-4o\"],   \"enable_default_models\": true } ```  **Invalid example** (missing required `provider`) ```json {   \"name\": \"My Integration\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param create_ai_integration_request: Body containing AI integration creation parameters (required)
         :type create_ai_integration_request: CreateAiIntegrationRequest
@@ -894,6 +895,7 @@ class AIIntegrationsApi:
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
+        provider: Annotated[Optional[AiIntegrationProvider], Field(description="Return only AI integrations of this provider. When omitted, integrations of every provider except `TYPE_SAFE_AI`, `PERPLEXITY`, and `CLOUDFLARE` are returned. Those providers are used only by Decision Judge evaluators and are listed only when requested here.")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -911,7 +913,7 @@ class AIIntegrationsApi:
     ) -> ListAiIntegrationsResponse:
         """List AI integrations
 
-        List AI integrations the user has access to.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List AI integrations the user has access to.  Use `provider` to return only integrations of one provider. `TYPE_SAFE_AI`, `PERPLEXITY`, and `CLOUDFLARE` integrations are used only by Decision Judge evaluators. They are returned only when `provider` names them; a request without `provider` returns every other provider.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
@@ -919,6 +921,8 @@ class AIIntegrationsApi:
         :type space_name: str
         :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
         :type name: str
+        :param provider: Return only AI integrations of this provider. When omitted, integrations of every provider except `TYPE_SAFE_AI`, `PERPLEXITY`, and `CLOUDFLARE` are returned. Those providers are used only by Decision Judge evaluators and are listed only when requested here.
+        :type provider: AiIntegrationProvider
         :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
@@ -949,6 +953,7 @@ class AIIntegrationsApi:
             space_id=space_id,
             space_name=space_name,
             name=name,
+            provider=provider,
             limit=limit,
             cursor=cursor,
             _request_auth=_request_auth,
@@ -982,6 +987,7 @@ class AIIntegrationsApi:
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
+        provider: Annotated[Optional[AiIntegrationProvider], Field(description="Return only AI integrations of this provider. When omitted, integrations of every provider except `TYPE_SAFE_AI`, `PERPLEXITY`, and `CLOUDFLARE` are returned. Those providers are used only by Decision Judge evaluators and are listed only when requested here.")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -999,7 +1005,7 @@ class AIIntegrationsApi:
     ) -> ApiResponse[ListAiIntegrationsResponse]:
         """List AI integrations
 
-        List AI integrations the user has access to.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List AI integrations the user has access to.  Use `provider` to return only integrations of one provider. `TYPE_SAFE_AI`, `PERPLEXITY`, and `CLOUDFLARE` integrations are used only by Decision Judge evaluators. They are returned only when `provider` names them; a request without `provider` returns every other provider.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
@@ -1007,6 +1013,8 @@ class AIIntegrationsApi:
         :type space_name: str
         :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
         :type name: str
+        :param provider: Return only AI integrations of this provider. When omitted, integrations of every provider except `TYPE_SAFE_AI`, `PERPLEXITY`, and `CLOUDFLARE` are returned. Those providers are used only by Decision Judge evaluators and are listed only when requested here.
+        :type provider: AiIntegrationProvider
         :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
@@ -1037,6 +1045,7 @@ class AIIntegrationsApi:
             space_id=space_id,
             space_name=space_name,
             name=name,
+            provider=provider,
             limit=limit,
             cursor=cursor,
             _request_auth=_request_auth,
@@ -1070,6 +1079,7 @@ class AIIntegrationsApi:
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
+        provider: Annotated[Optional[AiIntegrationProvider], Field(description="Return only AI integrations of this provider. When omitted, integrations of every provider except `TYPE_SAFE_AI`, `PERPLEXITY`, and `CLOUDFLARE` are returned. Those providers are used only by Decision Judge evaluators and are listed only when requested here.")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -1087,7 +1097,7 @@ class AIIntegrationsApi:
     ) -> RESTResponseType:
         """List AI integrations
 
-        List AI integrations the user has access to.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List AI integrations the user has access to.  Use `provider` to return only integrations of one provider. `TYPE_SAFE_AI`, `PERPLEXITY`, and `CLOUDFLARE` integrations are used only by Decision Judge evaluators. They are returned only when `provider` names them; a request without `provider` returns every other provider.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
@@ -1095,6 +1105,8 @@ class AIIntegrationsApi:
         :type space_name: str
         :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
         :type name: str
+        :param provider: Return only AI integrations of this provider. When omitted, integrations of every provider except `TYPE_SAFE_AI`, `PERPLEXITY`, and `CLOUDFLARE` are returned. Those providers are used only by Decision Judge evaluators and are listed only when requested here.
+        :type provider: AiIntegrationProvider
         :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
@@ -1125,6 +1137,7 @@ class AIIntegrationsApi:
             space_id=space_id,
             space_name=space_name,
             name=name,
+            provider=provider,
             limit=limit,
             cursor=cursor,
             _request_auth=_request_auth,
@@ -1153,6 +1166,7 @@ class AIIntegrationsApi:
         space_id,
         space_name,
         name,
+        provider,
         limit,
         cursor,
         _request_auth,
@@ -1188,6 +1202,10 @@ class AIIntegrationsApi:
         if name is not None:
             
             _query_params.append(('name', name))
+            
+        if provider is not None:
+            
+            _query_params.append(('provider', provider.value))
             
         if limit is not None:
             
@@ -1255,7 +1273,7 @@ class AIIntegrationsApi:
     ) -> AiIntegration:
         """Update an AI integration
 
-        Update an AI integration's configuration. At least one field must be provided. Omitted fields are left unchanged.  **Payload Requirements** - At least one of the updatable fields must be provided. - `name`, if provided, must be unique within the account. - `api_key` can be set to `null` to remove the existing key, or omitted to keep it unchanged. - `scopings`, if provided, replaces all existing scoping rules. - `provider_metadata`, if provided, replaces existing metadata. Set to `null` to remove.  **Valid example** ```json {   \"name\": \"Updated Integration\",   \"model_names\": [\"gpt-4o\", \"gpt-4o-mini\"] } ```  **Invalid example** (empty body) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Update an AI integration's configuration. At least one field must be provided. Omitted fields are left unchanged.  **Payload Requirements** - At least one of the updatable fields must be provided. - `name`, if provided, must be unique within the account. - `api_key` can be set to `null` to remove the existing key, or omitted to keep it unchanged. - `scopings`, if provided, replaces all existing scoping rules. - `provider_metadata`, if provided, replaces existing metadata. Set to `null` to remove. - For `TYPE_SAFE_AI`, `PERPLEXITY`, and `CLOUDFLARE` integrations (used only by Decision Judge evaluators), the same fields as on create return `422`, and `api_key` cannot be set to `null`. The provider cannot be changed. For `CLOUDFLARE`, `provider_metadata` must be a `CLOUDFLARE` kind and cannot be removed.  **Valid example** ```json {   \"name\": \"Updated Integration\",   \"model_names\": [\"gpt-4o\", \"gpt-4o-mini\"] } ```  **Invalid example** (empty body) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param integration_id: The unique AI integration identifier (base64) (required)
         :type integration_id: str
@@ -1333,7 +1351,7 @@ class AIIntegrationsApi:
     ) -> ApiResponse[AiIntegration]:
         """Update an AI integration
 
-        Update an AI integration's configuration. At least one field must be provided. Omitted fields are left unchanged.  **Payload Requirements** - At least one of the updatable fields must be provided. - `name`, if provided, must be unique within the account. - `api_key` can be set to `null` to remove the existing key, or omitted to keep it unchanged. - `scopings`, if provided, replaces all existing scoping rules. - `provider_metadata`, if provided, replaces existing metadata. Set to `null` to remove.  **Valid example** ```json {   \"name\": \"Updated Integration\",   \"model_names\": [\"gpt-4o\", \"gpt-4o-mini\"] } ```  **Invalid example** (empty body) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Update an AI integration's configuration. At least one field must be provided. Omitted fields are left unchanged.  **Payload Requirements** - At least one of the updatable fields must be provided. - `name`, if provided, must be unique within the account. - `api_key` can be set to `null` to remove the existing key, or omitted to keep it unchanged. - `scopings`, if provided, replaces all existing scoping rules. - `provider_metadata`, if provided, replaces existing metadata. Set to `null` to remove. - For `TYPE_SAFE_AI`, `PERPLEXITY`, and `CLOUDFLARE` integrations (used only by Decision Judge evaluators), the same fields as on create return `422`, and `api_key` cannot be set to `null`. The provider cannot be changed. For `CLOUDFLARE`, `provider_metadata` must be a `CLOUDFLARE` kind and cannot be removed.  **Valid example** ```json {   \"name\": \"Updated Integration\",   \"model_names\": [\"gpt-4o\", \"gpt-4o-mini\"] } ```  **Invalid example** (empty body) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param integration_id: The unique AI integration identifier (base64) (required)
         :type integration_id: str
@@ -1411,7 +1429,7 @@ class AIIntegrationsApi:
     ) -> RESTResponseType:
         """Update an AI integration
 
-        Update an AI integration's configuration. At least one field must be provided. Omitted fields are left unchanged.  **Payload Requirements** - At least one of the updatable fields must be provided. - `name`, if provided, must be unique within the account. - `api_key` can be set to `null` to remove the existing key, or omitted to keep it unchanged. - `scopings`, if provided, replaces all existing scoping rules. - `provider_metadata`, if provided, replaces existing metadata. Set to `null` to remove.  **Valid example** ```json {   \"name\": \"Updated Integration\",   \"model_names\": [\"gpt-4o\", \"gpt-4o-mini\"] } ```  **Invalid example** (empty body) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Update an AI integration's configuration. At least one field must be provided. Omitted fields are left unchanged.  **Payload Requirements** - At least one of the updatable fields must be provided. - `name`, if provided, must be unique within the account. - `api_key` can be set to `null` to remove the existing key, or omitted to keep it unchanged. - `scopings`, if provided, replaces all existing scoping rules. - `provider_metadata`, if provided, replaces existing metadata. Set to `null` to remove. - For `TYPE_SAFE_AI`, `PERPLEXITY`, and `CLOUDFLARE` integrations (used only by Decision Judge evaluators), the same fields as on create return `422`, and `api_key` cannot be set to `null`. The provider cannot be changed. For `CLOUDFLARE`, `provider_metadata` must be a `CLOUDFLARE` kind and cannot be removed.  **Valid example** ```json {   \"name\": \"Updated Integration\",   \"model_names\": [\"gpt-4o\", \"gpt-4o-mini\"] } ```  **Invalid example** (empty body) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param integration_id: The unique AI integration identifier (base64) (required)
         :type integration_id: str

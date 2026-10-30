@@ -36,25 +36,7 @@ class TestLlmConfig(unittest.TestCase):
         if include_optional:
             return LlmConfig(
                 is_function_calling_enabled = True,
-                provider = 'TOGETHER_AI',
-                has_api_key = True,
-                base_url = '',
-                is_default_models_enabled = True,
-                model_names = [
-                    ''
-                    ],
-                auth = arize._generated.api_client.models.custom_auth.CustomAuth(),
-                header_names = [
-                    ''
-                    ],
-                project_id = '',
-                location = '',
-                project_access_label = ''
-            )
-        else:
-            return LlmConfig(
-                is_function_calling_enabled = True,
-                provider = 'TOGETHER_AI',
+                provider = 'CLOUDFLARE',
                 has_api_key = True,
                 base_url = '',
                 is_default_models_enabled = True,
@@ -68,6 +50,26 @@ class TestLlmConfig(unittest.TestCase):
                 project_id = '',
                 location = '',
                 project_access_label = '',
+                account_id = ''
+            )
+        else:
+            return LlmConfig(
+                is_function_calling_enabled = True,
+                provider = 'CLOUDFLARE',
+                has_api_key = True,
+                base_url = '',
+                is_default_models_enabled = True,
+                model_names = [
+                    ''
+                    ],
+                auth = arize._generated.api_client.models.custom_auth.CustomAuth(),
+                header_names = [
+                    ''
+                    ],
+                project_id = '',
+                location = '',
+                project_access_label = '',
+                account_id = '',
         )
         """
 

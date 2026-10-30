@@ -18,17 +18,18 @@ import pprint
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
 from typing import Any, List, Optional
 from arize._generated.api_client.models.create_code_evaluation_task_request import CreateCodeEvaluationTaskRequest
+from arize._generated.api_client.models.create_decision_judge_evaluation_task_request import CreateDecisionJudgeEvaluationTaskRequest
 from arize._generated.api_client.models.create_run_experiment_task_request import CreateRunExperimentTaskRequest
 from arize._generated.api_client.models.create_template_evaluation_task_request import CreateTemplateEvaluationTaskRequest
 from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-CREATETASKREQUEST_ONE_OF_SCHEMAS = ["CreateCodeEvaluationTaskRequest", "CreateRunExperimentTaskRequest", "CreateTemplateEvaluationTaskRequest"]
+CREATETASKREQUEST_ONE_OF_SCHEMAS = ["CreateCodeEvaluationTaskRequest", "CreateDecisionJudgeEvaluationTaskRequest", "CreateRunExperimentTaskRequest", "CreateTemplateEvaluationTaskRequest"]
 
 class CreateTaskRequest(BaseModel):
     """
-    Request body for creating a task. The `type` field is the discriminator.  | `type` | Schema | |---|---| | `TEMPLATE_EVALUATION` | `CreateTemplateEvaluationTaskRequest` | | `CODE_EVALUATION` | `CreateCodeEvaluationTaskRequest` | | `RUN_EXPERIMENT` | `CreateRunExperimentTaskRequest` |  `RUN_EXPERIMENT` tasks do not run continuously — they must be triggered explicitly via `POST /v2/tasks/{task_id}/trigger` each time. 
+    Request body for creating a task. The `type` field is the discriminator.  | `type` | Schema | |---|---| | `TEMPLATE_EVALUATION` | `CreateTemplateEvaluationTaskRequest` | | `CODE_EVALUATION` | `CreateCodeEvaluationTaskRequest` | | `RUN_EXPERIMENT` | `CreateRunExperimentTaskRequest` | | `DECISION_JUDGE_EVALUATION` | `CreateDecisionJudgeEvaluationTaskRequest` |  `RUN_EXPERIMENT` tasks do not run continuously — they must be triggered explicitly via `POST /v2/tasks/{task_id}/trigger` each time. 
     """
     # data type: CreateTemplateEvaluationTaskRequest
     oneof_schema_1_validator: Optional[CreateTemplateEvaluationTaskRequest] = None
@@ -36,8 +37,10 @@ class CreateTaskRequest(BaseModel):
     oneof_schema_2_validator: Optional[CreateCodeEvaluationTaskRequest] = None
     # data type: CreateRunExperimentTaskRequest
     oneof_schema_3_validator: Optional[CreateRunExperimentTaskRequest] = None
-    actual_instance: Optional[Union[CreateCodeEvaluationTaskRequest, CreateRunExperimentTaskRequest, CreateTemplateEvaluationTaskRequest]] = None
-    one_of_schemas: Set[str] = { "CreateCodeEvaluationTaskRequest", "CreateRunExperimentTaskRequest", "CreateTemplateEvaluationTaskRequest" }
+    # data type: CreateDecisionJudgeEvaluationTaskRequest
+    oneof_schema_4_validator: Optional[CreateDecisionJudgeEvaluationTaskRequest] = None
+    actual_instance: Optional[Union[CreateCodeEvaluationTaskRequest, CreateDecisionJudgeEvaluationTaskRequest, CreateRunExperimentTaskRequest, CreateTemplateEvaluationTaskRequest]] = None
+    one_of_schemas: Set[str] = { "CreateCodeEvaluationTaskRequest", "CreateDecisionJudgeEvaluationTaskRequest", "CreateRunExperimentTaskRequest", "CreateTemplateEvaluationTaskRequest" }
 
     model_config = ConfigDict(
         validate_assignment=True,
@@ -78,12 +81,17 @@ class CreateTaskRequest(BaseModel):
             error_messages.append(f"Error! Input type `{type(v)}` is not `CreateRunExperimentTaskRequest`")
         else:
             match += 1
+        # validate data type: CreateDecisionJudgeEvaluationTaskRequest
+        if not isinstance(v, CreateDecisionJudgeEvaluationTaskRequest):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `CreateDecisionJudgeEvaluationTaskRequest`")
+        else:
+            match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in CreateTaskRequest with oneOf schemas: CreateCodeEvaluationTaskRequest, CreateRunExperimentTaskRequest, CreateTemplateEvaluationTaskRequest. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in CreateTaskRequest with oneOf schemas: CreateCodeEvaluationTaskRequest, CreateDecisionJudgeEvaluationTaskRequest, CreateRunExperimentTaskRequest, CreateTemplateEvaluationTaskRequest. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in CreateTaskRequest with oneOf schemas: CreateCodeEvaluationTaskRequest, CreateRunExperimentTaskRequest, CreateTemplateEvaluationTaskRequest. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in CreateTaskRequest with oneOf schemas: CreateCodeEvaluationTaskRequest, CreateDecisionJudgeEvaluationTaskRequest, CreateRunExperimentTaskRequest, CreateTemplateEvaluationTaskRequest. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -116,13 +124,19 @@ class CreateTaskRequest(BaseModel):
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
+        # deserialize data into CreateDecisionJudgeEvaluationTaskRequest
+        try:
+            instance.actual_instance = CreateDecisionJudgeEvaluationTaskRequest.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into CreateTaskRequest with oneOf schemas: CreateCodeEvaluationTaskRequest, CreateRunExperimentTaskRequest, CreateTemplateEvaluationTaskRequest. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into CreateTaskRequest with oneOf schemas: CreateCodeEvaluationTaskRequest, CreateDecisionJudgeEvaluationTaskRequest, CreateRunExperimentTaskRequest, CreateTemplateEvaluationTaskRequest. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into CreateTaskRequest with oneOf schemas: CreateCodeEvaluationTaskRequest, CreateRunExperimentTaskRequest, CreateTemplateEvaluationTaskRequest. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into CreateTaskRequest with oneOf schemas: CreateCodeEvaluationTaskRequest, CreateDecisionJudgeEvaluationTaskRequest, CreateRunExperimentTaskRequest, CreateTemplateEvaluationTaskRequest. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -136,7 +150,7 @@ class CreateTaskRequest(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], CreateCodeEvaluationTaskRequest, CreateRunExperimentTaskRequest, CreateTemplateEvaluationTaskRequest]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], CreateCodeEvaluationTaskRequest, CreateDecisionJudgeEvaluationTaskRequest, CreateRunExperimentTaskRequest, CreateTemplateEvaluationTaskRequest]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

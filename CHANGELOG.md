@@ -1,5 +1,20 @@
 # Changelog
 
+## [8.62.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.61.0...arize-python-sdk/v8.62.0) (2026-10-30)
+
+
+### 🎁 New Features
+
+* **agents:** Decision Judge evaluation tasks in the REST API and SDKs ([#92414](https://github.com/Arize-ai/arize/issues/92414)) ([f107cbd](https://github.com/Arize-ai/arize/commit/f107cbddca523094e5aa7c3afdc59393421fb69c))
+* **agents:** Decision Judge evaluators in the REST API ([#92411](https://github.com/Arize-ai/arize/issues/92411)) ([a6552d6](https://github.com/Arize-ai/arize/commit/a6552d602d797b8efd9b6add4d02921c810fa70e))
+* **agents:** Decision Judge evaluators and providers in the Python, Go and JS SDKs ([#92413](https://github.com/Arize-ai/arize/issues/92413)) ([0e38b79](https://github.com/Arize-ai/arize/commit/0e38b79a95cef9f1205000de6162e42ab1c21454))
+
+
+### 💫 Code Refactoring
+
+* **evals:** remove remote evaluation rollout flag ([#91083](https://github.com/Arize-ai/arize/issues/91083)) ([5f9e66b](https://github.com/Arize-ai/arize/commit/5f9e66b8b9c23a505a2979ef4b6c59694ed297ca))
+* **promotion:** sync release stages with REST spec ([#92731](https://github.com/Arize-ai/arize/issues/92731)) ([a65dc2e](https://github.com/Arize-ai/arize/commit/a65dc2ee7a658f3167b6399d88fa7bb06e5faafa))
+
 ## [8.61.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.60.0...arize-python-sdk/v8.61.0) (2026-10-26)
 
 

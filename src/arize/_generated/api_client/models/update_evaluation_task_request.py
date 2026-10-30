@@ -27,7 +27,7 @@ from typing_extensions import Self
 
 class UpdateEvaluationTaskRequest(BaseModel):
     """
-    PATCH body for `TEMPLATE_EVALUATION` and `CODE_EVALUATION` tasks. The two types share the same updatable shape; the server derives the task type from the URL's task record. At least one field must be provided.  Evaluators carry one of two mutually exclusive shapes depending on their data granularity. Span evaluators use task-level `query_filter` plus per-evaluator `column_mappings`/`query_filter`. Trace/session evaluators use task-level `query_filters` plus per-evaluator `query_mappings`. Mixing the two shapes returns 400. 
+    PATCH body for `TEMPLATE_EVALUATION`, `CODE_EVALUATION` and `DECISION_JUDGE_EVALUATION` tasks. The types share the same updatable shape; the server derives the task type from the URL's task record. At least one field must be provided.  Evaluators carry one of two mutually exclusive shapes depending on their data granularity. Span evaluators use task-level `query_filter` plus per-evaluator `column_mappings`/`query_filter`. Trace/session evaluators use task-level `query_filters` plus per-evaluator `query_mappings`. Mixing the two shapes returns 400.  `DECISION_JUDGE_EVALUATION` tasks accept only the span shape and only Decision Judge evaluators. Sending `query_filters` or `query_mappings` returns 422. 
     """ # noqa: E501
     name: Optional[Annotated[str, Field(min_length=1, strict=True)]] = Field(default=None, description="New task name.")
     sampling_rate: Optional[Union[Annotated[float, Field(le=1, strict=True, ge=0)], Annotated[int, Field(le=1, strict=True, ge=0)]]] = Field(default=None, description="Sampling rate between 0 and 1. Only applicable for project-based tasks.")

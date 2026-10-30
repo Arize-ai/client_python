@@ -14,7 +14,7 @@ Name | Type | Description | Notes
 **enable_default_models** | **bool** | Enable provider&#39;s default model list | [optional] 
 **function_calling_enabled** | **bool** | Enable function/tool calling | [optional] 
 **auth_type** | [**AiIntegrationAuthType**](AiIntegrationAuthType.md) |  | [optional] 
-**provider_metadata** | [**ProviderMetadataRequest**](ProviderMetadataRequest.md) | Provider-specific configuration. For AWS_BEDROCK, must include role_arn. For VERTEX_AI, must include project_id, location, and project_access_label. Pass null to remove. | [optional] 
+**provider_metadata** | [**ProviderMetadataRequest**](ProviderMetadataRequest.md) | Provider-specific configuration. For AWS_BEDROCK, must include role_arn. For VERTEX_AI, must include project_id, location, and project_access_label. For CLOUDFLARE, must include account_id and cannot be removed. Pass null to remove. | [optional] 
 **scopings** | [**List[AiIntegrationScopingRequest]**](AiIntegrationScopingRequest.md) | Visibility scoping rules (replaces all existing scopings) | [optional] 
 
 ## Example

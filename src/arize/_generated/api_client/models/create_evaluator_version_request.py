@@ -18,17 +18,18 @@ import pprint
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
 from typing import Any, List, Optional
 from arize._generated.api_client.models.create_code_evaluator_version_request import CreateCodeEvaluatorVersionRequest
+from arize._generated.api_client.models.create_decision_judge_evaluator_version_request import CreateDecisionJudgeEvaluatorVersionRequest
 from arize._generated.api_client.models.create_remote_evaluator_version_request import CreateRemoteEvaluatorVersionRequest
 from arize._generated.api_client.models.create_template_evaluator_version_request import CreateTemplateEvaluatorVersionRequest
 from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-CREATEEVALUATORVERSIONREQUEST_ONE_OF_SCHEMAS = ["CreateCodeEvaluatorVersionRequest", "CreateRemoteEvaluatorVersionRequest", "CreateTemplateEvaluatorVersionRequest"]
+CREATEEVALUATORVERSIONREQUEST_ONE_OF_SCHEMAS = ["CreateCodeEvaluatorVersionRequest", "CreateDecisionJudgeEvaluatorVersionRequest", "CreateRemoteEvaluatorVersionRequest", "CreateTemplateEvaluatorVersionRequest"]
 
 class CreateEvaluatorVersionRequest(BaseModel):
     """
-    Payload for an evaluator version: exactly one of `template_config`, `code_config`, or `remote_config`. Used both when creating an evaluator (initial `version`) and when appending a version. 
+    Payload for an evaluator version: exactly one of `template_config`, `code_config`, `remote_config`, or `decision_judge_config`. Used both when creating an evaluator (initial `version`) and when appending a version. 
     """
     # data type: CreateTemplateEvaluatorVersionRequest
     oneof_schema_1_validator: Optional[CreateTemplateEvaluatorVersionRequest] = None
@@ -36,8 +37,10 @@ class CreateEvaluatorVersionRequest(BaseModel):
     oneof_schema_2_validator: Optional[CreateCodeEvaluatorVersionRequest] = None
     # data type: CreateRemoteEvaluatorVersionRequest
     oneof_schema_3_validator: Optional[CreateRemoteEvaluatorVersionRequest] = None
-    actual_instance: Optional[Union[CreateCodeEvaluatorVersionRequest, CreateRemoteEvaluatorVersionRequest, CreateTemplateEvaluatorVersionRequest]] = None
-    one_of_schemas: Set[str] = { "CreateCodeEvaluatorVersionRequest", "CreateRemoteEvaluatorVersionRequest", "CreateTemplateEvaluatorVersionRequest" }
+    # data type: CreateDecisionJudgeEvaluatorVersionRequest
+    oneof_schema_4_validator: Optional[CreateDecisionJudgeEvaluatorVersionRequest] = None
+    actual_instance: Optional[Union[CreateCodeEvaluatorVersionRequest, CreateDecisionJudgeEvaluatorVersionRequest, CreateRemoteEvaluatorVersionRequest, CreateTemplateEvaluatorVersionRequest]] = None
+    one_of_schemas: Set[str] = { "CreateCodeEvaluatorVersionRequest", "CreateDecisionJudgeEvaluatorVersionRequest", "CreateRemoteEvaluatorVersionRequest", "CreateTemplateEvaluatorVersionRequest" }
 
     model_config = ConfigDict(
         validate_assignment=True,
@@ -75,12 +78,17 @@ class CreateEvaluatorVersionRequest(BaseModel):
             error_messages.append(f"Error! Input type `{type(v)}` is not `CreateRemoteEvaluatorVersionRequest`")
         else:
             match += 1
+        # validate data type: CreateDecisionJudgeEvaluatorVersionRequest
+        if not isinstance(v, CreateDecisionJudgeEvaluatorVersionRequest):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `CreateDecisionJudgeEvaluatorVersionRequest`")
+        else:
+            match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in CreateEvaluatorVersionRequest with oneOf schemas: CreateCodeEvaluatorVersionRequest, CreateRemoteEvaluatorVersionRequest, CreateTemplateEvaluatorVersionRequest. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in CreateEvaluatorVersionRequest with oneOf schemas: CreateCodeEvaluatorVersionRequest, CreateDecisionJudgeEvaluatorVersionRequest, CreateRemoteEvaluatorVersionRequest, CreateTemplateEvaluatorVersionRequest. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in CreateEvaluatorVersionRequest with oneOf schemas: CreateCodeEvaluatorVersionRequest, CreateRemoteEvaluatorVersionRequest, CreateTemplateEvaluatorVersionRequest. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in CreateEvaluatorVersionRequest with oneOf schemas: CreateCodeEvaluatorVersionRequest, CreateDecisionJudgeEvaluatorVersionRequest, CreateRemoteEvaluatorVersionRequest, CreateTemplateEvaluatorVersionRequest. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -113,13 +121,19 @@ class CreateEvaluatorVersionRequest(BaseModel):
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
+        # deserialize data into CreateDecisionJudgeEvaluatorVersionRequest
+        try:
+            instance.actual_instance = CreateDecisionJudgeEvaluatorVersionRequest.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into CreateEvaluatorVersionRequest with oneOf schemas: CreateCodeEvaluatorVersionRequest, CreateRemoteEvaluatorVersionRequest, CreateTemplateEvaluatorVersionRequest. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into CreateEvaluatorVersionRequest with oneOf schemas: CreateCodeEvaluatorVersionRequest, CreateDecisionJudgeEvaluatorVersionRequest, CreateRemoteEvaluatorVersionRequest, CreateTemplateEvaluatorVersionRequest. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into CreateEvaluatorVersionRequest with oneOf schemas: CreateCodeEvaluatorVersionRequest, CreateRemoteEvaluatorVersionRequest, CreateTemplateEvaluatorVersionRequest. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into CreateEvaluatorVersionRequest with oneOf schemas: CreateCodeEvaluatorVersionRequest, CreateDecisionJudgeEvaluatorVersionRequest, CreateRemoteEvaluatorVersionRequest, CreateTemplateEvaluatorVersionRequest. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -133,7 +147,7 @@ class CreateEvaluatorVersionRequest(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], CreateCodeEvaluatorVersionRequest, CreateRemoteEvaluatorVersionRequest, CreateTemplateEvaluatorVersionRequest]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], CreateCodeEvaluatorVersionRequest, CreateDecisionJudgeEvaluatorVersionRequest, CreateRemoteEvaluatorVersionRequest, CreateTemplateEvaluatorVersionRequest]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

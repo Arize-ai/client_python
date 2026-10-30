@@ -140,6 +140,22 @@ class TestIntegrationsClientList:
             cursor=None,
         )
 
+    def test_list_forwards_provider(
+        self, integrations_client: IntegrationsClient, mock_api: Mock
+    ) -> None:
+        """list(provider=...) should forward the provider filter."""
+        integrations_client.list(provider=gen.LlmIntegrationProvider.CLOUDFLARE)
+
+        mock_api.list_integrations.assert_called_once_with(
+            type=None,
+            space_id=None,
+            space_name=None,
+            name=None,
+            limit=50,
+            cursor=None,
+            provider=gen.LlmIntegrationProvider.CLOUDFLARE,
+        )
+
     def test_list_returns_wrapped_response(
         self, integrations_client: IntegrationsClient, mock_api: Mock
     ) -> None:
@@ -280,6 +296,64 @@ class TestIntegrationsClientCreateLlm:
         ]
         assert body.actual_instance.name == "Prod OpenAI"
         assert body.actual_instance.scopings is None
+
+    def test_create_type_safe_ai_builds_request(
+        self, integrations_client: IntegrationsClient, mock_api: Mock
+    ) -> None:
+        """create_llm(TYPE_SAFE_AI) should send only the provider and key."""
+        config = gen.CreateTypeSafeAiConfig(
+            provider="TYPE_SAFE_AI", api_key="ts-key"
+        )
+        integrations_client.create_llm(name="TypeSafe AI", config=config)
+
+        forwarded = _created_llm_config(mock_api)
+        assert isinstance(forwarded, gen.CreateTypeSafeAiConfig)
+        assert forwarded.to_dict() == {
+            "provider": "TYPE_SAFE_AI",
+            "api_key": "ts-key",
+        }
+
+    def test_create_perplexity_builds_request(
+        self, integrations_client: IntegrationsClient, mock_api: Mock
+    ) -> None:
+        """create_llm(PERPLEXITY) should send only the provider and key."""
+        config = gen.CreatePerplexityConfig(
+            provider="PERPLEXITY", api_key="pplx-key"
+        )
+        integrations_client.create_llm(name="Perplexity", config=config)
+
+        forwarded = _created_llm_config(mock_api)
+        assert isinstance(forwarded, gen.CreatePerplexityConfig)
+        assert forwarded.to_dict() == {
+            "provider": "PERPLEXITY",
+            "api_key": "pplx-key",
+        }
+
+    def test_create_cloudflare_builds_request(
+        self, integrations_client: IntegrationsClient, mock_api: Mock
+    ) -> None:
+        """create_llm(CLOUDFLARE) should forward the account ID."""
+        config = gen.CreateCloudflareConfig(
+            provider="CLOUDFLARE",
+            api_key="cf-token",
+            account_id="0123456789abcdef0123456789abcdef",
+        )
+        integrations_client.create_llm(name="Cloudflare", config=config)
+
+        forwarded = _created_llm_config(mock_api)
+        assert isinstance(forwarded, gen.CreateCloudflareConfig)
+        assert forwarded.to_dict() == {
+            "provider": "CLOUDFLARE",
+            "api_key": "cf-token",
+            "account_id": "0123456789abcdef0123456789abcdef",
+        }
+
+    def test_create_cloudflare_rejects_malformed_account_id(self) -> None:
+        """The generated config enforces the 32-character account ID."""
+        with pytest.raises(ValueError, match="account_id"):
+            gen.CreateCloudflareConfig(
+                provider="CLOUDFLARE", api_key="cf-token", account_id="short"
+            )
 
     def test_create_anthropic_builds_request(
         self, integrations_client: IntegrationsClient, mock_api: Mock
@@ -720,6 +794,28 @@ class TestIntegrationsClientUpdateLlm:
             )
 
         mock_cfg_cls.assert_called_once_with(base_url=None, headers=None)
+
+    def test_update_cloudflare_account_id(
+        self, integrations_client: IntegrationsClient, mock_api: Mock
+    ) -> None:
+        """update_llm() should forward a new Cloudflare account ID."""
+        with (
+            patch(
+                "arize._generated.api_client.UpdateLlmConfig"
+            ) as mock_cfg_cls,
+            patch("arize._generated.api_client.UpdateLlmIntegrationRequest"),
+            patch("arize._generated.api_client.UpdateIntegrationRequest"),
+        ):
+            integrations_client.update_llm(
+                integration=_INTEGRATION_ID,
+                api_key="cf-token-2",
+                account_id="fedcba9876543210fedcba9876543210",
+            )
+
+        mock_cfg_cls.assert_called_once_with(
+            api_key="cf-token-2",
+            account_id="fedcba9876543210fedcba9876543210",
+        )
 
     def test_update_vertex_ai_fields(
         self, integrations_client: IntegrationsClient, mock_api: Mock

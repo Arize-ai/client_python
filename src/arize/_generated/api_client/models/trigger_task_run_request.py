@@ -29,7 +29,7 @@ TRIGGERTASKRUNREQUEST_ANY_OF_SCHEMAS = ["TriggerEvaluationTaskRunRequest", "Trig
 
 class TriggerTaskRunRequest(BaseModel):
     """
-    Trigger body for `POST /v2/tasks/{task_id}/trigger`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `task_type` field.  | Task type | Schema | |---|---| | `TEMPLATE_EVALUATION` | `TriggerEvaluationTaskRunRequest` | | `CODE_EVALUATION` | `TriggerEvaluationTaskRunRequest` | | `RUN_EXPERIMENT` | `TriggerRunExperimentTaskRunRequest` |  Sending a field that is not valid for the resolved task type returns 400. For `TEMPLATE_EVALUATION` and `CODE_EVALUATION` tasks all trigger fields are optional — an empty body is valid and uses server defaults. 
+    Trigger body for `POST /v2/tasks/{task_id}/trigger`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `task_type` field.  | Task type | Schema | |---|---| | `TEMPLATE_EVALUATION` | `TriggerEvaluationTaskRunRequest` | | `CODE_EVALUATION` | `TriggerEvaluationTaskRunRequest` | | `DECISION_JUDGE_EVALUATION` | `TriggerEvaluationTaskRunRequest` | | `RUN_EXPERIMENT` | `TriggerRunExperimentTaskRunRequest` |  Sending a field that is not valid for the resolved task type returns 400. For `TEMPLATE_EVALUATION` and `CODE_EVALUATION` tasks all trigger fields are optional — an empty body is valid and uses server defaults. 
     """
 
     # data type: TriggerEvaluationTaskRunRequest

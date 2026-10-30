@@ -33,6 +33,13 @@ Supported types: `LLM`, `AGENT`, `EVALUATOR`.
   never returned — reads surface `has_headers` instead.
 - `type: EVALUATOR` requires the remote evaluators feature to be enabled for
   the account. If not enabled the request returns `403`.
+- `config.provider` `TYPE_SAFE_AI`, `PERPLEXITY`, and `CLOUDFLARE` create
+  integrations that are used only by Decision Judge evaluators. They take
+  `api_key` only (plus `account_id` for `CLOUDFLARE`); any other config
+  field returns `422`. Creating one returns `400` when this deployment has
+  not enabled the provider. That is a deployment setting, separate from
+  the account's Decision Judge access that the evaluator and task
+  endpoints report as `403`.
 
 **Valid example** (`type: EVALUATOR`)
 ```json
@@ -321,7 +328,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **list_integrations**
-> ListIntegrationsResponse list_integrations(type=type, space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
+> ListIntegrationsResponse list_integrations(type=type, provider=provider, space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
 
 List integrations
 
@@ -334,6 +341,15 @@ existing type ranks and invalidate in-flight cursors. Each item carries
 its `type` (and, for `LLM`, `config.provider`) for client-side
 discrimination. An invalid `type` or pagination `cursor` returns `400`;
 a cursor is only valid for the query parameters it was issued with.
+
+Use `provider` to return only `LLM` integrations of one provider.
+`TYPE_SAFE_AI`, `PERPLEXITY`, and `CLOUDFLARE` integrations are used only
+by Decision Judge evaluators. They are returned only when `provider`
+names them; a request without `provider` returns every other provider.
+A page can hold fewer than `limit` integrations while
+`pagination.has_more` is `true`, because a `CLOUDFLARE` row that cannot
+be read is skipped but still advances the cursor. Keep following
+`next_cursor` until `has_more` is `false`.
 
 Integrations are owned at the account level but carry visibility scopings
 (account-wide, organization, or space). `space_id` / `space_name` filter
@@ -353,6 +369,7 @@ filter references a space outside the caller's visibility.
 import arize._generated.api_client
 from arize._generated.api_client.models.integration_type import IntegrationType
 from arize._generated.api_client.models.list_integrations_response import ListIntegrationsResponse
+from arize._generated.api_client.models.llm_integration_provider import LlmIntegrationProvider
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -377,6 +394,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.IntegrationsApi(api_client)
     type = arize._generated.api_client.IntegrationType() # IntegrationType | Filter the list to a single integration type. When omitted, `LLM` and `AGENT` integrations are returned; `EVALUATOR` integrations must be requested explicitly with `type=EVALUATOR`. Each item carries its `type` for client-side discrimination. (optional)
+    provider = arize._generated.api_client.LlmIntegrationProvider() # LlmIntegrationProvider | Return only `LLM` integrations of this provider. Implies `type=LLM`; any other `type` returns `400`. When omitted, integrations of every provider except `TYPE_SAFE_AI`, `PERPLEXITY`, and `CLOUDFLARE` are returned. Those providers are used only by Decision Judge evaluators and are listed only when requested here. (optional)
     space_id = 'U3BhY2U6MTIzNDU=' # str | Filter search results to a particular space ID (optional)
     space_name = 'my-space' # str | Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned.  (optional)
     name = 'production' # str | Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned.  (optional)
@@ -385,7 +403,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # List integrations
-        api_response = api_instance.list_integrations(type=type, space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
+        api_response = api_instance.list_integrations(type=type, provider=provider, space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
         print("The response of IntegrationsApi->list_integrations:\n")
         pprint(api_response)
     except Exception as e:
@@ -400,6 +418,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **type** | [**IntegrationType**](.md)| Filter the list to a single integration type. When omitted, &#x60;LLM&#x60; and &#x60;AGENT&#x60; integrations are returned; &#x60;EVALUATOR&#x60; integrations must be requested explicitly with &#x60;type&#x3D;EVALUATOR&#x60;. Each item carries its &#x60;type&#x60; for client-side discrimination. | [optional] 
+ **provider** | [**LlmIntegrationProvider**](.md)| Return only &#x60;LLM&#x60; integrations of this provider. Implies &#x60;type&#x3D;LLM&#x60;; any other &#x60;type&#x60; returns &#x60;400&#x60;. When omitted, integrations of every provider except &#x60;TYPE_SAFE_AI&#x60;, &#x60;PERPLEXITY&#x60;, and &#x60;CLOUDFLARE&#x60; are returned. Those providers are used only by Decision Judge evaluators and are listed only when requested here. | [optional] 
  **space_id** | **str**| Filter search results to a particular space ID | [optional] 
  **space_name** | **str**| Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned.  | [optional] 
  **name** | **str**| Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, &#x60;name&#x3D;prod&#x60; matches \&quot;production\&quot;, \&quot;my-prod-dataset\&quot;, etc. If omitted, no name filtering is applied and all resources are returned.  | [optional] 

@@ -12,6 +12,12 @@ from arize._generated.api_client.models.run_configuration import (
 from arize._generated.api_client.models.run_configuration_request import (
     RunConfigurationRequest,
 )
+from arize._generated.api_client.models.span_evaluator_input import (
+    SpanEvaluatorInput,
+)
+from arize._generated.api_client.models.task_evaluator_input import (
+    TaskEvaluatorInput,
+)
 from arize._generated.api_client.models.task_query_filter_input import (
     TaskQueryFilterInput,
 )
@@ -50,7 +56,6 @@ if TYPE_CHECKING:
     from arize.config import SDKConfiguration
     from arize.tasks.types import (
         ListTaskRunsResponse,
-        TaskEvaluatorInput,
         TaskRun,
     )
 
@@ -73,6 +78,46 @@ def _build_query_filters_input(
             )
         ],
         expression=query_filters.expression,
+    )
+
+
+_SPAN_ONLY_HINT = (
+    "Decision Judge evaluation tasks evaluate single spans and accept only "
+    "span evaluators."
+)
+
+
+def _to_span_evaluator_input(
+    evaluator: SpanEvaluatorInput | TaskEvaluatorInput | dict[str, Any],
+    position: int,
+) -> SpanEvaluatorInput:
+    if isinstance(evaluator, SpanEvaluatorInput):
+        return evaluator
+    if isinstance(evaluator, TaskEvaluatorInput):
+        inner = evaluator.actual_instance
+        if isinstance(inner, SpanEvaluatorInput):
+            return inner
+        if inner is None:
+            raise ValueError(
+                f"Evaluator at position {position} is an empty "
+                "TaskEvaluatorInput. Pass a SpanEvaluatorInput instead."
+            )
+        raise ValueError(
+            f"Evaluator at position {position} is a trace/session evaluator. "
+            + _SPAN_ONLY_HINT
+        )
+    if isinstance(evaluator, dict):
+        if "query_mappings" in evaluator:
+            raise ValueError(
+                f"Evaluator at position {position} uses query_mappings. "
+                + _SPAN_ONLY_HINT
+            )
+        span = SpanEvaluatorInput.from_dict(evaluator)
+        if span is not None:
+            return span
+    raise ValueError(
+        f"Evaluator at position {position} must be a SpanEvaluatorInput. "
+        + _SPAN_ONLY_HINT
     )
 
 
@@ -214,7 +259,10 @@ class TasksClient:
                 otherwise it is used as a case-insensitive substring filter on
                 the space name.
             task_type: Optional task type filter. One of
-                ``"TEMPLATE_EVALUATION"`` or ``"CODE_EVALUATION"``.
+                ``"TEMPLATE_EVALUATION"``, ``"CODE_EVALUATION"``,
+                ``"RUN_EXPERIMENT"`` or ``"DECISION_JUDGE_EVALUATION"``.
+                When omitted, ``"RUN_EXPERIMENT"`` and
+                ``"DECISION_JUDGE_EVALUATION"`` tasks are not returned.
             limit: Maximum number of tasks to return (1-100).
             cursor: Opaque pagination cursor from a previous response.
 
@@ -443,6 +491,45 @@ class TasksClient:
             raise ValueError(
                 f"'evaluators' is required for '{task_type}' tasks."
             )
+        if task_type == TaskType.DECISION_JUDGE_EVALUATION:
+            unsupported = [
+                k
+                for k, v in {
+                    "dataset": dataset,
+                    "experiment_ids": experiment_ids,
+                    "query_filters": query_filters,
+                }.items()
+                if v is not None
+            ]
+            if unsupported:
+                raise ValueError(
+                    "Decision Judge evaluation tasks run on project spans "
+                    f"only and do not support: {', '.join(unsupported)}."
+                )
+            if not project:
+                raise ValueError(
+                    "'project' is required for Decision Judge evaluation tasks."
+                )
+            dj_inner = gen.CreateDecisionJudgeEvaluationTaskRequest(
+                name=name,
+                type=TaskType.DECISION_JUDGE_EVALUATION.value,
+                project_id=_find_project_id(
+                    api=self._projects_api,
+                    spaces_api=self._spaces_api,
+                    project=project,
+                    space=space,
+                ),
+                evaluators=[
+                    _to_span_evaluator_input(e, i)
+                    for i, e in enumerate(evaluators)
+                ],
+                sampling_rate=sampling_rate,
+                is_continuous=is_continuous,
+                query_filter=query_filter,
+            )
+            body = gen.CreateTaskRequest(actual_instance=dj_inner)
+            result = self._api.create_task(create_task_request=body)
+            return Task.model_validate(result, from_attributes=True)
         project_id = (
             _find_project_id(
                 api=self._projects_api,
@@ -574,6 +661,82 @@ class TasksClient:
             is_continuous=is_continuous,
             query_filter=query_filter,
             query_filters=query_filters,
+        )
+
+    @prerelease_endpoint(
+        key="tasks.create_decision_judge_evaluation_task",
+        stage=ReleaseStage.BETA,
+    )
+    def create_decision_judge_evaluation_task(
+        self,
+        *,
+        name: str,
+        project: str,
+        evaluators: builtins.list[
+            SpanEvaluatorInput | TaskEvaluatorInput | dict[str, Any]
+        ],
+        space: str | None = None,
+        sampling_rate: float | None = None,
+        is_continuous: bool | None = None,
+        query_filter: str | None = None,
+    ) -> Task:
+        """Create a task that runs Decision Judge evaluators on project spans.
+
+        The task has the ``"DECISION_JUDGE_EVALUATION"`` type. Every evaluator
+        must be a Decision Judge evaluator; the server returns 422 for any
+        other evaluator type, and 403 when Decision Judge evaluators are not
+        enabled for the account. Datasets, experiments and the trace/session
+        shape are not supported.
+
+        ``list()`` returns these tasks only when ``task_type`` is
+        ``"DECISION_JUDGE_EVALUATION"``. ``get``, ``update``, ``delete``,
+        ``trigger_run`` and the run methods work on them as on other
+        evaluation tasks.
+
+        Args:
+            name: Task name (must be unique within the space).
+            project: Project name or identifier (base64) whose spans the
+                task evaluates.
+            evaluators: Decision Judge evaluators to attach (at least one).
+                Each entry is a
+                :class:`arize.tasks.types.SpanEvaluatorInput`, a span-shaped
+                :class:`arize.tasks.types.TaskEvaluatorInput`, or a ``dict``
+                with the same fields:
+
+                - ``evaluator_id`` — Evaluator identifier (base64). Required.
+                - ``evaluator_version_id`` — Pins the evaluator to one version
+                  (base64). Optional; omit it to run the latest version.
+                - ``query_filter`` — Per-evaluator filter. Optional.
+                - ``column_mappings`` — Maps evaluator variable names to span
+                  columns. Optional.
+
+            space: Optional space name or ID used to resolve ``project`` by
+                name.
+            sampling_rate: Fraction of spans to evaluate (0-1).
+            is_continuous: Whether to run the task continuously on new spans.
+            query_filter: Task-level query filter applied to all spans.
+
+        Returns:
+            The newly created task.
+
+        Raises:
+            ValueError: If an evaluator is not a span evaluator.
+            ApiException: If the API request fails.
+        """
+        return self._create(
+            name=name,
+            task_type=TaskType.DECISION_JUDGE_EVALUATION,
+            evaluators=[
+                TaskEvaluatorInput(
+                    actual_instance=_to_span_evaluator_input(e, i)
+                )
+                for i, e in enumerate(evaluators)
+            ],
+            project=project,
+            space=space,
+            sampling_rate=sampling_rate,
+            is_continuous=is_continuous,
+            query_filter=query_filter,
         )
 
     @prerelease_endpoint(

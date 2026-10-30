@@ -21,13 +21,15 @@ Create a new AI integration for an external LLM provider.
 **Payload Requirements**
 - `name` and `provider` are required.
 - The integration name must be unique within the account.
-- `provider` must be one of: `OPEN_AI`, `AZURE_OPEN_AI`, `AWS_BEDROCK`, `VERTEX_AI`, `ANTHROPIC`, `NVIDIA_NIM`, `GEMINI`, `CUSTOM`, `LITELLM`, `FIREWORKS`, `TOGETHER_AI`.
+- `provider` must be one of: `OPEN_AI`, `AZURE_OPEN_AI`, `AWS_BEDROCK`, `VERTEX_AI`, `ANTHROPIC`, `NVIDIA_NIM`, `GEMINI`, `CUSTOM`, `LITELLM`, `FIREWORKS`, `TOGETHER_AI`, `TYPE_SAFE_AI`, `PERPLEXITY`, `CLOUDFLARE`.
 - If `scopings` is omitted, the integration defaults to account-wide visibility.
 - `enable_default_models` defaults to `false` if not provided.
 - `function_calling_enabled` defaults to `true` if not provided.
 - `auth_type` defaults to `DEFAULT` if not provided.
 - For `AWS_BEDROCK` provider, `provider_metadata` must include `role_arn`.
 - For `VERTEX_AI` provider, `provider_metadata` must include `project_id`, `location`, and `project_access_label`.
+- `TYPE_SAFE_AI`, `PERPLEXITY`, and `CLOUDFLARE` integrations are used only by Decision Judge evaluators. They require `api_key`. A `base_url`, a non-empty `model_names` or `headers`, `enable_default_models: true`, `function_calling_enabled: true`, or an `auth_type` other than `DEFAULT` returns `422`. Creating one returns `400` when this deployment has not enabled the provider. That is a deployment setting, separate from the account's Decision Judge access that the evaluator and task endpoints report as `403`.
+- For `CLOUDFLARE` provider, `provider_metadata` must be `{"kind": "CLOUDFLARE", "account_id": "<32-character account ID>"}`.
 
 **Valid example**
 ```json
@@ -298,11 +300,16 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **list_ai_integrations**
-> ListAiIntegrationsResponse list_ai_integrations(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
+> ListAiIntegrationsResponse list_ai_integrations(space_id=space_id, space_name=space_name, name=name, provider=provider, limit=limit, cursor=cursor)
 
 List AI integrations
 
 List AI integrations the user has access to.
+
+Use `provider` to return only integrations of one provider.
+`TYPE_SAFE_AI`, `PERPLEXITY`, and `CLOUDFLARE` integrations are used only
+by Decision Judge evaluators. They are returned only when `provider`
+names them; a request without `provider` returns every other provider.
 
 <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
 
@@ -313,6 +320,7 @@ List AI integrations the user has access to.
 
 ```python
 import arize._generated.api_client
+from arize._generated.api_client.models.ai_integration_provider import AiIntegrationProvider
 from arize._generated.api_client.models.list_ai_integrations_response import ListAiIntegrationsResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
@@ -340,12 +348,13 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     space_id = 'U3BhY2U6MTIzNDU=' # str | Filter search results to a particular space ID (optional)
     space_name = 'my-space' # str | Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned.  (optional)
     name = 'production' # str | Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned.  (optional)
+    provider = arize._generated.api_client.AiIntegrationProvider() # AiIntegrationProvider | Return only AI integrations of this provider. When omitted, integrations of every provider except `TYPE_SAFE_AI`, `PERPLEXITY`, and `CLOUDFLARE` are returned. Those providers are used only by Decision Judge evaluators and are listed only when requested here. (optional)
     limit = 50 # int | Maximum items to return. Defaults to 50 if omitted; maximum is 100. (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
     try:
         # List AI integrations
-        api_response = api_instance.list_ai_integrations(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
+        api_response = api_instance.list_ai_integrations(space_id=space_id, space_name=space_name, name=name, provider=provider, limit=limit, cursor=cursor)
         print("The response of AIIntegrationsApi->list_ai_integrations:\n")
         pprint(api_response)
     except Exception as e:
@@ -362,6 +371,7 @@ Name | Type | Description  | Notes
  **space_id** | **str**| Filter search results to a particular space ID | [optional] 
  **space_name** | **str**| Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned.  | [optional] 
  **name** | **str**| Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, &#x60;name&#x3D;prod&#x60; matches \&quot;production\&quot;, \&quot;my-prod-dataset\&quot;, etc. If omitted, no name filtering is applied and all resources are returned.  | [optional] 
+ **provider** | [**AiIntegrationProvider**](.md)| Return only AI integrations of this provider. When omitted, integrations of every provider except &#x60;TYPE_SAFE_AI&#x60;, &#x60;PERPLEXITY&#x60;, and &#x60;CLOUDFLARE&#x60; are returned. Those providers are used only by Decision Judge evaluators and are listed only when requested here. | [optional] 
  **limit** | **int**| Maximum items to return. Defaults to 50 if omitted; maximum is 100. | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
 
@@ -405,6 +415,7 @@ Omitted fields are left unchanged.
 - `api_key` can be set to `null` to remove the existing key, or omitted to keep it unchanged.
 - `scopings`, if provided, replaces all existing scoping rules.
 - `provider_metadata`, if provided, replaces existing metadata. Set to `null` to remove.
+- For `TYPE_SAFE_AI`, `PERPLEXITY`, and `CLOUDFLARE` integrations (used only by Decision Judge evaluators), the same fields as on create return `422`, and `api_key` cannot be set to `null`. The provider cannot be changed. For `CLOUDFLARE`, `provider_metadata` must be a `CLOUDFLARE` kind and cannot be removed.
 
 **Valid example**
 ```json

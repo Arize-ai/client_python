@@ -76,6 +76,29 @@ task = client.create_evaluation_task(
 )
 ```
 
+### Decision Judge evaluation task
+
+Decision Judge evaluation tasks run Decision Judge evaluators on the spans of
+a project. They accept only span evaluators, and `list()` returns them only
+with `task_type="DECISION_JUDGE_EVALUATION"`.
+
+```python
+from arize.tasks.types import SpanEvaluatorInput
+
+task = client.create_decision_judge_evaluation_task(
+    name="Support Reply Judge",
+    project="my-project",
+    space="my-space",
+    evaluators=[
+        SpanEvaluatorInput(
+            evaluator_id="your_decision_judge_evaluator_id",
+            column_mappings={"input": "attributes.input.value"},
+        )
+    ],
+    is_continuous=True,
+)
+```
+
 ### Updating a task
 
 Both `query_filter` and `query_filters` can be updated; they are mutually

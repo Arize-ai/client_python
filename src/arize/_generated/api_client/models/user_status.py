@@ -20,7 +20,7 @@ from typing_extensions import Self
 
 class UserStatus(str, Enum):
     """
-    Current status of the user in the account. - `ACTIVE`: User has verified their email and can access the platform. - `INVITED`: User has been invited and their verification token is still valid. - `EXPIRED`: User was invited but their verification token has expired or is missing. A new invite is required. 
+    Current status of the user in the account. - `ACTIVE`: User has verified their email and can access the platform. - `INVITED`: User has a pending invitation whose link is still valid. - `EXPIRED`: The invitation link has expired or is missing. A new invite is required. 
     """
 
     """

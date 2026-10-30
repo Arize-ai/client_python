@@ -16,6 +16,7 @@ Name | Type | Description | Notes
 **template_config** | [**TemplateConfig**](TemplateConfig.md) |  | 
 **code_config** | [**CodeConfig**](CodeConfig.md) |  | 
 **remote_config** | [**RemoteConfig**](RemoteConfig.md) |  | 
+**decision_judge_config** | [**DecisionJudgeConfig**](DecisionJudgeConfig.md) |  | 
 
 ## Example
 

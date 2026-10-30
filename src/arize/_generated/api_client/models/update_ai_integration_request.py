@@ -39,7 +39,7 @@ class UpdateAiIntegrationRequest(BaseModel):
     enable_default_models: Optional[StrictBool] = Field(default=None, description="Enable provider's default model list")
     function_calling_enabled: Optional[StrictBool] = Field(default=None, description="Enable function/tool calling")
     auth_type: Optional[AiIntegrationAuthType] = None
-    provider_metadata: Optional[ProviderMetadataRequest] = Field(default=None, description="Provider-specific configuration. For AWS_BEDROCK, must include role_arn. For VERTEX_AI, must include project_id, location, and project_access_label. Pass null to remove.")
+    provider_metadata: Optional[ProviderMetadataRequest] = Field(default=None, description="Provider-specific configuration. For AWS_BEDROCK, must include role_arn. For VERTEX_AI, must include project_id, location, and project_access_label. For CLOUDFLARE, must include account_id and cannot be removed. Pass null to remove.")
     scopings: Optional[List[AiIntegrationScopingRequest]] = Field(default=None, description="Visibility scoping rules (replaces all existing scopings)")
     __properties: ClassVar[List[str]] = ["name", "provider", "api_key", "base_url", "model_names", "headers", "enable_default_models", "function_calling_enabled", "auth_type", "provider_metadata", "scopings"]
 

@@ -78,6 +78,10 @@ from arize._generated.api_client.models.bedrock_options_request import BedrockOp
 from arize._generated.api_client.models.categorical_annotation_config import CategoricalAnnotationConfig
 from arize._generated.api_client.models.categorical_annotation_value import CategoricalAnnotationValue
 from arize._generated.api_client.models.categorical_annotation_value_request import CategoricalAnnotationValueRequest
+from arize._generated.api_client.models.cloudflare_config import CloudflareConfig
+from arize._generated.api_client.models.cloudflare_provider_metadata import CloudflareProviderMetadata
+from arize._generated.api_client.models.cloudflare_provider_metadata_kind import CloudflareProviderMetadataKind
+from arize._generated.api_client.models.cloudflare_provider_metadata_request import CloudflareProviderMetadataRequest
 from arize._generated.api_client.models.code_config import CodeConfig
 from arize._generated.api_client.models.code_config_request import CodeConfigRequest
 from arize._generated.api_client.models.continuous_annotation_config import ContinuousAnnotationConfig
@@ -97,6 +101,7 @@ from arize._generated.api_client.models.create_aws_bedrock_config import CreateA
 from arize._generated.api_client.models.create_aws_bedrock_default_auth import CreateAwsBedrockDefaultAuth
 from arize._generated.api_client.models.create_aws_bedrock_proxy_with_headers_auth import CreateAwsBedrockProxyWithHeadersAuth
 from arize._generated.api_client.models.create_categorical_annotation_config_request import CreateCategoricalAnnotationConfigRequest
+from arize._generated.api_client.models.create_cloudflare_config import CreateCloudflareConfig
 from arize._generated.api_client.models.create_code_evaluation_task_request import CreateCodeEvaluationTaskRequest
 from arize._generated.api_client.models.create_code_evaluator_version_request import CreateCodeEvaluatorVersionRequest
 from arize._generated.api_client.models.create_continuous_annotation_config_request import CreateContinuousAnnotationConfigRequest
@@ -104,7 +109,10 @@ from arize._generated.api_client.models.create_custom_auth import CreateCustomAu
 from arize._generated.api_client.models.create_custom_config import CreateCustomConfig
 from arize._generated.api_client.models.create_custom_default_auth import CreateCustomDefaultAuth
 from arize._generated.api_client.models.create_custom_oauth2_client_credentials_auth import CreateCustomOauth2ClientCredentialsAuth
+from arize._generated.api_client.models.create_dashboard_request import CreateDashboardRequest
 from arize._generated.api_client.models.create_dataset_request import CreateDatasetRequest
+from arize._generated.api_client.models.create_decision_judge_evaluation_task_request import CreateDecisionJudgeEvaluationTaskRequest
+from arize._generated.api_client.models.create_decision_judge_evaluator_version_request import CreateDecisionJudgeEvaluatorVersionRequest
 from arize._generated.api_client.models.create_evaluator_integration_config_input import CreateEvaluatorIntegrationConfigInput
 from arize._generated.api_client.models.create_evaluator_integration_request import CreateEvaluatorIntegrationRequest
 from arize._generated.api_client.models.create_evaluator_request import CreateEvaluatorRequest
@@ -120,6 +128,7 @@ from arize._generated.api_client.models.create_llm_integration_request import Cr
 from arize._generated.api_client.models.create_nvidia_nim_config import CreateNvidiaNimConfig
 from arize._generated.api_client.models.create_open_ai_config import CreateOpenAiConfig
 from arize._generated.api_client.models.create_organization_request import CreateOrganizationRequest
+from arize._generated.api_client.models.create_perplexity_config import CreatePerplexityConfig
 from arize._generated.api_client.models.create_project_request import CreateProjectRequest
 from arize._generated.api_client.models.create_prompt_request import CreatePromptRequest
 from arize._generated.api_client.models.create_prompt_version_request import CreatePromptVersionRequest
@@ -135,6 +144,7 @@ from arize._generated.api_client.models.create_task_request import CreateTaskReq
 from arize._generated.api_client.models.create_template_evaluation_task_request import CreateTemplateEvaluationTaskRequest
 from arize._generated.api_client.models.create_template_evaluator_version_request import CreateTemplateEvaluatorVersionRequest
 from arize._generated.api_client.models.create_together_ai_config import CreateTogetherAiConfig
+from arize._generated.api_client.models.create_type_safe_ai_config import CreateTypeSafeAiConfig
 from arize._generated.api_client.models.create_user_api_key_request import CreateUserApiKeyRequest
 from arize._generated.api_client.models.create_user_request import CreateUserRequest
 from arize._generated.api_client.models.create_user_response import CreateUserResponse
@@ -158,6 +168,10 @@ from arize._generated.api_client.models.custom_role_assignment import CustomRole
 from arize._generated.api_client.models.custom_role_assignment_request import CustomRoleAssignmentRequest
 from arize._generated.api_client.models.custom_user_role_assignment import CustomUserRoleAssignment
 from arize._generated.api_client.models.custom_user_role_assignment_request import CustomUserRoleAssignmentRequest
+from arize._generated.api_client.models.dashboard import Dashboard
+from arize._generated.api_client.models.dashboard_status import DashboardStatus
+from arize._generated.api_client.models.dashboard_summary import DashboardSummary
+from arize._generated.api_client.models.dashboard_tag_summary import DashboardTagSummary
 from arize._generated.api_client.models.data_granularity import DataGranularity
 from arize._generated.api_client.models.data_quality_metric import DataQualityMetric
 from arize._generated.api_client.models.data_quality_monitor import DataQualityMonitor
@@ -167,6 +181,22 @@ from arize._generated.api_client.models.dataset_example import DatasetExample
 from arize._generated.api_client.models.dataset_source import DatasetSource
 from arize._generated.api_client.models.dataset_version import DatasetVersion
 from arize._generated.api_client.models.dataset_version_with_example_ids import DatasetVersionWithExampleIds
+from arize._generated.api_client.models.decision_judge_boolean_criteria import DecisionJudgeBooleanCriteria
+from arize._generated.api_client.models.decision_judge_boolean_criteria_input import DecisionJudgeBooleanCriteriaInput
+from arize._generated.api_client.models.decision_judge_boolean_question import DecisionJudgeBooleanQuestion
+from arize._generated.api_client.models.decision_judge_boolean_question_input import DecisionJudgeBooleanQuestionInput
+from arize._generated.api_client.models.decision_judge_choice_criteria import DecisionJudgeChoiceCriteria
+from arize._generated.api_client.models.decision_judge_choice_criteria_input import DecisionJudgeChoiceCriteriaInput
+from arize._generated.api_client.models.decision_judge_choice_question import DecisionJudgeChoiceQuestion
+from arize._generated.api_client.models.decision_judge_choice_question_input import DecisionJudgeChoiceQuestionInput
+from arize._generated.api_client.models.decision_judge_config import DecisionJudgeConfig
+from arize._generated.api_client.models.decision_judge_config_input import DecisionJudgeConfigInput
+from arize._generated.api_client.models.decision_judge_question import DecisionJudgeQuestion
+from arize._generated.api_client.models.decision_judge_question_input import DecisionJudgeQuestionInput
+from arize._generated.api_client.models.decision_judge_score_criteria import DecisionJudgeScoreCriteria
+from arize._generated.api_client.models.decision_judge_score_criteria_input import DecisionJudgeScoreCriteriaInput
+from arize._generated.api_client.models.decision_judge_score_question import DecisionJudgeScoreQuestion
+from arize._generated.api_client.models.decision_judge_score_question_input import DecisionJudgeScoreQuestionInput
 from arize._generated.api_client.models.default_agent_runtime import DefaultAgentRuntime
 from arize._generated.api_client.models.default_agent_runtime_response import DefaultAgentRuntimeResponse
 from arize._generated.api_client.models.default_llm_integration import DefaultLLMIntegration
@@ -200,6 +230,7 @@ from arize._generated.api_client.models.evaluator_type import EvaluatorType
 from arize._generated.api_client.models.evaluator_version import EvaluatorVersion
 from arize._generated.api_client.models.evaluator_version_code import EvaluatorVersionCode
 from arize._generated.api_client.models.evaluator_version_common import EvaluatorVersionCommon
+from arize._generated.api_client.models.evaluator_version_decision_judge import EvaluatorVersionDecisionJudge
 from arize._generated.api_client.models.evaluator_version_harness import EvaluatorVersionHarness
 from arize._generated.api_client.models.evaluator_version_remote import EvaluatorVersionRemote
 from arize._generated.api_client.models.evaluator_version_template import EvaluatorVersionTemplate
@@ -242,6 +273,8 @@ from arize._generated.api_client.models.list_annotation_queue_records_response i
 from arize._generated.api_client.models.list_annotation_queues_response import ListAnnotationQueuesResponse
 from arize._generated.api_client.models.list_api_keys_response import ListApiKeysResponse
 from arize._generated.api_client.models.list_audit_logs_response import ListAuditLogsResponse
+from arize._generated.api_client.models.list_dashboard_widgets_response import ListDashboardWidgetsResponse
+from arize._generated.api_client.models.list_dashboards_response import ListDashboardsResponse
 from arize._generated.api_client.models.list_dataset_examples_response import ListDatasetExamplesResponse
 from arize._generated.api_client.models.list_datasets_response import ListDatasetsResponse
 from arize._generated.api_client.models.list_evaluator_templates_response import ListEvaluatorTemplatesResponse
@@ -310,6 +343,7 @@ from arize._generated.api_client.models.pagination_metadata import PaginationMet
 from arize._generated.api_client.models.performance_metric import PerformanceMetric
 from arize._generated.api_client.models.performance_monitor import PerformanceMonitor
 from arize._generated.api_client.models.permission import Permission
+from arize._generated.api_client.models.perplexity_config import PerplexityConfig
 from arize._generated.api_client.models.pivot_table_column import PivotTableColumn
 from arize._generated.api_client.models.pivot_table_widget import PivotTableWidget
 from arize._generated.api_client.models.predefined_role_assignment import PredefinedRoleAssignment
@@ -408,6 +442,7 @@ from arize._generated.api_client.models.tracing_monitor import TracingMonitor
 from arize._generated.api_client.models.trigger_evaluation_task_run_request import TriggerEvaluationTaskRunRequest
 from arize._generated.api_client.models.trigger_run_experiment_task_run_request import TriggerRunExperimentTaskRunRequest
 from arize._generated.api_client.models.trigger_task_run_request import TriggerTaskRunRequest
+from arize._generated.api_client.models.type_safe_ai_config import TypeSafeAiConfig
 from arize._generated.api_client.models.update_agent_config import UpdateAgentConfig
 from arize._generated.api_client.models.update_agent_integration_request import UpdateAgentIntegrationRequest
 from arize._generated.api_client.models.update_agent_request_preset_input import UpdateAgentRequestPresetInput
@@ -467,5 +502,6 @@ from arize._generated.api_client.models.widget_plot_comparison_reference_value i
 from arize._generated.api_client.models.widget_source_data_type import WidgetSourceDataType
 from arize._generated.api_client.models.widget_source_field import WidgetSourceField
 from arize._generated.api_client.models.widget_source_field_kind import WidgetSourceFieldKind
+from arize._generated.api_client.models.widget_summary import WidgetSummary
 from arize._generated.api_client.models.widget_type import WidgetType
 

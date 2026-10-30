@@ -27,12 +27,12 @@ from typing_extensions import Self
 
 class User(BaseModel):
     """
-    An account user represents a member of the account. Users can be listed, updated, or removed from the account. 
+    An account user represents a member of the account. Users can be listed, updated, or removed from the account. Invitations in the acceptance flow appear as users with INVITED or EXPIRED status. Their IDs identify the invitation until acceptance; refresh the user list after acceptance to obtain the member ID. 
     """ # noqa: E501
     id: Optional[StrictStr] = Field(default=None, description="A universally unique identifier (base64-encoded opaque string).")
-    name: Optional[StrictStr] = Field(default=None, description="Display name of the user")
+    name: Optional[StrictStr] = Field(default=None, description="Display name of the user. Pending invitations in the acceptance flow use the email address until acceptance.")
     email: Optional[StrictStr] = Field(default=None, description="An email address")
-    created_at: Optional[datetime] = Field(default=None, description="Timestamp for when the user was created")
+    created_at: Optional[datetime] = Field(default=None, description="Timestamp for when the user or invitation was created")
     status: Optional[UserStatus] = None
     role: Optional[UserRoleAssignment] = None
     is_developer: Optional[StrictBool] = Field(default=None, description="Whether the user has developer permissions (can use the Arize API)")

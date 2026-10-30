@@ -71,14 +71,17 @@
     - [Create a Template Evaluator](#create-a-template-evaluator)
     - [Create a Code Evaluator](#create-a-code-evaluator)
     - [Create a Remote Evaluator](#create-a-remote-evaluator)
+    - [Create a Decision Judge Evaluator](#create-a-decision-judge-evaluator)
     - [Get an Evaluator](#get-an-evaluator)
     - [Update an Evaluator](#update-an-evaluator)
     - [Delete an Evaluator](#delete-an-evaluator)
     - [Evaluator Versions](#evaluator-versions)
+    - [Create a Decision Judge Version](#create-a-decision-judge-version)
     - [Delete Evaluator Versions](#delete-evaluator-versions)
   - [Operations on Tasks](#operations-on-tasks)
     - [List Tasks](#list-tasks)
     - [Create a Task](#create-a-task)
+      - [Create a Decision Judge Evaluation Task](#create-a-decision-judge-evaluation-task)
     - [Get a Task](#get-a-task)
     - [Trigger a Task Run](#trigger-a-task-run)
     - [Monitor Task Runs](#monitor-task-runs)
@@ -139,6 +142,7 @@
     - [List Integrations](#list-integrations)
     - [Get an Integration](#get-an-integration)
     - [Create an LLM Integration](#create-an-llm-integration)
+    - [Create a Decision Judge Integration](#create-a-decision-judge-integration)
     - [Create an Agent Integration](#create-an-agent-integration)
     - [Update an Integration](#update-an-integration)
     - [Delete an Integration](#delete-an-integration)
@@ -1091,9 +1095,10 @@ client.prompts.delete_label(
 
 ## Operations on Evaluators
 
-Use `client.evaluators` to manage evaluators and their versions. Three evaluator
+Use `client.evaluators` to manage evaluators and their versions. Four evaluator
 types are supported: `template` (LLM-based), `code` (managed built-in or custom Python),
-and `remote` (customer-hosted HTTP endpoint via an EVALUATOR integration).
+`remote` (customer-hosted HTTP endpoint via an EVALUATOR integration), and
+`decision judge` (typed questions answered by a Decision Judge model).
 
 ### List Evaluators
 
@@ -1101,10 +1106,15 @@ and `remote` (customer-hosted HTTP endpoint via an EVALUATOR integration).
 resp = client.evaluators.list(
     name=..., # Optional, case-insensitive substring filter on evaluator name
     space=..., # Optional, space ID or name
+    evaluator_type=..., # Optional, e.g. EvaluatorType.DECISION_JUDGE
     limit=..., # Optional, defaults to 100
 )
 evaluator_list = resp.evaluators
 ```
+
+Decision Judge evaluators are listed only when you pass
+`evaluator_type=EvaluatorType.DECISION_JUDGE`; without a filter, every other
+type is returned.
 
 ### Create a Template Evaluator
 
@@ -1141,7 +1151,7 @@ evaluator = client.evaluators.create_code_evaluator(
 ### Create a Remote Evaluator
 
 A remote evaluator calls a customer-hosted HTTP endpoint via an EVALUATOR integration.
-Requires the `enableRemoteEvalTasks` feature flag on the account.
+Requires an Enterprise account.
 
 ```python
 evaluator = client.evaluators.create_remote_evaluator(
@@ -1152,6 +1162,90 @@ evaluator = client.evaluators.create_remote_evaluator(
     description=..., # Optional
 )
 ```
+
+### Create a Decision Judge Evaluator
+
+A Decision Judge evaluator asks a set of typed questions about each span and
+writes one result per question, named `eval.<evaluator name> <question name>.label`
+and `.score`. It runs on spans only, and Decision Judge must be enabled for the
+account. The AI integration must use a Decision Judge provider (for example an
+OpenAI integration with `gpt-6-luna`, or a TypeSafe AI, Perplexity, or
+Cloudflare integration; see [Create an LLM Integration](#create-an-llm-integration)).
+
+Each question has a `type` that selects the shape of its `criteria`:
+
+| Type | `criteria` | Notes |
+|------|------------|-------|
+| `BOOLEAN` | Optional `true_means` and `false_means` | A yes or no answer |
+| `CHOICE` | Required `options`: 2 to 255 labels, each mapped to when it applies | One option from a fixed set |
+| `SCORE` | Required `levels`: 2 to 10 descriptions, lowest to highest | Optional `direction`, defaults to `MAXIMIZE` |
+
+```python
+from arize.evaluators.types import (
+    DecisionJudgeBooleanCriteriaInput,
+    DecisionJudgeBooleanQuestionInput,
+    DecisionJudgeChoiceCriteriaInput,
+    DecisionJudgeChoiceQuestionInput,
+    DecisionJudgeScoreCriteriaInput,
+    DecisionJudgeScoreQuestionInput,
+)
+
+evaluator = client.evaluators.create_decision_judge_evaluator(
+    name="support reply",
+    space="<space-id-or-name>",
+    commit_message="Initial version",
+    decision_judge_config={
+        "ai_integration_id": "<ai-integration-id>",
+        "model_name": "gpt-6-luna",
+        "state_template": '{"input": "{input}", "output": "{output}"}',
+        "questions": [
+            DecisionJudgeBooleanQuestionInput(
+                name="resolved",
+                type="BOOLEAN",
+                instructions="Does the reply resolve the customer's issue?",
+                criteria=DecisionJudgeBooleanCriteriaInput(
+                    true_means="The reply fully resolves the issue",
+                    false_means="The issue is still open after the reply",
+                ),
+            ),
+            DecisionJudgeChoiceQuestionInput(
+                name="tone",
+                type="CHOICE",
+                instructions="What is the tone of the reply?",
+                criteria=DecisionJudgeChoiceCriteriaInput(
+                    options={
+                        "friendly": "Warm and polite",
+                        "neutral": "Factual with no particular warmth",
+                        "rude": "Dismissive or impolite",
+                    }
+                ),
+            ),
+            DecisionJudgeScoreQuestionInput(
+                name="helpfulness",
+                type="SCORE",
+                instructions="How helpful is the reply?",
+                criteria=DecisionJudgeScoreCriteriaInput(
+                    levels=["Not helpful", "Somewhat helpful", "Very helpful"]
+                ),
+                direction="MAXIMIZE",
+            ),
+        ],
+    },
+    description="Checks support replies", # Optional
+)
+
+for question in evaluator.version.decision_judge_config.questions:
+    print(question.type, question.name)
+```
+
+`decision_judge_config` is a `dict` (as above), a `DecisionJudgeConfigInput`, or
+the `DecisionJudgeConfig` read back from an existing version. A question can
+also be a plain `dict`, such as
+`{"name": "resolved", "type": "BOOLEAN", "instructions": "..."}`. On reads,
+`decision_judge_config.questions` holds the concrete
+`DecisionJudgeBooleanQuestion`, `DecisionJudgeChoiceQuestion`, or
+`DecisionJudgeScoreQuestion`, so narrow on `question.type`. Read questions can
+be passed straight back into a new version.
 
 ### Get an Evaluator
 
@@ -1213,6 +1307,39 @@ new_remote_version = client.evaluators.create_remote_version(
 )
 ```
 
+### Create a Decision Judge Version
+
+A new Decision Judge version replaces the whole configuration, so pass every
+question the version should ask. The questions take the same shapes as in
+[Create a Decision Judge Evaluator](#create-a-decision-judge-evaluator).
+
+```python
+current = client.evaluators.get(
+    evaluator="<evaluator-id-or-name>",
+    space="<space-id-or-name>",
+).version.decision_judge_config
+
+# Keep the current questions and append one more
+new_dj_version = client.evaluators.create_decision_judge_version(
+    evaluator="<evaluator-id-or-name>",
+    space=..., # Optional, required when evaluator is a name
+    commit_message="Add a conciseness question",
+    decision_judge_config={
+        "ai_integration_id": current.ai_integration_id,
+        "model_name": current.model_name,
+        "state_template": current.state_template,
+        "questions": [
+            *current.questions,
+            {
+                "name": "concise",
+                "type": "BOOLEAN",
+                "instructions": "Is the reply concise?",
+            },
+        ],
+    },
+)
+```
+
 ### Delete Evaluator Versions
 
 ```python
@@ -1235,11 +1362,13 @@ resp = client.tasks.list(
     space=..., # Optional, space ID or name
     project=..., # Optional, filter by project (name or ID)
     dataset=..., # Optional, filter by dataset (name or ID)
-    task_type=..., # Optional, "TEMPLATE_EVALUATION" or "CODE_EVALUATION"
+    task_type=..., # Optional, "TEMPLATE_EVALUATION", "CODE_EVALUATION", "RUN_EXPERIMENT" or "DECISION_JUDGE_EVALUATION"
     limit=..., # Optional, defaults to 100
 )
 task_list = resp.tasks
 ```
+
+Without `task_type`, the list leaves out `RUN_EXPERIMENT` and `DECISION_JUDGE_EVALUATION` tasks. Pass `task_type="DECISION_JUDGE_EVALUATION"` to list Decision Judge evaluation tasks. Name lookups in `get`, `update`, `delete` and `trigger_run` find them either way.
 
 ### Create a Task
 
@@ -1298,6 +1427,38 @@ task = client.tasks.create_run_experiment_task(
     space=...,  # Optional, space ID or name
 )
 ```
+
+#### Create a Decision Judge Evaluation Task
+
+A Decision Judge evaluation task runs Decision Judge evaluators on the spans of a project. Every evaluator must be a Decision Judge evaluator (see [Create a Decision Judge Evaluator](#create-a-decision-judge-evaluator)). The task supports only the span shape, so datasets, experiments and `query_filters` are not accepted. The server returns 403 when Decision Judge evaluators are not enabled for the account.
+
+```python
+from arize.tasks.types import SpanEvaluatorInput
+
+task = client.tasks.create_decision_judge_evaluation_task(
+    name="Support Reply Judge",
+    project="<project-id-or-name>",  # Required
+    space=...,  # Optional, space ID or name, required when project is a name
+    evaluators=[
+        SpanEvaluatorInput(
+            evaluator_id="<decision-judge-evaluator-id>",  # Required
+            column_mappings={"input": "attributes.input.value"},  # Optional
+        ),
+    ],
+    sampling_rate=0.5,  # Optional
+    is_continuous=True,  # Optional
+    query_filter="attributes.openinference.span.kind = 'LLM'",  # Optional
+)
+
+run = client.tasks.trigger_run(
+    task=task.id,
+    data_start_time=...,  # Required on the first run
+    data_end_time=...,
+)
+run = client.tasks.wait_for_run(run_id=run.id)
+```
+
+Each evaluator entry can also be a `dict` with the same fields. `update`, `trigger_run` and the run methods work on these tasks as on other evaluation tasks.
 
 ### Get a Task
 
@@ -1960,10 +2121,14 @@ Use `client.ai_integrations` to manage external LLM provider integrations used i
 resp = client.ai_integrations.list(
     name=..., # Optional, case-insensitive substring filter
     space=..., # Optional, space ID or name
+    provider=..., # Optional, e.g. AiIntegrationProvider.CLOUDFLARE
     limit=..., # Optional, defaults to 100
 )
 integration_list = resp.ai_integrations
 ```
+
+`TYPE_SAFE_AI`, `PERPLEXITY`, and `CLOUDFLARE` integrations are used only by
+Decision Judge evaluators. They are listed only when `provider` names them.
 
 ### Create an AI Integration
 
@@ -1977,6 +2142,23 @@ integration = client.ai_integrations.create(
     base_url=..., # Optional, custom base URL
     model_names=..., # Optional, list of enabled model names
     enable_default_models=True, # Optional
+)
+```
+
+A Cloudflare integration (Decision Judge only) takes an API token and the
+account ID as provider metadata, and no base URL, models, or headers:
+
+```python
+from arize.ai_integrations.types import CloudflareProviderMetadataRequest
+
+integration = client.ai_integrations.create(
+    name="my-cloudflare-integration",
+    provider=AiIntegrationProvider.CLOUDFLARE,
+    api_key="<cloudflare-api-token>",
+    provider_metadata=CloudflareProviderMetadataRequest(
+        kind="CLOUDFLARE",
+        account_id="<32-character-account-id>",
+    ),
 )
 ```
 
@@ -2026,6 +2208,7 @@ from arize.integrations.types import IntegrationType
 
 resp = client.integrations.list(
     integration_type=..., # Optional, IntegrationType.LLM or IntegrationType.AGENT
+    provider=..., # Optional, e.g. LlmIntegrationProvider.CLOUDFLARE (implies LLM)
     name=..., # Optional, case-insensitive substring filter
     space=..., # Optional, space ID or name (visibility filter)
     limit=..., # Optional, defaults to 50
@@ -2033,6 +2216,9 @@ resp = client.integrations.list(
 )
 integration_list = resp.integrations
 ```
+
+`TYPE_SAFE_AI`, `PERPLEXITY`, and `CLOUDFLARE` integrations are used only by
+Decision Judge evaluators. They are listed only when `provider` names them.
 
 ### Get an Integration
 
@@ -2048,7 +2234,7 @@ integration = client.integrations.get(
 
 ### Create an LLM Integration
 
-LLM integrations configure access to a model provider. Construct the generated config that matches the provider you want — all 10 are supported: `CreateOpenAiConfig`, `CreateAnthropicConfig`, `CreateGeminiConfig`, `CreateAwsBedrockConfig`, `CreateCustomConfig`, `CreateVertexAiConfig`, `CreateNvidiaNimConfig`, `CreateLiteLlmConfig`, `CreateFireworksConfig`, and `CreateTogetherAiConfig`.
+LLM integrations configure access to a model provider. Construct the generated config that matches the provider you want — all 13 are supported: `CreateOpenAiConfig`, `CreateAnthropicConfig`, `CreateGeminiConfig`, `CreateAwsBedrockConfig`, `CreateCustomConfig`, `CreateVertexAiConfig`, `CreateNvidiaNimConfig`, `CreateLiteLlmConfig`, `CreateFireworksConfig`, `CreateTogetherAiConfig`, `CreateTypeSafeAiConfig`, `CreatePerplexityConfig`, and `CreateCloudflareConfig`.
 
 ```python
 from arize.integrations.types import CreateOpenAiConfig
@@ -2060,6 +2246,46 @@ integration = client.integrations.create_llm(
         api_key="<your-provider-api-key>",
     ),
     scopings=..., # Optional, visibility scoping rules (defaults to account-wide)
+)
+```
+
+### Create a Decision Judge Integration
+
+TypeSafe AI, Perplexity, and Cloudflare integrations are used only by
+[Decision Judge evaluators](#create-a-decision-judge-evaluator). They take an
+API key (and the 32-character `account_id` for Cloudflare), with no base URL,
+headers, or model list. Creating one returns `400` when that provider is not
+enabled for the account.
+
+```python
+from arize.integrations.types import (
+    CreateCloudflareConfig,
+    CreatePerplexityConfig,
+    CreateTypeSafeAiConfig,
+)
+
+type_safe_ai = client.integrations.create_llm(
+    name="my-type-safe-ai",
+    config=CreateTypeSafeAiConfig(provider="TYPE_SAFE_AI", api_key="<api-key>"),
+)
+perplexity = client.integrations.create_llm(
+    name="my-perplexity",
+    config=CreatePerplexityConfig(provider="PERPLEXITY", api_key="<api-key>"),
+)
+cloudflare = client.integrations.create_llm(
+    name="my-cloudflare",
+    config=CreateCloudflareConfig(
+        provider="CLOUDFLARE",
+        api_key="<cloudflare-api-token>",
+        account_id="<32-character-account-id>",
+    ),
+)
+
+# Rotate the key or move to another Cloudflare account. These keys cannot be cleared.
+client.integrations.update_llm(
+    integration=cloudflare.id,
+    api_key="<new-api-token>",
+    account_id="<new-32-character-account-id>",
 )
 ```
 
@@ -2101,7 +2327,8 @@ integration = client.integrations.update_llm(
     function_calling_enabled=..., # Optional
     # Provider-conditional fields are also accepted: base_url, headers,
     # model_names, is_default_models_enabled, auth (AWS Bedrock),
-    # project_id, location, project_access_label (Vertex AI).
+    # project_id, location, project_access_label (Vertex AI),
+    # account_id (Cloudflare).
 )
 
 # Update an agent integration

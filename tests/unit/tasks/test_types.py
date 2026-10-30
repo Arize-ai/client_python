@@ -95,6 +95,7 @@ class TestTasksTypes:
         """__all__ should contain the expected public type names."""
         expected = {
             "TaskEvaluatorInput",
+            "SpanEvaluatorInput",
             "AgentCallRunConfig",
             "LlmGenerationRunConfig",
             "Task",

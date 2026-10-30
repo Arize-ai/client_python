@@ -7,8 +7,8 @@ Per-provider LLM config, discriminated by `provider`.
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **is_function_calling_enabled** | **bool** | Whether function/tool calling is enabled. | 
-**provider** | **str** | Discriminator identifying the Together AI provider. | 
-**has_api_key** | **bool** | Whether an API key is configured (the key itself is never returned). | 
+**provider** | **str** | Discriminator identifying the Cloudflare provider. | 
+**has_api_key** | **bool** | Whether an API token is configured (the token itself is never returned). | 
 **base_url** | **str** | LiteLLM endpoint URL requests are sent to. | 
 **is_default_models_enabled** | **bool** | Whether Arize&#39;s default model catalog is enabled. | 
 **model_names** | **List[str]** | Custom model names configured on this integration. Empty when none. | 
@@ -17,6 +17,7 @@ Name | Type | Description | Notes
 **project_id** | **str** | GCP project ID Arize accesses Vertex through. | 
 **location** | **str** | GCP region (e.g. us-central1). | 
 **project_access_label** | **str** | Label used to verify Arize&#39;s access to the GCP project. | 
+**account_id** | **str** | The 32-character Cloudflare account ID. | 
 
 ## Example
 

@@ -56,6 +56,9 @@ class TestIntegrationsTypes:
             "LiteLlmConfig",
             "FireworksConfig",
             "TogetherAiConfig",
+            "TypeSafeAiConfig",
+            "PerplexityConfig",
+            "CloudflareConfig",
         ):
             assert name in types_module.__all__
 
@@ -72,6 +75,9 @@ class TestIntegrationsTypes:
             "CreateLiteLlmConfig",
             "CreateFireworksConfig",
             "CreateTogetherAiConfig",
+            "CreateTypeSafeAiConfig",
+            "CreatePerplexityConfig",
+            "CreateCloudflareConfig",
             "CreateLlmConfig",
             "UpdateLlmConfig",
             "AwsBedrockAuth",

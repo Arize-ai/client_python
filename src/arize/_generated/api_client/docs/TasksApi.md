@@ -114,6 +114,7 @@ Creates a new task. Supported task types:
 | `TEMPLATE_EVALUATION` | `project_id` or `dataset_id` | Requires `evaluators`. Supports continuous operation. |
 | `CODE_EVALUATION` | `project_id` or `dataset_id` | Requires `evaluators`. Supports continuous operation. |
 | `RUN_EXPERIMENT` | `dataset_id` only | Requires `run_configuration`. Never continuous. |
+| `DECISION_JUDGE_EVALUATION` | `project_id` only | Requires Decision Judge `evaluators`. Span shape only. Supports continuous operation. |
 
 For `RUN_EXPERIMENT` tasks the run configuration is stored on the task.
 Each trigger (`POST /v2/tasks/{task_id}/trigger`) supplies per-run fields
@@ -131,6 +132,21 @@ Poll `GET /v2/task-runs/{run_id}` until `status` reaches a terminal state.
   belong to the evaluator named by `evaluator_id`, and every evaluator on the task
   must resolve to the same data scope — both return 422. List an evaluator's
   versions with `GET /v2/evaluators/{evaluator_id}/versions`.
+- Every evaluator must match the task type: template evaluators on
+  `TEMPLATE_EVALUATION`, code evaluators on `CODE_EVALUATION`. An evaluator
+  of a different kind (for example a `DECISION_JUDGE` evaluator) returns 422.
+- All evaluators on a task must be of the same kind. A list that mixes
+  evaluator kinds returns 400.
+
+**Payload Requirements (decision_judge_evaluation)**
+- `project_id` is required; `dataset_id` and `experiment_ids` return 422.
+- Every evaluator must be a `DECISION_JUDGE` evaluator. A list that mixes
+  Decision Judge and other evaluator kinds returns 400. A list with only
+  other evaluator kinds returns 422, and a Decision Judge evaluator on any
+  other task type returns 422.
+- Only the span shape is accepted; `query_filters` and `query_mappings`
+  return 422.
+- Returns 403 when Decision Judge evaluators are not enabled for the account.
 
 **Payload Requirements (run_experiment)**
 - `dataset_id` is required; `project_id` must be omitted.
@@ -228,7 +244,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.TasksApi(api_client)
-    create_task_request = {"name":"Production Hallucination Check","type":"TEMPLATE_EVALUATION","project_id":"TW9kZWw6MTIzOmFCY0Q=","sampling_rate":1,"is_continuous":true,"query_filter":"metadata.environment = 'production'","evaluators":[{"evaluator_id":"RXZhbHVhdG9yOjEyOmFCY0Q=","column_mappings":{"input":"attributes.input.value","output":"attributes.output.value"}}]} # CreateTaskRequest | Body containing task creation parameters. The `type` field is the discriminator.  | `type` | Schema | |---|---| | `TEMPLATE_EVALUATION` | `CreateTemplateEvaluationTaskRequest` | | `CODE_EVALUATION` | `CreateCodeEvaluationTaskRequest` | | `RUN_EXPERIMENT` | `CreateRunExperimentTaskRequest` |  `RUN_EXPERIMENT` tasks do not run continuously — they must be triggered explicitly via `POST /v2/tasks/{task_id}/trigger` each time.  For `TEMPLATE_EVALUATION` / `CODE_EVALUATION` tasks, exactly one of `project_id` or `dataset_id` must be provided. When `dataset_id` is provided, `experiment_ids` must contain at least one entry. `is_continuous` and `sampling_rate` are only supported for project-based tasks. 
+    create_task_request = {"name":"Production Hallucination Check","type":"TEMPLATE_EVALUATION","project_id":"TW9kZWw6MTIzOmFCY0Q=","sampling_rate":1,"is_continuous":true,"query_filter":"metadata.environment = 'production'","evaluators":[{"evaluator_id":"RXZhbHVhdG9yOjEyOmFCY0Q=","column_mappings":{"input":"attributes.input.value","output":"attributes.output.value"}}]} # CreateTaskRequest | Body containing task creation parameters. The `type` field is the discriminator.  | `type` | Schema | |---|---| | `TEMPLATE_EVALUATION` | `CreateTemplateEvaluationTaskRequest` | | `CODE_EVALUATION` | `CreateCodeEvaluationTaskRequest` | | `RUN_EXPERIMENT` | `CreateRunExperimentTaskRequest` | | `DECISION_JUDGE_EVALUATION` | `CreateDecisionJudgeEvaluationTaskRequest` |  `RUN_EXPERIMENT` tasks do not run continuously — they must be triggered explicitly via `POST /v2/tasks/{task_id}/trigger` each time.  For `TEMPLATE_EVALUATION` / `CODE_EVALUATION` tasks, exactly one of `project_id` or `dataset_id` must be provided. When `dataset_id` is provided, `experiment_ids` must contain at least one entry. `is_continuous` and `sampling_rate` are only supported for project-based tasks.  `DECISION_JUDGE_EVALUATION` tasks require `project_id` and accept only Decision Judge evaluators with the span shape. 
 
     try:
         # Create task
@@ -246,7 +262,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **create_task_request** | [**CreateTaskRequest**](CreateTaskRequest.md)| Body containing task creation parameters. The &#x60;type&#x60; field is the discriminator.  | &#x60;type&#x60; | Schema | |---|---| | &#x60;TEMPLATE_EVALUATION&#x60; | &#x60;CreateTemplateEvaluationTaskRequest&#x60; | | &#x60;CODE_EVALUATION&#x60; | &#x60;CreateCodeEvaluationTaskRequest&#x60; | | &#x60;RUN_EXPERIMENT&#x60; | &#x60;CreateRunExperimentTaskRequest&#x60; |  &#x60;RUN_EXPERIMENT&#x60; tasks do not run continuously — they must be triggered explicitly via &#x60;POST /v2/tasks/{task_id}/trigger&#x60; each time.  For &#x60;TEMPLATE_EVALUATION&#x60; / &#x60;CODE_EVALUATION&#x60; tasks, exactly one of &#x60;project_id&#x60; or &#x60;dataset_id&#x60; must be provided. When &#x60;dataset_id&#x60; is provided, &#x60;experiment_ids&#x60; must contain at least one entry. &#x60;is_continuous&#x60; and &#x60;sampling_rate&#x60; are only supported for project-based tasks.  | 
+ **create_task_request** | [**CreateTaskRequest**](CreateTaskRequest.md)| Body containing task creation parameters. The &#x60;type&#x60; field is the discriminator.  | &#x60;type&#x60; | Schema | |---|---| | &#x60;TEMPLATE_EVALUATION&#x60; | &#x60;CreateTemplateEvaluationTaskRequest&#x60; | | &#x60;CODE_EVALUATION&#x60; | &#x60;CreateCodeEvaluationTaskRequest&#x60; | | &#x60;RUN_EXPERIMENT&#x60; | &#x60;CreateRunExperimentTaskRequest&#x60; | | &#x60;DECISION_JUDGE_EVALUATION&#x60; | &#x60;CreateDecisionJudgeEvaluationTaskRequest&#x60; |  &#x60;RUN_EXPERIMENT&#x60; tasks do not run continuously — they must be triggered explicitly via &#x60;POST /v2/tasks/{task_id}/trigger&#x60; each time.  For &#x60;TEMPLATE_EVALUATION&#x60; / &#x60;CODE_EVALUATION&#x60; tasks, exactly one of &#x60;project_id&#x60; or &#x60;dataset_id&#x60; must be provided. When &#x60;dataset_id&#x60; is provided, &#x60;experiment_ids&#x60; must contain at least one entry. &#x60;is_continuous&#x60; and &#x60;sampling_rate&#x60; are only supported for project-based tasks.  &#x60;DECISION_JUDGE_EVALUATION&#x60; tasks require &#x60;project_id&#x60; and accept only Decision Judge evaluators with the span shape.  | 
 
 ### Return type
 
@@ -631,6 +647,9 @@ List tasks the user has access to, with cursor-based pagination.
 
 Filter by space, space name, task name, project, dataset, or task type using query parameters.
 
+`DECISION_JUDGE_EVALUATION` tasks are returned only when
+`type=DECISION_JUDGE_EVALUATION` is passed.
+
 <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
@@ -670,7 +689,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     name = 'production' # str | Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned.  (optional)
     project_id = 'TW9kZWw6MTIzOmFCY0Q=' # str | Filter results to resources associated with a specific project (base64 identifier). If omitted, results are not filtered by project.  (optional)
     dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | Filter to a specific dataset (base64 identifier (base64)) (optional)
-    type = arize._generated.api_client.TaskType() # TaskType | Filter by task type: TEMPLATE_EVALUATION, CODE_EVALUATION, or RUN_EXPERIMENT (optional)
+    type = arize._generated.api_client.TaskType() # TaskType | Filter by task type: TEMPLATE_EVALUATION, CODE_EVALUATION, RUN_EXPERIMENT, or DECISION_JUDGE_EVALUATION. When omitted, RUN_EXPERIMENT and DECISION_JUDGE_EVALUATION tasks are not returned. Pass `DECISION_JUDGE_EVALUATION` to list Decision Judge evaluation tasks.  (optional)
     limit = 50 # int | Maximum items to return. Defaults to 50 if omitted; maximum is 100. (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
@@ -695,7 +714,7 @@ Name | Type | Description  | Notes
  **name** | **str**| Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, &#x60;name&#x3D;prod&#x60; matches \&quot;production\&quot;, \&quot;my-prod-dataset\&quot;, etc. If omitted, no name filtering is applied and all resources are returned.  | [optional] 
  **project_id** | **str**| Filter results to resources associated with a specific project (base64 identifier). If omitted, results are not filtered by project.  | [optional] 
  **dataset_id** | **str**| Filter to a specific dataset (base64 identifier (base64)) | [optional] 
- **type** | [**TaskType**](.md)| Filter by task type: TEMPLATE_EVALUATION, CODE_EVALUATION, or RUN_EXPERIMENT | [optional] 
+ **type** | [**TaskType**](.md)| Filter by task type: TEMPLATE_EVALUATION, CODE_EVALUATION, RUN_EXPERIMENT, or DECISION_JUDGE_EVALUATION. When omitted, RUN_EXPERIMENT and DECISION_JUDGE_EVALUATION tasks are not returned. Pass &#x60;DECISION_JUDGE_EVALUATION&#x60; to list Decision Judge evaluation tasks.  | [optional] 
  **limit** | **int**| Maximum items to return. Defaults to 50 if omitted; maximum is 100. | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
 
@@ -738,6 +757,8 @@ terminal status (`completed`, `failed`, or `cancelled`).
 - Fields must match the task's type; sending inapplicable fields returns 400.
 - For `TEMPLATE_EVALUATION` / `CODE_EVALUATION` tasks, all trigger fields are optional — an empty body uses server defaults.
 - For `RUN_EXPERIMENT` tasks, `experiment_name` is required.
+- For `DECISION_JUDGE_EVALUATION` tasks, `experiment_ids` returns 422, and the
+  request returns 403 when Decision Judge evaluators are not enabled for the account.
 
 **For `RUN_EXPERIMENT` tasks**
 
@@ -809,7 +830,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.TasksApi(api_client)
     task_id = 'VGFzazoxMjM0NQ==' # str | The unique task identifier (base64)
-    trigger_task_run_request = {"data_start_time":"2026-03-01T00:00:00Z","data_end_time":"2026-03-07T00:00:00Z","max_spans":5000,"override_evaluations":false} # TriggerTaskRunRequest | Trigger body for `POST /v2/tasks/{task_id}/trigger`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `task_type` field.  | Task type | Schema | |---|---| | `TEMPLATE_EVALUATION` | `TriggerEvaluationTaskRunRequest` | | `CODE_EVALUATION` | `TriggerEvaluationTaskRunRequest` | | `RUN_EXPERIMENT` | `TriggerRunExperimentTaskRunRequest` |  Sending a field that is not valid for the resolved task type returns 400. For `TEMPLATE_EVALUATION` and `CODE_EVALUATION` tasks all trigger fields are optional — an empty body is valid and uses server defaults.  (optional)
+    trigger_task_run_request = {"data_start_time":"2026-03-01T00:00:00Z","data_end_time":"2026-03-07T00:00:00Z","max_spans":5000,"override_evaluations":false} # TriggerTaskRunRequest | Trigger body for `POST /v2/tasks/{task_id}/trigger`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `task_type` field.  | Task type | Schema | |---|---| | `TEMPLATE_EVALUATION` | `TriggerEvaluationTaskRunRequest` | | `CODE_EVALUATION` | `TriggerEvaluationTaskRunRequest` | | `DECISION_JUDGE_EVALUATION` | `TriggerEvaluationTaskRunRequest` | | `RUN_EXPERIMENT` | `TriggerRunExperimentTaskRunRequest` |  Sending a field that is not valid for the resolved task type returns 400. For `TEMPLATE_EVALUATION` and `CODE_EVALUATION` tasks all trigger fields are optional — an empty body is valid and uses server defaults.  (optional)
 
     try:
         # Trigger a task run
@@ -828,7 +849,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **task_id** | **str**| The unique task identifier (base64) | 
- **trigger_task_run_request** | [**TriggerTaskRunRequest**](TriggerTaskRunRequest.md)| Trigger body for &#x60;POST /v2/tasks/{task_id}/trigger&#x60;. The server derives the task type from the URL&#39;s task record and selects the appropriate schema; the body itself does not carry a &#x60;task_type&#x60; field.  | Task type | Schema | |---|---| | &#x60;TEMPLATE_EVALUATION&#x60; | &#x60;TriggerEvaluationTaskRunRequest&#x60; | | &#x60;CODE_EVALUATION&#x60; | &#x60;TriggerEvaluationTaskRunRequest&#x60; | | &#x60;RUN_EXPERIMENT&#x60; | &#x60;TriggerRunExperimentTaskRunRequest&#x60; |  Sending a field that is not valid for the resolved task type returns 400. For &#x60;TEMPLATE_EVALUATION&#x60; and &#x60;CODE_EVALUATION&#x60; tasks all trigger fields are optional — an empty body is valid and uses server defaults.  | [optional] 
+ **trigger_task_run_request** | [**TriggerTaskRunRequest**](TriggerTaskRunRequest.md)| Trigger body for &#x60;POST /v2/tasks/{task_id}/trigger&#x60;. The server derives the task type from the URL&#39;s task record and selects the appropriate schema; the body itself does not carry a &#x60;task_type&#x60; field.  | Task type | Schema | |---|---| | &#x60;TEMPLATE_EVALUATION&#x60; | &#x60;TriggerEvaluationTaskRunRequest&#x60; | | &#x60;CODE_EVALUATION&#x60; | &#x60;TriggerEvaluationTaskRunRequest&#x60; | | &#x60;DECISION_JUDGE_EVALUATION&#x60; | &#x60;TriggerEvaluationTaskRunRequest&#x60; | | &#x60;RUN_EXPERIMENT&#x60; | &#x60;TriggerRunExperimentTaskRunRequest&#x60; |  Sending a field that is not valid for the resolved task type returns 400. For &#x60;TEMPLATE_EVALUATION&#x60; and &#x60;CODE_EVALUATION&#x60; tasks all trigger fields are optional — an empty body is valid and uses server defaults.  | [optional] 
 
 ### Return type
 
@@ -943,7 +964,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.TasksApi(api_client)
     task_id = 'VGFzazoxMjM0NQ==' # str | The unique task identifier (base64)
-    update_task_request = {"name":"Updated Task Name","sampling_rate":0.5,"query_filter":"metadata.environment = 'staging'"} # UpdateTaskRequest | PATCH body for `PATCH /v2/tasks/{task_id}`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `type` field.  | Task type | Schema | |---|---| | `TEMPLATE_EVALUATION` | `UpdateEvaluationTaskRequest` | | `CODE_EVALUATION` | `UpdateEvaluationTaskRequest` | | `RUN_EXPERIMENT` | `UpdateRunExperimentTaskRequest` |  For `TEMPLATE_EVALUATION` and `CODE_EVALUATION` tasks, at least one of `name`, `sampling_rate`, `is_continuous`, `query_filter`, or `evaluators` must be provided.  For `RUN_EXPERIMENT` tasks, at least one of `name` or `run_configuration` must be provided. When `run_configuration` is provided the stored config is atomically replaced.  Sending a field that is not valid for the resolved task type returns 400 (e.g. `evaluators` on a `RUN_EXPERIMENT` task, or `run_configuration` on an evaluation task). 
+    update_task_request = {"name":"Updated Task Name","sampling_rate":0.5,"query_filter":"metadata.environment = 'staging'"} # UpdateTaskRequest | PATCH body for `PATCH /v2/tasks/{task_id}`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `type` field.  | Task type | Schema | |---|---| | `TEMPLATE_EVALUATION` | `UpdateEvaluationTaskRequest` | | `CODE_EVALUATION` | `UpdateEvaluationTaskRequest` | | `DECISION_JUDGE_EVALUATION` | `UpdateEvaluationTaskRequest` | | `RUN_EXPERIMENT` | `UpdateRunExperimentTaskRequest` |  For `TEMPLATE_EVALUATION`, `CODE_EVALUATION` and `DECISION_JUDGE_EVALUATION` tasks, at least one of `name`, `sampling_rate`, `is_continuous`, `query_filter`, or `evaluators` must be provided.  For `RUN_EXPERIMENT` tasks, at least one of `name` or `run_configuration` must be provided. When `run_configuration` is provided the stored config is atomically replaced.  Sending a field that is not valid for the resolved task type returns 400 (e.g. `evaluators` on a `RUN_EXPERIMENT` task, or `run_configuration` on an evaluation task). 
 
     try:
         # Update task
@@ -962,7 +983,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **task_id** | **str**| The unique task identifier (base64) | 
- **update_task_request** | [**UpdateTaskRequest**](UpdateTaskRequest.md)| PATCH body for &#x60;PATCH /v2/tasks/{task_id}&#x60;. The server derives the task type from the URL&#39;s task record and selects the appropriate schema; the body itself does not carry a &#x60;type&#x60; field.  | Task type | Schema | |---|---| | &#x60;TEMPLATE_EVALUATION&#x60; | &#x60;UpdateEvaluationTaskRequest&#x60; | | &#x60;CODE_EVALUATION&#x60; | &#x60;UpdateEvaluationTaskRequest&#x60; | | &#x60;RUN_EXPERIMENT&#x60; | &#x60;UpdateRunExperimentTaskRequest&#x60; |  For &#x60;TEMPLATE_EVALUATION&#x60; and &#x60;CODE_EVALUATION&#x60; tasks, at least one of &#x60;name&#x60;, &#x60;sampling_rate&#x60;, &#x60;is_continuous&#x60;, &#x60;query_filter&#x60;, or &#x60;evaluators&#x60; must be provided.  For &#x60;RUN_EXPERIMENT&#x60; tasks, at least one of &#x60;name&#x60; or &#x60;run_configuration&#x60; must be provided. When &#x60;run_configuration&#x60; is provided the stored config is atomically replaced.  Sending a field that is not valid for the resolved task type returns 400 (e.g. &#x60;evaluators&#x60; on a &#x60;RUN_EXPERIMENT&#x60; task, or &#x60;run_configuration&#x60; on an evaluation task).  | 
+ **update_task_request** | [**UpdateTaskRequest**](UpdateTaskRequest.md)| PATCH body for &#x60;PATCH /v2/tasks/{task_id}&#x60;. The server derives the task type from the URL&#39;s task record and selects the appropriate schema; the body itself does not carry a &#x60;type&#x60; field.  | Task type | Schema | |---|---| | &#x60;TEMPLATE_EVALUATION&#x60; | &#x60;UpdateEvaluationTaskRequest&#x60; | | &#x60;CODE_EVALUATION&#x60; | &#x60;UpdateEvaluationTaskRequest&#x60; | | &#x60;DECISION_JUDGE_EVALUATION&#x60; | &#x60;UpdateEvaluationTaskRequest&#x60; | | &#x60;RUN_EXPERIMENT&#x60; | &#x60;UpdateRunExperimentTaskRequest&#x60; |  For &#x60;TEMPLATE_EVALUATION&#x60;, &#x60;CODE_EVALUATION&#x60; and &#x60;DECISION_JUDGE_EVALUATION&#x60; tasks, at least one of &#x60;name&#x60;, &#x60;sampling_rate&#x60;, &#x60;is_continuous&#x60;, &#x60;query_filter&#x60;, or &#x60;evaluators&#x60; must be provided.  For &#x60;RUN_EXPERIMENT&#x60; tasks, at least one of &#x60;name&#x60; or &#x60;run_configuration&#x60; must be provided. When &#x60;run_configuration&#x60; is provided the stored config is atomically replaced.  Sending a field that is not valid for the resolved task type returns 400 (e.g. &#x60;evaluators&#x60; on a &#x60;RUN_EXPERIMENT&#x60; task, or &#x60;run_configuration&#x60; on an evaluation task).  | 
 
 ### Return type
 

@@ -20,7 +20,7 @@ from typing_extensions import Self
 
 class AiIntegrationProvider(str, Enum):
     """
-    The AI provider for this integration
+    The AI provider for this integration. `TYPE_SAFE_AI`, `PERPLEXITY`, and `CLOUDFLARE` integrations are used only by Decision Judge evaluators, and each is available only when that provider is enabled.
     """
 
     """
@@ -37,6 +37,9 @@ class AiIntegrationProvider(str, Enum):
     LITELLM = 'LITELLM'
     FIREWORKS = 'FIREWORKS'
     TOGETHER_AI = 'TOGETHER_AI'
+    TYPE_SAFE_AI = 'TYPE_SAFE_AI'
+    PERPLEXITY = 'PERPLEXITY'
+    CLOUDFLARE = 'CLOUDFLARE'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

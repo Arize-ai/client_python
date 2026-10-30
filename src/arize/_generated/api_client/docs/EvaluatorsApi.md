@@ -152,12 +152,20 @@ Creates a new evaluator with an initial version.
 
 **Payload Requirements**
 - The evaluator `name` must be unique within the given space.
-- `type` (top-level) selects the evaluator kind: `TEMPLATE`, `CODE`, or `REMOTE`.
+- `type` (top-level) selects the evaluator kind: `TEMPLATE`, `CODE`, `REMOTE`, or `DECISION_JUDGE`.
   With `TEMPLATE`, provide `version.template_config`.
   With `CODE`, provide `version.code_config` — where `code_config.type` is `MANAGED` or `CUSTOM` (a separate discriminator *within* `code_config`, independent of the top-level `type: CODE`).
   With `REMOTE`, provide `version.remote_config.integration_id` referencing an
   accessible `EVALUATOR` integration. Remote evaluator creation requires the
   remote evaluators feature to be enabled; otherwise the request returns `403`.
+  With `DECISION_JUDGE`, provide `version.decision_judge_config`. Decision Judge
+  must be enabled for the account; otherwise the request returns `403`. An
+  `ai_integration_id` that does not exist or is not available in the space
+  returns `404` (`LLM integration not found or not accessible to this
+  space`). A `model_name` that is not a Decision Judge model, or questions
+  that break the question rules, return `422`. The evaluator runs on spans
+  only. Each question writes its own result, named
+  `eval.<evaluator name> <question name>.label` and `.score`.
 - For template evaluators: `version.template_config.name` is the eval column name; must match `^[a-zA-Z0-9_\s\-&()]+$`.
 - For template evaluators: `version.template_config.template` is the prompt template; use `{variable}` for placeholders (f-string format, e.g. `{input}`, `{output}`).
 - For template evaluators: `version.template_config.classification_choices` is required and maps choice labels to numeric scores (e.g. `{"relevant": 1, "irrelevant": 0}`).
@@ -241,7 +249,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
-    create_evaluator_request = {"space_id":"U3BhY2U6NDkzOkJaSkc=","name":"Hallucination Eval","description":"Detects hallucinated content in LLM responses","type":"TEMPLATE","version":{"commit_message":"Initial version","template_config":{"name":"hallucination","template":"You are an evaluation assistant. Given the following input and output, determine if the output contains hallucinated content.\n\nInput: {input}\nOutput: {output}\nReference: {reference}","include_explanations":true,"use_function_calling":true,"classification_choices":{"hallucinated":0,"factual":1},"direction":"MAXIMIZE","data_granularity":"SPAN","llm_config":{"ai_integration_id":"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==","model_name":"gpt-4o","invocation_parameters":{"temperature":0},"provider_parameters":{}}}}} # CreateEvaluatorRequest | Body containing evaluator creation parameters with an initial version.  `type: TEMPLATE`, `type: CODE`, and `type: REMOTE` are accepted on creation. 
+    create_evaluator_request = {"space_id":"U3BhY2U6NDkzOkJaSkc=","name":"Hallucination Eval","description":"Detects hallucinated content in LLM responses","type":"TEMPLATE","version":{"commit_message":"Initial version","template_config":{"name":"hallucination","template":"You are an evaluation assistant. Given the following input and output, determine if the output contains hallucinated content.\n\nInput: {input}\nOutput: {output}\nReference: {reference}","include_explanations":true,"use_function_calling":true,"classification_choices":{"hallucinated":0,"factual":1},"direction":"MAXIMIZE","data_granularity":"SPAN","llm_config":{"ai_integration_id":"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==","model_name":"gpt-4o","invocation_parameters":{"temperature":0},"provider_parameters":{}}}}} # CreateEvaluatorRequest | Body containing evaluator creation parameters with an initial version.  `type: TEMPLATE`, `type: CODE`, `type: REMOTE`, and `type: DECISION_JUDGE` are accepted on creation. 
 
     try:
         # Create evaluator
@@ -259,7 +267,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **create_evaluator_request** | [**CreateEvaluatorRequest**](CreateEvaluatorRequest.md)| Body containing evaluator creation parameters with an initial version.  &#x60;type: TEMPLATE&#x60;, &#x60;type: CODE&#x60;, and &#x60;type: REMOTE&#x60; are accepted on creation.  | 
+ **create_evaluator_request** | [**CreateEvaluatorRequest**](CreateEvaluatorRequest.md)| Body containing evaluator creation parameters with an initial version.  &#x60;type: TEMPLATE&#x60;, &#x60;type: CODE&#x60;, &#x60;type: REMOTE&#x60;, and &#x60;type: DECISION_JUDGE&#x60; are accepted on creation.  | 
 
 ### Return type
 
@@ -301,7 +309,7 @@ version immediately (versioning is append-only).
 
 **Payload Requirements**
 - `commit_message` describes the changes in this version.
-- Provide exactly one of `template_config`, `code_config`, or `remote_config` to match the evaluator's `type`.
+- Provide exactly one of `template_config`, `code_config`, `remote_config`, or `decision_judge_config` to match the evaluator's `type`.
   `code_config.type` is a separate inner discriminator (`MANAGED` or `CUSTOM`) and is unrelated to the top-level `type`.
   Schema and constraints match Create Evaluator.
 - For a template version, `template_config.llm_config.ai_integration_id` must
@@ -311,22 +319,28 @@ version immediately (versioning is append-only).
   `EVALUATOR` integration. Each version may reference a different integration;
   editing an integration affects every version that references it. `type: REMOTE`
   requires the remote evaluators feature to be enabled.
+- For `DECISION_JUDGE` evaluators: `decision_judge_config` replaces the whole
+  configuration, including every question. Decision Judge must be enabled for
+  the account. A config of a different type than the evaluator returns `400`.
 **Responses**
 - `201` — version created; returns the new `EvaluatorVersion`.
 - `400` — malformed request: `evaluator_id` fails ID-format validation,
   the body is missing, or the JSON is malformed.
 - `401` — missing or invalid credentials.
 - `403` — the evaluator is readable but the caller lacks permission to
-  create a version on it.
+  create a version on it, or Decision Judge is not enabled for the account.
 - `404` — `evaluator_id` does not exist or is not readable by the caller
   (`Evaluator not found`), or `template_config.llm_config.ai_integration_id`
   does not exist or is not accessible to this space
   (`LLM integration not found or not accessible to this space`), or
   `remote_config.integration_id` does not exist or is not applicable to this
-  space (`Integration not found`).
+  space (`Integration not found`), or `decision_judge_config.ai_integration_id`
+  does not exist or is not available in the space
+  (`LLM integration not found or not accessible to this space`).
 - `422` — the body is well-formed JSON but fails validation, for example a
   missing `commit_message`, a config mismatch, an invalid template column
-  name, or a remote integration with the wrong type.
+  name, a remote integration with the wrong type, a `model_name` that is not
+  a Decision Judge model, or questions that break the question rules.
 - `429` — rate limit exceeded.
 
 **Valid example** (template version)
@@ -601,6 +615,10 @@ an online task still uses returns `409`, and no versions are deleted. The
 error lists the tasks that use the evaluator. Keep at least one version,
 or remove the evaluator from these tasks or delete the tasks first.
 
+A request that would delete every remaining version of a
+`DECISION_JUDGE` evaluator also returns `409`, and no versions are
+deleted. Delete the evaluator instead.
+
 **Payload Requirements**
 - `version_ids` must contain between 1 and 100 IDs. Duplicate IDs are accepted
   and silently collapsed so each version is processed at most once.
@@ -621,7 +639,8 @@ or remove the evaluator from these tasks or delete the tasks first.
 - `404` — `evaluator_id` does not exist or is not readable by the caller
   (`Evaluator not found`).
 - `409` — the request would delete every remaining version of an
-  evaluator that an online task still uses.
+  evaluator that an online task still uses, or of a `DECISION_JUDGE`
+  evaluator.
 - `429` — rate limit exceeded.
 
 **Valid example** — evaluator `RXZhbHVhdG9yOjEyOkI3cmk=` with a single
@@ -1238,7 +1257,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **list_evaluators**
-> ListEvaluatorsResponse list_evaluators(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
+> ListEvaluatorsResponse list_evaluators(space_id=space_id, space_name=space_name, name=name, type=type, limit=limit, cursor=cursor)
 
 List evaluators
 
@@ -1246,6 +1265,15 @@ List evaluators the user has access to, sorted by update date (most recent first
 
 When `space_id` is provided, results are limited to that space. When omitted,
 evaluators from all permitted spaces are returned.
+
+Use `type` to return only evaluators of one type. `DECISION_JUDGE`
+evaluators are returned only when `type=DECISION_JUDGE` is passed; a
+request without `type` returns every other type. On such a request a
+page can hold fewer than `limit` evaluators, or none, while
+`pagination.has_more` is `true`. Keep following `next_cursor` until
+`has_more` is `false`. `type=DECISION_JUDGE` does not check whether
+Decision Judge is enabled for the account; it returns any Decision Judge
+evaluators that exist.
 
 <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
@@ -1256,6 +1284,7 @@ evaluators from all permitted spaces are returned.
 
 ```python
 import arize._generated.api_client
+from arize._generated.api_client.models.evaluator_type import EvaluatorType
 from arize._generated.api_client.models.list_evaluators_response import ListEvaluatorsResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
@@ -1283,12 +1312,13 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     space_id = 'U3BhY2U6MTIzNDU=' # str | Filter search results to a particular space ID (optional)
     space_name = 'my-space' # str | Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned.  (optional)
     name = 'production' # str | Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned.  (optional)
+    type = arize._generated.api_client.EvaluatorType() # EvaluatorType | Return only evaluators of this type. When omitted, evaluators of every type except `DECISION_JUDGE` are returned. Pass `DECISION_JUDGE` to list Decision Judge evaluators.  (optional)
     limit = 50 # int | Maximum items to return. Defaults to 50 if omitted; maximum is 100. (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
     try:
         # List evaluators
-        api_response = api_instance.list_evaluators(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
+        api_response = api_instance.list_evaluators(space_id=space_id, space_name=space_name, name=name, type=type, limit=limit, cursor=cursor)
         print("The response of EvaluatorsApi->list_evaluators:\n")
         pprint(api_response)
     except Exception as e:
@@ -1305,6 +1335,7 @@ Name | Type | Description  | Notes
  **space_id** | **str**| Filter search results to a particular space ID | [optional] 
  **space_name** | **str**| Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned.  | [optional] 
  **name** | **str**| Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, &#x60;name&#x3D;prod&#x60; matches \&quot;production\&quot;, \&quot;my-prod-dataset\&quot;, etc. If omitted, no name filtering is applied and all resources are returned.  | [optional] 
+ **type** | [**EvaluatorType**](.md)| Return only evaluators of this type. When omitted, evaluators of every type except &#x60;DECISION_JUDGE&#x60; are returned. Pass &#x60;DECISION_JUDGE&#x60; to list Decision Judge evaluators.  | [optional] 
  **limit** | **int**| Maximum items to return. Defaults to 50 if omitted; maximum is 100. | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
 

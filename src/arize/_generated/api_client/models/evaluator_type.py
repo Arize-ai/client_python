@@ -20,7 +20,7 @@ from typing_extensions import Self
 
 class EvaluatorType(str, Enum):
     """
-    The evaluator type:  - `TEMPLATE` — LLM-based evaluator. - `CODE` — managed built-in evaluators or custom Python code (both are   subtypes of `CODE`, discriminated by the nested `CodeConfig.type` =   `MANAGED` | `CUSTOM`). - `HARNESS` — test harness evaluator. - `REMOTE` — remote evaluator.  Applies to both the parent `Evaluator.type` field and every version's `type` discriminator — a version's `type` must always match its parent evaluator's `type`. 
+    The evaluator type:  - `TEMPLATE` — LLM-based evaluator. - `CODE` — managed built-in evaluators or custom Python code (both are   subtypes of `CODE`, discriminated by the nested `CodeConfig.type` =   `MANAGED` | `CUSTOM`). - `HARNESS` — test harness evaluator. - `REMOTE` — remote evaluator. - `DECISION_JUDGE` — Decision Judge evaluator. It asks a set of typed   questions about each span and writes one result per question. Requires   Decision Judge to be enabled for the account. `GET /v2/evaluators`   returns these evaluators only when `type=DECISION_JUDGE` is passed.  Applies to both the parent `Evaluator.type` field and every version's `type` discriminator — a version's `type` must always match its parent evaluator's `type`. 
     """
 
     """
@@ -30,6 +30,7 @@ class EvaluatorType(str, Enum):
     CODE = 'CODE'
     HARNESS = 'HARNESS'
     REMOTE = 'REMOTE'
+    DECISION_JUDGE = 'DECISION_JUDGE'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

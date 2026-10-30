@@ -6,6 +6,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from arize._generated.api_client.exceptions import ApiException
+from arize._generated.api_client.models.task_type import TaskType
 from arize.exceptions.spaces import AmbiguousNameError
 from arize.utils.resolve import (
     NotFoundError,
@@ -527,6 +529,93 @@ class TestFindEvaluatorId:
             == "ev-id"
         )
 
+    def test_name_missing_from_default_list_retries_decision_judge(
+        self,
+    ) -> None:
+        """The default list leaves out Decision Judge evaluators."""
+        default = _make_paginated([])
+        default.evaluators = [_item("other")]
+        decision_judge = _make_paginated([])
+        decision_judge.evaluators = [_item("my-judge", "dj-id")]
+        mock_api = MagicMock()
+        mock_api.list_evaluators.side_effect = [default, decision_judge]
+
+        assert (
+            _find_evaluator_id(mock_api, MagicMock(), "my-judge", B64_ID)
+            == "dj-id"
+        )
+        first, second = mock_api.list_evaluators.call_args_list
+        assert "type" not in first.kwargs
+        assert second.kwargs["type"] == "DECISION_JUDGE"
+
+    @pytest.mark.parametrize("status", [400, 422])
+    def test_fallback_rejected_by_older_server_raises_not_found(
+        self, status: int
+    ) -> None:
+        default = _make_paginated([])
+        default.evaluators = [_item("other")]
+        mock_api = MagicMock()
+        mock_api.list_evaluators.side_effect = [
+            default,
+            ApiException(status=status),
+        ]
+
+        with pytest.raises(NotFoundError, match="evaluator"):
+            _find_evaluator_id(mock_api, MagicMock(), "missing", B64_ID)
+
+    def test_fallback_server_error_propagates(self) -> None:
+        default = _make_paginated([])
+        default.evaluators = []
+        mock_api = MagicMock()
+        mock_api.list_evaluators.side_effect = [
+            default,
+            ApiException(status=500),
+        ]
+
+        with pytest.raises(ApiException):
+            _find_evaluator_id(mock_api, MagicMock(), "missing", B64_ID)
+
+    def test_default_list_bad_request_propagates(self) -> None:
+        mock_api = MagicMock()
+        mock_api.list_evaluators.side_effect = ApiException(status=400)
+
+        with pytest.raises(ApiException):
+            _find_evaluator_id(mock_api, MagicMock(), "missing", B64_ID)
+
+    def test_name_not_found_lists_each_name_once(self) -> None:
+        resp = _make_paginated([])
+        resp.evaluators = [_item("other")]
+        mock_api = MagicMock()
+        mock_api.list_evaluators.return_value = resp
+
+        with pytest.raises(NotFoundError) as exc_info:
+            _find_evaluator_id(mock_api, MagicMock(), "missing", B64_ID)
+
+        assert mock_api.list_evaluators.call_count == 2
+        assert str(exc_info.value).count("other") == 1
+
+    def test_explicit_type_scopes_single_lookup(self) -> None:
+        resp = _make_paginated([])
+        resp.evaluators = [_item("my-judge", "dj-id")]
+        mock_api = MagicMock()
+        mock_api.list_evaluators.return_value = resp
+
+        assert (
+            _find_evaluator_id(
+                mock_api,
+                MagicMock(),
+                "my-judge",
+                B64_ID,
+                evaluator_type="DECISION_JUDGE",  # type: ignore[arg-type]
+            )
+            == "dj-id"
+        )
+        mock_api.list_evaluators.assert_called_once()
+        assert (
+            mock_api.list_evaluators.call_args.kwargs["type"]
+            == "DECISION_JUDGE"
+        )
+
 
 # ---------------------------------------------------------------------------
 # _find_annotation_config_id
@@ -670,6 +759,52 @@ class TestFindAiIntegrationId:
             == "ai-id"
         )
 
+    def test_name_missing_from_default_list_retries_decision_judge_providers(
+        self,
+    ) -> None:
+        """The default list leaves out Decision-Judge-only providers."""
+        empty = _make_paginated([])
+        empty.ai_integrations = []
+        found = _make_paginated([])
+        found.ai_integrations = [_item("my-cloudflare", "cf-id")]
+        mock_api = MagicMock()
+        mock_api.list_ai_integrations.side_effect = [empty, empty, empty, found]
+
+        assert (
+            _find_ai_integration_id(
+                mock_api, MagicMock(), "my-cloudflare", B64_ID
+            )
+            == "cf-id"
+        )
+        providers = [
+            c.kwargs.get("provider")
+            for c in mock_api.list_ai_integrations.call_args_list
+        ]
+        assert providers == [None, "TYPE_SAFE_AI", "PERPLEXITY", "CLOUDFLARE"]
+
+    @pytest.mark.parametrize("status", [400, 422])
+    def test_fallback_rejected_by_older_server_raises_not_found(
+        self, status: int
+    ) -> None:
+        empty = _make_paginated([])
+        empty.ai_integrations = []
+        found = _make_paginated([])
+        found.ai_integrations = [_item("my-cloudflare", "cf-id")]
+        mock_api = MagicMock()
+        mock_api.list_ai_integrations.side_effect = [
+            empty,
+            ApiException(status=status),
+            ApiException(status=status),
+            found,
+        ]
+
+        assert (
+            _find_ai_integration_id(
+                mock_api, MagicMock(), "my-cloudflare", B64_ID
+            )
+            == "cf-id"
+        )
+
 
 # ---------------------------------------------------------------------------
 # _find_integration_id
@@ -768,6 +903,55 @@ class TestFindIntegrationId:
             == "int-id"
         )
 
+    def test_llm_name_missing_from_default_list_retries_decision_judge_providers(
+        self,
+    ) -> None:
+        """The default list leaves out Decision-Judge-only providers."""
+        empty = _make_paginated([])
+        empty.integrations = []
+        found = _make_paginated([])
+        found.integrations = [_wrapped_item("my-perplexity", "pplx-id")]
+        mock_api = MagicMock()
+        mock_api.list_integrations.side_effect = [empty, empty, found]
+
+        assert (
+            _find_integration_id(mock_api, "my-perplexity", "LLM", B64_ID)
+            == "pplx-id"
+        )
+        providers = [
+            c.kwargs.get("provider")
+            for c in mock_api.list_integrations.call_args_list
+        ]
+        assert providers == [None, "TYPE_SAFE_AI", "PERPLEXITY"]
+
+    @pytest.mark.parametrize("status", [400, 422])
+    def test_llm_fallback_rejected_by_older_server_raises_not_found(
+        self, status: int
+    ) -> None:
+        empty = _make_paginated([])
+        empty.integrations = []
+        mock_api = MagicMock()
+        mock_api.list_integrations.side_effect = [
+            empty,
+            *(ApiException(status=status) for _ in range(3)),
+        ]
+
+        with pytest.raises(NotFoundError, match="integration"):
+            _find_integration_id(mock_api, "missing", "LLM", B64_ID)
+
+        assert mock_api.list_integrations.call_count == 4
+
+    def test_agent_name_not_found_does_not_retry(self) -> None:
+        resp = _make_paginated([])
+        resp.integrations = []
+        mock_api = MagicMock()
+        mock_api.list_integrations.return_value = resp
+
+        with pytest.raises(NotFoundError, match="integration"):
+            _find_integration_id(mock_api, "missing", "AGENT", B64_ID)
+
+        mock_api.list_integrations.assert_called_once()
+
 
 # ---------------------------------------------------------------------------
 # _find_task_id
@@ -809,3 +993,52 @@ class TestFindTaskId:
         assert (
             _find_task_id(mock_api, MagicMock(), "my-task", B64_ID) == "task-id"
         )
+
+    def test_falls_back_to_decision_judge_tasks(self) -> None:
+        default = _make_paginated([])
+        default.tasks = [_item("other")]
+        decision_judge = _make_paginated([])
+        decision_judge.tasks = [_item("judge-task", "dj-task-id")]
+        mock_api = MagicMock()
+        mock_api.list_tasks.side_effect = [default, decision_judge]
+
+        assert (
+            _find_task_id(mock_api, MagicMock(), "judge-task", B64_ID)
+            == "dj-task-id"
+        )
+        first, second = mock_api.list_tasks.call_args_list
+        assert "type" not in first.kwargs
+        assert second.kwargs["type"] == TaskType.DECISION_JUDGE_EVALUATION
+
+    @pytest.mark.parametrize("status", [400, 422])
+    def test_fallback_rejected_by_older_server_raises_not_found(
+        self, status: int
+    ) -> None:
+        default = _make_paginated([])
+        default.tasks = [_item("other")]
+        mock_api = MagicMock()
+        mock_api.list_tasks.side_effect = [default, ApiException(status=status)]
+
+        with pytest.raises(NotFoundError, match="task") as exc_info:
+            _find_task_id(mock_api, MagicMock(), "missing", B64_ID)
+
+        assert "other" in str(exc_info.value)
+
+    def test_fallback_server_error_propagates(self) -> None:
+        default = _make_paginated([])
+        default.tasks = []
+        mock_api = MagicMock()
+        mock_api.list_tasks.side_effect = [default, ApiException(status=503)]
+
+        with pytest.raises(ApiException):
+            _find_task_id(mock_api, MagicMock(), "missing", B64_ID)
+
+    def test_found_in_default_list_makes_one_call(self) -> None:
+        resp = _make_paginated([])
+        resp.tasks = [_item("my-task", "task-id")]
+        mock_api = MagicMock()
+        mock_api.list_tasks.return_value = resp
+
+        _find_task_id(mock_api, MagicMock(), "my-task", B64_ID)
+
+        assert mock_api.list_tasks.call_count == 1

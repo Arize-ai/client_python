@@ -11,6 +11,9 @@ from arize._generated.api_client.models.code_config_request import (
 from arize._generated.api_client.models.create_code_evaluator_version_request import (
     CreateCodeEvaluatorVersionRequest,
 )
+from arize._generated.api_client.models.create_decision_judge_evaluator_version_request import (
+    CreateDecisionJudgeEvaluatorVersionRequest,
+)
 from arize._generated.api_client.models.create_evaluator_version_request import (
     CreateEvaluatorVersionRequest,
 )
@@ -27,6 +30,54 @@ from arize._generated.api_client.models.custom_code_config_request import (
     CustomCodeConfigRequest,
 )
 from arize._generated.api_client.models.data_granularity import DataGranularity
+from arize._generated.api_client.models.decision_judge_boolean_criteria import (
+    DecisionJudgeBooleanCriteria,
+)
+from arize._generated.api_client.models.decision_judge_boolean_criteria_input import (
+    DecisionJudgeBooleanCriteriaInput,
+)
+from arize._generated.api_client.models.decision_judge_boolean_question import (
+    DecisionJudgeBooleanQuestion,
+)
+from arize._generated.api_client.models.decision_judge_boolean_question_input import (
+    DecisionJudgeBooleanQuestionInput,
+)
+from arize._generated.api_client.models.decision_judge_choice_criteria import (
+    DecisionJudgeChoiceCriteria,
+)
+from arize._generated.api_client.models.decision_judge_choice_criteria_input import (
+    DecisionJudgeChoiceCriteriaInput,
+)
+from arize._generated.api_client.models.decision_judge_choice_question import (
+    DecisionJudgeChoiceQuestion,
+)
+from arize._generated.api_client.models.decision_judge_choice_question_input import (
+    DecisionJudgeChoiceQuestionInput,
+)
+from arize._generated.api_client.models.decision_judge_config import (
+    DecisionJudgeConfig as _GenDecisionJudgeConfig,
+)
+from arize._generated.api_client.models.decision_judge_config_input import (
+    DecisionJudgeConfigInput,
+)
+from arize._generated.api_client.models.decision_judge_question import (
+    DecisionJudgeQuestion as _GenDecisionJudgeQuestion,
+)
+from arize._generated.api_client.models.decision_judge_question_input import (
+    DecisionJudgeQuestionInput,
+)
+from arize._generated.api_client.models.decision_judge_score_criteria import (
+    DecisionJudgeScoreCriteria,
+)
+from arize._generated.api_client.models.decision_judge_score_criteria_input import (
+    DecisionJudgeScoreCriteriaInput,
+)
+from arize._generated.api_client.models.decision_judge_score_question import (
+    DecisionJudgeScoreQuestion,
+)
+from arize._generated.api_client.models.decision_judge_score_question_input import (
+    DecisionJudgeScoreQuestionInput,
+)
 from arize._generated.api_client.models.delete_evaluator_versions_response import (
     DeleteEvaluatorVersionsResponse,
 )
@@ -45,6 +96,9 @@ from arize._generated.api_client.models.evaluator_version import (
 )
 from arize._generated.api_client.models.evaluator_version_code import (
     EvaluatorVersionCode as _GenEvaluatorVersionCode,
+)
+from arize._generated.api_client.models.evaluator_version_decision_judge import (
+    EvaluatorVersionDecisionJudge as _GenEvaluatorVersionDecisionJudge,
 )
 
 # Harness and remote versions expose only common version metadata; their
@@ -127,15 +181,109 @@ class EvaluatorVersionCode(BaseModel):
         return v  # type: ignore[return-value]
 
 
+DecisionJudgeQuestionVariant = (
+    DecisionJudgeBooleanQuestion
+    | DecisionJudgeChoiceQuestion
+    | DecisionJudgeScoreQuestion
+)
+"""A Decision Judge question as read back from the API, unwrapped to its concrete type."""
+
+DecisionJudgeQuestionInputVariant = (
+    DecisionJudgeBooleanQuestionInput
+    | DecisionJudgeChoiceQuestionInput
+    | DecisionJudgeScoreQuestionInput
+)
+"""A Decision Judge question in a write request, as its concrete type."""
+
+
+class DecisionJudgeConfig(BaseModel):
+    """SDK view of the generated ``DecisionJudgeConfig`` with ``questions`` unwrapped.
+
+    Each item of ``questions`` holds the concrete question type
+    (:class:`DecisionJudgeBooleanQuestion`, :class:`DecisionJudgeChoiceQuestion`,
+    or :class:`DecisionJudgeScoreQuestion`) instead of the oneOf wrapper
+    ``DecisionJudgeQuestion``. Narrow on ``question.type``.
+    """
+
+    ai_integration_id: str
+    model_name: str
+    state_template: str
+    questions: list[DecisionJudgeQuestionVariant]
+    data_granularity: DataGranularity | None = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+    @field_validator("questions", mode="before")
+    @classmethod
+    def _coerce_questions(cls, v: object) -> list[DecisionJudgeQuestionVariant]:
+        result = []
+        for item in v:  # type: ignore[attr-defined]
+            if isinstance(item, _GenDecisionJudgeQuestion):
+                if item.actual_instance is None:
+                    raise ValueError(
+                        "DecisionJudgeQuestion wrapper has actual_instance=None"
+                    )
+                item = item.actual_instance
+            result.append(item)
+        return result
+
+
+class EvaluatorVersionDecisionJudge(BaseModel):
+    """SDK view of the generated ``EvaluatorVersionDecisionJudge``.
+
+    ``decision_judge_config`` is a :class:`DecisionJudgeConfig` whose
+    ``questions`` hold the concrete question types instead of oneOf wrappers.
+    """
+
+    id: str
+    evaluator_id: str
+    commit_hash: str
+    commit_message: str | None = None
+    created_at: datetime
+    created_by_user_id: str | None = None
+    type: str
+    decision_judge_config: DecisionJudgeConfig
+
+    model_config = ConfigDict(from_attributes=True)
+
+    @field_validator("decision_judge_config", mode="before")
+    @classmethod
+    def _coerce_decision_judge_config(cls, v: object) -> DecisionJudgeConfig:
+        if isinstance(v, _GenDecisionJudgeConfig):
+            return DecisionJudgeConfig.model_validate(v, from_attributes=True)
+        return v  # type: ignore[return-value]
+
+
+def _to_sdk_version(
+    v: object,
+) -> (
+    EvaluatorVersionCode
+    | EvaluatorVersionTemplate
+    | EvaluatorVersionHarness
+    | EvaluatorVersionRemote
+    | EvaluatorVersionDecisionJudge
+):
+    if isinstance(v, _GenEvaluatorVersion):
+        v = v.actual_instance
+    if isinstance(v, _GenEvaluatorVersionCode):
+        return EvaluatorVersionCode.model_validate(v, from_attributes=True)
+    if isinstance(v, _GenEvaluatorVersionDecisionJudge):
+        return EvaluatorVersionDecisionJudge.model_validate(
+            v, from_attributes=True
+        )
+    return v  # type: ignore[return-value]
+
+
 class EvaluatorWithVersion(BaseModel):
     """SDK view of the generated ``EvaluatorWithVersion`` with ``version`` unwrapped.
 
     The ``version`` field holds the concrete inner type
     (:class:`EvaluatorVersionCode` for code evaluators,
     :class:`EvaluatorVersionTemplate` for template evaluators,
-    :class:`EvaluatorVersionHarness` for harness evaluators, or
-    :class:`EvaluatorVersionRemote` for remote evaluators) instead of the
-    oneOf wrapper.
+    :class:`EvaluatorVersionHarness` for harness evaluators,
+    :class:`EvaluatorVersionRemote` for remote evaluators, or
+    :class:`EvaluatorVersionDecisionJudge` for Decision Judge evaluators)
+    instead of the oneOf wrapper.
     """
 
     id: str
@@ -151,6 +299,7 @@ class EvaluatorWithVersion(BaseModel):
         | EvaluatorVersionTemplate
         | EvaluatorVersionHarness
         | EvaluatorVersionRemote
+        | EvaluatorVersionDecisionJudge
     )
 
     model_config = ConfigDict(from_attributes=True)
@@ -164,12 +313,9 @@ class EvaluatorWithVersion(BaseModel):
         | EvaluatorVersionTemplate
         | EvaluatorVersionHarness
         | EvaluatorVersionRemote
+        | EvaluatorVersionDecisionJudge
     ):
-        if isinstance(v, _GenEvaluatorVersion):
-            v = v.actual_instance
-        if isinstance(v, _GenEvaluatorVersionCode):
-            return EvaluatorVersionCode.model_validate(v, from_attributes=True)
-        return v  # type: ignore[return-value]
+        return _to_sdk_version(v)
 
 
 class ListEvaluatorVersionsResponse(BaseModel):
@@ -180,6 +326,7 @@ class ListEvaluatorVersionsResponse(BaseModel):
         | EvaluatorVersionTemplate
         | EvaluatorVersionHarness
         | EvaluatorVersionRemote
+        | EvaluatorVersionDecisionJudge
     ]
     pagination: PaginationMetadata
 
@@ -194,35 +341,46 @@ class ListEvaluatorVersionsResponse(BaseModel):
         | EvaluatorVersionTemplate
         | EvaluatorVersionHarness
         | EvaluatorVersionRemote
+        | EvaluatorVersionDecisionJudge
     ]:
-        result = []
-        for item in v:  # type: ignore[attr-defined]
-            if isinstance(item, _GenEvaluatorVersion):
-                item = item.actual_instance
-            if isinstance(item, _GenEvaluatorVersionCode):
-                item = EvaluatorVersionCode.model_validate(
-                    item, from_attributes=True
-                )
-            result.append(item)
-        return result
+        return [_to_sdk_version(item) for item in v]  # type: ignore[attr-defined]
 
 
 __all__ = [
     "CodeConfig",
     "CodeConfigRequest",
     "CreateCodeEvaluatorVersionRequest",
+    "CreateDecisionJudgeEvaluatorVersionRequest",
     "CreateEvaluatorVersionRequest",
     "CreateRemoteEvaluatorVersionRequest",
     "CreateTemplateEvaluatorVersionRequest",
     "CustomCodeConfig",
     "CustomCodeConfigRequest",
     "DataGranularity",
+    "DecisionJudgeBooleanCriteria",
+    "DecisionJudgeBooleanCriteriaInput",
+    "DecisionJudgeBooleanQuestion",
+    "DecisionJudgeBooleanQuestionInput",
+    "DecisionJudgeChoiceCriteria",
+    "DecisionJudgeChoiceCriteriaInput",
+    "DecisionJudgeChoiceQuestion",
+    "DecisionJudgeChoiceQuestionInput",
+    "DecisionJudgeConfig",
+    "DecisionJudgeConfigInput",
+    "DecisionJudgeQuestionInput",
+    "DecisionJudgeQuestionInputVariant",
+    "DecisionJudgeQuestionVariant",
+    "DecisionJudgeScoreCriteria",
+    "DecisionJudgeScoreCriteriaInput",
+    "DecisionJudgeScoreQuestion",
+    "DecisionJudgeScoreQuestionInput",
     "DeleteEvaluatorVersionsResponse",
     "Evaluator",
     "EvaluatorLlmConfig",
     "EvaluatorLlmConfigRequest",
     "EvaluatorType",
     "EvaluatorVersionCode",
+    "EvaluatorVersionDecisionJudge",
     "EvaluatorVersionHarness",
     "EvaluatorVersionRemote",
     "EvaluatorVersionTemplate",

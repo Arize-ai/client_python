@@ -5,8 +5,17 @@ from __future__ import annotations
 import base64
 import logging
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING, Any, Protocol
 
+from arize._generated.api_client.exceptions import ApiException
+from arize._generated.api_client.models.ai_integration_provider import (
+    AiIntegrationProvider,
+)
+from arize._generated.api_client.models.evaluator_type import EvaluatorType
+from arize._generated.api_client.models.llm_integration_provider import (
+    LlmIntegrationProvider,
+)
+from arize._generated.api_client.models.task_type import TaskType
 from arize.exceptions.spaces import AmbiguousNameError
 from arize.utils.response import require_operation_value
 
@@ -51,6 +60,19 @@ def _next_cursor(response: _PaginatedResponse, *, field: str) -> str | None:
 logger = logging.getLogger(__name__)
 
 _LIST_PAGE_SIZE = 100
+
+# Lists leave these providers out unless a provider filter names them, so a
+# name lookup that misses the default list retries once per provider.
+_DECISION_JUDGE_ONLY_PROVIDERS = ("TYPE_SAFE_AI", "PERPLEXITY", "CLOUDFLARE")
+
+
+def _is_unsupported_filter(exc: ApiException) -> bool:
+    """Whether a fallback list call failed because the server rejects the filter.
+
+    Servers that predate an opt-in ``type`` or ``provider`` value answer 400 or
+    422 instead of an empty page, which for a name lookup means not found.
+    """
+    return exc.status in (400, 422)
 
 
 class NotFoundError(Exception):
@@ -519,8 +541,13 @@ def _find_evaluator_id(
     spaces_api: SpacesApi,
     evaluator: str,
     space: str | None,
+    evaluator_type: EvaluatorType | None = None,
 ) -> str:
     """Resolve an evaluator ID or name to an evaluator ID.
+
+    The default evaluator list leaves out Decision Judge evaluators, so when
+    *evaluator_type* is omitted and the name is not found, the lookup is
+    repeated for Decision Judge evaluators.
 
     Args:
         api: EvaluatorsApi instance.
@@ -528,6 +555,7 @@ def _find_evaluator_id(
             exact ID before the list call.
         evaluator: Evaluator ID or name.
         space: Space ID or name used to filter the lookup.
+        evaluator_type: Optional evaluator type to scope the lookup to.
 
     Returns:
         The resolved evaluator ID.
@@ -556,28 +584,42 @@ def _find_evaluator_id(
             id=_find_space_id(spaces_api, resolved_space.name)  # type:ignore
         )
 
+    filters: list[dict[str, Any]] = (
+        [{"type": evaluator_type}]
+        if evaluator_type is not None
+        else [{}, {"type": EvaluatorType.DECISION_JUDGE}]
+    )
     available: list[str] = []
-    cursor: str | None = None
 
-    while True:
-        response = api.list_evaluators(
-            space_id=resolved_space.id,
-            space_name=resolved_space.name,
-            name=evaluator,
-            limit=_LIST_PAGE_SIZE,
-            cursor=cursor,
-        )
-        for ev in require_operation_value(
-            response.evaluators, field="response.evaluators"
-        ):
-            if ev.name == evaluator:
-                logger.debug("Resolved evaluator '%s' → %s", evaluator, ev.id)
-                return require_operation_value(ev.id, field="evaluator.id")
-            if ev.name is not None:
-                available.append(ev.name)
-        cursor = _next_cursor(response, field="evaluator_list.pagination")
-        if not cursor:
-            break
+    for index, extra in enumerate(filters):
+        cursor: str | None = None
+        while True:
+            try:
+                response = api.list_evaluators(
+                    space_id=resolved_space.id,
+                    space_name=resolved_space.name,
+                    name=evaluator,
+                    limit=_LIST_PAGE_SIZE,
+                    cursor=cursor,
+                    **extra,
+                )
+            except ApiException as exc:
+                if index > 0 and _is_unsupported_filter(exc):
+                    break
+                raise
+            for ev in require_operation_value(
+                response.evaluators, field="response.evaluators"
+            ):
+                if ev.name == evaluator:
+                    logger.debug(
+                        "Resolved evaluator '%s' → %s", evaluator, ev.id
+                    )
+                    return require_operation_value(ev.id, field="evaluator.id")
+                if ev.name is not None and ev.name not in available:
+                    available.append(ev.name)
+            cursor = _next_cursor(response, field="evaluator_list.pagination")
+            if not cursor:
+                break
 
     raise NotFoundError("evaluator", evaluator, available)
 
@@ -703,30 +745,48 @@ def _find_ai_integration_id(
             id=_find_space_id(spaces_api, resolved_space.name)  # type:ignore
         )
 
+    filters: list[dict[str, Any]] = [
+        {},
+        *(
+            {"provider": AiIntegrationProvider(p)}
+            for p in _DECISION_JUDGE_ONLY_PROVIDERS
+        ),
+    ]
     available: list[str] = []
-    cursor: str | None = None
 
-    while True:
-        response = api.list_ai_integrations(
-            space_id=resolved_space.id,
-            space_name=resolved_space.name,
-            name=integration,
-            limit=_LIST_PAGE_SIZE,
-            cursor=cursor,
-        )
-        for ai in require_operation_value(
-            response.ai_integrations, field="response.ai_integrations"
-        ):
-            if ai.name == integration:
-                logger.debug(
-                    "Resolved AI integration '%s' → %s", integration, ai.id
+    for index, extra in enumerate(filters):
+        cursor: str | None = None
+        while True:
+            try:
+                response = api.list_ai_integrations(
+                    space_id=resolved_space.id,
+                    space_name=resolved_space.name,
+                    name=integration,
+                    limit=_LIST_PAGE_SIZE,
+                    cursor=cursor,
+                    **extra,
                 )
-                return require_operation_value(ai.id, field="ai_integration.id")
-            if ai.name is not None:
-                available.append(ai.name)
-        cursor = _next_cursor(response, field="ai_integration_list.pagination")
-        if not cursor:
-            break
+            except ApiException as exc:
+                if index > 0 and _is_unsupported_filter(exc):
+                    break
+                raise
+            for ai in require_operation_value(
+                response.ai_integrations, field="response.ai_integrations"
+            ):
+                if ai.name == integration:
+                    logger.debug(
+                        "Resolved AI integration '%s' → %s", integration, ai.id
+                    )
+                    return require_operation_value(
+                        ai.id, field="ai_integration.id"
+                    )
+                if ai.name is not None and ai.name not in available:
+                    available.append(ai.name)
+            cursor = _next_cursor(
+                response, field="ai_integration_list.pagination"
+            )
+            if not cursor:
+                break
 
     raise NotFoundError("AI integration", integration, available)
 
@@ -774,34 +834,49 @@ def _find_integration_id(
 
     resolved_space = _resolve_resource(space)
 
-    available: list[str] = []
-    cursor: str | None = None
-
-    while True:
-        response = api.list_integrations(
-            type=integration_type,
-            space_id=resolved_space.id,
-            space_name=resolved_space.name,
-            name=integration,
-            limit=_LIST_PAGE_SIZE,
-            cursor=cursor,
+    filters: list[dict[str, Any]] = [{}]
+    if integration_type == "LLM":
+        filters.extend(
+            {"provider": LlmIntegrationProvider(p)}
+            for p in _DECISION_JUDGE_ONLY_PROVIDERS
         )
-        for item in require_operation_value(
-            response.integrations, field="response.integrations"
-        ):
-            inner = item.actual_instance
-            if inner is None:
-                continue
-            if inner.name == integration:
-                logger.debug(
-                    "Resolved integration '%s' → %s", integration, inner.id
+    available: list[str] = []
+
+    for index, extra in enumerate(filters):
+        cursor: str | None = None
+        while True:
+            try:
+                response = api.list_integrations(
+                    type=integration_type,
+                    space_id=resolved_space.id,
+                    space_name=resolved_space.name,
+                    name=integration,
+                    limit=_LIST_PAGE_SIZE,
+                    cursor=cursor,
+                    **extra,
                 )
-                return require_operation_value(inner.id, field="integration.id")
-            if inner.name is not None:
-                available.append(inner.name)
-        cursor = _next_cursor(response, field="integration_list.pagination")
-        if not cursor:
-            break
+            except ApiException as exc:
+                if index > 0 and _is_unsupported_filter(exc):
+                    break
+                raise
+            for item in require_operation_value(
+                response.integrations, field="response.integrations"
+            ):
+                inner = item.actual_instance
+                if inner is None:
+                    continue
+                if inner.name == integration:
+                    logger.debug(
+                        "Resolved integration '%s' → %s", integration, inner.id
+                    )
+                    return require_operation_value(
+                        inner.id, field="integration.id"
+                    )
+                if inner.name is not None and inner.name not in available:
+                    available.append(inner.name)
+            cursor = _next_cursor(response, field="integration_list.pagination")
+            if not cursor:
+                break
 
     raise NotFoundError("integration", integration, available)
 
@@ -890,6 +965,9 @@ def _find_task_id(
 ) -> str:
     """Resolve a task ID or name to a task ID.
 
+    The default task list leaves out Decision Judge evaluation tasks, so when
+    the name is not found, the lookup is repeated for those tasks.
+
     Args:
         api: TasksApi instance.
         spaces_api: SpacesApi instance, used to resolve a space name to an
@@ -925,27 +1003,38 @@ def _find_task_id(
         )
 
     available: list[str] = []
-    cursor: str | None = None
 
-    while True:
-        response = api.list_tasks(
-            space_id=resolved_space.id,
-            space_name=resolved_space.name,
-            name=task,
-            limit=_LIST_PAGE_SIZE,
-            cursor=cursor,
-        )
-        for t in require_operation_value(
-            response.tasks, field="response.tasks"
-        ):
-            if t.name == task:
-                logger.debug("Resolved task '%s' → %s", task, t.id)
-                return require_operation_value(t.id, field="task.id")
-            if t.name is not None:
-                available.append(t.name)
-        cursor = _next_cursor(response, field="task_list.pagination")
-        if not cursor:
-            break
+    filters: list[dict[str, Any]] = [
+        {},
+        {"type": TaskType.DECISION_JUDGE_EVALUATION},
+    ]
+    for index, extra in enumerate(filters):
+        cursor: str | None = None
+        while True:
+            try:
+                response = api.list_tasks(
+                    space_id=resolved_space.id,
+                    space_name=resolved_space.name,
+                    name=task,
+                    limit=_LIST_PAGE_SIZE,
+                    cursor=cursor,
+                    **extra,
+                )
+            except ApiException as exc:
+                if index > 0 and _is_unsupported_filter(exc):
+                    break
+                raise
+            for t in require_operation_value(
+                response.tasks, field="response.tasks"
+            ):
+                if t.name == task:
+                    logger.debug("Resolved task '%s' → %s", task, t.id)
+                    return require_operation_value(t.id, field="task.id")
+                if t.name is not None and t.name not in available:
+                    available.append(t.name)
+            cursor = _next_cursor(response, field="task_list.pagination")
+            if not cursor:
+                break
 
     raise NotFoundError("task", task, available)
 

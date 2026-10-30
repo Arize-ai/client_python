@@ -35,13 +35,24 @@ from arize._generated.api_client.models.task_query_filters_input import (
 from arize._generated.api_client.models.task_query_mapping import (
     TaskQueryMapping,
 )
+from arize._generated.api_client.models.task_query_mapping_input import (
+    TaskQueryMappingInput,
+)
 from arize._generated.api_client.models.task_type import TaskType
+from arize._generated.api_client.models.trace_or_session_evaluator_input import (
+    TraceOrSessionEvaluatorInput,
+)
 from arize.tasks.client import (
     _DEFAULT_POLL_INTERVAL,
     _DEFAULT_TIMEOUT,
     TasksClient,
 )
-from arize.tasks.types import ListTasksResponse, Task
+from arize.tasks.types import (
+    ListTasksResponse,
+    SpanEvaluatorInput,
+    Task,
+    TaskEvaluatorInput,
+)
 
 # Base64 IDs that pass _is_resource_id() — decode to "Type:123"
 _TASK_ID = "VGFzazoxMjM="  # Task:123
@@ -1897,3 +1908,192 @@ class TestTasksClientWaitForRun:
         """wait_for_run() should raise ValueError when poll_interval <= 0."""
         with pytest.raises(ValueError, match="poll_interval"):
             tasks_client.wait_for_run(run_id="run-456", poll_interval=0.0)
+
+
+@pytest.mark.unit
+class TestTasksClientCreateDecisionJudgeEvaluationTask:
+    """Tests for TasksClient.create_decision_judge_evaluation_task()."""
+
+    @pytest.fixture(autouse=True)
+    def _bypass_model_validate(self) -> None:
+        with patch.object(
+            Task, "model_validate", side_effect=lambda v, **kw: v
+        ):
+            yield
+
+    def _sent_body(self, mock_api: Mock) -> dict:
+        request = mock_api.create_task.call_args.kwargs["create_task_request"]
+        return request.actual_instance.to_dict()
+
+    def test_sends_the_decision_judge_request(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        tasks_client.create_decision_judge_evaluation_task(
+            name="judge-task",
+            project=_PROJECT_ID,
+            evaluators=[
+                SpanEvaluatorInput(
+                    evaluator_id="ev-1",
+                    column_mappings={"input": "attributes.input.value"},
+                ),
+                {"evaluator_id": "ev-2", "evaluator_version_id": "ver-2"},
+                TaskEvaluatorInput(
+                    actual_instance=SpanEvaluatorInput(
+                        evaluator_id="ev-3", query_filter="x = 1"
+                    )
+                ),
+            ],
+            sampling_rate=0.5,
+            is_continuous=True,
+            query_filter="status_code = 'OK'",
+        )
+
+        assert self._sent_body(mock_api) == {
+            "name": "judge-task",
+            "type": "DECISION_JUDGE_EVALUATION",
+            "project_id": _PROJECT_ID,
+            "sampling_rate": 0.5,
+            "is_continuous": True,
+            "query_filter": "status_code = 'OK'",
+            "evaluators": [
+                {
+                    "evaluator_id": "ev-1",
+                    "column_mappings": {"input": "attributes.input.value"},
+                },
+                {"evaluator_id": "ev-2", "evaluator_version_id": "ver-2"},
+                {"evaluator_id": "ev-3", "query_filter": "x = 1"},
+            ],
+        }
+
+    def test_generic_create_routes_the_type(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        tasks_client.create_evaluation_task(
+            name="judge-task",
+            task_type=TaskType.DECISION_JUDGE_EVALUATION,
+            project=_PROJECT_ID,
+            evaluators=[
+                TaskEvaluatorInput(
+                    actual_instance=SpanEvaluatorInput(evaluator_id="ev-1")
+                )
+            ],
+        )
+
+        assert self._sent_body(mock_api)["type"] == (
+            "DECISION_JUDGE_EVALUATION"
+        )
+
+    @pytest.mark.parametrize(
+        "evaluator",
+        [
+            {
+                "evaluator_id": "ev-1",
+                "query_mappings": [
+                    {
+                        "variable_name": "input",
+                        "query_ids": ["A"],
+                        "attribute_path": "attributes.input.value",
+                    }
+                ],
+            },
+            TaskEvaluatorInput(
+                actual_instance=TraceOrSessionEvaluatorInput(
+                    evaluator_id="ev-1",
+                    query_mappings=[
+                        TaskQueryMappingInput(
+                            variable_name="input",
+                            query_ids=["A"],
+                            attribute_path="attributes.input.value",
+                        )
+                    ],
+                )
+            ),
+            TaskEvaluatorInput(),
+            "ev-1",
+        ],
+    )
+    def test_rejects_non_span_evaluators(
+        self, tasks_client: TasksClient, mock_api: Mock, evaluator: object
+    ) -> None:
+        with pytest.raises(ValueError, match="position 0"):
+            tasks_client.create_decision_judge_evaluation_task(
+                name="judge-task",
+                project=_PROJECT_ID,
+                evaluators=[evaluator],  # type: ignore[list-item]
+            )
+        mock_api.create_task.assert_not_called()
+
+    @pytest.mark.parametrize(
+        ("extra", "field"),
+        [
+            ({"dataset": _DATASET_ID}, "dataset"),
+            ({"experiment_ids": ["exp-1"]}, "experiment_ids"),
+            (
+                {
+                    "query_filters": TaskQueryFilters(
+                        filters=[TaskQueryFilter(id="A", filter="x = 1")]
+                    )
+                },
+                "query_filters",
+            ),
+        ],
+    )
+    def test_generic_create_rejects_unsupported_fields(
+        self,
+        tasks_client: TasksClient,
+        mock_api: Mock,
+        extra: dict,
+        field: str,
+    ) -> None:
+        with pytest.raises(ValueError, match=field):
+            tasks_client._create(
+                name="judge-task",
+                task_type=TaskType.DECISION_JUDGE_EVALUATION,
+                evaluators=[],
+                project=_PROJECT_ID,
+                **extra,
+            )
+        mock_api.create_task.assert_not_called()
+
+    def test_generic_create_requires_project(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        with pytest.raises(ValueError, match="'project' is required"):
+            tasks_client._create(
+                name="judge-task",
+                task_type=TaskType.DECISION_JUDGE_EVALUATION,
+                evaluators=[],
+            )
+        mock_api.create_task.assert_not_called()
+
+    def test_list_filters_by_type(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        with patch.object(
+            ListTasksResponse, "model_validate", side_effect=lambda v, **kw: v
+        ):
+            tasks_client.list(task_type=TaskType.DECISION_JUDGE_EVALUATION)
+
+        assert (
+            mock_api.list_tasks.call_args.kwargs["type"]
+            == TaskType.DECISION_JUDGE_EVALUATION
+        )
+
+    def test_update_and_trigger_use_the_evaluation_requests(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        mock_api.get_task.return_value = Mock(
+            type=TaskType.DECISION_JUDGE_EVALUATION
+        )
+
+        tasks_client.update(task=_TASK_ID, name="renamed")
+        tasks_client.trigger_run(task=_TASK_ID, max_spans=100)
+
+        update_request = mock_api.update_task.call_args.kwargs[
+            "update_task_request"
+        ]
+        assert update_request.actual_instance.to_dict() == {"name": "renamed"}
+        trigger_request = mock_api.trigger_task_run.call_args.kwargs[
+            "trigger_task_run_request"
+        ]
+        assert trigger_request.actual_instance.to_dict() == {"max_spans": 100}

@@ -124,6 +124,21 @@ class TestAiIntegrationsClientList:
             cursor=None,
         )
 
+    def test_list_forwards_provider(
+        self, ai_integrations_client: AiIntegrationsClient, mock_api: Mock
+    ) -> None:
+        """list(provider=...) should forward the provider filter."""
+        ai_integrations_client.list(provider="PERPLEXITY")  # type: ignore[arg-type]
+
+        mock_api.list_ai_integrations.assert_called_once_with(
+            space_id=None,
+            space_name=None,
+            name=None,
+            limit=50,
+            cursor=None,
+            provider="PERPLEXITY",
+        )
+
     def test_list_returns_api_response(
         self, ai_integrations_client: AiIntegrationsClient, mock_api: Mock
     ) -> None:
@@ -234,6 +249,33 @@ class TestAiIntegrationsClientCreate:
             )
 
         assert result is expected
+
+    def test_create_cloudflare_sends_account_id_metadata(
+        self, ai_integrations_client: AiIntegrationsClient, mock_api: Mock
+    ) -> None:
+        """create(CLOUDFLARE) should send CLOUDFLARE provider metadata."""
+        from arize.ai_integrations.types import (
+            CloudflareProviderMetadataRequest,
+        )
+
+        metadata = CloudflareProviderMetadataRequest(
+            kind="CLOUDFLARE", account_id="0123456789abcdef0123456789abcdef"
+        )
+        ai_integrations_client.create(
+            name="Cloudflare",
+            provider="CLOUDFLARE",  # type: ignore[arg-type]
+            api_key="cf-token",
+            provider_metadata=metadata,
+        )
+
+        body = mock_api.create_ai_integration.call_args.kwargs[
+            "create_ai_integration_request"
+        ]
+        assert body.provider_metadata.actual_instance is metadata
+        assert body.to_dict()["provider_metadata"] == {
+            "kind": "CLOUDFLARE",
+            "account_id": "0123456789abcdef0123456789abcdef",
+        }
 
     def test_create_wraps_typed_provider_metadata(
         self, ai_integrations_client: AiIntegrationsClient, mock_api: Mock

@@ -60,7 +60,15 @@ class TestEvaluatorVersion(unittest.TestCase):
                         provider_parameters = { }, ), ),
                 code_config = None,
                 remote_config = arize._generated.api_client.models.remote_config.RemoteConfig(
-                    integration_id = '', )
+                    integration_id = '', ),
+                decision_judge_config = arize._generated.api_client.models.decision_judge_config.DecisionJudgeConfig(
+                    ai_integration_id = '', 
+                    model_name = '', 
+                    state_template = '', 
+                    questions = [
+                        null
+                        ], 
+                    data_granularity = null, )
             )
         else:
             return EvaluatorVersion(
@@ -90,6 +98,14 @@ class TestEvaluatorVersion(unittest.TestCase):
                 code_config = None,
                 remote_config = arize._generated.api_client.models.remote_config.RemoteConfig(
                     integration_id = '', ),
+                decision_judge_config = arize._generated.api_client.models.decision_judge_config.DecisionJudgeConfig(
+                    ai_integration_id = '', 
+                    model_name = '', 
+                    state_template = '', 
+                    questions = [
+                        null
+                        ], 
+                    data_granularity = null, ),
         )
         """
 

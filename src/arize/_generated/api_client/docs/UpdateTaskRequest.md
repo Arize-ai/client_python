@@ -1,6 +1,6 @@
 # UpdateTaskRequest
 
-PATCH body for `PATCH /v2/tasks/{task_id}`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `type` field.  | Task type | Schema | |---|---| | `TEMPLATE_EVALUATION` | `UpdateEvaluationTaskRequest` | | `CODE_EVALUATION` | `UpdateEvaluationTaskRequest` | | `RUN_EXPERIMENT` | `UpdateRunExperimentTaskRequest` |  Sending a field that is not valid for the resolved task type returns 400 (e.g. `evaluators` on a `RUN_EXPERIMENT` task, or `run_configuration` on an evaluation task). 
+PATCH body for `PATCH /v2/tasks/{task_id}`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `type` field.  | Task type | Schema | |---|---| | `TEMPLATE_EVALUATION` | `UpdateEvaluationTaskRequest` | | `CODE_EVALUATION` | `UpdateEvaluationTaskRequest` | | `DECISION_JUDGE_EVALUATION` | `UpdateEvaluationTaskRequest` | | `RUN_EXPERIMENT` | `UpdateRunExperimentTaskRequest` |  Sending a field that is not valid for the resolved task type returns 400 (e.g. `evaluators` on a `RUN_EXPERIMENT` task, or `run_configuration` on an evaluation task). 
 
 ## Properties
 

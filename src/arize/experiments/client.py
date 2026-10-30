@@ -128,7 +128,6 @@ class ExperimentsClient:
         # Used to resolve `space` for experiments not associated with a dataset.
         self._spaces_api = gen.SpacesApi(generated_client)
 
-    @prerelease_endpoint(key="experiments.list", stage=ReleaseStage.BETA)
     def list(
         self,
         *,
@@ -187,7 +186,6 @@ class ExperimentsClient:
             cursor=cursor,
         )
 
-    @prerelease_endpoint(key="experiments.create", stage=ReleaseStage.BETA)
     def create(
         self,
         *,
@@ -437,7 +435,6 @@ class ExperimentsClient:
             ),
         )
 
-    @prerelease_endpoint(key="experiments.get", stage=ReleaseStage.BETA)
     def get(
         self,
         *,
@@ -475,7 +472,6 @@ class ExperimentsClient:
         )
         return self._api.get_experiment(experiment_id=experiment_id)
 
-    @prerelease_endpoint(key="experiments.delete", stage=ReleaseStage.BETA)
     def delete(
         self,
         *,
@@ -512,7 +508,7 @@ class ExperimentsClient:
             experiment_id=experiment_id,
         )
 
-    @prerelease_endpoint(key="experiments.list_runs", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="experiments.list_runs", stage=ReleaseStage.BETA)
     def list_runs(
         self,
         *,
@@ -745,7 +741,6 @@ class ExperimentsClient:
             ),
         )
 
-    @prerelease_endpoint(key="experiments.append_runs", stage=ReleaseStage.BETA)
     def append_runs(
         self,
         *,
@@ -813,9 +808,6 @@ class ExperimentsClient:
             insert_experiment_runs_request=body,
         )
 
-    @prerelease_endpoint(
-        key="experiments.annotate_runs", stage=ReleaseStage.BETA
-    )
     def annotate_runs(
         self,
         *,
@@ -866,7 +858,6 @@ class ExperimentsClient:
             annotate_experiment_runs_request=body,
         )
 
-    @prerelease_endpoint(key="experiments.run", stage=ReleaseStage.BETA)
     def run(
         self,
         *,

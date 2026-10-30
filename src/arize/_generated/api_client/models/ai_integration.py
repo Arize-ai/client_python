@@ -41,7 +41,7 @@ class AiIntegration(BaseModel):
     enable_default_models: Optional[StrictBool] = Field(default=None, description="Whether the provider's default model list is enabled")
     function_calling_enabled: Optional[StrictBool] = Field(default=None, description="Whether function/tool calling is enabled")
     auth_type: Optional[AiIntegrationAuthType] = None
-    provider_metadata: Optional[ProviderMetadata] = Field(default=None, description="Provider-specific configuration. For AWS_BEDROCK, must include role_arn. For VERTEX_AI, must include project_id, location, and project_access_label.")
+    provider_metadata: Optional[ProviderMetadata] = Field(default=None, description="Provider-specific configuration. For AWS_BEDROCK, must include role_arn. For VERTEX_AI, must include project_id, location, and project_access_label. For CLOUDFLARE, includes account_id.")
     scopings: Optional[List[AiIntegrationScoping]] = Field(default=None, description="Visibility scoping rules")
     created_at: Optional[datetime] = Field(default=None, description="When the integration was created")
     updated_at: Optional[datetime] = Field(default=None, description="When the integration was last updated")

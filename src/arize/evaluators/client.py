@@ -8,16 +8,27 @@ from typing import TYPE_CHECKING, Any
 from arize._generated.api_client.models.evaluator_version_code import (
     EvaluatorVersionCode as _GenEvaluatorVersionCode,
 )
+from arize._generated.api_client.models.evaluator_version_decision_judge import (
+    EvaluatorVersionDecisionJudge as _GenEvaluatorVersionDecisionJudge,
+)
 from arize._utils import unwrap_oneof
 from arize.constants.config import DEFAULT_LIST_LIMIT
 from arize.evaluators.types import (
     CodeConfig,
     CodeConfigRequest,
+    CreateDecisionJudgeEvaluatorVersionRequest,
     CreateRemoteEvaluatorVersionRequest,
     CustomCodeConfig,
     CustomCodeConfigRequest,
+    DecisionJudgeConfig,
+    DecisionJudgeConfigInput,
+    DecisionJudgeQuestionInput,
+    DecisionJudgeQuestionInputVariant,
+    DecisionJudgeQuestionVariant,
     DeleteEvaluatorVersionsResponse,
+    EvaluatorType,
     EvaluatorVersionCode,
+    EvaluatorVersionDecisionJudge,
     EvaluatorVersionRemote,
     EvaluatorWithVersion,
     ListEvaluatorVersionsResponse,
@@ -138,6 +149,73 @@ class EvaluatorsClient:
             f"or dict; got {type(item)!r}"
         )
 
+    @staticmethod
+    def _coerce_decision_judge_question(
+        item: DecisionJudgeQuestionInputVariant
+        | DecisionJudgeQuestionVariant
+        | DecisionJudgeQuestionInput
+        | dict,
+    ) -> DecisionJudgeQuestionInput:
+        """Normalize one Decision Judge question to a ``DecisionJudgeQuestionInput``.
+
+        Accepts the oneOf wrapper (returned as-is), a concrete input question
+        (``DecisionJudgeBooleanQuestionInput`` / ``DecisionJudgeChoiceQuestionInput``
+        / ``DecisionJudgeScoreQuestionInput``, wrapped automatically), a question
+        read back from the API (``DecisionJudgeBooleanQuestion`` /
+        ``DecisionJudgeChoiceQuestion`` / ``DecisionJudgeScoreQuestion``), or a
+        plain ``dict`` whose ``type`` selects the variant.
+        """
+        if isinstance(item, DecisionJudgeQuestionInput):
+            return item
+        if isinstance(item, DecisionJudgeQuestionInputVariant):
+            return DecisionJudgeQuestionInput(item)
+        if isinstance(item, DecisionJudgeQuestionVariant):
+            item = item.to_dict()
+        if isinstance(item, dict):
+            return DecisionJudgeQuestionInput.from_dict(item)
+        raise TypeError(
+            "each question must be a Decision Judge question input or read "
+            "model, a DecisionJudgeQuestionInput, or a dict; "
+            f"got {type(item)!r}"
+        )
+
+    @classmethod
+    def _coerce_decision_judge_config(
+        cls, config: DecisionJudgeConfigInput | DecisionJudgeConfig | dict
+    ) -> DecisionJudgeConfigInput:
+        """Normalize a Decision Judge config to a ``DecisionJudgeConfigInput``.
+
+        Accepts a ``DecisionJudgeConfigInput`` (returned as-is), a
+        :class:`DecisionJudgeConfig` read back from the API (its read-only
+        ``data_granularity`` is dropped), or a ``dict`` with
+        ``ai_integration_id``, ``model_name``, ``state_template``, and
+        ``questions``. Questions in a read config or a dict may be any shape
+        :meth:`_coerce_decision_judge_question` accepts.
+        """
+        if isinstance(config, DecisionJudgeConfigInput):
+            return config
+        if isinstance(config, DecisionJudgeConfig):
+            fields: dict[str, Any] = {
+                "ai_integration_id": config.ai_integration_id,
+                "model_name": config.model_name,
+                "state_template": config.state_template,
+                "questions": config.questions,
+            }
+        elif isinstance(config, dict):
+            fields = {
+                k: v for k, v in config.items() if k != "data_granularity"
+            }
+        else:
+            raise TypeError(
+                "decision_judge_config must be a DecisionJudgeConfigInput, "
+                f"DecisionJudgeConfig, or dict; got {type(config)!r}"
+            )
+        fields["questions"] = [
+            cls._coerce_decision_judge_question(q)
+            for q in fields.get("questions") or []
+        ]
+        return DecisionJudgeConfigInput(**fields)
+
     # -------------------------------------------------------------------------
     # Evaluators
     # -------------------------------------------------------------------------
@@ -148,6 +226,7 @@ class EvaluatorsClient:
         *,
         name: str | None = None,
         space: str | None = None,
+        evaluator_type: EvaluatorType | None = None,
         limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
     ) -> ListEvaluatorsResponse:
@@ -158,11 +237,17 @@ class EvaluatorsClient:
         are limited to that space; otherwise evaluators from all permitted spaces
         are returned.
 
+        Decision Judge evaluators are returned only when ``evaluator_type`` is
+        :attr:`~arize.evaluators.types.EvaluatorType.DECISION_JUDGE`; without
+        a filter, evaluators of every other type are returned.
+
         Args:
             name: Optional case-insensitive substring filter on the evaluator name.
             space: Optional space filter. If the value is a base64-encoded resource ID it is
                 treated as a space ID; otherwise it is used as a case-insensitive
                 substring filter on the space name.
+            evaluator_type: Optional filter to a single evaluator type
+                (for example ``EvaluatorType.DECISION_JUDGE``).
             limit: Maximum number of evaluators to return (1-100).
             cursor: Opaque pagination cursor from a previous response.
 
@@ -173,12 +258,16 @@ class EvaluatorsClient:
             ApiException: If the API request fails.
         """
         resolved_space = _resolve_resource(space)
+        kwargs: dict[str, Any] = {}
+        if evaluator_type is not None:
+            kwargs["type"] = evaluator_type
         return self._api.list_evaluators(
             space_id=resolved_space.id,
             space_name=resolved_space.name,
             name=name,
             limit=limit,
             cursor=cursor,
+            **kwargs,
         )
 
     @prerelease_endpoint(key="evaluators.get", stage=ReleaseStage.BETA)
@@ -362,8 +451,7 @@ class EvaluatorsClient:
         Remote evaluators call a customer-hosted HTTP endpoint on each
         evaluation run. The endpoint must already exist as an ``EVALUATOR``
         integration (see :meth:`arize.ai_integrations.AiIntegrationsClient`).
-        The feature flag ``enableRemoteEvalTasks`` must be enabled on the
-        account.
+        Requires an Enterprise account.
 
         Args:
             name: Evaluator name (must be unique within the space).
@@ -394,6 +482,91 @@ class EvaluatorsClient:
             name=name,
             space_id=space_id,
             type=gen.EvaluatorType.REMOTE,
+            description=description,
+            version=version,
+        )
+        result = self._api.create_evaluator(create_evaluator_request=body)
+        return EvaluatorWithVersion.model_validate(result, from_attributes=True)
+
+    @prerelease_endpoint(
+        key="evaluators.create_decision_judge", stage=ReleaseStage.BETA
+    )
+    def create_decision_judge_evaluator(
+        self,
+        *,
+        name: str,
+        space: str,
+        commit_message: str,
+        decision_judge_config: DecisionJudgeConfigInput
+        | DecisionJudgeConfig
+        | dict,
+        description: str | None = None,
+    ) -> EvaluatorWithVersion:
+        """Create a new Decision Judge evaluator with an initial version.
+
+        A Decision Judge evaluator asks a set of typed questions about each
+        span and writes one result per question. It runs on spans only.
+        Decision Judge must be enabled for the account; otherwise the API
+        returns ``403``.
+
+        Args:
+            name: Evaluator name (must be unique within the space).
+            space: Space name or ID to create the evaluator in.
+            commit_message: Commit message for the initial version.
+            decision_judge_config: The Decision Judge configuration. Pass a
+                :class:`~arize.evaluators.types.DecisionJudgeConfigInput`
+                (questions wrapped in ``DecisionJudgeQuestionInput``), a
+                :class:`~arize.evaluators.types.DecisionJudgeConfig` read back
+                from an existing version, or a ``dict`` with these keys:
+
+                - ``ai_integration_id`` — ID of the AI integration that runs
+                  the evaluator. Its provider must support Decision Judge, and
+                  it must be available in the space.
+                - ``model_name`` — a Decision Judge model of the integration's
+                  provider (for example ``gpt-6-luna`` for OpenAI).
+                - ``state_template`` — the state sent to the model, with
+                  ``{variable}`` placeholders filled from span attributes.
+                - ``questions`` — 1 to 64 questions. Each is a
+                  ``DecisionJudgeBooleanQuestionInput``,
+                  ``DecisionJudgeChoiceQuestionInput``,
+                  ``DecisionJudgeScoreQuestionInput``, a question read back
+                  from the API, or a ``dict`` whose ``type`` selects the shape
+                  of ``criteria``: ``BOOLEAN`` takes optional ``true_means``
+                  and ``false_means``; ``CHOICE`` takes ``options``, 2 to 255
+                  labels mapped to when each applies; ``SCORE`` takes
+                  ``levels``, 2 to 10 descriptions from lowest to highest,
+                  plus an optional ``direction`` (defaults to ``MAXIMIZE``).
+
+                Question names must be unique within the evaluator
+                (case-insensitive). Each question writes its own result,
+                named ``eval.<evaluator name> <question name>.label`` and
+                ``.score``.
+            description: Optional human-readable description of the evaluator.
+
+        Returns:
+            The created evaluator with its initial version.
+
+        Raises:
+            TypeError: If the config or a question has an unsupported type.
+            ValueError: If the config or a question does not match its shape.
+            ApiException: If the API request fails (for example, name
+                conflict, invalid payload, or Decision Judge not enabled).
+        """
+        from arize._generated import api_client as gen
+
+        version = gen.CreateEvaluatorVersionRequest(
+            CreateDecisionJudgeEvaluatorVersionRequest(
+                commit_message=commit_message,
+                decision_judge_config=self._coerce_decision_judge_config(
+                    decision_judge_config
+                ),
+            )
+        )
+        space_id = _find_space_id(self._spaces_api, space)
+        body = gen.CreateEvaluatorRequest(
+            name=name,
+            space_id=space_id,
+            type=gen.EvaluatorType.DECISION_JUDGE,
             description=description,
             version=version,
         )
@@ -582,6 +755,7 @@ class EvaluatorsClient:
         | EvaluatorVersionTemplate
         | EvaluatorVersionHarness
         | EvaluatorVersionRemote
+        | EvaluatorVersionDecisionJudge
     ):
         """Get a specific evaluator version by its global ID.
 
@@ -594,7 +768,9 @@ class EvaluatorsClient:
             :class:`EvaluatorVersionTemplate` for template evaluators, or an
             :class:`EvaluatorVersionHarness` / :class:`EvaluatorVersionRemote`
             for harness and remote evaluators. Remote evaluators include
-            ``remote_config`` with the referenced integration ID.
+            ``remote_config`` with the referenced integration ID. Decision
+            Judge evaluators return an :class:`EvaluatorVersionDecisionJudge`
+            with its questions unwrapped to their concrete types.
 
         Raises:
             ApiException: If the API request fails
@@ -604,6 +780,10 @@ class EvaluatorsClient:
         v = unwrap_oneof(result)
         if isinstance(v, _GenEvaluatorVersionCode):
             return EvaluatorVersionCode.model_validate(v, from_attributes=True)
+        if isinstance(v, _GenEvaluatorVersionDecisionJudge):
+            return EvaluatorVersionDecisionJudge.model_validate(
+                v, from_attributes=True
+            )
         return v  # type: ignore[return-value]
 
     @prerelease_endpoint(
@@ -737,9 +917,7 @@ class EvaluatorsClient:
         append-only). Versions are immutable once created; to change the
         configuration, create a new version.
 
-        The feature flag ``enableRemoteEvalTasks`` must be enabled on the
-        account, and the referenced integration must be an ``EVALUATOR``
-        integration.
+        Requires an Enterprise account and an ``EVALUATOR`` integration.
 
         Args:
             evaluator: Evaluator name or identifier (base64) to add a version
@@ -778,3 +956,95 @@ class EvaluatorsClient:
             create_evaluator_version_request=body,
         )
         return unwrap_oneof(result)  # type: ignore[return-value]
+
+    @prerelease_endpoint(
+        key="evaluators.create_decision_judge_version", stage=ReleaseStage.BETA
+    )
+    def create_decision_judge_version(
+        self,
+        *,
+        evaluator: str,
+        space: str | None = None,
+        commit_message: str,
+        decision_judge_config: DecisionJudgeConfigInput
+        | DecisionJudgeConfig
+        | dict,
+    ) -> EvaluatorVersionDecisionJudge:
+        """Create a new Decision Judge version of an existing evaluator.
+
+        The new version becomes the latest version immediately (versioning is
+        append-only). It replaces the whole configuration, including every
+        question, so pass all the questions the version should ask.
+        Decision Judge must be enabled for the account.
+
+        Args:
+            evaluator: Evaluator name or identifier (base64) to add a version
+                to.
+            space: Optional space name or ID. Required when ``evaluator`` is a
+                name rather than an ID.
+            commit_message: Commit message describing the changes in this
+                version.
+            decision_judge_config: The Decision Judge configuration. Pass a
+                :class:`~arize.evaluators.types.DecisionJudgeConfigInput`
+                (questions wrapped in ``DecisionJudgeQuestionInput``), a
+                :class:`~arize.evaluators.types.DecisionJudgeConfig` read back
+                from an existing version, or a ``dict`` with these keys:
+
+                - ``ai_integration_id`` — ID of the AI integration that runs
+                  the evaluator. Its provider must support Decision Judge, and
+                  it must be available in the space.
+                - ``model_name`` — a Decision Judge model of the integration's
+                  provider (for example ``gpt-6-luna`` for OpenAI).
+                - ``state_template`` — the state sent to the model, with
+                  ``{variable}`` placeholders filled from span attributes.
+                - ``questions`` — 1 to 64 questions. Each is a
+                  ``DecisionJudgeBooleanQuestionInput``,
+                  ``DecisionJudgeChoiceQuestionInput``,
+                  ``DecisionJudgeScoreQuestionInput``, a question read back
+                  from the API, or a ``dict`` whose ``type`` selects the shape
+                  of ``criteria``: ``BOOLEAN`` takes optional ``true_means``
+                  and ``false_means``; ``CHOICE`` takes ``options``, 2 to 255
+                  labels mapped to when each applies; ``SCORE`` takes
+                  ``levels``, 2 to 10 descriptions from lowest to highest,
+                  plus an optional ``direction`` (defaults to ``MAXIMIZE``).
+
+                Question names must be unique within the evaluator
+                (case-insensitive). Each question writes its own result,
+                named ``eval.<evaluator name> <question name>.label`` and
+                ``.score``.
+
+        Returns:
+            The newly created Decision Judge evaluator version, with its
+            questions unwrapped to their concrete types.
+
+        Raises:
+            TypeError: If the config or a question has an unsupported type.
+            ValueError: If the config or a question does not match its shape.
+            ApiException: If the API request fails (for example, the
+                evaluator is not a Decision Judge evaluator, or Decision Judge
+                is not enabled).
+        """
+        from arize._generated import api_client as gen
+
+        evaluator_id = _find_evaluator_id(
+            api=self._api,
+            spaces_api=self._spaces_api,
+            evaluator=evaluator,
+            space=space,
+            evaluator_type=EvaluatorType.DECISION_JUDGE,
+        )
+        body = gen.CreateEvaluatorVersionRequest(
+            CreateDecisionJudgeEvaluatorVersionRequest(
+                commit_message=commit_message,
+                decision_judge_config=self._coerce_decision_judge_config(
+                    decision_judge_config
+                ),
+            )
+        )
+        result = self._api.create_evaluator_version(
+            evaluator_id=evaluator_id,
+            create_evaluator_version_request=body,
+        )
+        return EvaluatorVersionDecisionJudge.model_validate(
+            unwrap_oneof(result), from_attributes=True
+        )

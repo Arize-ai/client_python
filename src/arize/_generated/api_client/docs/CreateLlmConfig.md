@@ -6,8 +6,8 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **is_function_calling_enabled** | **bool** | Enable function/tool calling. Defaults to true. | [optional] 
-**provider** | **str** | Discriminator identifying the Together AI provider. | 
-**api_key** | **str** | Together AI API key (write-only, never returned). | 
+**provider** | **str** | Discriminator identifying the Cloudflare provider. | 
+**api_key** | **str** | Cloudflare API token (write-only, never returned). | 
 **base_url** | **str** | LiteLLM endpoint URL requests are sent to (HTTPS). | 
 **auth** | [**CreateCustomAuth**](CreateCustomAuth.md) |  | 
 **is_default_models_enabled** | **bool** | Enable Arize&#39;s default model catalog. Defaults to false. | [optional] 
@@ -16,6 +16,7 @@ Name | Type | Description | Notes
 **project_id** | **str** | GCP project ID Arize accesses Vertex through. | 
 **location** | **str** | GCP region (e.g. us-central1). | 
 **project_access_label** | **str** | Label used to verify Arize&#39;s access to the GCP project. | 
+**account_id** | **str** | The 32-character Cloudflare account ID. | 
 
 ## Example
 

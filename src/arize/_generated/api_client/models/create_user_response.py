@@ -34,7 +34,7 @@ class CreateUserResponse(BaseModel):
     name: Optional[StrictStr] = Field(default=None, description="Full name of the user")
     email: Optional[StrictStr] = Field(default=None, description="Email address of the user")
     role: Optional[UserRoleAssignment] = None
-    created_at: Optional[datetime] = Field(default=None, description="Timestamp for when the user was created")
+    created_at: Optional[datetime] = Field(default=None, description="Timestamp for when the user or invitation was created")
     status: Optional[UserStatus] = None
     is_developer: Optional[StrictBool] = Field(default=None, description="Whether the user has developer permissions (can use the Arize API)")
     invite_mode: Optional[InviteMode] = Field(default=None, description="The invite mode used when the user was created.")

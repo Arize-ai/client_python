@@ -18,23 +18,26 @@ import pprint
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
 from typing import Any, List, Optional
 from arize._generated.api_client.models.aws_provider_metadata_request import AwsProviderMetadataRequest
+from arize._generated.api_client.models.cloudflare_provider_metadata_request import CloudflareProviderMetadataRequest
 from arize._generated.api_client.models.gcp_provider_metadata_request import GcpProviderMetadataRequest
 from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-PROVIDERMETADATAREQUEST_ONE_OF_SCHEMAS = ["AwsProviderMetadataRequest", "GcpProviderMetadataRequest"]
+PROVIDERMETADATAREQUEST_ONE_OF_SCHEMAS = ["AwsProviderMetadataRequest", "CloudflareProviderMetadataRequest", "GcpProviderMetadataRequest"]
 
 class ProviderMetadataRequest(BaseModel):
     """
-    Strict request form of ProviderMetadata. For AWS_BEDROCK, must include role_arn. For VERTEX_AI, must include project_id, location, and project_access_label.
+    Strict request form of ProviderMetadata. For AWS_BEDROCK, must include role_arn. For VERTEX_AI, must include project_id, location, and project_access_label. For CLOUDFLARE, must include account_id.
     """
     # data type: AwsProviderMetadataRequest
     oneof_schema_1_validator: Optional[AwsProviderMetadataRequest] = None
     # data type: GcpProviderMetadataRequest
     oneof_schema_2_validator: Optional[GcpProviderMetadataRequest] = None
-    actual_instance: Optional[Union[AwsProviderMetadataRequest, GcpProviderMetadataRequest]] = None
-    one_of_schemas: Set[str] = { "AwsProviderMetadataRequest", "GcpProviderMetadataRequest" }
+    # data type: CloudflareProviderMetadataRequest
+    oneof_schema_3_validator: Optional[CloudflareProviderMetadataRequest] = None
+    actual_instance: Optional[Union[AwsProviderMetadataRequest, CloudflareProviderMetadataRequest, GcpProviderMetadataRequest]] = None
+    one_of_schemas: Set[str] = { "AwsProviderMetadataRequest", "CloudflareProviderMetadataRequest", "GcpProviderMetadataRequest" }
 
     model_config = ConfigDict(
         validate_assignment=True,
@@ -70,12 +73,17 @@ class ProviderMetadataRequest(BaseModel):
             error_messages.append(f"Error! Input type `{type(v)}` is not `GcpProviderMetadataRequest`")
         else:
             match += 1
+        # validate data type: CloudflareProviderMetadataRequest
+        if not isinstance(v, CloudflareProviderMetadataRequest):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `CloudflareProviderMetadataRequest`")
+        else:
+            match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in ProviderMetadataRequest with oneOf schemas: AwsProviderMetadataRequest, GcpProviderMetadataRequest. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in ProviderMetadataRequest with oneOf schemas: AwsProviderMetadataRequest, CloudflareProviderMetadataRequest, GcpProviderMetadataRequest. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in ProviderMetadataRequest with oneOf schemas: AwsProviderMetadataRequest, GcpProviderMetadataRequest. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in ProviderMetadataRequest with oneOf schemas: AwsProviderMetadataRequest, CloudflareProviderMetadataRequest, GcpProviderMetadataRequest. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -102,13 +110,19 @@ class ProviderMetadataRequest(BaseModel):
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
+        # deserialize data into CloudflareProviderMetadataRequest
+        try:
+            instance.actual_instance = CloudflareProviderMetadataRequest.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into ProviderMetadataRequest with oneOf schemas: AwsProviderMetadataRequest, GcpProviderMetadataRequest. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into ProviderMetadataRequest with oneOf schemas: AwsProviderMetadataRequest, CloudflareProviderMetadataRequest, GcpProviderMetadataRequest. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into ProviderMetadataRequest with oneOf schemas: AwsProviderMetadataRequest, GcpProviderMetadataRequest. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into ProviderMetadataRequest with oneOf schemas: AwsProviderMetadataRequest, CloudflareProviderMetadataRequest, GcpProviderMetadataRequest. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -122,7 +136,7 @@ class ProviderMetadataRequest(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], AwsProviderMetadataRequest, GcpProviderMetadataRequest]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], AwsProviderMetadataRequest, CloudflareProviderMetadataRequest, GcpProviderMetadataRequest]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

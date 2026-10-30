@@ -18,23 +18,26 @@ import pprint
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
 from typing import Any, List, Optional
 from arize._generated.api_client.models.aws_provider_metadata import AwsProviderMetadata
+from arize._generated.api_client.models.cloudflare_provider_metadata import CloudflareProviderMetadata
 from arize._generated.api_client.models.gcp_provider_metadata import GcpProviderMetadata
 from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-PROVIDERMETADATA_ONE_OF_SCHEMAS = ["AwsProviderMetadata", "GcpProviderMetadata"]
+PROVIDERMETADATA_ONE_OF_SCHEMAS = ["AwsProviderMetadata", "CloudflareProviderMetadata", "GcpProviderMetadata"]
 
 class ProviderMetadata(BaseModel):
     """
-    Provider-specific configuration. For AWS_BEDROCK, must include role_arn. For VERTEX_AI, must include project_id, location, and project_access_label.
+    Provider-specific configuration. For AWS_BEDROCK, must include role_arn. For VERTEX_AI, must include project_id, location, and project_access_label. For CLOUDFLARE, must include account_id.
     """
     # data type: AwsProviderMetadata
     oneof_schema_1_validator: Optional[AwsProviderMetadata] = None
     # data type: GcpProviderMetadata
     oneof_schema_2_validator: Optional[GcpProviderMetadata] = None
-    actual_instance: Optional[Union[AwsProviderMetadata, GcpProviderMetadata]] = None
-    one_of_schemas: Set[str] = { "AwsProviderMetadata", "GcpProviderMetadata" }
+    # data type: CloudflareProviderMetadata
+    oneof_schema_3_validator: Optional[CloudflareProviderMetadata] = None
+    actual_instance: Optional[Union[AwsProviderMetadata, CloudflareProviderMetadata, GcpProviderMetadata]] = None
+    one_of_schemas: Set[str] = { "AwsProviderMetadata", "CloudflareProviderMetadata", "GcpProviderMetadata" }
 
     model_config = ConfigDict(
         validate_assignment=True,
@@ -70,12 +73,17 @@ class ProviderMetadata(BaseModel):
             error_messages.append(f"Error! Input type `{type(v)}` is not `GcpProviderMetadata`")
         else:
             match += 1
+        # validate data type: CloudflareProviderMetadata
+        if not isinstance(v, CloudflareProviderMetadata):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `CloudflareProviderMetadata`")
+        else:
+            match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in ProviderMetadata with oneOf schemas: AwsProviderMetadata, GcpProviderMetadata. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in ProviderMetadata with oneOf schemas: AwsProviderMetadata, CloudflareProviderMetadata, GcpProviderMetadata. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in ProviderMetadata with oneOf schemas: AwsProviderMetadata, GcpProviderMetadata. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in ProviderMetadata with oneOf schemas: AwsProviderMetadata, CloudflareProviderMetadata, GcpProviderMetadata. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -92,6 +100,8 @@ class ProviderMetadata(BaseModel):
                 return cls(actual_instance=AwsProviderMetadata.from_dict(payload))
             if payload['kind'] == 'GCP':
                 return cls(actual_instance=GcpProviderMetadata.from_dict(payload))
+            if payload['kind'] == 'CLOUDFLARE':
+                return cls(actual_instance=CloudflareProviderMetadata.from_dict(payload))
         raise ValueError('Cannot identify ProviderMetadata response: expected a supported kind value')
 
     def to_json(self) -> str:
@@ -104,7 +114,7 @@ class ProviderMetadata(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], AwsProviderMetadata, GcpProviderMetadata]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], AwsProviderMetadata, CloudflareProviderMetadata, GcpProviderMetadata]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

@@ -28,6 +28,9 @@ from arize._generated.api_client.models.run_configuration import (
 from arize._generated.api_client.models.run_configuration_request import (
     RunConfigurationRequest,
 )
+from arize._generated.api_client.models.span_evaluator_input import (
+    SpanEvaluatorInput,
+)
 from arize._generated.api_client.models.task_evaluator import TaskEvaluator
 from arize._generated.api_client.models.task_evaluator_input import (
     TaskEvaluatorInput,
@@ -125,6 +128,7 @@ __all__ = [
     "RunConfiguration",
     "RunConfigurationRequest",
     "RunStatus",
+    "SpanEvaluatorInput",
     "Task",
     "TaskEvaluator",
     "TaskEvaluatorInput",

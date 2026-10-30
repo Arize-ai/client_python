@@ -25,6 +25,7 @@ if TYPE_CHECKING:
         AiIntegrationProvider,
         AiIntegrationScopingRequest,
         AwsProviderMetadataRequest,
+        CloudflareProviderMetadataRequest,
         GcpProviderMetadataRequest,
         ListAiIntegrationsResponse,
     )
@@ -70,6 +71,7 @@ class AiIntegrationsClient:
         *,
         name: str | None = None,
         space: str | None = None,
+        provider: AiIntegrationProvider | None = None,
         limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
     ) -> ListAiIntegrationsResponse:
@@ -78,11 +80,18 @@ class AiIntegrationsClient:
         This endpoint supports cursor-based pagination. When provided,
         ``space`` filters results to a particular space.
 
+        ``TYPE_SAFE_AI``, ``PERPLEXITY``, and ``CLOUDFLARE`` integrations are
+        used only by Decision Judge evaluators and are returned only when
+        ``provider`` names them; without ``provider``, integrations of every
+        other provider are returned.
+
         Args:
             name: Optional case-insensitive substring filter on the integration name.
             space: Optional space filter. If the value is a base64-encoded resource ID it is
                 treated as a space ID; otherwise it is used as a case-insensitive
                 substring filter on the space name.
+            provider: Optional filter to a single provider (for example
+                ``AiIntegrationProvider.CLOUDFLARE``).
             limit: Maximum number of integrations to return. The server may enforce
                 an upper bound (max 100).
             cursor: Opaque pagination cursor from a previous response.
@@ -94,12 +103,16 @@ class AiIntegrationsClient:
             ApiException: If the API request fails.
         """
         resolved_space = _resolve_resource(space)
+        kwargs: dict[str, Any] = {}
+        if provider is not None:
+            kwargs["provider"] = provider
         return self._api.list_ai_integrations(
             space_id=resolved_space.id,
             space_name=resolved_space.name,
             name=name,
             limit=limit,
             cursor=cursor,
+            **kwargs,
         )
 
     @prerelease_endpoint(key="ai_integrations.get", stage=ReleaseStage.ALPHA)
@@ -143,6 +156,7 @@ class AiIntegrationsClient:
         auth_type: AiIntegrationAuthType | None = None,
         provider_metadata: AwsProviderMetadataRequest
         | GcpProviderMetadataRequest
+        | CloudflareProviderMetadataRequest
         | None = None,
         scopings: builtins.list[AiIntegrationScopingRequest] | None = None,
     ) -> AiIntegration:
@@ -153,6 +167,15 @@ class AiIntegrationsClient:
         For ``AWS_BEDROCK`` provider, ``provider_metadata`` must include ``role_arn``.
         For ``VERTEX_AI`` provider, ``provider_metadata`` must include ``project_id``,
         ``location``, and ``project_access_label``.
+        For ``CLOUDFLARE`` provider, ``provider_metadata`` must be a
+        ``CloudflareProviderMetadataRequest`` with the 32-character
+        ``account_id``.
+
+        ``TYPE_SAFE_AI``, ``PERPLEXITY``, and ``CLOUDFLARE`` integrations are
+        used only by Decision Judge evaluators. They require ``api_key`` and
+        reject ``base_url``, non-empty ``model_names`` or ``headers``,
+        ``enable_default_models=True``, ``function_calling_enabled=True``, and
+        any ``auth_type`` other than ``DEFAULT`` with a 422.
 
         Args:
             name: Integration name (must be unique within the account).
@@ -167,9 +190,10 @@ class AiIntegrationsClient:
             function_calling_enabled: Enable function/tool calling.
                 Defaults to ``True`` if not provided.
             auth_type: Authentication type. Defaults to ``DEFAULT`` if not provided.
-            provider_metadata: Typed provider metadata (``AwsProviderMetadataRequest``
-                or ``GcpProviderMetadataRequest``), including the required ``kind``
-                discriminator.
+            provider_metadata: Typed provider metadata (``AwsProviderMetadataRequest``,
+                ``GcpProviderMetadataRequest``, or
+                ``CloudflareProviderMetadataRequest``), including the required
+                ``kind`` discriminator.
             scopings: Visibility scoping rules. Defaults to account-wide if omitted.
 
         Returns:
@@ -219,6 +243,7 @@ class AiIntegrationsClient:
         auth_type: AiIntegrationAuthType | None | UNSET = _UNSET,
         provider_metadata: AwsProviderMetadataRequest
         | GcpProviderMetadataRequest
+        | CloudflareProviderMetadataRequest
         | None
         | UNSET = _UNSET,
         scopings: builtins.list[AiIntegrationScopingRequest]
@@ -245,8 +270,9 @@ class AiIntegrationsClient:
             function_calling_enabled: Updated function calling flag.
             auth_type: Updated authentication type.
             provider_metadata: Updated typed provider metadata
-                (``AwsProviderMetadataRequest`` or ``GcpProviderMetadataRequest``).
-                Pass ``None`` to clear.
+                (``AwsProviderMetadataRequest``, ``GcpProviderMetadataRequest``,
+                or ``CloudflareProviderMetadataRequest``). Pass ``None`` to
+                clear (``CLOUDFLARE`` metadata cannot be removed).
             scopings: Updated visibility scoping rules (replaces all existing).
 
         Returns:

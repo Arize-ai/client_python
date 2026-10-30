@@ -10,6 +10,7 @@ from arize.constants.config import DEFAULT_LIST_LIMIT
 from arize.integrations.types import (
     CreateAnthropicConfig,
     CreateAwsBedrockConfig,
+    CreateCloudflareConfig,
     CreateCustomConfig,
     CreateFireworksConfig,
     CreateGeminiConfig,
@@ -17,10 +18,13 @@ from arize.integrations.types import (
     CreateLlmConfig,
     CreateNvidiaNimConfig,
     CreateOpenAiConfig,
+    CreatePerplexityConfig,
     CreateTogetherAiConfig,
+    CreateTypeSafeAiConfig,
     CreateVertexAiConfig,
     IntegrationType,
     ListIntegrationsResponse,
+    LlmIntegrationProvider,
 )
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.utils.resolve import (
@@ -49,7 +53,7 @@ if TYPE_CHECKING:
 
 # The provider-discriminated config accepted by ``create_llm``. Callers
 # construct the generated per-provider config for the provider they want
-# (all 10 are supported); a pre-wrapped ``CreateLlmConfig`` is also accepted.
+# (all 13 are supported); a pre-wrapped ``CreateLlmConfig`` is also accepted.
 # Declared at runtime (not under TYPE_CHECKING) so downstream consumers such as
 # the ax CLI can import and reference it.
 CreateLlmConfigInput = (
@@ -63,6 +67,9 @@ CreateLlmConfigInput = (
     | CreateLiteLlmConfig
     | CreateFireworksConfig
     | CreateTogetherAiConfig
+    | CreateTypeSafeAiConfig
+    | CreatePerplexityConfig
+    | CreateCloudflareConfig
     | CreateLlmConfig
 )
 
@@ -82,10 +89,13 @@ class IntegrationsClient:
 
     Integrations are polymorphic: ``LLM`` integrations configure a model
     provider (``OPEN_AI``, ``ANTHROPIC``, ``GEMINI``, ``AWS_BEDROCK``,
-    ``CUSTOM``, ``VERTEX_AI``, ``NVIDIA_NIM``, ``LITELLM``, ``FIREWORKS``, or
-    ``TOGETHER_AI``), while ``AGENT`` integrations connect a customer-hosted
-    agent exposed at an HTTP endpoint. The integration
+    ``CUSTOM``, ``VERTEX_AI``, ``NVIDIA_NIM``, ``LITELLM``, ``FIREWORKS``,
+    ``TOGETHER_AI``, ``TYPE_SAFE_AI``, ``PERPLEXITY``, or ``CLOUDFLARE``),
+    while ``AGENT`` integrations connect a customer-hosted agent exposed at an
+    HTTP endpoint. The integration
     :class:`~arize.integrations.types.IntegrationType` selects the config shape.
+    ``TYPE_SAFE_AI``, ``PERPLEXITY``, and ``CLOUDFLARE`` integrations are used
+    only by Decision Judge evaluators.
     """
 
     def __init__(
@@ -108,6 +118,7 @@ class IntegrationsClient:
         self,
         *,
         integration_type: IntegrationType | None = None,
+        provider: LlmIntegrationProvider | None = None,
         name: str | None = None,
         space: str | None = None,
         limit: int = DEFAULT_LIST_LIMIT,
@@ -120,10 +131,19 @@ class IntegrationsClient:
         are returned in descending creation order (most recently created
         first).
 
+        ``TYPE_SAFE_AI``, ``PERPLEXITY``, and ``CLOUDFLARE`` integrations are
+        used only by Decision Judge evaluators and are returned only when
+        *provider* names them; without *provider*, integrations of every other
+        provider are returned.
+
         Args:
             integration_type: Optional filter to a single integration type
                 (:attr:`~arize.integrations.types.IntegrationType.LLM` or
                 :attr:`~arize.integrations.types.IntegrationType.AGENT`).
+            provider: Optional filter to ``LLM`` integrations of a single
+                provider (for example ``LlmIntegrationProvider.CLOUDFLARE``).
+                Implies the ``LLM`` type; combining it with any other
+                *integration_type* returns a 400.
             name: Optional case-insensitive substring filter on the integration name.
             space: Optional space filter. If the value is a base64-encoded resource ID it is
                 treated as a space ID; otherwise it is used as a case-insensitive
@@ -140,6 +160,9 @@ class IntegrationsClient:
                 returns an error response (e.g. 400/401/403/429).
         """
         resolved_space = _resolve_resource(space)
+        kwargs: dict[str, Any] = {}
+        if provider is not None:
+            kwargs["provider"] = provider
         result = self._api.list_integrations(
             type=integration_type,
             space_id=resolved_space.id,
@@ -147,6 +170,7 @@ class IntegrationsClient:
             name=name,
             limit=limit,
             cursor=cursor,
+            **kwargs,
         )
         return ListIntegrationsResponse.model_validate(
             result, from_attributes=True
@@ -202,7 +226,7 @@ class IntegrationsClient:
         """Create an LLM integration.
 
         LLM integrations configure access to a model provider for use within
-        the Arize platform. All 10 providers are supported; construct the
+        the Arize platform. All 13 providers are supported; construct the
         matching generated config for the ``config`` argument:
 
         - ``OPEN_AI`` — :class:`~arize.integrations.types.CreateOpenAiConfig`
@@ -217,12 +241,24 @@ class IntegrationsClient:
         - ``LITELLM`` — :class:`~arize.integrations.types.CreateLiteLlmConfig`
         - ``FIREWORKS`` — :class:`~arize.integrations.types.CreateFireworksConfig`
         - ``TOGETHER_AI`` — :class:`~arize.integrations.types.CreateTogetherAiConfig`
+        - ``TYPE_SAFE_AI`` — :class:`~arize.integrations.types.CreateTypeSafeAiConfig`
+        - ``PERPLEXITY`` — :class:`~arize.integrations.types.CreatePerplexityConfig`
+        - ``CLOUDFLARE`` — :class:`~arize.integrations.types.CreateCloudflareConfig`
+          (needs the 32-character Cloudflare ``account_id``)
+
+        ``TYPE_SAFE_AI``, ``PERPLEXITY``, and ``CLOUDFLARE`` integrations are
+        used only by Decision Judge evaluators. They take only an API key (and
+        ``account_id`` for Cloudflare): no base URL, headers, or model list.
+        Creating one returns a 400 when this deployment has not enabled that
+        provider. That is a deployment setting, separate from the account's
+        Decision Judge access, which the evaluator and task calls report as
+        a 403.
 
         Integration names must be unique within the account for the ``LLM`` type.
 
         Args:
             name: Integration name (must be unique within the account per type).
-            config: The provider-specific config. Accepts any of the 10 generated
+            config: The provider-specific config. Accepts any of the 13 generated
                 per-provider ``Create*Config`` objects, or a pre-wrapped
                 :class:`~arize.integrations.types.CreateLlmConfig` union.
             scopings: Visibility scoping rules. Defaults to account-wide if omitted.
@@ -326,6 +362,7 @@ class IntegrationsClient:
         project_id: str | UNSET = _UNSET,
         location: str | UNSET = _UNSET,
         project_access_label: str | UNSET = _UNSET,
+        account_id: str | UNSET = _UNSET,
         scopings: builtins.list[IntegrationScopingRequest] | UNSET = _UNSET,
     ) -> LlmIntegration:
         """Update an LLM integration by ID or name.
@@ -338,8 +375,12 @@ class IntegrationsClient:
         rejects fields that do not apply to the stored provider with a 422, so
         pass only the fields valid for that provider:
 
-        - ``api_key``, ``function_calling_enabled`` — all providers except
-          ``AWS_BEDROCK`` and ``VERTEX_AI``.
+        - ``api_key`` — all providers except ``AWS_BEDROCK`` and
+          ``VERTEX_AI``. ``TYPE_SAFE_AI``, ``PERPLEXITY``, and ``CLOUDFLARE``
+          keys can be rotated but not cleared.
+        - ``function_calling_enabled`` — all providers except
+          ``AWS_BEDROCK``, ``VERTEX_AI``, ``TYPE_SAFE_AI``, ``PERPLEXITY``,
+          and ``CLOUDFLARE``.
         - ``auth`` — ``AWS_BEDROCK`` only; replaces the stored auth wholesale.
         - ``base_url``, ``headers`` — ``CUSTOM``, ``NVIDIA_NIM``, and
           ``LITELLM`` only.
@@ -349,6 +390,7 @@ class IntegrationsClient:
           ``LITELLM``, ``FIREWORKS``, and ``TOGETHER_AI`` only.
         - ``project_id``, ``location``, ``project_access_label`` —
           ``VERTEX_AI`` only.
+        - ``account_id`` — ``CLOUDFLARE`` only.
 
         Nullable fields (``api_key``, ``base_url``, ``headers``) accept an
         explicit ``None`` to clear them (omit to keep unchanged).
@@ -373,6 +415,7 @@ class IntegrationsClient:
             project_id: New Vertex AI GCP project ID.
             location: New Vertex AI GCP region.
             project_access_label: New Vertex AI project-access label.
+            account_id: New 32-character Cloudflare account ID.
             scopings: Replacement visibility scoping rules (replaces all existing).
 
         Returns:
@@ -401,6 +444,7 @@ class IntegrationsClient:
                 ("project_id", project_id),
                 ("location", location),
                 ("project_access_label", project_access_label),
+                ("account_id", account_id),
             )
             if is_provided(v)
         }
