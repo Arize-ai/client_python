@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.63.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.62.0...arize-python-sdk/v8.63.0) (2026-11-03)
+
+
+### 🎁 New Features
+
+* **integrations:** Add deepseek support ([#93889](https://github.com/Arize-ai/arize/issues/93889)) ([b4e98a4](https://github.com/Arize-ai/arize/commit/b4e98a4be9d1dce98f1d845617118146dfa31007))
+
 ## [8.62.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.61.0...arize-python-sdk/v8.62.0) (2026-10-30)
 
 
@@ -20,7 +27,7 @@
 
 ### 🎁 New Features
 
-* **api:** add ONLINE_TASK and SPACE webhook subscription sources ([#91537](https://github.com/Arize-ai/arize/issues/91537)) ([7619ff8](https://github.com/Arize-ai/arize/commit/7619ff889904c860d2682d7e675ad3e7082dbd15))
+* **tasks:** add ONLINE_TASK and SPACE webhook subscription sources ([#91537](https://github.com/Arize-ai/arize/issues/91537)) ([7619ff8](https://github.com/Arize-ai/arize/commit/7619ff889904c860d2682d7e675ad3e7082dbd15))
 
 
 ### 🐛 Bug Fixes
@@ -32,7 +39,7 @@
 
 ### 🎁 New Features
 
-* **api:** [1/4] update space default settings via REST ([#90730](https://github.com/Arize-ai/arize/issues/90730)) ([dc0cdbc](https://github.com/Arize-ai/arize/commit/dc0cdbc91df728990ccc7014beab473ef1716074))
+* **spaces:** update space default settings ([#90730](https://github.com/Arize-ai/arize/issues/90730)) ([dc0cdbc](https://github.com/Arize-ai/arize/commit/dc0cdbc91df728990ccc7014beab473ef1716074))
 * **audit-logs:** filter authenticated logs by operation name ([#89110](https://github.com/Arize-ai/arize/issues/89110)) ([087349e](https://github.com/Arize-ai/arize/commit/087349e0d4dafc66761453821d24661ede5c4a74))
 
 ## [8.59.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.59.0...arize-python-sdk/v8.59.1) (2026-10-14)

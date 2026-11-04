@@ -50,7 +50,6 @@ class TestWidgetPlot(unittest.TestCase):
                 dimension_name = '',
                 dimension_data_type = '',
                 prediction_value_class = '',
-                metric_id = 56,
                 metric = '',
                 custom_metric_id = '',
                 ranking_at_k = 56,

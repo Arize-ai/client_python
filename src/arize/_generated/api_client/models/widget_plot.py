@@ -41,7 +41,6 @@ class WidgetPlot(BaseModel):
     dimension_name: Optional[StrictStr] = Field(default=None, description="Name of the selected dimension.")
     dimension_data_type: Optional[StrictStr] = Field(default=None, description="Data type of the selected dimension.")
     prediction_value_class: Optional[StrictStr] = Field(default=None, description="Prediction class selected for class-specific metrics.")
-    metric_id: Optional[StrictInt] = Field(default=None, description="Saved numeric ID for the selected built-in metric.")
     metric: Optional[StrictStr] = Field(default=None, description="Selected built-in metric identifier, such as accuracy or count.")
     custom_metric_id: Optional[StrictStr] = Field(default=None, description="Custom metric represented by the plot.")
     ranking_at_k: Optional[StrictInt] = Field(default=None, description="Ranking cutoff used by ranking metrics.")
@@ -66,7 +65,7 @@ class WidgetPlot(BaseModel):
     color_by_dimension_category: Optional[StrictStr] = Field(default=None, description="Category of the dimension used to assign series colors.")
     dataset_source: Optional[DatasetSource] = Field(default=None, description="Dataset-backed source configuration for the plot.")
     filters: Optional[List[WidgetFilter]] = Field(default=None, description="Filters applied before computing the plot.")
-    __properties: ClassVar[List[str]] = ["id", "position", "title", "model_id", "model_version_ids", "model_environment_name", "model_version_environment_metadata_ids", "dimension_category", "dimension_name", "dimension_data_type", "prediction_value_class", "metric_id", "metric", "custom_metric_id", "ranking_at_k", "comparison_model_baseline_id", "comparison_reference_source", "comparison_reference_value", "metric_aggregation_type", "split_by_enabled", "split_by_dimension", "split_by_dimension_category", "split_by_overall_metric_enabled", "split_by_all_values_live_update_enabled", "cohorts", "colors", "stack_dimension_name", "stack_dimension_category", "x_axis_dimension_name", "x_axis_dimension_category", "y_axis_dimension_name", "y_axis_dimension_category", "color_by_dimension_name", "color_by_dimension_category", "dataset_source", "filters"]
+    __properties: ClassVar[List[str]] = ["id", "position", "title", "model_id", "model_version_ids", "model_environment_name", "model_version_environment_metadata_ids", "dimension_category", "dimension_name", "dimension_data_type", "prediction_value_class", "metric", "custom_metric_id", "ranking_at_k", "comparison_model_baseline_id", "comparison_reference_source", "comparison_reference_value", "metric_aggregation_type", "split_by_enabled", "split_by_dimension", "split_by_dimension_category", "split_by_overall_metric_enabled", "split_by_all_values_live_update_enabled", "cohorts", "colors", "stack_dimension_name", "stack_dimension_category", "x_axis_dimension_name", "x_axis_dimension_category", "y_axis_dimension_name", "y_axis_dimension_category", "color_by_dimension_name", "color_by_dimension_category", "dataset_source", "filters"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -149,11 +148,6 @@ class WidgetPlot(BaseModel):
         # and model_fields_set contains the field
         if self.prediction_value_class is None and "prediction_value_class" in self.model_fields_set:
             _dict['prediction_value_class'] = None
-
-        # set to None if metric_id (nullable) is None
-        # and model_fields_set contains the field
-        if self.metric_id is None and "metric_id" in self.model_fields_set:
-            _dict['metric_id'] = None
 
         # set to None if metric (nullable) is None
         # and model_fields_set contains the field
@@ -294,7 +288,6 @@ class WidgetPlot(BaseModel):
             "dimension_name": obj.get("dimension_name"),
             "dimension_data_type": obj.get("dimension_data_type"),
             "prediction_value_class": obj.get("prediction_value_class"),
-            "metric_id": obj.get("metric_id"),
             "metric": obj.get("metric"),
             "custom_metric_id": obj.get("custom_metric_id"),
             "ranking_at_k": obj.get("ranking_at_k"),

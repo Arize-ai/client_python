@@ -20,7 +20,7 @@ from typing_extensions import Self
 
 class TaskRunStatus(str, Enum):
     """
-    Status of a task run. - PENDING - The run has been created but not yet started. - RUNNING - The run is currently in progress. - COMPLETED - The run finished successfully. - FAILED - The run encountered an error and stopped. - CANCELLED - The run was cancelled before completion. 
+    Status of a task run. - PENDING - The run has been created but not yet started. - RUNNING - The run is currently in progress. - COMPLETED - The run finished successfully. - FAILED - The run encountered an error and stopped. - CANCELLED - The run was cancelled before completion, or it wrote some evaluations but hit errors in part of the run. 
     """
 
     """

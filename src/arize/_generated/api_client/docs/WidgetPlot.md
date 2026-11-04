@@ -17,7 +17,6 @@ Name | Type | Description | Notes
 **dimension_name** | **str** | Name of the selected dimension. | [optional] 
 **dimension_data_type** | **str** | Data type of the selected dimension. | [optional] 
 **prediction_value_class** | **str** | Prediction class selected for class-specific metrics. | [optional] 
-**metric_id** | **int** | Saved numeric ID for the selected built-in metric. | [optional] 
 **metric** | **str** | Selected built-in metric identifier, such as accuracy or count. | [optional] 
 **custom_metric_id** | **str** | Custom metric represented by the plot. | [optional] 
 **ranking_at_k** | **int** | Ranking cutoff used by ranking metrics. | [optional] 

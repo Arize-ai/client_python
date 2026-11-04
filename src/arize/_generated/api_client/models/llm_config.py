@@ -21,6 +21,7 @@ from arize._generated.api_client.models.anthropic_config import AnthropicConfig
 from arize._generated.api_client.models.aws_bedrock_config import AwsBedrockConfig
 from arize._generated.api_client.models.cloudflare_config import CloudflareConfig
 from arize._generated.api_client.models.custom_config import CustomConfig
+from arize._generated.api_client.models.deep_seek_config import DeepSeekConfig
 from arize._generated.api_client.models.fireworks_config import FireworksConfig
 from arize._generated.api_client.models.gemini_config import GeminiConfig
 from arize._generated.api_client.models.lite_llm_config import LiteLlmConfig
@@ -34,7 +35,7 @@ from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-LLMCONFIG_ONE_OF_SCHEMAS = ["AnthropicConfig", "AwsBedrockConfig", "CloudflareConfig", "CustomConfig", "FireworksConfig", "GeminiConfig", "LiteLlmConfig", "NvidiaNimConfig", "OpenAiConfig", "PerplexityConfig", "TogetherAiConfig", "TypeSafeAiConfig", "VertexAiConfig"]
+LLMCONFIG_ONE_OF_SCHEMAS = ["AnthropicConfig", "AwsBedrockConfig", "CloudflareConfig", "CustomConfig", "DeepSeekConfig", "FireworksConfig", "GeminiConfig", "LiteLlmConfig", "NvidiaNimConfig", "OpenAiConfig", "PerplexityConfig", "TogetherAiConfig", "TypeSafeAiConfig", "VertexAiConfig"]
 
 class LlmConfig(BaseModel):
     """
@@ -60,14 +61,16 @@ class LlmConfig(BaseModel):
     oneof_schema_9_validator: Optional[FireworksConfig] = None
     # data type: TogetherAiConfig
     oneof_schema_10_validator: Optional[TogetherAiConfig] = None
+    # data type: DeepSeekConfig
+    oneof_schema_11_validator: Optional[DeepSeekConfig] = None
     # data type: TypeSafeAiConfig
-    oneof_schema_11_validator: Optional[TypeSafeAiConfig] = None
+    oneof_schema_12_validator: Optional[TypeSafeAiConfig] = None
     # data type: PerplexityConfig
-    oneof_schema_12_validator: Optional[PerplexityConfig] = None
+    oneof_schema_13_validator: Optional[PerplexityConfig] = None
     # data type: CloudflareConfig
-    oneof_schema_13_validator: Optional[CloudflareConfig] = None
-    actual_instance: Optional[Union[AnthropicConfig, AwsBedrockConfig, CloudflareConfig, CustomConfig, FireworksConfig, GeminiConfig, LiteLlmConfig, NvidiaNimConfig, OpenAiConfig, PerplexityConfig, TogetherAiConfig, TypeSafeAiConfig, VertexAiConfig]] = None
-    one_of_schemas: Set[str] = { "AnthropicConfig", "AwsBedrockConfig", "CloudflareConfig", "CustomConfig", "FireworksConfig", "GeminiConfig", "LiteLlmConfig", "NvidiaNimConfig", "OpenAiConfig", "PerplexityConfig", "TogetherAiConfig", "TypeSafeAiConfig", "VertexAiConfig" }
+    oneof_schema_14_validator: Optional[CloudflareConfig] = None
+    actual_instance: Optional[Union[AnthropicConfig, AwsBedrockConfig, CloudflareConfig, CustomConfig, DeepSeekConfig, FireworksConfig, GeminiConfig, LiteLlmConfig, NvidiaNimConfig, OpenAiConfig, PerplexityConfig, TogetherAiConfig, TypeSafeAiConfig, VertexAiConfig]] = None
+    one_of_schemas: Set[str] = { "AnthropicConfig", "AwsBedrockConfig", "CloudflareConfig", "CustomConfig", "DeepSeekConfig", "FireworksConfig", "GeminiConfig", "LiteLlmConfig", "NvidiaNimConfig", "OpenAiConfig", "PerplexityConfig", "TogetherAiConfig", "TypeSafeAiConfig", "VertexAiConfig" }
 
     model_config = ConfigDict(
         validate_assignment=True,
@@ -143,6 +146,11 @@ class LlmConfig(BaseModel):
             error_messages.append(f"Error! Input type `{type(v)}` is not `TogetherAiConfig`")
         else:
             match += 1
+        # validate data type: DeepSeekConfig
+        if not isinstance(v, DeepSeekConfig):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `DeepSeekConfig`")
+        else:
+            match += 1
         # validate data type: TypeSafeAiConfig
         if not isinstance(v, TypeSafeAiConfig):
             error_messages.append(f"Error! Input type `{type(v)}` is not `TypeSafeAiConfig`")
@@ -160,10 +168,10 @@ class LlmConfig(BaseModel):
             match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in LlmConfig with oneOf schemas: AnthropicConfig, AwsBedrockConfig, CloudflareConfig, CustomConfig, FireworksConfig, GeminiConfig, LiteLlmConfig, NvidiaNimConfig, OpenAiConfig, PerplexityConfig, TogetherAiConfig, TypeSafeAiConfig, VertexAiConfig. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in LlmConfig with oneOf schemas: AnthropicConfig, AwsBedrockConfig, CloudflareConfig, CustomConfig, DeepSeekConfig, FireworksConfig, GeminiConfig, LiteLlmConfig, NvidiaNimConfig, OpenAiConfig, PerplexityConfig, TogetherAiConfig, TypeSafeAiConfig, VertexAiConfig. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in LlmConfig with oneOf schemas: AnthropicConfig, AwsBedrockConfig, CloudflareConfig, CustomConfig, FireworksConfig, GeminiConfig, LiteLlmConfig, NvidiaNimConfig, OpenAiConfig, PerplexityConfig, TogetherAiConfig, TypeSafeAiConfig, VertexAiConfig. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in LlmConfig with oneOf schemas: AnthropicConfig, AwsBedrockConfig, CloudflareConfig, CustomConfig, DeepSeekConfig, FireworksConfig, GeminiConfig, LiteLlmConfig, NvidiaNimConfig, OpenAiConfig, PerplexityConfig, TogetherAiConfig, TypeSafeAiConfig, VertexAiConfig. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -196,6 +204,8 @@ class LlmConfig(BaseModel):
                 return cls(actual_instance=FireworksConfig.from_dict(payload))
             if payload['provider'] == 'TOGETHER_AI':
                 return cls(actual_instance=TogetherAiConfig.from_dict(payload))
+            if payload['provider'] == 'DEEP_SEEK':
+                return cls(actual_instance=DeepSeekConfig.from_dict(payload))
             if payload['provider'] == 'TYPE_SAFE_AI':
                 return cls(actual_instance=TypeSafeAiConfig.from_dict(payload))
             if payload['provider'] == 'PERPLEXITY':
@@ -214,7 +224,7 @@ class LlmConfig(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], AnthropicConfig, AwsBedrockConfig, CloudflareConfig, CustomConfig, FireworksConfig, GeminiConfig, LiteLlmConfig, NvidiaNimConfig, OpenAiConfig, PerplexityConfig, TogetherAiConfig, TypeSafeAiConfig, VertexAiConfig]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], AnthropicConfig, AwsBedrockConfig, CloudflareConfig, CustomConfig, DeepSeekConfig, FireworksConfig, GeminiConfig, LiteLlmConfig, NvidiaNimConfig, OpenAiConfig, PerplexityConfig, TogetherAiConfig, TypeSafeAiConfig, VertexAiConfig]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

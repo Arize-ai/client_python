@@ -21,6 +21,7 @@ from arize._generated.api_client.models.create_anthropic_config import CreateAnt
 from arize._generated.api_client.models.create_aws_bedrock_config import CreateAwsBedrockConfig
 from arize._generated.api_client.models.create_cloudflare_config import CreateCloudflareConfig
 from arize._generated.api_client.models.create_custom_config import CreateCustomConfig
+from arize._generated.api_client.models.create_deep_seek_config import CreateDeepSeekConfig
 from arize._generated.api_client.models.create_fireworks_config import CreateFireworksConfig
 from arize._generated.api_client.models.create_gemini_config import CreateGeminiConfig
 from arize._generated.api_client.models.create_lite_llm_config import CreateLiteLlmConfig
@@ -34,7 +35,7 @@ from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-CREATELLMCONFIG_ONE_OF_SCHEMAS = ["CreateAnthropicConfig", "CreateAwsBedrockConfig", "CreateCloudflareConfig", "CreateCustomConfig", "CreateFireworksConfig", "CreateGeminiConfig", "CreateLiteLlmConfig", "CreateNvidiaNimConfig", "CreateOpenAiConfig", "CreatePerplexityConfig", "CreateTogetherAiConfig", "CreateTypeSafeAiConfig", "CreateVertexAiConfig"]
+CREATELLMCONFIG_ONE_OF_SCHEMAS = ["CreateAnthropicConfig", "CreateAwsBedrockConfig", "CreateCloudflareConfig", "CreateCustomConfig", "CreateDeepSeekConfig", "CreateFireworksConfig", "CreateGeminiConfig", "CreateLiteLlmConfig", "CreateNvidiaNimConfig", "CreateOpenAiConfig", "CreatePerplexityConfig", "CreateTogetherAiConfig", "CreateTypeSafeAiConfig", "CreateVertexAiConfig"]
 
 class CreateLlmConfig(BaseModel):
     """
@@ -60,14 +61,16 @@ class CreateLlmConfig(BaseModel):
     oneof_schema_9_validator: Optional[CreateFireworksConfig] = None
     # data type: CreateTogetherAiConfig
     oneof_schema_10_validator: Optional[CreateTogetherAiConfig] = None
+    # data type: CreateDeepSeekConfig
+    oneof_schema_11_validator: Optional[CreateDeepSeekConfig] = None
     # data type: CreateTypeSafeAiConfig
-    oneof_schema_11_validator: Optional[CreateTypeSafeAiConfig] = None
+    oneof_schema_12_validator: Optional[CreateTypeSafeAiConfig] = None
     # data type: CreatePerplexityConfig
-    oneof_schema_12_validator: Optional[CreatePerplexityConfig] = None
+    oneof_schema_13_validator: Optional[CreatePerplexityConfig] = None
     # data type: CreateCloudflareConfig
-    oneof_schema_13_validator: Optional[CreateCloudflareConfig] = None
-    actual_instance: Optional[Union[CreateAnthropicConfig, CreateAwsBedrockConfig, CreateCloudflareConfig, CreateCustomConfig, CreateFireworksConfig, CreateGeminiConfig, CreateLiteLlmConfig, CreateNvidiaNimConfig, CreateOpenAiConfig, CreatePerplexityConfig, CreateTogetherAiConfig, CreateTypeSafeAiConfig, CreateVertexAiConfig]] = None
-    one_of_schemas: Set[str] = { "CreateAnthropicConfig", "CreateAwsBedrockConfig", "CreateCloudflareConfig", "CreateCustomConfig", "CreateFireworksConfig", "CreateGeminiConfig", "CreateLiteLlmConfig", "CreateNvidiaNimConfig", "CreateOpenAiConfig", "CreatePerplexityConfig", "CreateTogetherAiConfig", "CreateTypeSafeAiConfig", "CreateVertexAiConfig" }
+    oneof_schema_14_validator: Optional[CreateCloudflareConfig] = None
+    actual_instance: Optional[Union[CreateAnthropicConfig, CreateAwsBedrockConfig, CreateCloudflareConfig, CreateCustomConfig, CreateDeepSeekConfig, CreateFireworksConfig, CreateGeminiConfig, CreateLiteLlmConfig, CreateNvidiaNimConfig, CreateOpenAiConfig, CreatePerplexityConfig, CreateTogetherAiConfig, CreateTypeSafeAiConfig, CreateVertexAiConfig]] = None
+    one_of_schemas: Set[str] = { "CreateAnthropicConfig", "CreateAwsBedrockConfig", "CreateCloudflareConfig", "CreateCustomConfig", "CreateDeepSeekConfig", "CreateFireworksConfig", "CreateGeminiConfig", "CreateLiteLlmConfig", "CreateNvidiaNimConfig", "CreateOpenAiConfig", "CreatePerplexityConfig", "CreateTogetherAiConfig", "CreateTypeSafeAiConfig", "CreateVertexAiConfig" }
 
     model_config = ConfigDict(
         validate_assignment=True,
@@ -143,6 +146,11 @@ class CreateLlmConfig(BaseModel):
             error_messages.append(f"Error! Input type `{type(v)}` is not `CreateTogetherAiConfig`")
         else:
             match += 1
+        # validate data type: CreateDeepSeekConfig
+        if not isinstance(v, CreateDeepSeekConfig):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `CreateDeepSeekConfig`")
+        else:
+            match += 1
         # validate data type: CreateTypeSafeAiConfig
         if not isinstance(v, CreateTypeSafeAiConfig):
             error_messages.append(f"Error! Input type `{type(v)}` is not `CreateTypeSafeAiConfig`")
@@ -160,10 +168,10 @@ class CreateLlmConfig(BaseModel):
             match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in CreateLlmConfig with oneOf schemas: CreateAnthropicConfig, CreateAwsBedrockConfig, CreateCloudflareConfig, CreateCustomConfig, CreateFireworksConfig, CreateGeminiConfig, CreateLiteLlmConfig, CreateNvidiaNimConfig, CreateOpenAiConfig, CreatePerplexityConfig, CreateTogetherAiConfig, CreateTypeSafeAiConfig, CreateVertexAiConfig. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in CreateLlmConfig with oneOf schemas: CreateAnthropicConfig, CreateAwsBedrockConfig, CreateCloudflareConfig, CreateCustomConfig, CreateDeepSeekConfig, CreateFireworksConfig, CreateGeminiConfig, CreateLiteLlmConfig, CreateNvidiaNimConfig, CreateOpenAiConfig, CreatePerplexityConfig, CreateTogetherAiConfig, CreateTypeSafeAiConfig, CreateVertexAiConfig. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in CreateLlmConfig with oneOf schemas: CreateAnthropicConfig, CreateAwsBedrockConfig, CreateCloudflareConfig, CreateCustomConfig, CreateFireworksConfig, CreateGeminiConfig, CreateLiteLlmConfig, CreateNvidiaNimConfig, CreateOpenAiConfig, CreatePerplexityConfig, CreateTogetherAiConfig, CreateTypeSafeAiConfig, CreateVertexAiConfig. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in CreateLlmConfig with oneOf schemas: CreateAnthropicConfig, CreateAwsBedrockConfig, CreateCloudflareConfig, CreateCustomConfig, CreateDeepSeekConfig, CreateFireworksConfig, CreateGeminiConfig, CreateLiteLlmConfig, CreateNvidiaNimConfig, CreateOpenAiConfig, CreatePerplexityConfig, CreateTogetherAiConfig, CreateTypeSafeAiConfig, CreateVertexAiConfig. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -238,6 +246,12 @@ class CreateLlmConfig(BaseModel):
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
+        # deserialize data into CreateDeepSeekConfig
+        try:
+            instance.actual_instance = CreateDeepSeekConfig.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
         # deserialize data into CreateTypeSafeAiConfig
         try:
             instance.actual_instance = CreateTypeSafeAiConfig.from_json(json_str)
@@ -259,10 +273,10 @@ class CreateLlmConfig(BaseModel):
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into CreateLlmConfig with oneOf schemas: CreateAnthropicConfig, CreateAwsBedrockConfig, CreateCloudflareConfig, CreateCustomConfig, CreateFireworksConfig, CreateGeminiConfig, CreateLiteLlmConfig, CreateNvidiaNimConfig, CreateOpenAiConfig, CreatePerplexityConfig, CreateTogetherAiConfig, CreateTypeSafeAiConfig, CreateVertexAiConfig. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into CreateLlmConfig with oneOf schemas: CreateAnthropicConfig, CreateAwsBedrockConfig, CreateCloudflareConfig, CreateCustomConfig, CreateDeepSeekConfig, CreateFireworksConfig, CreateGeminiConfig, CreateLiteLlmConfig, CreateNvidiaNimConfig, CreateOpenAiConfig, CreatePerplexityConfig, CreateTogetherAiConfig, CreateTypeSafeAiConfig, CreateVertexAiConfig. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into CreateLlmConfig with oneOf schemas: CreateAnthropicConfig, CreateAwsBedrockConfig, CreateCloudflareConfig, CreateCustomConfig, CreateFireworksConfig, CreateGeminiConfig, CreateLiteLlmConfig, CreateNvidiaNimConfig, CreateOpenAiConfig, CreatePerplexityConfig, CreateTogetherAiConfig, CreateTypeSafeAiConfig, CreateVertexAiConfig. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into CreateLlmConfig with oneOf schemas: CreateAnthropicConfig, CreateAwsBedrockConfig, CreateCloudflareConfig, CreateCustomConfig, CreateDeepSeekConfig, CreateFireworksConfig, CreateGeminiConfig, CreateLiteLlmConfig, CreateNvidiaNimConfig, CreateOpenAiConfig, CreatePerplexityConfig, CreateTogetherAiConfig, CreateTypeSafeAiConfig, CreateVertexAiConfig. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -276,7 +290,7 @@ class CreateLlmConfig(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], CreateAnthropicConfig, CreateAwsBedrockConfig, CreateCloudflareConfig, CreateCustomConfig, CreateFireworksConfig, CreateGeminiConfig, CreateLiteLlmConfig, CreateNvidiaNimConfig, CreateOpenAiConfig, CreatePerplexityConfig, CreateTogetherAiConfig, CreateTypeSafeAiConfig, CreateVertexAiConfig]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], CreateAnthropicConfig, CreateAwsBedrockConfig, CreateCloudflareConfig, CreateCustomConfig, CreateDeepSeekConfig, CreateFireworksConfig, CreateGeminiConfig, CreateLiteLlmConfig, CreateNvidiaNimConfig, CreateOpenAiConfig, CreatePerplexityConfig, CreateTogetherAiConfig, CreateTypeSafeAiConfig, CreateVertexAiConfig]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

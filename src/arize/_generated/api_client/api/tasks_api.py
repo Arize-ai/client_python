@@ -1445,7 +1445,7 @@ class TasksApi:
     def list_task_runs(
         self,
         task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
-        status: Annotated[Optional[TaskRunStatus], Field(description="Filter by run status: PENDING, RUNNING, COMPLETED, FAILED, CANCELLED")] = None,
+        status: Annotated[Optional[TaskRunStatus], Field(description="Filter by run status: PENDING, RUNNING, COMPLETED, FAILED, CANCELLED. CANCELLED also matches runs that wrote some evaluations but hit errors in part of the run.")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -1467,7 +1467,7 @@ class TasksApi:
 
         :param task_id: The unique task identifier (base64) (required)
         :type task_id: str
-        :param status: Filter by run status: PENDING, RUNNING, COMPLETED, FAILED, CANCELLED
+        :param status: Filter by run status: PENDING, RUNNING, COMPLETED, FAILED, CANCELLED. CANCELLED also matches runs that wrote some evaluations but hit errors in part of the run.
         :type status: TaskRunStatus
         :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
@@ -1529,7 +1529,7 @@ class TasksApi:
     def list_task_runs_with_http_info(
         self,
         task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
-        status: Annotated[Optional[TaskRunStatus], Field(description="Filter by run status: PENDING, RUNNING, COMPLETED, FAILED, CANCELLED")] = None,
+        status: Annotated[Optional[TaskRunStatus], Field(description="Filter by run status: PENDING, RUNNING, COMPLETED, FAILED, CANCELLED. CANCELLED also matches runs that wrote some evaluations but hit errors in part of the run.")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -1551,7 +1551,7 @@ class TasksApi:
 
         :param task_id: The unique task identifier (base64) (required)
         :type task_id: str
-        :param status: Filter by run status: PENDING, RUNNING, COMPLETED, FAILED, CANCELLED
+        :param status: Filter by run status: PENDING, RUNNING, COMPLETED, FAILED, CANCELLED. CANCELLED also matches runs that wrote some evaluations but hit errors in part of the run.
         :type status: TaskRunStatus
         :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
@@ -1613,7 +1613,7 @@ class TasksApi:
     def list_task_runs_without_preload_content(
         self,
         task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
-        status: Annotated[Optional[TaskRunStatus], Field(description="Filter by run status: PENDING, RUNNING, COMPLETED, FAILED, CANCELLED")] = None,
+        status: Annotated[Optional[TaskRunStatus], Field(description="Filter by run status: PENDING, RUNNING, COMPLETED, FAILED, CANCELLED. CANCELLED also matches runs that wrote some evaluations but hit errors in part of the run.")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -1635,7 +1635,7 @@ class TasksApi:
 
         :param task_id: The unique task identifier (base64) (required)
         :type task_id: str
-        :param status: Filter by run status: PENDING, RUNNING, COMPLETED, FAILED, CANCELLED
+        :param status: Filter by run status: PENDING, RUNNING, COMPLETED, FAILED, CANCELLED. CANCELLED also matches runs that wrote some evaluations but hit errors in part of the run.
         :type status: TaskRunStatus
         :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int

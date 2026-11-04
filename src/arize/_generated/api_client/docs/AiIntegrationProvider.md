@@ -26,6 +26,8 @@ The AI provider for this integration. `TYPE_SAFE_AI`, `PERPLEXITY`, and `CLOUDFL
 
 * `TOGETHER_AI` (value: `'TOGETHER_AI'`)
 
+* `DEEP_SEEK` (value: `'DEEP_SEEK'`)
+
 * `TYPE_SAFE_AI` (value: `'TYPE_SAFE_AI'`)
 
 * `PERPLEXITY` (value: `'PERPLEXITY'`)

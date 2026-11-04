@@ -133,6 +133,7 @@ arize/_generated/api_client/docs/CreateDashboardRequest.md
 arize/_generated/api_client/docs/CreateDatasetRequest.md
 arize/_generated/api_client/docs/CreateDecisionJudgeEvaluationTaskRequest.md
 arize/_generated/api_client/docs/CreateDecisionJudgeEvaluatorVersionRequest.md
+arize/_generated/api_client/docs/CreateDeepSeekConfig.md
 arize/_generated/api_client/docs/CreateEvaluatorIntegrationConfigInput.md
 arize/_generated/api_client/docs/CreateEvaluatorIntegrationRequest.md
 arize/_generated/api_client/docs/CreateEvaluatorRequest.md
@@ -219,6 +220,7 @@ arize/_generated/api_client/docs/DecisionJudgeScoreCriteria.md
 arize/_generated/api_client/docs/DecisionJudgeScoreCriteriaInput.md
 arize/_generated/api_client/docs/DecisionJudgeScoreQuestion.md
 arize/_generated/api_client/docs/DecisionJudgeScoreQuestionInput.md
+arize/_generated/api_client/docs/DeepSeekConfig.md
 arize/_generated/api_client/docs/DefaultAgentRuntime.md
 arize/_generated/api_client/docs/DefaultAgentRuntimeResponse.md
 arize/_generated/api_client/docs/DefaultLLMIntegration.md
@@ -645,6 +647,7 @@ arize/_generated/api_client/models/create_dashboard_request.py
 arize/_generated/api_client/models/create_dataset_request.py
 arize/_generated/api_client/models/create_decision_judge_evaluation_task_request.py
 arize/_generated/api_client/models/create_decision_judge_evaluator_version_request.py
+arize/_generated/api_client/models/create_deep_seek_config.py
 arize/_generated/api_client/models/create_evaluator_integration_config_input.py
 arize/_generated/api_client/models/create_evaluator_integration_request.py
 arize/_generated/api_client/models/create_evaluator_request.py
@@ -729,6 +732,7 @@ arize/_generated/api_client/models/decision_judge_score_criteria.py
 arize/_generated/api_client/models/decision_judge_score_criteria_input.py
 arize/_generated/api_client/models/decision_judge_score_question.py
 arize/_generated/api_client/models/decision_judge_score_question_input.py
+arize/_generated/api_client/models/deep_seek_config.py
 arize/_generated/api_client/models/default_agent_runtime.py
 arize/_generated/api_client/models/default_agent_runtime_response.py
 arize/_generated/api_client/models/default_llm_integration.py
@@ -1084,6 +1088,7 @@ arize/_generated/api_client/test/test_create_custom_default_auth.py
 arize/_generated/api_client/test/test_create_custom_oauth2_client_credentials_auth.py
 arize/_generated/api_client/test/test_create_decision_judge_evaluation_task_request.py
 arize/_generated/api_client/test/test_create_decision_judge_evaluator_version_request.py
+arize/_generated/api_client/test/test_create_deep_seek_config.py
 arize/_generated/api_client/test/test_create_lite_llm_config.py
 arize/_generated/api_client/test/test_create_llm_config.py
 arize/_generated/api_client/test/test_create_llm_integration_request.py
@@ -1123,6 +1128,7 @@ arize/_generated/api_client/test/test_decision_judge_score_criteria.py
 arize/_generated/api_client/test/test_decision_judge_score_criteria_input.py
 arize/_generated/api_client/test/test_decision_judge_score_question.py
 arize/_generated/api_client/test/test_decision_judge_score_question_input.py
+arize/_generated/api_client/test/test_deep_seek_config.py
 arize/_generated/api_client/test/test_default_agent_runtime.py
 arize/_generated/api_client/test/test_default_agent_runtime_response.py
 arize/_generated/api_client/test/test_default_llm_integration.py

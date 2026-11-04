@@ -151,6 +151,7 @@ __all__ = [
     "CreateDatasetRequest",
     "CreateDecisionJudgeEvaluationTaskRequest",
     "CreateDecisionJudgeEvaluatorVersionRequest",
+    "CreateDeepSeekConfig",
     "CreateEvaluatorIntegrationConfigInput",
     "CreateEvaluatorIntegrationRequest",
     "CreateEvaluatorRequest",
@@ -235,6 +236,7 @@ __all__ = [
     "DecisionJudgeScoreCriteriaInput",
     "DecisionJudgeScoreQuestion",
     "DecisionJudgeScoreQuestionInput",
+    "DeepSeekConfig",
     "DefaultAgentRuntime",
     "DefaultAgentRuntimeResponse",
     "DefaultLLMIntegration",
@@ -682,6 +684,7 @@ from arize._generated.api_client.models.create_dashboard_request import CreateDa
 from arize._generated.api_client.models.create_dataset_request import CreateDatasetRequest as CreateDatasetRequest
 from arize._generated.api_client.models.create_decision_judge_evaluation_task_request import CreateDecisionJudgeEvaluationTaskRequest as CreateDecisionJudgeEvaluationTaskRequest
 from arize._generated.api_client.models.create_decision_judge_evaluator_version_request import CreateDecisionJudgeEvaluatorVersionRequest as CreateDecisionJudgeEvaluatorVersionRequest
+from arize._generated.api_client.models.create_deep_seek_config import CreateDeepSeekConfig as CreateDeepSeekConfig
 from arize._generated.api_client.models.create_evaluator_integration_config_input import CreateEvaluatorIntegrationConfigInput as CreateEvaluatorIntegrationConfigInput
 from arize._generated.api_client.models.create_evaluator_integration_request import CreateEvaluatorIntegrationRequest as CreateEvaluatorIntegrationRequest
 from arize._generated.api_client.models.create_evaluator_request import CreateEvaluatorRequest as CreateEvaluatorRequest
@@ -766,6 +769,7 @@ from arize._generated.api_client.models.decision_judge_score_criteria import Dec
 from arize._generated.api_client.models.decision_judge_score_criteria_input import DecisionJudgeScoreCriteriaInput as DecisionJudgeScoreCriteriaInput
 from arize._generated.api_client.models.decision_judge_score_question import DecisionJudgeScoreQuestion as DecisionJudgeScoreQuestion
 from arize._generated.api_client.models.decision_judge_score_question_input import DecisionJudgeScoreQuestionInput as DecisionJudgeScoreQuestionInput
+from arize._generated.api_client.models.deep_seek_config import DeepSeekConfig as DeepSeekConfig
 from arize._generated.api_client.models.default_agent_runtime import DefaultAgentRuntime as DefaultAgentRuntime
 from arize._generated.api_client.models.default_agent_runtime_response import DefaultAgentRuntimeResponse as DefaultAgentRuntimeResponse
 from arize._generated.api_client.models.default_llm_integration import DefaultLLMIntegration as DefaultLLMIntegration

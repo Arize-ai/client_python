@@ -587,7 +587,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.TasksApi(api_client)
     task_id = 'VGFzazoxMjM0NQ==' # str | The unique task identifier (base64)
-    status = arize._generated.api_client.TaskRunStatus() # TaskRunStatus | Filter by run status: PENDING, RUNNING, COMPLETED, FAILED, CANCELLED (optional)
+    status = arize._generated.api_client.TaskRunStatus() # TaskRunStatus | Filter by run status: PENDING, RUNNING, COMPLETED, FAILED, CANCELLED. CANCELLED also matches runs that wrote some evaluations but hit errors in part of the run. (optional)
     limit = 50 # int | Maximum items to return. Defaults to 50 if omitted; maximum is 100. (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
@@ -608,7 +608,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **task_id** | **str**| The unique task identifier (base64) | 
- **status** | [**TaskRunStatus**](.md)| Filter by run status: PENDING, RUNNING, COMPLETED, FAILED, CANCELLED | [optional] 
+ **status** | [**TaskRunStatus**](.md)| Filter by run status: PENDING, RUNNING, COMPLETED, FAILED, CANCELLED. CANCELLED also matches runs that wrote some evaluations but hit errors in part of the run. | [optional] 
  **limit** | **int**| Maximum items to return. Defaults to 50 if omitted; maximum is 100. | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
 

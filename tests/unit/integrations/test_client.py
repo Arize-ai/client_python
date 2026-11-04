@@ -482,6 +482,24 @@ class TestIntegrationsClientCreateLlm:
         ]
         assert forwarded.is_default_models_enabled is True
 
+    def test_create_deep_seek_builds_request(
+        self, integrations_client: IntegrationsClient, mock_api: Mock
+    ) -> None:
+        """create_llm(DEEP_SEEK) should forward the DeepSeek config."""
+        config = gen.CreateDeepSeekConfig(
+            provider="DEEP_SEEK",
+            api_key="deepseek-key-x",
+            model_names=["deepseek-flash"],
+            is_default_models_enabled=True,
+        )
+        integrations_client.create_llm(name="DeepSeek", config=config)
+
+        forwarded = _created_llm_config(mock_api)
+        assert isinstance(forwarded, gen.CreateDeepSeekConfig)
+        assert forwarded.api_key == "deepseek-key-x"
+        assert forwarded.model_names == ["deepseek-flash"]
+        assert forwarded.is_default_models_enabled is True
+
     def test_create_bedrock_default_auth(
         self, integrations_client: IntegrationsClient, mock_api: Mock
     ) -> None:

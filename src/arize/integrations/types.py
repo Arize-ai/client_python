@@ -53,6 +53,9 @@ from arize._generated.api_client.models.create_cloudflare_config import (
 from arize._generated.api_client.models.create_custom_config import (
     CreateCustomConfig,
 )
+from arize._generated.api_client.models.create_deep_seek_config import (
+    CreateDeepSeekConfig,
+)
 from arize._generated.api_client.models.create_fireworks_config import (
     CreateFireworksConfig,
 )
@@ -82,6 +85,7 @@ from arize._generated.api_client.models.create_vertex_ai_config import (
     CreateVertexAiConfig,
 )
 from arize._generated.api_client.models.custom_config import CustomConfig
+from arize._generated.api_client.models.deep_seek_config import DeepSeekConfig
 from arize._generated.api_client.models.fireworks_config import FireworksConfig
 from arize._generated.api_client.models.gemini_config import GeminiConfig
 from arize._generated.api_client.models.integration import Integration
@@ -166,6 +170,7 @@ __all__ = [
     "CreateAwsBedrockProxyWithHeadersAuth",
     "CreateCloudflareConfig",
     "CreateCustomConfig",
+    "CreateDeepSeekConfig",
     "CreateFireworksConfig",
     "CreateGeminiConfig",
     "CreateLiteLlmConfig",
@@ -177,6 +182,7 @@ __all__ = [
     "CreateTypeSafeAiConfig",
     "CreateVertexAiConfig",
     "CustomConfig",
+    "DeepSeekConfig",
     "FireworksConfig",
     "GeminiConfig",
     "IntegrationScoping",
