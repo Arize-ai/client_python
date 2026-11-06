@@ -6,6 +6,7 @@ Trace/session-granularity evaluator input. Uses `query_mappings`.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**input_modes** | [**Dict[str, EvaluatorInputMode]**](EvaluatorInputMode.md) | Input mode for each mapped evaluator variable. | [optional] 
 **evaluator_id** | **str** | Evaluator identifier (base64). Duplicates are not allowed. | 
 **evaluator_version_id** | **str** | Pin this evaluator to a specific version (base64). Defaults to null, which always runs the evaluator&#39;s latest version; omitting the field and sending null are equivalent. Must be a version of the evaluator named by &#x60;evaluator_id&#x60;, otherwise the request returns 422.  | [optional] 
 **query_mappings** | [**List[TaskQueryMappingInput]**](TaskQueryMappingInput.md) | Per-evaluator variable-to-query mappings (trace/session shape). | 

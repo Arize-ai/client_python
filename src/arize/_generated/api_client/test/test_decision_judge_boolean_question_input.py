@@ -40,7 +40,8 @@ class TestDecisionJudgeBooleanQuestionInput(unittest.TestCase):
                 instructions = '0',
                 criteria = arize._generated.api_client.models.decision_judge_boolean_criteria_input.DecisionJudgeBooleanCriteriaInput(
                     true_means = '', 
-                    false_means = '', )
+                    false_means = '', ),
+                threshold = 0
             )
         else:
             return DecisionJudgeBooleanQuestionInput(

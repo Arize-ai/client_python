@@ -18,7 +18,7 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, List, Optional
+from typing import Any, ClassVar, Dict, List, Optional, Union
 from typing_extensions import Annotated
 from arize._generated.api_client.models.decision_judge_boolean_criteria_input import DecisionJudgeBooleanCriteriaInput
 from typing import Optional, Set
@@ -32,7 +32,8 @@ class DecisionJudgeBooleanQuestionInput(BaseModel):
     type: StrictStr = Field(description="Discriminator identifying this as a boolean question. Always `BOOLEAN` for this variant.")
     instructions: Annotated[str, Field(min_length=1, strict=True)] = Field(description="The full instruction the model answers. The question name is not sent to the model. Leading and trailing whitespace is removed before it is stored.")
     criteria: Optional[DecisionJudgeBooleanCriteriaInput] = None
-    __properties: ClassVar[List[str]] = ["name", "type", "instructions", "criteria"]
+    threshold: Optional[Union[Annotated[float, Field(lt=1, strict=True, gt=0)], Annotated[int, Field(lt=1, strict=True, gt=0)]]] = Field(default=None, description="The answer is `true` when the model's probability of `true` is at least this value. Between 0 and 1, exclusive. Defaults to `0.5` when omitted. Only `BOOLEAN` questions take a threshold. Sending one on a `CHOICE` or `SCORE` question is rejected. ")
+    __properties: ClassVar[List[str]] = ["name", "type", "instructions", "criteria", "threshold"]
 
     @field_validator('type')
     def type_validate_enum(cls, value):
@@ -103,7 +104,8 @@ class DecisionJudgeBooleanQuestionInput(BaseModel):
             "name": obj.get("name"),
             "type": obj.get("type"),
             "instructions": obj.get("instructions"),
-            "criteria": DecisionJudgeBooleanCriteriaInput.from_dict(obj["criteria"]) if obj.get("criteria") is not None else None
+            "criteria": DecisionJudgeBooleanCriteriaInput.from_dict(obj["criteria"]) if obj.get("criteria") is not None else None,
+            "threshold": obj.get("threshold")
         })
         return _obj
 

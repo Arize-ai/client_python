@@ -6,6 +6,7 @@ An evaluator attachment supplied when creating or updating a task. At least one 
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**input_modes** | [**Dict[str, EvaluatorInputMode]**](EvaluatorInputMode.md) | Input mode for each mapped evaluator variable. | [optional] 
 **evaluator_id** | **str** | Evaluator identifier (base64). Duplicates are not allowed. | 
 **evaluator_version_id** | **str** | Pin this evaluator to a specific version (base64). Defaults to null, which always runs the evaluator&#39;s latest version; omitting the field and sending null are equivalent. Must be a version of the evaluator named by &#x60;evaluator_id&#x60;, otherwise the request returns 422.  | [optional] 
 **query_filter** | **str** | Per-evaluator query filter (span shape). Combined with the task-level filter (AND). | [optional] 

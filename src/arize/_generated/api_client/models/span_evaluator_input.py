@@ -19,6 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
+from arize._generated.api_client.models.evaluator_input_mode import EvaluatorInputMode
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -26,11 +27,12 @@ class SpanEvaluatorInput(BaseModel):
     """
     Span-granularity evaluator input. Uses `query_filter` and `column_mappings`.
     """ # noqa: E501
+    input_modes: Optional[Dict[str, EvaluatorInputMode]] = Field(default=None, description="Input mode for each mapped evaluator variable.")
     evaluator_id: StrictStr = Field(description="Evaluator identifier (base64). Duplicates are not allowed.")
     evaluator_version_id: Optional[StrictStr] = Field(default=None, description="Pin this evaluator to a specific version (base64). Defaults to null, which always runs the evaluator's latest version; omitting the field and sending null are equivalent. Must be a version of the evaluator named by `evaluator_id`, otherwise the request returns 422. ")
     query_filter: Optional[StrictStr] = Field(default=None, description="Per-evaluator query filter (span shape). Combined with the task-level filter (AND).")
     column_mappings: Optional[Dict[str, StrictStr]] = Field(default=None, description="Maps evaluator template variable names to data source column names (span shape).")
-    __properties: ClassVar[List[str]] = ["evaluator_id", "evaluator_version_id", "query_filter", "column_mappings"]
+    __properties: ClassVar[List[str]] = ["input_modes", "evaluator_id", "evaluator_version_id", "query_filter", "column_mappings"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -93,6 +95,7 @@ class SpanEvaluatorInput(BaseModel):
                 raise ValueError("Error due to additional fields (not defined in SpanEvaluatorInput) in the input: " + _key)
 
         _obj = cls.model_validate({key: value for key, value in {
+            "input_modes": dict((_k, _v) for _k, _v in obj.get("input_modes").items()) if obj.get("input_modes") is not None else None,
             "evaluator_id": obj.get("evaluator_id"),
             "evaluator_version_id": obj.get("evaluator_version_id"),
             "query_filter": obj.get("query_filter"),

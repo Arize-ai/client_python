@@ -2,6 +2,7 @@ arize/_generated/__init__.py
 arize/_generated/api_client/__init__.py
 arize/_generated/api_client/api/__init__.py
 arize/_generated/api_client/api/ai_integrations_api.py
+arize/_generated/api_client/api/alignment_api.py
 arize/_generated/api_client/api/annotation_configs_api.py
 arize/_generated/api_client/api/annotation_queues_api.py
 arize/_generated/api_client/api/api_keys_api.py
@@ -18,6 +19,7 @@ arize/_generated/api_client/api/prompts_api.py
 arize/_generated/api_client/api/resource_restrictions_api.py
 arize/_generated/api_client/api/role_bindings_api.py
 arize/_generated/api_client/api/roles_api.py
+arize/_generated/api_client/api/saml_api.py
 arize/_generated/api_client/api/spaces_api.py
 arize/_generated/api_client/api/spans_api.py
 arize/_generated/api_client/api/tags_api.py
@@ -44,6 +46,12 @@ arize/_generated/api_client/docs/AiIntegrationAuthType.md
 arize/_generated/api_client/docs/AiIntegrationProvider.md
 arize/_generated/api_client/docs/AiIntegrationScoping.md
 arize/_generated/api_client/docs/AiIntegrationScopingRequest.md
+arize/_generated/api_client/docs/AlignmentApi.md
+arize/_generated/api_client/docs/AlignmentFunction.md
+arize/_generated/api_client/docs/AlignmentPredictedEntity.md
+arize/_generated/api_client/docs/AlignmentPredictedEntityType.md
+arize/_generated/api_client/docs/AlignmentRun.md
+arize/_generated/api_client/docs/AlignmentTask.md
 arize/_generated/api_client/docs/AnnotateAnnotationQueueRecordRequest.md
 arize/_generated/api_client/docs/AnnotateAnnotationQueueRecordResponse.md
 arize/_generated/api_client/docs/AnnotateDatasetExamplesRequest.md
@@ -109,6 +117,8 @@ arize/_generated/api_client/docs/CreateAgentConfig.md
 arize/_generated/api_client/docs/CreateAgentIntegrationRequest.md
 arize/_generated/api_client/docs/CreateAgentRequestPresetInput.md
 arize/_generated/api_client/docs/CreateAiIntegrationRequest.md
+arize/_generated/api_client/docs/CreateAlignmentRunRequest.md
+arize/_generated/api_client/docs/CreateAlignmentTaskRequest.md
 arize/_generated/api_client/docs/CreateAnnotationConfigRequest.md
 arize/_generated/api_client/docs/CreateAnnotationQueueRecordResponse.md
 arize/_generated/api_client/docs/CreateAnnotationQueueRequest.md
@@ -158,6 +168,8 @@ arize/_generated/api_client/docs/CreateResourceRestrictionRequest.md
 arize/_generated/api_client/docs/CreateRoleBindingRequest.md
 arize/_generated/api_client/docs/CreateRoleRequest.md
 arize/_generated/api_client/docs/CreateRunExperimentTaskRequest.md
+arize/_generated/api_client/docs/CreateSamlIdentityProviderRequest.md
+arize/_generated/api_client/docs/CreateSamlRoleMappingRequest.md
 arize/_generated/api_client/docs/CreateServiceApiKeyRequest.md
 arize/_generated/api_client/docs/CreateSpaceRequest.md
 arize/_generated/api_client/docs/CreateTagRequest.md
@@ -245,6 +257,7 @@ arize/_generated/api_client/docs/DynamicThresholdBound.md
 arize/_generated/api_client/docs/EmailNotificationConfig.md
 arize/_generated/api_client/docs/Evaluation.md
 arize/_generated/api_client/docs/Evaluator.md
+arize/_generated/api_client/docs/EvaluatorInputMode.md
 arize/_generated/api_client/docs/EvaluatorIntegration.md
 arize/_generated/api_client/docs/EvaluatorIntegrationConfig.md
 arize/_generated/api_client/docs/EvaluatorLlmConfig.md
@@ -295,6 +308,8 @@ arize/_generated/api_client/docs/LLMMessageRequest.md
 arize/_generated/api_client/docs/LineChartType.md
 arize/_generated/api_client/docs/LineChartWidget.md
 arize/_generated/api_client/docs/ListAiIntegrationsResponse.md
+arize/_generated/api_client/docs/ListAlignmentRunsResponse.md
+arize/_generated/api_client/docs/ListAlignmentTasksResponse.md
 arize/_generated/api_client/docs/ListAnnotationConfigsResponse.md
 arize/_generated/api_client/docs/ListAnnotationQueueRecordsResponse.md
 arize/_generated/api_client/docs/ListAnnotationQueuesResponse.md
@@ -318,6 +333,8 @@ arize/_generated/api_client/docs/ListPromptsResponse.md
 arize/_generated/api_client/docs/ListResourceRestrictionsResponse.md
 arize/_generated/api_client/docs/ListRoleBindingsResponse.md
 arize/_generated/api_client/docs/ListRolesResponse.md
+arize/_generated/api_client/docs/ListSamlIdentityProvidersResponse.md
+arize/_generated/api_client/docs/ListSamlRoleMappingsResponse.md
 arize/_generated/api_client/docs/ListSpacesResponse.md
 arize/_generated/api_client/docs/ListSpansRequest.md
 arize/_generated/api_client/docs/ListSpansResponse.md
@@ -412,6 +429,14 @@ arize/_generated/api_client/docs/RoleBindingsApi.md
 arize/_generated/api_client/docs/RolesApi.md
 arize/_generated/api_client/docs/RunConfiguration.md
 arize/_generated/api_client/docs/RunConfigurationRequest.md
+arize/_generated/api_client/docs/SAMLApi.md
+arize/_generated/api_client/docs/SamlDomainVerification.md
+arize/_generated/api_client/docs/SamlIdentityProvider.md
+arize/_generated/api_client/docs/SamlIdentityProviderSummary.md
+arize/_generated/api_client/docs/SamlOrganizationAssignment.md
+arize/_generated/api_client/docs/SamlProjectAssignment.md
+arize/_generated/api_client/docs/SamlRoleMapping.md
+arize/_generated/api_client/docs/SamlSpaceAssignment.md
 arize/_generated/api_client/docs/ScheduledRuntimeConfig.md
 arize/_generated/api_client/docs/SearchDatasetExamplesRequest.md
 arize/_generated/api_client/docs/SearchExperimentRunsRequest.md
@@ -508,6 +533,8 @@ arize/_generated/api_client/docs/UpdatePromptRequest.md
 arize/_generated/api_client/docs/UpdateRoleBindingRequest.md
 arize/_generated/api_client/docs/UpdateRoleRequest.md
 arize/_generated/api_client/docs/UpdateRunExperimentTaskRequest.md
+arize/_generated/api_client/docs/UpdateSamlIdentityProviderRequest.md
+arize/_generated/api_client/docs/UpdateSamlRoleMappingRequest.md
 arize/_generated/api_client/docs/UpdateSpaceRequest.md
 arize/_generated/api_client/docs/UpdateTagRequest.md
 arize/_generated/api_client/docs/UpdateTaskRequest.md
@@ -561,6 +588,11 @@ arize/_generated/api_client/models/ai_integration_auth_type.py
 arize/_generated/api_client/models/ai_integration_provider.py
 arize/_generated/api_client/models/ai_integration_scoping.py
 arize/_generated/api_client/models/ai_integration_scoping_request.py
+arize/_generated/api_client/models/alignment_function.py
+arize/_generated/api_client/models/alignment_predicted_entity.py
+arize/_generated/api_client/models/alignment_predicted_entity_type.py
+arize/_generated/api_client/models/alignment_run.py
+arize/_generated/api_client/models/alignment_task.py
 arize/_generated/api_client/models/annotate_annotation_queue_record_request.py
 arize/_generated/api_client/models/annotate_annotation_queue_record_response.py
 arize/_generated/api_client/models/annotate_dataset_examples_request.py
@@ -623,6 +655,8 @@ arize/_generated/api_client/models/create_agent_config.py
 arize/_generated/api_client/models/create_agent_integration_request.py
 arize/_generated/api_client/models/create_agent_request_preset_input.py
 arize/_generated/api_client/models/create_ai_integration_request.py
+arize/_generated/api_client/models/create_alignment_run_request.py
+arize/_generated/api_client/models/create_alignment_task_request.py
 arize/_generated/api_client/models/create_annotation_config_request.py
 arize/_generated/api_client/models/create_annotation_queue_record_response.py
 arize/_generated/api_client/models/create_annotation_queue_request.py
@@ -672,6 +706,8 @@ arize/_generated/api_client/models/create_resource_restriction_request.py
 arize/_generated/api_client/models/create_role_binding_request.py
 arize/_generated/api_client/models/create_role_request.py
 arize/_generated/api_client/models/create_run_experiment_task_request.py
+arize/_generated/api_client/models/create_saml_identity_provider_request.py
+arize/_generated/api_client/models/create_saml_role_mapping_request.py
 arize/_generated/api_client/models/create_service_api_key_request.py
 arize/_generated/api_client/models/create_space_request.py
 arize/_generated/api_client/models/create_tag_request.py
@@ -757,6 +793,7 @@ arize/_generated/api_client/models/dynamic_threshold_bound.py
 arize/_generated/api_client/models/email_notification_config.py
 arize/_generated/api_client/models/evaluation.py
 arize/_generated/api_client/models/evaluator.py
+arize/_generated/api_client/models/evaluator_input_mode.py
 arize/_generated/api_client/models/evaluator_integration.py
 arize/_generated/api_client/models/evaluator_integration_config.py
 arize/_generated/api_client/models/evaluator_llm_config.py
@@ -802,6 +839,8 @@ arize/_generated/api_client/models/json_schema_config_request.py
 arize/_generated/api_client/models/line_chart_type.py
 arize/_generated/api_client/models/line_chart_widget.py
 arize/_generated/api_client/models/list_ai_integrations_response.py
+arize/_generated/api_client/models/list_alignment_runs_response.py
+arize/_generated/api_client/models/list_alignment_tasks_response.py
 arize/_generated/api_client/models/list_annotation_configs_response.py
 arize/_generated/api_client/models/list_annotation_queue_records_response.py
 arize/_generated/api_client/models/list_annotation_queues_response.py
@@ -825,6 +864,8 @@ arize/_generated/api_client/models/list_prompts_response.py
 arize/_generated/api_client/models/list_resource_restrictions_response.py
 arize/_generated/api_client/models/list_role_bindings_response.py
 arize/_generated/api_client/models/list_roles_response.py
+arize/_generated/api_client/models/list_saml_identity_providers_response.py
+arize/_generated/api_client/models/list_saml_role_mappings_response.py
 arize/_generated/api_client/models/list_spaces_response.py
 arize/_generated/api_client/models/list_spans_request.py
 arize/_generated/api_client/models/list_spans_response.py
@@ -914,6 +955,13 @@ arize/_generated/api_client/models/role_binding.py
 arize/_generated/api_client/models/role_binding_resource_type.py
 arize/_generated/api_client/models/run_configuration.py
 arize/_generated/api_client/models/run_configuration_request.py
+arize/_generated/api_client/models/saml_domain_verification.py
+arize/_generated/api_client/models/saml_identity_provider.py
+arize/_generated/api_client/models/saml_identity_provider_summary.py
+arize/_generated/api_client/models/saml_organization_assignment.py
+arize/_generated/api_client/models/saml_project_assignment.py
+arize/_generated/api_client/models/saml_role_mapping.py
+arize/_generated/api_client/models/saml_space_assignment.py
 arize/_generated/api_client/models/scheduled_runtime_config.py
 arize/_generated/api_client/models/search_dataset_examples_request.py
 arize/_generated/api_client/models/search_experiment_runs_request.py
@@ -1005,6 +1053,8 @@ arize/_generated/api_client/models/update_prompt_request.py
 arize/_generated/api_client/models/update_role_binding_request.py
 arize/_generated/api_client/models/update_role_request.py
 arize/_generated/api_client/models/update_run_experiment_task_request.py
+arize/_generated/api_client/models/update_saml_identity_provider_request.py
+arize/_generated/api_client/models/update_saml_role_mapping_request.py
 arize/_generated/api_client/models/update_space_request.py
 arize/_generated/api_client/models/update_tag_request.py
 arize/_generated/api_client/models/update_task_request.py
@@ -1048,6 +1098,12 @@ arize/_generated/api_client/test/test_ai_integration_auth_type.py
 arize/_generated/api_client/test/test_ai_integration_provider.py
 arize/_generated/api_client/test/test_ai_integration_scoping.py
 arize/_generated/api_client/test/test_ai_integrations_api.py
+arize/_generated/api_client/test/test_alignment_api.py
+arize/_generated/api_client/test/test_alignment_function.py
+arize/_generated/api_client/test/test_alignment_predicted_entity.py
+arize/_generated/api_client/test/test_alignment_predicted_entity_type.py
+arize/_generated/api_client/test/test_alignment_run.py
+arize/_generated/api_client/test/test_alignment_task.py
 arize/_generated/api_client/test/test_annotate_record_input.py
 arize/_generated/api_client/test/test_annotate_record_result.py
 arize/_generated/api_client/test/test_annotation.py
@@ -1080,6 +1136,8 @@ arize/_generated/api_client/test/test_cloudflare_provider_metadata_kind.py
 arize/_generated/api_client/test/test_cloudflare_provider_metadata_request.py
 arize/_generated/api_client/test/test_code_config.py
 arize/_generated/api_client/test/test_continuous_annotation_config.py
+arize/_generated/api_client/test/test_create_alignment_run_request.py
+arize/_generated/api_client/test/test_create_alignment_task_request.py
 arize/_generated/api_client/test/test_create_anthropic_config.py
 arize/_generated/api_client/test/test_create_api_key_response.py
 arize/_generated/api_client/test/test_create_cloudflare_config.py
@@ -1094,6 +1152,8 @@ arize/_generated/api_client/test/test_create_llm_config.py
 arize/_generated/api_client/test/test_create_llm_integration_request.py
 arize/_generated/api_client/test/test_create_open_ai_config.py
 arize/_generated/api_client/test/test_create_perplexity_config.py
+arize/_generated/api_client/test/test_create_saml_identity_provider_request.py
+arize/_generated/api_client/test/test_create_saml_role_mapping_request.py
 arize/_generated/api_client/test/test_create_service_api_key_request.py
 arize/_generated/api_client/test/test_create_tag_request.py
 arize/_generated/api_client/test/test_create_together_ai_config.py
@@ -1137,6 +1197,7 @@ arize/_generated/api_client/test/test_delete_evaluator_versions_request.py
 arize/_generated/api_client/test/test_delete_evaluator_versions_response.py
 arize/_generated/api_client/test/test_delete_spans_request.py
 arize/_generated/api_client/test/test_evaluation.py
+arize/_generated/api_client/test/test_evaluator_input_mode.py
 arize/_generated/api_client/test/test_evaluator_llm_config.py
 arize/_generated/api_client/test/test_evaluator_type.py
 arize/_generated/api_client/test/test_evaluator_version.py
@@ -1156,7 +1217,11 @@ arize/_generated/api_client/test/test_integration_scoping.py
 arize/_generated/api_client/test/test_integration_type.py
 arize/_generated/api_client/test/test_integrations_api.py
 arize/_generated/api_client/test/test_invocation_params.py
+arize/_generated/api_client/test/test_list_alignment_runs_response.py
+arize/_generated/api_client/test/test_list_alignment_tasks_response.py
 arize/_generated/api_client/test/test_list_monitors_response.py
+arize/_generated/api_client/test/test_list_saml_identity_providers_response.py
+arize/_generated/api_client/test/test_list_saml_role_mappings_response.py
 arize/_generated/api_client/test/test_list_spans_request.py
 arize/_generated/api_client/test/test_list_tags_response.py
 arize/_generated/api_client/test/test_list_traces_request.py
@@ -1194,6 +1259,14 @@ arize/_generated/api_client/test/test_response_format.py
 arize/_generated/api_client/test/test_role.py
 arize/_generated/api_client/test/test_role_binding.py
 arize/_generated/api_client/test/test_role_binding_resource_type.py
+arize/_generated/api_client/test/test_saml_api.py
+arize/_generated/api_client/test/test_saml_domain_verification.py
+arize/_generated/api_client/test/test_saml_identity_provider.py
+arize/_generated/api_client/test/test_saml_identity_provider_summary.py
+arize/_generated/api_client/test/test_saml_organization_assignment.py
+arize/_generated/api_client/test/test_saml_project_assignment.py
+arize/_generated/api_client/test/test_saml_role_mapping.py
+arize/_generated/api_client/test/test_saml_space_assignment.py
 arize/_generated/api_client/test/test_search_dataset_examples_request.py
 arize/_generated/api_client/test/test_search_experiment_runs_request.py
 arize/_generated/api_client/test/test_service_api_key.py
@@ -1233,6 +1306,8 @@ arize/_generated/api_client/test/test_type_safe_ai_config.py
 arize/_generated/api_client/test/test_update_llm_auth.py
 arize/_generated/api_client/test/test_update_llm_config.py
 arize/_generated/api_client/test/test_update_llm_integration_request.py
+arize/_generated/api_client/test/test_update_saml_identity_provider_request.py
+arize/_generated/api_client/test/test_update_saml_role_mapping_request.py
 arize/_generated/api_client/test/test_update_tag_request.py
 arize/_generated/api_client/test/test_update_webhook_request.py
 arize/_generated/api_client/test/test_upgrade_plan.py

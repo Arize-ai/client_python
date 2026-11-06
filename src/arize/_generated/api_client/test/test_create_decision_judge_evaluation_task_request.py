@@ -42,6 +42,9 @@ class TestCreateDecisionJudgeEvaluationTaskRequest(unittest.TestCase):
                 query_filter = '',
                 evaluators = [
                     arize._generated.api_client.models.span_evaluator_input.SpanEvaluatorInput(
+                        input_modes = {
+                            'key' : 'TEXT'
+                            }, 
                         evaluator_id = '', 
                         evaluator_version_id = '', 
                         query_filter = '', 
@@ -57,6 +60,9 @@ class TestCreateDecisionJudgeEvaluationTaskRequest(unittest.TestCase):
                 project_id = '',
                 evaluators = [
                     arize._generated.api_client.models.span_evaluator_input.SpanEvaluatorInput(
+                        input_modes = {
+                            'key' : 'TEXT'
+                            }, 
                         evaluator_id = '', 
                         evaluator_version_id = '', 
                         query_filter = '', 

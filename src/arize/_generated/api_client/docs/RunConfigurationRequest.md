@@ -15,6 +15,7 @@ Name | Type | Description | Notes
 **provider_parameters** | **object** | Provider-specific parameters. Defaults to &#x60;{}&#x60; (no overrides) if omitted. | [optional] 
 **tool_config** | [**ToolConfigRequest**](ToolConfigRequest.md) |  | [optional] 
 **prompt_version_id** | **str** | Prompt version identifier (base64). Links to a Prompt Hub version for traceability. | [optional] 
+**input_modes** | [**Dict[str, EvaluatorInputMode]**](EvaluatorInputMode.md) | Input mode for each mapped evaluator variable. | [optional] 
 **template** | **str** | The evaluation prompt template. Use &#x60;{{variable}}&#x60; placeholders that map to dataset column paths via &#x60;column_mapping&#x60;.  | 
 **provide_explanation** | **bool** | Whether to ask the LLM to include a written explanation alongside the score/label. | 
 **classification_choices** | **Dict[str, float]** | Map of choice label to numeric score (e.g. &#x60;{\&quot;relevant\&quot;: 1, \&quot;irrelevant\&quot;: 0}&#x60;). | [optional] 

@@ -20,6 +20,7 @@ __version__ = "1.0.0"
 __all__ = [
     "AIIntegrationsApi",
     "APIKeysApi",
+    "AlignmentApi",
     "AnnotationConfigsApi",
     "AnnotationQueuesApi",
     "AuditLogsApi",
@@ -35,6 +36,7 @@ __all__ = [
     "ResourceRestrictionsApi",
     "RoleBindingsApi",
     "RolesApi",
+    "SAMLApi",
     "SpacesApi",
     "SpansApi",
     "TagsApi",
@@ -65,6 +67,11 @@ __all__ = [
     "AiIntegrationProvider",
     "AiIntegrationScoping",
     "AiIntegrationScopingRequest",
+    "AlignmentFunction",
+    "AlignmentPredictedEntity",
+    "AlignmentPredictedEntityType",
+    "AlignmentRun",
+    "AlignmentTask",
     "AnnotateAnnotationQueueRecordRequest",
     "AnnotateAnnotationQueueRecordResponse",
     "AnnotateDatasetExamplesRequest",
@@ -127,6 +134,8 @@ __all__ = [
     "CreateAgentIntegrationRequest",
     "CreateAgentRequestPresetInput",
     "CreateAiIntegrationRequest",
+    "CreateAlignmentRunRequest",
+    "CreateAlignmentTaskRequest",
     "CreateAnnotationConfigRequest",
     "CreateAnnotationQueueRecordResponse",
     "CreateAnnotationQueueRequest",
@@ -176,6 +185,8 @@ __all__ = [
     "CreateRoleBindingRequest",
     "CreateRoleRequest",
     "CreateRunExperimentTaskRequest",
+    "CreateSamlIdentityProviderRequest",
+    "CreateSamlRoleMappingRequest",
     "CreateServiceApiKeyRequest",
     "CreateSpaceRequest",
     "CreateTagRequest",
@@ -261,6 +272,7 @@ __all__ = [
     "EmailNotificationConfig",
     "Evaluation",
     "Evaluator",
+    "EvaluatorInputMode",
     "EvaluatorIntegration",
     "EvaluatorIntegrationConfig",
     "EvaluatorLlmConfig",
@@ -308,6 +320,8 @@ __all__ = [
     "LineChartType",
     "LineChartWidget",
     "ListAiIntegrationsResponse",
+    "ListAlignmentRunsResponse",
+    "ListAlignmentTasksResponse",
     "ListAnnotationConfigsResponse",
     "ListAnnotationQueueRecordsResponse",
     "ListAnnotationQueuesResponse",
@@ -331,6 +345,8 @@ __all__ = [
     "ListResourceRestrictionsResponse",
     "ListRoleBindingsResponse",
     "ListRolesResponse",
+    "ListSamlIdentityProvidersResponse",
+    "ListSamlRoleMappingsResponse",
     "ListSpacesResponse",
     "ListSpansRequest",
     "ListSpansResponse",
@@ -418,6 +434,13 @@ __all__ = [
     "RoleBindingResourceType",
     "RunConfiguration",
     "RunConfigurationRequest",
+    "SamlDomainVerification",
+    "SamlIdentityProvider",
+    "SamlIdentityProviderSummary",
+    "SamlOrganizationAssignment",
+    "SamlProjectAssignment",
+    "SamlRoleMapping",
+    "SamlSpaceAssignment",
     "ScheduledRuntimeConfig",
     "SearchDatasetExamplesRequest",
     "SearchExperimentRunsRequest",
@@ -509,6 +532,8 @@ __all__ = [
     "UpdateRoleBindingRequest",
     "UpdateRoleRequest",
     "UpdateRunExperimentTaskRequest",
+    "UpdateSamlIdentityProviderRequest",
+    "UpdateSamlRoleMappingRequest",
     "UpdateSpaceRequest",
     "UpdateTagRequest",
     "UpdateTaskRequest",
@@ -549,6 +574,7 @@ __all__ = [
 # import apis into sdk package
 from arize._generated.api_client.api.ai_integrations_api import AIIntegrationsApi as AIIntegrationsApi
 from arize._generated.api_client.api.api_keys_api import APIKeysApi as APIKeysApi
+from arize._generated.api_client.api.alignment_api import AlignmentApi as AlignmentApi
 from arize._generated.api_client.api.annotation_configs_api import AnnotationConfigsApi as AnnotationConfigsApi
 from arize._generated.api_client.api.annotation_queues_api import AnnotationQueuesApi as AnnotationQueuesApi
 from arize._generated.api_client.api.audit_logs_api import AuditLogsApi as AuditLogsApi
@@ -564,6 +590,7 @@ from arize._generated.api_client.api.prompts_api import PromptsApi as PromptsApi
 from arize._generated.api_client.api.resource_restrictions_api import ResourceRestrictionsApi as ResourceRestrictionsApi
 from arize._generated.api_client.api.role_bindings_api import RoleBindingsApi as RoleBindingsApi
 from arize._generated.api_client.api.roles_api import RolesApi as RolesApi
+from arize._generated.api_client.api.saml_api import SAMLApi as SAMLApi
 from arize._generated.api_client.api.spaces_api import SpacesApi as SpacesApi
 from arize._generated.api_client.api.spans_api import SpansApi as SpansApi
 from arize._generated.api_client.api.tags_api import TagsApi as TagsApi
@@ -598,6 +625,11 @@ from arize._generated.api_client.models.ai_integration_auth_type import AiIntegr
 from arize._generated.api_client.models.ai_integration_provider import AiIntegrationProvider as AiIntegrationProvider
 from arize._generated.api_client.models.ai_integration_scoping import AiIntegrationScoping as AiIntegrationScoping
 from arize._generated.api_client.models.ai_integration_scoping_request import AiIntegrationScopingRequest as AiIntegrationScopingRequest
+from arize._generated.api_client.models.alignment_function import AlignmentFunction as AlignmentFunction
+from arize._generated.api_client.models.alignment_predicted_entity import AlignmentPredictedEntity as AlignmentPredictedEntity
+from arize._generated.api_client.models.alignment_predicted_entity_type import AlignmentPredictedEntityType as AlignmentPredictedEntityType
+from arize._generated.api_client.models.alignment_run import AlignmentRun as AlignmentRun
+from arize._generated.api_client.models.alignment_task import AlignmentTask as AlignmentTask
 from arize._generated.api_client.models.annotate_annotation_queue_record_request import AnnotateAnnotationQueueRecordRequest as AnnotateAnnotationQueueRecordRequest
 from arize._generated.api_client.models.annotate_annotation_queue_record_response import AnnotateAnnotationQueueRecordResponse as AnnotateAnnotationQueueRecordResponse
 from arize._generated.api_client.models.annotate_dataset_examples_request import AnnotateDatasetExamplesRequest as AnnotateDatasetExamplesRequest
@@ -660,6 +692,8 @@ from arize._generated.api_client.models.create_agent_config import CreateAgentCo
 from arize._generated.api_client.models.create_agent_integration_request import CreateAgentIntegrationRequest as CreateAgentIntegrationRequest
 from arize._generated.api_client.models.create_agent_request_preset_input import CreateAgentRequestPresetInput as CreateAgentRequestPresetInput
 from arize._generated.api_client.models.create_ai_integration_request import CreateAiIntegrationRequest as CreateAiIntegrationRequest
+from arize._generated.api_client.models.create_alignment_run_request import CreateAlignmentRunRequest as CreateAlignmentRunRequest
+from arize._generated.api_client.models.create_alignment_task_request import CreateAlignmentTaskRequest as CreateAlignmentTaskRequest
 from arize._generated.api_client.models.create_annotation_config_request import CreateAnnotationConfigRequest as CreateAnnotationConfigRequest
 from arize._generated.api_client.models.create_annotation_queue_record_response import CreateAnnotationQueueRecordResponse as CreateAnnotationQueueRecordResponse
 from arize._generated.api_client.models.create_annotation_queue_request import CreateAnnotationQueueRequest as CreateAnnotationQueueRequest
@@ -709,6 +743,8 @@ from arize._generated.api_client.models.create_resource_restriction_request impo
 from arize._generated.api_client.models.create_role_binding_request import CreateRoleBindingRequest as CreateRoleBindingRequest
 from arize._generated.api_client.models.create_role_request import CreateRoleRequest as CreateRoleRequest
 from arize._generated.api_client.models.create_run_experiment_task_request import CreateRunExperimentTaskRequest as CreateRunExperimentTaskRequest
+from arize._generated.api_client.models.create_saml_identity_provider_request import CreateSamlIdentityProviderRequest as CreateSamlIdentityProviderRequest
+from arize._generated.api_client.models.create_saml_role_mapping_request import CreateSamlRoleMappingRequest as CreateSamlRoleMappingRequest
 from arize._generated.api_client.models.create_service_api_key_request import CreateServiceApiKeyRequest as CreateServiceApiKeyRequest
 from arize._generated.api_client.models.create_space_request import CreateSpaceRequest as CreateSpaceRequest
 from arize._generated.api_client.models.create_tag_request import CreateTagRequest as CreateTagRequest
@@ -794,6 +830,7 @@ from arize._generated.api_client.models.dynamic_threshold_bound import DynamicTh
 from arize._generated.api_client.models.email_notification_config import EmailNotificationConfig as EmailNotificationConfig
 from arize._generated.api_client.models.evaluation import Evaluation as Evaluation
 from arize._generated.api_client.models.evaluator import Evaluator as Evaluator
+from arize._generated.api_client.models.evaluator_input_mode import EvaluatorInputMode as EvaluatorInputMode
 from arize._generated.api_client.models.evaluator_integration import EvaluatorIntegration as EvaluatorIntegration
 from arize._generated.api_client.models.evaluator_integration_config import EvaluatorIntegrationConfig as EvaluatorIntegrationConfig
 from arize._generated.api_client.models.evaluator_llm_config import EvaluatorLlmConfig as EvaluatorLlmConfig
@@ -841,6 +878,8 @@ from arize._generated.api_client.models.llm_message_request import LLMMessageReq
 from arize._generated.api_client.models.line_chart_type import LineChartType as LineChartType
 from arize._generated.api_client.models.line_chart_widget import LineChartWidget as LineChartWidget
 from arize._generated.api_client.models.list_ai_integrations_response import ListAiIntegrationsResponse as ListAiIntegrationsResponse
+from arize._generated.api_client.models.list_alignment_runs_response import ListAlignmentRunsResponse as ListAlignmentRunsResponse
+from arize._generated.api_client.models.list_alignment_tasks_response import ListAlignmentTasksResponse as ListAlignmentTasksResponse
 from arize._generated.api_client.models.list_annotation_configs_response import ListAnnotationConfigsResponse as ListAnnotationConfigsResponse
 from arize._generated.api_client.models.list_annotation_queue_records_response import ListAnnotationQueueRecordsResponse as ListAnnotationQueueRecordsResponse
 from arize._generated.api_client.models.list_annotation_queues_response import ListAnnotationQueuesResponse as ListAnnotationQueuesResponse
@@ -864,6 +903,8 @@ from arize._generated.api_client.models.list_prompts_response import ListPrompts
 from arize._generated.api_client.models.list_resource_restrictions_response import ListResourceRestrictionsResponse as ListResourceRestrictionsResponse
 from arize._generated.api_client.models.list_role_bindings_response import ListRoleBindingsResponse as ListRoleBindingsResponse
 from arize._generated.api_client.models.list_roles_response import ListRolesResponse as ListRolesResponse
+from arize._generated.api_client.models.list_saml_identity_providers_response import ListSamlIdentityProvidersResponse as ListSamlIdentityProvidersResponse
+from arize._generated.api_client.models.list_saml_role_mappings_response import ListSamlRoleMappingsResponse as ListSamlRoleMappingsResponse
 from arize._generated.api_client.models.list_spaces_response import ListSpacesResponse as ListSpacesResponse
 from arize._generated.api_client.models.list_spans_request import ListSpansRequest as ListSpansRequest
 from arize._generated.api_client.models.list_spans_response import ListSpansResponse as ListSpansResponse
@@ -951,6 +992,13 @@ from arize._generated.api_client.models.role_binding import RoleBinding as RoleB
 from arize._generated.api_client.models.role_binding_resource_type import RoleBindingResourceType as RoleBindingResourceType
 from arize._generated.api_client.models.run_configuration import RunConfiguration as RunConfiguration
 from arize._generated.api_client.models.run_configuration_request import RunConfigurationRequest as RunConfigurationRequest
+from arize._generated.api_client.models.saml_domain_verification import SamlDomainVerification as SamlDomainVerification
+from arize._generated.api_client.models.saml_identity_provider import SamlIdentityProvider as SamlIdentityProvider
+from arize._generated.api_client.models.saml_identity_provider_summary import SamlIdentityProviderSummary as SamlIdentityProviderSummary
+from arize._generated.api_client.models.saml_organization_assignment import SamlOrganizationAssignment as SamlOrganizationAssignment
+from arize._generated.api_client.models.saml_project_assignment import SamlProjectAssignment as SamlProjectAssignment
+from arize._generated.api_client.models.saml_role_mapping import SamlRoleMapping as SamlRoleMapping
+from arize._generated.api_client.models.saml_space_assignment import SamlSpaceAssignment as SamlSpaceAssignment
 from arize._generated.api_client.models.scheduled_runtime_config import ScheduledRuntimeConfig as ScheduledRuntimeConfig
 from arize._generated.api_client.models.search_dataset_examples_request import SearchDatasetExamplesRequest as SearchDatasetExamplesRequest
 from arize._generated.api_client.models.search_experiment_runs_request import SearchExperimentRunsRequest as SearchExperimentRunsRequest
@@ -1042,6 +1090,8 @@ from arize._generated.api_client.models.update_prompt_request import UpdatePromp
 from arize._generated.api_client.models.update_role_binding_request import UpdateRoleBindingRequest as UpdateRoleBindingRequest
 from arize._generated.api_client.models.update_role_request import UpdateRoleRequest as UpdateRoleRequest
 from arize._generated.api_client.models.update_run_experiment_task_request import UpdateRunExperimentTaskRequest as UpdateRunExperimentTaskRequest
+from arize._generated.api_client.models.update_saml_identity_provider_request import UpdateSamlIdentityProviderRequest as UpdateSamlIdentityProviderRequest
+from arize._generated.api_client.models.update_saml_role_mapping_request import UpdateSamlRoleMappingRequest as UpdateSamlRoleMappingRequest
 from arize._generated.api_client.models.update_space_request import UpdateSpaceRequest as UpdateSpaceRequest
 from arize._generated.api_client.models.update_tag_request import UpdateTagRequest as UpdateTagRequest
 from arize._generated.api_client.models.update_task_request import UpdateTaskRequest as UpdateTaskRequest

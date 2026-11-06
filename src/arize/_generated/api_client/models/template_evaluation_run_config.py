@@ -20,6 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictFloat, StrictInt, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional, Union
 from typing_extensions import Annotated
+from arize._generated.api_client.models.evaluator_input_mode import EvaluatorInputMode
 from arize._generated.api_client.models.invocation_params import InvocationParams
 from typing import Optional, Set
 from typing_extensions import Self
@@ -28,6 +29,7 @@ class TemplateEvaluationRunConfig(BaseModel):
     """
     Configuration for running a template-based LLM evaluator against each dataset example.
     """ # noqa: E501
+    input_modes: Optional[Dict[str, EvaluatorInputMode]] = Field(default=None, description="Input mode for each mapped evaluator variable.")
     experiment_type: Optional[StrictStr] = Field(default=None, description="Discriminator. Must be `\"TEMPLATE_EVALUATION\"`.")
     ai_integration_id: Optional[StrictStr] = Field(default=None, description="AI integration identifier (base64). The LLM that judges each example.")
     model_name: Optional[StrictStr] = Field(default=None, description="Model name (e.g. `gpt-4o`). Falls back to the integration's default if omitted.")
@@ -39,7 +41,7 @@ class TemplateEvaluationRunConfig(BaseModel):
     invocation_parameters: Optional[InvocationParams] = None
     provider_parameters: Optional[Dict[str, Any]] = Field(default=None, description="Provider-specific parameters. Defaults to `{}` (no overrides) if omitted.")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["experiment_type", "ai_integration_id", "model_name", "template", "provide_explanation", "classification_choices", "column_mapping", "evaluator_version_id", "invocation_parameters", "provider_parameters"]
+    __properties: ClassVar[List[str]] = ["input_modes", "experiment_type", "ai_integration_id", "model_name", "template", "provide_explanation", "classification_choices", "column_mapping", "evaluator_version_id", "invocation_parameters", "provider_parameters"]
 
     @field_validator('experiment_type')
     def experiment_type_validate_enum(cls, value):
@@ -116,6 +118,7 @@ class TemplateEvaluationRunConfig(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({key: value for key, value in {
+            "input_modes": dict((_k, _v) for _k, _v in obj.get("input_modes").items()) if obj.get("input_modes") is not None else None,
             "experiment_type": obj.get("experiment_type"),
             "ai_integration_id": obj.get("ai_integration_id"),
             "model_name": obj.get("model_name"),

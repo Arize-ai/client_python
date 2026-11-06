@@ -35,6 +35,9 @@ class TestSpanEvaluatorInput(unittest.TestCase):
         model = SpanEvaluatorInput()
         if include_optional:
             return SpanEvaluatorInput(
+                input_modes = {
+                    'key' : 'TEXT'
+                    },
                 evaluator_id = '',
                 evaluator_version_id = '',
                 query_filter = '',

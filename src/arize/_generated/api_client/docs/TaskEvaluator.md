@@ -5,6 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**input_modes** | [**Dict[str, EvaluatorInputMode]**](EvaluatorInputMode.md) | Input mode for each mapped evaluator variable. | [optional] 
 **evaluator_id** | **str** | Evaluator identifier (base64). | 
 **evaluator_name** | **str** | The name of the attached evaluator. | 
 **evaluator_version_id** | **str** | The evaluator version this attachment is pinned to (base64). Null is the default and means the attachment is not pinned, so it runs the evaluator&#39;s latest version.  | 

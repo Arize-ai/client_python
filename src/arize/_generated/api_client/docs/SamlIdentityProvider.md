@@ -1,0 +1,45 @@
+# SamlIdentityProvider
+
+
+## Properties
+
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**email_domains** | **List[str]** | Unique email domains served by this identity provider. | 
+**metadata_url** | **str** | Configured metadata URL, or null when XML is used. | [optional] 
+**metadata_xml** | **str** | Configured metadata XML, or null when a URL is used. | [optional] 
+**default_organization_id** | **str** | Default organization ID, or null when default login is disabled. | [optional] 
+**default_space_id** | **str** | Default space ID, or null when default login is disabled. | [optional] 
+**default_organization_role_id** | **str** | Default organization role ID, or null when default login is disabled. | [optional] 
+**default_space_role_id** | **str** | Default space role ID, or null when default login is disabled. | [optional] 
+**enforce_saml** | **bool** | Whether users must authenticate through SAML. | 
+**sync_user_roles** | **bool** | Whether login applies role mappings to existing users. | 
+**sign_authn** | **bool** | Whether Arize signs SAML authentication requests sent to the identity provider. | 
+**allow_login_with_defaults** | **bool** | Whether users without a matching role mapping receive default roles. | 
+**id** | **str** | Identity provider ID. | 
+**is_managed_by_file** | **bool** | Whether configuration comes from a file. File configurations are read-only. | 
+**created_at** | **datetime** | Creation time in UTC, or null for file-managed configuration. | [optional] 
+**updated_at** | **datetime** | Last update time in UTC, or null for file-managed configuration. | [optional] 
+**domain_verification** | [**List[SamlDomainVerification]**](SamlDomainVerification.md) | Current email domain verification state. | 
+**role_mappings** | [**List[SamlRoleMapping]**](SamlRoleMapping.md) | Role mappings for this identity provider. | 
+
+## Example
+
+```python
+from arize._generated.api_client.models.saml_identity_provider import SamlIdentityProvider
+
+# TODO update the JSON string below
+json = "{}"
+# create an instance of SamlIdentityProvider from a JSON string
+saml_identity_provider_instance = SamlIdentityProvider.from_json(json)
+# print the JSON string representation of the object
+print(SamlIdentityProvider.to_json())
+
+# convert the object into a dict
+saml_identity_provider_dict = saml_identity_provider_instance.to_dict()
+# create an instance of SamlIdentityProvider from a dict
+saml_identity_provider_from_dict = SamlIdentityProvider.from_dict(saml_identity_provider_dict)
+```
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+

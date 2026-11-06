@@ -52,6 +52,9 @@ class TestTask(unittest.TestCase):
                     expression = '', ),
                 evaluators = [
                     arize._generated.api_client.models.task_evaluator.TaskEvaluator(
+                        input_modes = {
+                            'key' : 'TEXT'
+                            }, 
                         evaluator_id = '', 
                         evaluator_name = '', 
                         evaluator_version_id = '', 
@@ -86,6 +89,9 @@ class TestTask(unittest.TestCase):
                 query_filter = '',
                 evaluators = [
                     arize._generated.api_client.models.task_evaluator.TaskEvaluator(
+                        input_modes = {
+                            'key' : 'TEXT'
+                            }, 
                         evaluator_id = '', 
                         evaluator_name = '', 
                         evaluator_version_id = '', 

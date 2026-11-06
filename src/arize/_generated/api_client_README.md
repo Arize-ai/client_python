@@ -82,6 +82,11 @@ Class | Method | HTTP request | Description
 *APIKeysApi* | [**list_api_keys**](arize/_generated/api_client/docs/APIKeysApi.md#list_api_keys) | **GET** /v2/api-keys | List API keys
 *APIKeysApi* | [**refresh_api_key**](arize/_generated/api_client/docs/APIKeysApi.md#refresh_api_key) | **POST** /v2/api-keys/{api_key_id}/refresh | Refresh an API key
 *APIKeysApi* | [**revoke_api_key**](arize/_generated/api_client/docs/APIKeysApi.md#revoke_api_key) | **PUT** /v2/api-keys/{api_key_id}/revoke | Revoke an API key
+*AlignmentApi* | [**create_alignment_run**](arize/_generated/api_client/docs/AlignmentApi.md#create_alignment_run) | **POST** /v2/alignment-tasks/{alignment_task_id}/runs | Create alignment run
+*AlignmentApi* | [**create_alignment_task**](arize/_generated/api_client/docs/AlignmentApi.md#create_alignment_task) | **POST** /v2/alignment-tasks | Create alignment task
+*AlignmentApi* | [**get_alignment_task**](arize/_generated/api_client/docs/AlignmentApi.md#get_alignment_task) | **GET** /v2/alignment-tasks/{alignment_task_id} | Get alignment task
+*AlignmentApi* | [**list_alignment_runs**](arize/_generated/api_client/docs/AlignmentApi.md#list_alignment_runs) | **GET** /v2/alignment-tasks/{alignment_task_id}/runs | List alignment runs
+*AlignmentApi* | [**list_alignment_tasks**](arize/_generated/api_client/docs/AlignmentApi.md#list_alignment_tasks) | **GET** /v2/alignment-tasks | List alignment tasks
 *AnnotationConfigsApi* | [**add_annotation_config_tags**](arize/_generated/api_client/docs/AnnotationConfigsApi.md#add_annotation_config_tags) | **POST** /v2/annotation-configs/{annotation_config_id}/tags | Attach tags to a annotation config
 *AnnotationConfigsApi* | [**create_annotation_config**](arize/_generated/api_client/docs/AnnotationConfigsApi.md#create_annotation_config) | **POST** /v2/annotation-configs | Create an annotation config
 *AnnotationConfigsApi* | [**delete_annotation_config**](arize/_generated/api_client/docs/AnnotationConfigsApi.md#delete_annotation_config) | **DELETE** /v2/annotation-configs/{annotation_config_id} | Delete an annotation config
@@ -196,6 +201,15 @@ Class | Method | HTTP request | Description
 *RolesApi* | [**get_role**](arize/_generated/api_client/docs/RolesApi.md#get_role) | **GET** /v2/roles/{role_id} | Get a role
 *RolesApi* | [**list_roles**](arize/_generated/api_client/docs/RolesApi.md#list_roles) | **GET** /v2/roles | List roles
 *RolesApi* | [**update_role**](arize/_generated/api_client/docs/RolesApi.md#update_role) | **PATCH** /v2/roles/{role_id} | Update a role
+*SAMLApi* | [**add_saml_role_mapping**](arize/_generated/api_client/docs/SAMLApi.md#add_saml_role_mapping) | **POST** /v2/saml-identity-providers/{idp_id}/role-mappings | Add a SAML role mapping
+*SAMLApi* | [**create_saml_identity_provider**](arize/_generated/api_client/docs/SAMLApi.md#create_saml_identity_provider) | **POST** /v2/saml-identity-providers | Create a SAML identity provider
+*SAMLApi* | [**delete_saml_identity_provider**](arize/_generated/api_client/docs/SAMLApi.md#delete_saml_identity_provider) | **DELETE** /v2/saml-identity-providers/{idp_id} | Remove a SAML identity provider
+*SAMLApi* | [**get_saml_identity_provider**](arize/_generated/api_client/docs/SAMLApi.md#get_saml_identity_provider) | **GET** /v2/saml-identity-providers/{idp_id} | Get a SAML identity provider
+*SAMLApi* | [**list_saml_identity_providers**](arize/_generated/api_client/docs/SAMLApi.md#list_saml_identity_providers) | **GET** /v2/saml-identity-providers | List SAML identity providers
+*SAMLApi* | [**list_saml_role_mappings**](arize/_generated/api_client/docs/SAMLApi.md#list_saml_role_mappings) | **GET** /v2/saml-identity-providers/{idp_id}/role-mappings | List SAML role mappings
+*SAMLApi* | [**remove_saml_role_mapping**](arize/_generated/api_client/docs/SAMLApi.md#remove_saml_role_mapping) | **DELETE** /v2/saml-identity-providers/{idp_id}/role-mappings/{mapping_id} | Remove a SAML role mapping
+*SAMLApi* | [**update_saml_identity_provider**](arize/_generated/api_client/docs/SAMLApi.md#update_saml_identity_provider) | **PATCH** /v2/saml-identity-providers/{idp_id} | Update supplied SAML configuration fields
+*SAMLApi* | [**update_saml_role_mapping**](arize/_generated/api_client/docs/SAMLApi.md#update_saml_role_mapping) | **PATCH** /v2/saml-identity-providers/{idp_id}/role-mappings/{mapping_id} | Update supplied mapping fields
 *SpacesApi* | [**add_space_user**](arize/_generated/api_client/docs/SpacesApi.md#add_space_user) | **POST** /v2/spaces/{space_id}/users | Add a user to a space
 *SpacesApi* | [**create_space**](arize/_generated/api_client/docs/SpacesApi.md#create_space) | **POST** /v2/spaces | Create a space
 *SpacesApi* | [**delete_space**](arize/_generated/api_client/docs/SpacesApi.md#delete_space) | **DELETE** /v2/spaces/{space_id} | Delete a space
@@ -255,6 +269,11 @@ Class | Method | HTTP request | Description
  - [AiIntegrationProvider](arize/_generated/api_client/docs/AiIntegrationProvider.md)
  - [AiIntegrationScoping](arize/_generated/api_client/docs/AiIntegrationScoping.md)
  - [AiIntegrationScopingRequest](arize/_generated/api_client/docs/AiIntegrationScopingRequest.md)
+ - [AlignmentFunction](arize/_generated/api_client/docs/AlignmentFunction.md)
+ - [AlignmentPredictedEntity](arize/_generated/api_client/docs/AlignmentPredictedEntity.md)
+ - [AlignmentPredictedEntityType](arize/_generated/api_client/docs/AlignmentPredictedEntityType.md)
+ - [AlignmentRun](arize/_generated/api_client/docs/AlignmentRun.md)
+ - [AlignmentTask](arize/_generated/api_client/docs/AlignmentTask.md)
  - [AnnotateAnnotationQueueRecordRequest](arize/_generated/api_client/docs/AnnotateAnnotationQueueRecordRequest.md)
  - [AnnotateAnnotationQueueRecordResponse](arize/_generated/api_client/docs/AnnotateAnnotationQueueRecordResponse.md)
  - [AnnotateDatasetExamplesRequest](arize/_generated/api_client/docs/AnnotateDatasetExamplesRequest.md)
@@ -317,6 +336,8 @@ Class | Method | HTTP request | Description
  - [CreateAgentIntegrationRequest](arize/_generated/api_client/docs/CreateAgentIntegrationRequest.md)
  - [CreateAgentRequestPresetInput](arize/_generated/api_client/docs/CreateAgentRequestPresetInput.md)
  - [CreateAiIntegrationRequest](arize/_generated/api_client/docs/CreateAiIntegrationRequest.md)
+ - [CreateAlignmentRunRequest](arize/_generated/api_client/docs/CreateAlignmentRunRequest.md)
+ - [CreateAlignmentTaskRequest](arize/_generated/api_client/docs/CreateAlignmentTaskRequest.md)
  - [CreateAnnotationConfigRequest](arize/_generated/api_client/docs/CreateAnnotationConfigRequest.md)
  - [CreateAnnotationQueueRecordResponse](arize/_generated/api_client/docs/CreateAnnotationQueueRecordResponse.md)
  - [CreateAnnotationQueueRequest](arize/_generated/api_client/docs/CreateAnnotationQueueRequest.md)
@@ -366,6 +387,8 @@ Class | Method | HTTP request | Description
  - [CreateRoleBindingRequest](arize/_generated/api_client/docs/CreateRoleBindingRequest.md)
  - [CreateRoleRequest](arize/_generated/api_client/docs/CreateRoleRequest.md)
  - [CreateRunExperimentTaskRequest](arize/_generated/api_client/docs/CreateRunExperimentTaskRequest.md)
+ - [CreateSamlIdentityProviderRequest](arize/_generated/api_client/docs/CreateSamlIdentityProviderRequest.md)
+ - [CreateSamlRoleMappingRequest](arize/_generated/api_client/docs/CreateSamlRoleMappingRequest.md)
  - [CreateServiceApiKeyRequest](arize/_generated/api_client/docs/CreateServiceApiKeyRequest.md)
  - [CreateSpaceRequest](arize/_generated/api_client/docs/CreateSpaceRequest.md)
  - [CreateTagRequest](arize/_generated/api_client/docs/CreateTagRequest.md)
@@ -451,6 +474,7 @@ Class | Method | HTTP request | Description
  - [EmailNotificationConfig](arize/_generated/api_client/docs/EmailNotificationConfig.md)
  - [Evaluation](arize/_generated/api_client/docs/Evaluation.md)
  - [Evaluator](arize/_generated/api_client/docs/Evaluator.md)
+ - [EvaluatorInputMode](arize/_generated/api_client/docs/EvaluatorInputMode.md)
  - [EvaluatorIntegration](arize/_generated/api_client/docs/EvaluatorIntegration.md)
  - [EvaluatorIntegrationConfig](arize/_generated/api_client/docs/EvaluatorIntegrationConfig.md)
  - [EvaluatorLlmConfig](arize/_generated/api_client/docs/EvaluatorLlmConfig.md)
@@ -498,6 +522,8 @@ Class | Method | HTTP request | Description
  - [LineChartType](arize/_generated/api_client/docs/LineChartType.md)
  - [LineChartWidget](arize/_generated/api_client/docs/LineChartWidget.md)
  - [ListAiIntegrationsResponse](arize/_generated/api_client/docs/ListAiIntegrationsResponse.md)
+ - [ListAlignmentRunsResponse](arize/_generated/api_client/docs/ListAlignmentRunsResponse.md)
+ - [ListAlignmentTasksResponse](arize/_generated/api_client/docs/ListAlignmentTasksResponse.md)
  - [ListAnnotationConfigsResponse](arize/_generated/api_client/docs/ListAnnotationConfigsResponse.md)
  - [ListAnnotationQueueRecordsResponse](arize/_generated/api_client/docs/ListAnnotationQueueRecordsResponse.md)
  - [ListAnnotationQueuesResponse](arize/_generated/api_client/docs/ListAnnotationQueuesResponse.md)
@@ -521,6 +547,8 @@ Class | Method | HTTP request | Description
  - [ListResourceRestrictionsResponse](arize/_generated/api_client/docs/ListResourceRestrictionsResponse.md)
  - [ListRoleBindingsResponse](arize/_generated/api_client/docs/ListRoleBindingsResponse.md)
  - [ListRolesResponse](arize/_generated/api_client/docs/ListRolesResponse.md)
+ - [ListSamlIdentityProvidersResponse](arize/_generated/api_client/docs/ListSamlIdentityProvidersResponse.md)
+ - [ListSamlRoleMappingsResponse](arize/_generated/api_client/docs/ListSamlRoleMappingsResponse.md)
  - [ListSpacesResponse](arize/_generated/api_client/docs/ListSpacesResponse.md)
  - [ListSpansRequest](arize/_generated/api_client/docs/ListSpansRequest.md)
  - [ListSpansResponse](arize/_generated/api_client/docs/ListSpansResponse.md)
@@ -608,6 +636,13 @@ Class | Method | HTTP request | Description
  - [RoleBindingResourceType](arize/_generated/api_client/docs/RoleBindingResourceType.md)
  - [RunConfiguration](arize/_generated/api_client/docs/RunConfiguration.md)
  - [RunConfigurationRequest](arize/_generated/api_client/docs/RunConfigurationRequest.md)
+ - [SamlDomainVerification](arize/_generated/api_client/docs/SamlDomainVerification.md)
+ - [SamlIdentityProvider](arize/_generated/api_client/docs/SamlIdentityProvider.md)
+ - [SamlIdentityProviderSummary](arize/_generated/api_client/docs/SamlIdentityProviderSummary.md)
+ - [SamlOrganizationAssignment](arize/_generated/api_client/docs/SamlOrganizationAssignment.md)
+ - [SamlProjectAssignment](arize/_generated/api_client/docs/SamlProjectAssignment.md)
+ - [SamlRoleMapping](arize/_generated/api_client/docs/SamlRoleMapping.md)
+ - [SamlSpaceAssignment](arize/_generated/api_client/docs/SamlSpaceAssignment.md)
  - [ScheduledRuntimeConfig](arize/_generated/api_client/docs/ScheduledRuntimeConfig.md)
  - [SearchDatasetExamplesRequest](arize/_generated/api_client/docs/SearchDatasetExamplesRequest.md)
  - [SearchExperimentRunsRequest](arize/_generated/api_client/docs/SearchExperimentRunsRequest.md)
@@ -699,6 +734,8 @@ Class | Method | HTTP request | Description
  - [UpdateRoleBindingRequest](arize/_generated/api_client/docs/UpdateRoleBindingRequest.md)
  - [UpdateRoleRequest](arize/_generated/api_client/docs/UpdateRoleRequest.md)
  - [UpdateRunExperimentTaskRequest](arize/_generated/api_client/docs/UpdateRunExperimentTaskRequest.md)
+ - [UpdateSamlIdentityProviderRequest](arize/_generated/api_client/docs/UpdateSamlIdentityProviderRequest.md)
+ - [UpdateSamlRoleMappingRequest](arize/_generated/api_client/docs/UpdateSamlRoleMappingRequest.md)
  - [UpdateSpaceRequest](arize/_generated/api_client/docs/UpdateSpaceRequest.md)
  - [UpdateTagRequest](arize/_generated/api_client/docs/UpdateTagRequest.md)
  - [UpdateTaskRequest](arize/_generated/api_client/docs/UpdateTaskRequest.md)

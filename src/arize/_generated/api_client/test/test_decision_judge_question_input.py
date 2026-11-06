@@ -42,6 +42,7 @@ class TestDecisionJudgeQuestionInput(unittest.TestCase):
                     levels = [
                         ''
                         ], ),
+                threshold = 0,
                 direction = 'NONE'
             )
         else:

@@ -1414,6 +1414,7 @@ def _dj_questions() -> list:
             criteria=DecisionJudgeBooleanCriteriaInput(
                 true_means="Resolved", false_means="Still open"
             ),
+            threshold=0.8,
         ),
         DecisionJudgeChoiceQuestionInput(
             name="tone",
@@ -1459,6 +1460,7 @@ _DJ_VERSION_JSON = {
                 "name": "resolved",
                 "type": "BOOLEAN",
                 "instructions": "Does the reply resolve the issue?",
+                "threshold": 0.7,
             },
             {
                 "name": "helpfulness",
@@ -1566,6 +1568,7 @@ class TestEvaluatorsClientCreateDecisionJudgeEvaluator:
                     "true_means": "Resolved",
                     "false_means": "Still open",
                 },
+                "threshold": 0.8,
             },
             {
                 "name": "tone",
@@ -1826,6 +1829,7 @@ class TestDecisionJudgeConfigCoercion:
             "helpfulness",
             "tone",
         ]
+        assert sent["questions"][0]["threshold"] == 0.7
         assert sent["questions"][1] == {
             "name": "helpfulness",
             "type": "SCORE",

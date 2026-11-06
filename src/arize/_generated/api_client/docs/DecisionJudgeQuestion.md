@@ -10,6 +10,7 @@ Name | Type | Description | Notes
 **type** | **str** | Discriminator identifying this as a boolean question. Always &#x60;BOOLEAN&#x60; for this variant. | 
 **instructions** | **str** | The full instruction the model answers. The question name is not sent to the model. | 
 **criteria** | [**DecisionJudgeScoreCriteria**](DecisionJudgeScoreCriteria.md) |  | 
+**threshold** | **float** | The answer is &#x60;true&#x60; when the model&#39;s probability of &#x60;true&#x60; is at least this value. Between 0 and 1, exclusive. &#x60;0.5&#x60; for questions created without a threshold. Absent in responses from self-hosted versions that predate thresholds, which score at &#x60;0.5&#x60;.  | [optional] 
 **direction** | [**OptimizationDirection**](OptimizationDirection.md) | Whether higher or lower levels are better. | 
 
 ## Example

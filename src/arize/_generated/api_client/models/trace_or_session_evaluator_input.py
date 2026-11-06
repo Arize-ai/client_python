@@ -20,6 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
+from arize._generated.api_client.models.evaluator_input_mode import EvaluatorInputMode
 from arize._generated.api_client.models.task_query_mapping_input import TaskQueryMappingInput
 from typing import Optional, Set
 from typing_extensions import Self
@@ -28,10 +29,11 @@ class TraceOrSessionEvaluatorInput(BaseModel):
     """
     Trace/session-granularity evaluator input. Uses `query_mappings`.
     """ # noqa: E501
+    input_modes: Optional[Dict[str, EvaluatorInputMode]] = Field(default=None, description="Input mode for each mapped evaluator variable.")
     evaluator_id: StrictStr = Field(description="Evaluator identifier (base64). Duplicates are not allowed.")
     evaluator_version_id: Optional[StrictStr] = Field(default=None, description="Pin this evaluator to a specific version (base64). Defaults to null, which always runs the evaluator's latest version; omitting the field and sending null are equivalent. Must be a version of the evaluator named by `evaluator_id`, otherwise the request returns 422. ")
     query_mappings: Annotated[List[TaskQueryMappingInput], Field(min_length=1, max_length=50)] = Field(description="Per-evaluator variable-to-query mappings (trace/session shape).")
-    __properties: ClassVar[List[str]] = ["evaluator_id", "evaluator_version_id", "query_mappings"]
+    __properties: ClassVar[List[str]] = ["input_modes", "evaluator_id", "evaluator_version_id", "query_mappings"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -101,6 +103,7 @@ class TraceOrSessionEvaluatorInput(BaseModel):
                 raise ValueError("Error due to additional fields (not defined in TraceOrSessionEvaluatorInput) in the input: " + _key)
 
         _obj = cls.model_validate({key: value for key, value in {
+            "input_modes": dict((_k, _v) for _k, _v in obj.get("input_modes").items()) if obj.get("input_modes") is not None else None,
             "evaluator_id": obj.get("evaluator_id"),
             "evaluator_version_id": obj.get("evaluator_version_id"),
             "query_mappings": [TaskQueryMappingInput.from_dict(_item) for _item in obj["query_mappings"]] if obj.get("query_mappings") is not None else None

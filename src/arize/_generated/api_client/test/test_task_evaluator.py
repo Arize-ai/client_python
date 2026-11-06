@@ -35,6 +35,9 @@ class TestTaskEvaluator(unittest.TestCase):
         model = TaskEvaluator()
         if include_optional:
             return TaskEvaluator(
+                input_modes = {
+                    'key' : 'TEXT'
+                    },
                 evaluator_id = '',
                 evaluator_name = '',
                 evaluator_version_id = '',

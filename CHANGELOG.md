@@ -1,5 +1,14 @@
 # Changelog
 
+## [8.64.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.63.0...arize-python-sdk/v8.64.0) (2026-11-06)
+
+
+### 🎁 New Features
+
+* **saml:** add support for SAML identity providers ([#90457](https://github.com/Arize-ai/arize/issues/90457)) ([1c0aede](https://github.com/Arize-ai/arize/commit/1c0aedea1f537d1fde66f185b307d8ab9572ac7f))
+* **saml:** add support for SAML role mappings ([#90458](https://github.com/Arize-ai/arize/issues/90458)) ([b88835c](https://github.com/Arize-ai/arize/commit/b88835cfade6925d6ee86bac9f046466442da228))
+* **integrations:** support Decision Judge boolean question thresholds ([#93791](https://github.com/Arize-ai/arize/issues/93791)) ([ff568a5](https://github.com/Arize-ai/arize/commit/ff568a562c718f099db244616cc6653d26f2418a))
+
 ## [8.63.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.62.0...arize-python-sdk/v8.63.0) (2026-11-03)
 
 

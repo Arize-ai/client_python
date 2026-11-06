@@ -35,6 +35,9 @@ class TestTraceOrSessionEvaluatorInput(unittest.TestCase):
         model = TraceOrSessionEvaluatorInput()
         if include_optional:
             return TraceOrSessionEvaluatorInput(
+                input_modes = {
+                    'key' : 'TEXT'
+                    },
                 evaluator_id = '',
                 evaluator_version_id = '',
                 query_mappings = [

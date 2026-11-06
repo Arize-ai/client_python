@@ -6,6 +6,7 @@ Configuration for running a template-based LLM evaluator against each dataset ex
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**input_modes** | [**Dict[str, EvaluatorInputMode]**](EvaluatorInputMode.md) | Input mode for each mapped evaluator variable. | [optional] 
 **experiment_type** | **str** | Discriminator. Must be &#x60;\&quot;TEMPLATE_EVALUATION\&quot;&#x60;. | 
 **ai_integration_id** | **str** | AI integration identifier (base64). The LLM that judges each example. | 
 **model_name** | **str** | Model name (e.g. &#x60;gpt-4o&#x60;). Falls back to the integration&#39;s default if omitted. | [optional] 

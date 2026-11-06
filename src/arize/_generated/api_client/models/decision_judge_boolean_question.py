@@ -18,7 +18,8 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, List, Optional
+from typing import Any, ClassVar, Dict, List, Optional, Union
+from typing_extensions import Annotated
 from arize._generated.api_client.models.decision_judge_boolean_criteria import DecisionJudgeBooleanCriteria
 from typing import Optional, Set
 from typing_extensions import Self
@@ -31,7 +32,8 @@ class DecisionJudgeBooleanQuestion(BaseModel):
     type: Optional[StrictStr] = Field(default=None, description="Discriminator identifying this as a boolean question. Always `BOOLEAN` for this variant.")
     instructions: Optional[StrictStr] = Field(default=None, description="The full instruction the model answers. The question name is not sent to the model.")
     criteria: Optional[DecisionJudgeBooleanCriteria] = None
-    __properties: ClassVar[List[str]] = ["name", "type", "instructions", "criteria"]
+    threshold: Optional[Union[Annotated[float, Field(lt=1, strict=True, gt=0)], Annotated[int, Field(lt=1, strict=True, gt=0)]]] = Field(default=None, description="The answer is `true` when the model's probability of `true` is at least this value. Between 0 and 1, exclusive. `0.5` for questions created without a threshold. Absent in responses from self-hosted versions that predate thresholds, which score at `0.5`. ")
+    __properties: ClassVar[List[str]] = ["name", "type", "instructions", "criteria", "threshold"]
 
     @field_validator('type')
     def type_validate_enum(cls, value):
@@ -100,7 +102,8 @@ class DecisionJudgeBooleanQuestion(BaseModel):
             "name": obj.get("name"),
             "type": obj.get("type"),
             "instructions": obj.get("instructions"),
-            "criteria": DecisionJudgeBooleanCriteria.from_dict(obj["criteria"]) if obj.get("criteria") is not None else None
+            "criteria": DecisionJudgeBooleanCriteria.from_dict(obj["criteria"]) if obj.get("criteria") is not None else None,
+            "threshold": obj.get("threshold")
         }.items() if key in obj})
         return _obj
 

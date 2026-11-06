@@ -28,6 +28,7 @@ if TYPE_CHECKING:
     from arize.resource_restrictions.client import ResourceRestrictionsClient
     from arize.role_bindings.client import RoleBindingsClient
     from arize.roles.client import RolesClient
+    from arize.saml_identity_providers.client import SamlIdentityProvidersClient
     from arize.spaces.client import SpacesClient
     from arize.spans.client import SpansClient
     from arize.tasks.client import TasksClient
@@ -81,6 +82,8 @@ class ArizeClient(LazySubclientsMixin):
             ...     api_key="your-api-key", region=Region.EU_WEST
             ... )
     """
+
+    saml_identity_providers: SamlIdentityProvidersClient
 
     _SUBCLIENTS: ClassVar[dict[str, tuple[str, str]]] = {
         "ai_integrations": (
@@ -158,6 +161,10 @@ class ArizeClient(LazySubclientsMixin):
         "roles": (
             "arize.roles.client",
             "RolesClient",
+        ),
+        "saml_identity_providers": (
+            "arize.saml_identity_providers.client",
+            "SamlIdentityProvidersClient",
         ),
         "tasks": (
             "arize.tasks.client",

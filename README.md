@@ -18,6 +18,7 @@
 
 # Table of Contents <!-- omit in toc -->
 
+- [SAML identity providers](#saml-identity-providers)
 - [Overview](#overview)
 - [Key Features](#key-features)
 - [Installation](#installation)
@@ -1176,7 +1177,7 @@ Each question has a `type` that selects the shape of its `criteria`:
 
 | Type | `criteria` | Notes |
 |------|------------|-------|
-| `BOOLEAN` | Optional `true_means` and `false_means` | A yes or no answer |
+| `BOOLEAN` | Optional `true_means` and `false_means` | A yes or no answer. Optional `threshold` between 0 and 1, exclusive: the answer is `true` when the model's probability of `true` is at least this value. Defaults to `0.5` |
 | `CHOICE` | Required `options`: 2 to 255 labels, each mapped to when it applies | One option from a fixed set |
 | `SCORE` | Required `levels`: 2 to 10 descriptions, lowest to highest | Optional `direction`, defaults to `MAXIMIZE` |
 
@@ -2593,3 +2594,31 @@ Join our community to connect with thousands of AI builders.
 - 🧑‍🏫 Deep dive into everything [Agents](http://arize.com/ai-agents/) and [LLM Evaluations](https://arize.com/llm-evaluation) on Arize's Learning Hubs.
 
 Copyright 2025 Arize AI, Inc. All Rights Reserved.
+
+## SAML identity providers
+
+Unmanaged mappings return `project_roles: null` (`projectRoles: null` in TypeScript). Arrays, including empty arrays, enable project-role management for the whole identity provider. With role sync enabled, login replaces all project bindings, including manual grants, using the user's matched mappings. Manual grants are preserved only when all mappings are unmanaged.
+
+> **Warning:** The SAML API is alpha and can change without notice.
+
+List returns summary fields. Use get to read metadata, default roles and role mappings. Non-empty space or project assignments require an organization.
+
+Requires Enterprise account-admin access. All operations use the authenticated account.
+
+```python
+from arize import ArizeClient
+client = ArizeClient()
+page = client.saml_identity_providers.list(limit=100)
+idp = client.saml_identity_providers.get(idp_id=page.data[0].id)
+client.saml_identity_providers.update(idp_id=idp.id, body={"sync_user_roles": False})
+```
+
+Use `create(body=...)` to create a configuration. Supply exactly one metadata source. Default login requires all four default fields. With defaults disabled, supply initial role mappings. Use `delete(idp_id=...)` after disabling enforcement. File-managed configurations are read-only. Users and grants remain after deletion.
+
+### SAML role mappings
+
+Use `list_role_mappings(idp_id=...)`, `add_role_mapping(idp_id=..., body=...)`, `update_role_mapping(idp_id=..., mapping_id=..., body=...)` and `remove_role_mapping(idp_id=..., mapping_id=...)` on `client.saml_identity_providers`. Use IDs returned by list or add. Updates keep the mapping ID. Empty assignment lists clear assignments; omitted fields remain unchanged. Removing the last required login or admin mapping fails.
+
+Mapping priority follows configuration order. For custom space roles and project roles, the first matching rule for each resource wins. Built-in space roles use the most permissive matching built-in role. Adding a mapping places it last; updating it preserves its position. Removing and re-adding it moves it to the end and can change effective roles for users who match multiple rules.
+
+For existing users, changes to stored role assignments apply at their next successful SAML login only when `sync_user_roles` is true. Mapping changes do not revoke current sessions or API keys.
