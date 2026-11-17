@@ -1,5 +1,19 @@
 # Changelog
 
+## [8.65.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.64.0...arize-python-sdk/v8.65.0) (2026-11-17)
+
+
+### 🎁 New Features
+
+* **tasks:** run multiple custom code evaluators in one task ([#94595](https://github.com/Arize-ai/arize/issues/94595)) ([5e2ec92](https://github.com/Arize-ai/arize/commit/5e2ec92c1ff1f249831e4007ca2c936fcbd5d7a1))
+* **auth:** present client certificates for mTLS ingress ([#95034](https://github.com/Arize-ai/arize/issues/95034)) ([2f23e25](https://github.com/Arize-ai/arize/commit/2f23e2578effd1e6870eb4a5e3b975e34582ab1d))
+* **regions:** limit public regions to US, EU, and CA ([#95401](https://github.com/Arize-ai/arize/issues/95401)) ([29c73f5](https://github.com/Arize-ai/arize/commit/29c73f5df15056f62040a6b44b366d4e01a05487))
+
+
+### 🐛 Bug Fixes
+
+* **docs:** repoint broken docs links to live pages ([#94716](https://github.com/Arize-ai/arize/issues/94716)) ([c69daf1](https://github.com/Arize-ai/arize/commit/c69daf15bd84fc6086637a40a5d477d2ade039ca))
+
 ## [8.64.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.63.0...arize-python-sdk/v8.64.0) (2026-11-06)
 
 

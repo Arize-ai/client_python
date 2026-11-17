@@ -141,7 +141,7 @@ class MissingPredictionIdColumnForDelayedRecords(ValidationError):
             "it is required when sending delayed actuals, i.e. when sending actual or feature importances "
             f"without predictions. In this case, {msg} information was found (without predictions). "
             "To learn more about delayed joins, please see the docs at "
-            "https://docs.arize.com/arize/sending-data-guides/how-to-send-delayed-actuals"
+            "https://arize.com/docs/ax/machine-learning/machine-learning/concepts-ml/how-to-send-delayed-actuals"
         )
 
 
@@ -440,7 +440,7 @@ class MissingProductionPredActFeatureImportance(ValidationError):
             "columns for delayed actuals. This schema only has features, so it can't "
             "create a model. Add a prediction column, or for latent actuals include "
             "the actual columns plus prediction_id to join them to prior predictions. "
-            "See https://docs.arize.com/arize/sending-data/sending-data-faq"
+            "See https://arize.com/docs/ax/machine-learning/machine-learning/how-to-ml/upload-data-to-arize/sending-data-faq"
             "#what-happens-after-i-send-in-actual-data"
         )
 

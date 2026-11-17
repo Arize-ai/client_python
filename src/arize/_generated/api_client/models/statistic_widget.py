@@ -36,7 +36,7 @@ class StatisticWidget(BaseModel):
     type: Optional[WidgetType] = Field(default=None, description="Identifies this widget as a statistic.")
     dashboard_id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the dashboard containing the widget.")
     title: Optional[StrictStr] = Field(default=None, description="Display title of the widget.")
-    grid_position: Optional[Annotated[List[Annotated[int, Field(strict=True, ge=0)]], Field(min_length=4, max_length=4)]] = Field(default=None, description="Position and size of the widget in the dashboard grid.")
+    grid_position: Optional[Annotated[List[Annotated[int, Field(strict=True, ge=1)]], Field(min_length=4, max_length=4)]] = Field(default=None, description="Position and size of the widget in the dashboard grid.")
     creation_status: Optional[WidgetCreationStatus] = Field(default=None, description="Publication state of the widget.")
     created_at: Optional[datetime] = Field(default=None, description="Timestamp when the widget was created.")
     creator_user_id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the user who created the widget.")

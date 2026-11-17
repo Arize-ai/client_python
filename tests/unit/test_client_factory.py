@@ -371,3 +371,60 @@ def test_authenticated_proxy_connect(mock_sdk_config: Mock) -> None:
     headers = {key.lower(): value for key, value in headers.items()}
     assert headers["proxy-authorization"] == "Basic dXNlcjpwQHNz"
     assert "authorization" not in headers
+
+
+@pytest.mark.unit
+class TestClientCertificate:
+    """Tests for mutual TLS client certificate wiring on the REST client."""
+
+    def test_cert_and_key_set_on_configuration(
+        self, mock_sdk_config: Mock
+    ) -> None:
+        mock_sdk_config.client_cert_pair = ("/certs/c.crt", "/certs/c.key")
+        factory = GeneratedClientFactory(mock_sdk_config)
+
+        with (
+            patch(
+                "arize._generated.api_client.Configuration"
+            ) as mock_config_cls,
+            patch("arize._generated.api_client.ApiClient"),
+        ):
+            mock_config_instance = Mock()
+            mock_config_cls.return_value = mock_config_instance
+
+            factory.get_client()
+
+        assert mock_config_instance.cert_file == "/certs/c.crt"
+        assert mock_config_instance.key_file == "/certs/c.key"
+
+    def test_cert_not_set_when_unconfigured(
+        self, mock_sdk_config: Mock
+    ) -> None:
+        factory = GeneratedClientFactory(mock_sdk_config)
+
+        with (
+            patch(
+                "arize._generated.api_client.Configuration"
+            ) as mock_config_cls,
+            patch("arize._generated.api_client.ApiClient"),
+        ):
+            mock_config_instance = Mock(spec=["host", "verify_ssl"])
+            mock_config_cls.return_value = mock_config_instance
+
+            factory.get_client()
+
+        assert not hasattr(mock_config_instance, "cert_file")
+        assert not hasattr(mock_config_instance, "key_file")
+
+    def test_urllib3_pool_manager_receives_cert(
+        self, mock_sdk_config: Mock
+    ) -> None:
+        mock_sdk_config.client_cert_pair = ("/certs/c.crt", "/certs/c.key")
+        factory = GeneratedClientFactory(mock_sdk_config)
+
+        with patch("urllib3.PoolManager") as pool_manager:
+            factory.get_client()
+
+        kwargs = pool_manager.call_args.kwargs
+        assert kwargs["cert_file"] == "/certs/c.crt"
+        assert kwargs["key_file"] == "/certs/c.key"

@@ -1032,6 +1032,7 @@ class ExperimentsClient:
             dry_run=dry_run,
             set_global_tracer_provider=set_global_tracer_provider,
             ssl_ca_cert=self._sdk_config.ssl_ca_cert,
+            client_cert_pair=self._sdk_config.client_cert_pair,
         )
 
         internal_metadata: dict[str, str] = {
@@ -1269,6 +1270,7 @@ def _get_tracer_resource(
     dry_run: bool = False,
     set_global_tracer_provider: bool = False,
     ssl_ca_cert: str = "",
+    client_cert_pair: tuple[str, str] | None = None,
 ) -> tuple[Tracer, Resource, LLMSpanMetricsCollector]:
     """Initialize the OpenTelemetry tracer, resource, and LLM metrics collector for experiment tracing."""
     resource = Resource(
@@ -1286,26 +1288,41 @@ def _get_tracer_resource(
         OTLPSpanExporter as GrpcSpanExporter,
     )
 
+    use_tls = any(endpoint.startswith(v) for v in ["https://", "grpc+tls://"])
+    if client_cert_pair and not use_tls and not dry_run:
+        logger.warning(
+            "Ignoring the client certificate for experiment tracing: "
+            "OTLP endpoint %s does not use TLS.",
+            endpoint,
+        )
+        client_cert_pair = None
+
     exporter: SpanExporter
     if dry_run:
         exporter = ConsoleSpanExporter()
-    elif ssl_ca_cert:
+    elif ssl_ca_cert or client_cert_pair:
         from pathlib import Path
 
         import grpc
 
-        cert_bytes = Path(ssl_ca_cert).read_bytes()
-        credentials = grpc.ssl_channel_credentials(root_certificates=cert_bytes)
+        root_certificates = (
+            Path(ssl_ca_cert).read_bytes() if ssl_ca_cert else None
+        )
+        private_key = certificate_chain = None
+        if client_cert_pair:
+            certificate_chain = Path(client_cert_pair[0]).read_bytes()
+            private_key = Path(client_cert_pair[1]).read_bytes()
+        credentials = grpc.ssl_channel_credentials(
+            root_certificates=root_certificates,
+            private_key=private_key,
+            certificate_chain=certificate_chain,
+        )
         exporter = GrpcSpanExporter(
             endpoint=endpoint, credentials=credentials, headers=headers
         )
     else:
-        use_tls = any(
-            endpoint.startswith(v) for v in ["https://", "grpc+tls://"]
-        )
-        insecure = not use_tls
         exporter = GrpcSpanExporter(
-            endpoint=endpoint, insecure=insecure, headers=headers
+            endpoint=endpoint, insecure=not use_tls, headers=headers
         )
     tracer_provider.add_span_processor(SimpleSpanProcessor(exporter))
     metrics_collector = LLMSpanMetricsCollector()

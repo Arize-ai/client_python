@@ -961,3 +961,53 @@ class TestSplitBatchesByByteBudget:
 
         assert all(b.nbytes <= 10_000 and b.num_rows <= 20 for b in batches)
         assert pa.Table.from_batches(batches, schema=table.schema).equals(table)
+
+
+@pytest.mark.unit
+class TestPostArrowTableClientCertificate:
+    """post_arrow_table forwards the mutual TLS client certificate."""
+
+    @pytest.mark.parametrize(
+        "cert", [None, ("/certs/client.crt", "/certs/client.key")]
+    )
+    def test_cert_forwarded_to_requests(
+        self,
+        cert: tuple[str, str] | None,
+        sample_arrow_table: pa.Table,
+        mock_proto_schema: MagicMock,
+        mock_response: MagicMock,
+    ) -> None:
+        with patch("requests.post", return_value=mock_response) as mock_post:
+            post_arrow_table(
+                files_url="https://api.arize.com/upload",
+                pa_table=sample_arrow_table,
+                proto_schema=mock_proto_schema,
+                headers={},
+                timeout=30.0,
+                verify=True,
+                max_chunksize=1000,
+                cert=cert,
+            )
+
+        assert mock_post.call_args.kwargs["cert"] == cert
+
+    @pytest.mark.parametrize("verify", [True, False, "/certs/ca.pem"])
+    def test_verify_forwarded_to_requests(
+        self,
+        verify: bool | str,
+        sample_arrow_table: pa.Table,
+        mock_proto_schema: MagicMock,
+        mock_response: MagicMock,
+    ) -> None:
+        with patch("requests.post", return_value=mock_response) as mock_post:
+            post_arrow_table(
+                files_url="https://api.arize.com/upload",
+                pa_table=sample_arrow_table,
+                proto_schema=mock_proto_schema,
+                headers={},
+                timeout=30.0,
+                verify=verify,
+                max_chunksize=1000,
+            )
+
+        assert mock_post.call_args.kwargs["verify"] == verify

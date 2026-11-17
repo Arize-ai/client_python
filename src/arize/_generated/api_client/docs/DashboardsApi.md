@@ -5,6 +5,9 @@ All URIs are relative to *https://api.arize.com*
 Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**create_dashboard**](DashboardsApi.md#create_dashboard) | **POST** /v2/dashboards | Create a dashboard
+[**create_dashboard_widget**](DashboardsApi.md#create_dashboard_widget) | **POST** /v2/dashboards/{dashboard_id}/widgets | Create a dashboard widget
+[**delete_dashboard**](DashboardsApi.md#delete_dashboard) | **DELETE** /v2/dashboards/{dashboard_id} | Delete a dashboard
+[**delete_dashboard_widget**](DashboardsApi.md#delete_dashboard_widget) | **DELETE** /v2/dashboards/{dashboard_id}/widgets/{widget_id} | Delete a dashboard widget
 [**get_dashboard**](DashboardsApi.md#get_dashboard) | **GET** /v2/dashboards/{dashboard_id} | Get a dashboard
 [**get_dashboard_widget**](DashboardsApi.md#get_dashboard_widget) | **GET** /v2/dashboards/{dashboard_id}/widgets/{widget_id} | Get a dashboard widget
 [**list_dashboard_widgets**](DashboardsApi.md#list_dashboard_widgets) | **GET** /v2/dashboards/{dashboard_id}/widgets | List dashboard widgets
@@ -97,6 +100,278 @@ Name | Type | Description  | Notes
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **422** | Unprocessable entity |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **create_dashboard_widget**
+> Widget create_dashboard_widget(dashboard_id, create_dashboard_widget_request)
+
+Create a dashboard widget
+
+Create a widget on a dashboard. The caller must have permission to update the
+dashboard. If `grid_position` is omitted, the next available position is
+assigned. New widgets are published by default.
+
+`grid_position` uses 1-based CSS grid lines in the order
+`[rowStart, colStart, rowEnd, colEnd]`. End lines must be greater than their
+corresponding start lines, and `colEnd` must not exceed 13.
+
+Comparison plots can reference an existing model baseline with
+`comparison_model_baseline_id`. Creating custom or filtered baseline
+definitions is not supported by this endpoint.
+
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.create_dashboard_widget_request import CreateDashboardWidgetRequest
+from arize._generated.api_client.models.widget import Widget
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.DashboardsApi(api_client)
+    dashboard_id = 'RGFzaGJvYXJkOjEyMzQ1' # str | The Relay global ID of the dashboard.
+    create_dashboard_widget_request = {"type":"TEXT","title":"Investigation notes","content":"## Findings\nReview the latest evaluation results."} # CreateDashboardWidgetRequest | Body containing dashboard widget creation parameters.
+
+    try:
+        # Create a dashboard widget
+        api_response = api_instance.create_dashboard_widget(dashboard_id, create_dashboard_widget_request)
+        print("The response of DashboardsApi->create_dashboard_widget:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling DashboardsApi->create_dashboard_widget: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **dashboard_id** | **str**| The Relay global ID of the dashboard. | 
+ **create_dashboard_widget_request** | [**CreateDashboardWidgetRequest**](CreateDashboardWidgetRequest.md)| Body containing dashboard widget creation parameters. | 
+
+### Return type
+
+[**Widget**](Widget.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**201** | Returns one dashboard widget with its type-specific configuration. |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
+**422** | Unprocessable entity |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **delete_dashboard**
+> delete_dashboard(dashboard_id)
+
+Delete a dashboard
+
+Delete a dashboard by its ID. The dashboard and its widgets will no longer
+be available through this API. The caller must have permission to delete
+the dashboard.
+
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.DashboardsApi(api_client)
+    dashboard_id = 'RGFzaGJvYXJkOjEyMzQ1' # str | The Relay global ID of the dashboard.
+
+    try:
+        # Delete a dashboard
+        api_instance.delete_dashboard(dashboard_id)
+    except Exception as e:
+        print("Exception when calling DashboardsApi->delete_dashboard: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **dashboard_id** | **str**| The Relay global ID of the dashboard. | 
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**204** | Dashboard deleted successfully. |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **delete_dashboard_widget**
+> delete_dashboard_widget(dashboard_id, widget_id)
+
+Delete a dashboard widget
+
+Delete a draft or published widget from its dashboard. The widget must
+belong to the specified dashboard, and the caller must have permission
+to update that dashboard.
+
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.DashboardsApi(api_client)
+    dashboard_id = 'RGFzaGJvYXJkOjEyMzQ1' # str | The Relay global ID of the dashboard.
+    widget_id = 'TGluZUNoYXJ0V2lkZ2V0OjEyMzQ1' # str | The Relay global ID of the widget.
+
+    try:
+        # Delete a dashboard widget
+        api_instance.delete_dashboard_widget(dashboard_id, widget_id)
+    except Exception as e:
+        print("Exception when calling DashboardsApi->delete_dashboard_widget: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **dashboard_id** | **str**| The Relay global ID of the dashboard. | 
+ **widget_id** | **str**| The Relay global ID of the widget. | 
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**204** | Widget successfully deleted. |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

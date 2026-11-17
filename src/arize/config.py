@@ -1,6 +1,7 @@
 """SDK configuration and settings management for the Arize client."""
 
 import logging
+import os
 from dataclasses import dataclass, field, fields
 from pathlib import Path
 from urllib.parse import urlparse, urlsplit
@@ -43,6 +44,8 @@ from arize.constants.config import (
     ENV_API_SCHEME,
     ENV_ARIZE_DIRECTORY,
     ENV_BASE_DOMAIN,
+    ENV_CLIENT_CERT,
+    ENV_CLIENT_KEY,
     ENV_ENABLE_CACHING,
     ENV_FLIGHT_HOST,
     ENV_FLIGHT_PORT,
@@ -72,6 +75,9 @@ from arize.regions import REGION_ENDPOINTS, Region
 logger = logging.getLogger(__name__)
 
 SENSITIVE_FIELD_MARKERS = ("key", "token", "secret")
+
+_PEM_MARKER = "-----BEGIN"
+_ENCRYPTED_KEY_MARKERS = (b"ENCRYPTED PRIVATE KEY", b"Proc-Type: 4,ENCRYPTED")
 
 
 def _is_sensitive_field(name: str) -> bool:
@@ -117,6 +123,51 @@ def _mask_secret(secret: str, N: int = 4) -> str:
     if len(secret) == 0:
         return ""
     return f"{secret[:N]}***"
+
+
+def _validate_client_cert_pair(client_cert: str, client_key: str) -> None:
+    """Validate the client certificate and key paths used for mutual TLS.
+
+    Error messages never include a value that looks like PEM content.
+
+    Args:
+        client_cert: Path to the PEM client certificate (may include a chain).
+        client_key: Path to the unencrypted PEM private key.
+
+    Raises:
+        ValueError: If only one of the pair is set, a value holds PEM content
+            instead of a path, a file does not exist, or the key is encrypted.
+    """
+    if bool(client_cert) != bool(client_key):
+        raise ValueError(
+            f"{ENV_CLIENT_CERT} and {ENV_CLIENT_KEY} must be set together"
+        )
+    if not client_cert:
+        return
+    for name, path in (
+        ("client_cert", client_cert),
+        ("client_key", client_key),
+    ):
+        if _PEM_MARKER in path:
+            raise ValueError(
+                f"{name} must be a path to a PEM file, not the PEM content"
+            )
+        if not Path(path).is_file():
+            raise ValueError(f"{name} file not found: {path}")
+
+    key_path = Path(client_key)
+    if os.name == "posix" and key_path.stat().st_mode & 0o077:
+        logger.warning(
+            "Client key file %s is accessible by group or others; "
+            "restrict it with 'chmod 600'.",
+            client_key,
+        )
+    key_bytes = key_path.read_bytes()
+    if any(marker in key_bytes for marker in _ENCRYPTED_KEY_MARKERS):
+        raise ValueError(
+            f"client_key file {client_key} is encrypted; only unencrypted "
+            "private keys are supported"
+        )
 
 
 def _endpoint(scheme: str, base: str, path: str = "", port: int = 0) -> str:
@@ -214,6 +265,17 @@ class SDKConfiguration:
             "http://proxy.corp:8080"). Reads the first set variable from:
             ARIZE_PROXY_URL → HTTPS_PROXY → HTTP_PROXY.
             Default: "" (direct connection).
+        client_cert: Path to a PEM client certificate (optionally followed by its chain)
+            presented to servers that require mutual TLS. Used by REST, file upload,
+            record streaming, Arrow Flight, and experiment OTLP export. Must be set
+            together with client_key.
+            Environment variable: ARIZE_CLIENT_CERT.
+            Default: "" (no client certificate).
+        client_key: Path to the unencrypted PEM private key for client_cert. Must be set
+            together with client_cert. A warning is logged when the file is accessible
+            by group or others.
+            Environment variable: ARIZE_CLIENT_KEY.
+            Default: "" (no client certificate).
         stream_max_workers: Maximum number of worker threads for streaming operations (minimum: 1).
             Environment variable: ARIZE_STREAM_MAX_WORKERS.
             Default: 8.
@@ -229,7 +291,7 @@ class SDKConfiguration:
         enable_caching: Whether to enable local caching.
             Environment variable: ARIZE_ENABLE_CACHING.
             Default: True.
-        region: Arize region (e.g., US_CENTRAL, EU_WEST). When specified, overrides
+        region: Arize region (US, EU, or CA). When specified, overrides
             individual host/port settings.
             Environment variable: ARIZE_REGION.
             Default: :class:`Region.UNSET`.
@@ -271,6 +333,8 @@ class SDKConfiguration:
         MissingAPIKeyError: If api_key is not provided via argument or environment variable.
         MultipleEndpointOverridesError: If multiple endpoint override options are provided.
         InvalidDefaultHeadersError: If default_headers contains an invalid or reserved header.
+        ValueError: If only one of client_cert/client_key is set, either file is missing
+            or holds PEM content instead of a path, or the key is encrypted.
     """
 
     api_key: str = field(
@@ -341,6 +405,12 @@ class SDKConfiguration:
     proxy_url: str = field(
         default_factory=lambda: _env_str_fallback(ENV_PROXY_URL)
     )
+    client_cert: str = field(
+        default_factory=lambda: _env_str(ENV_CLIENT_CERT, "")
+    )
+    client_key: str = field(
+        default_factory=lambda: _env_str(ENV_CLIENT_KEY, "")
+    )
     stream_max_workers: int = field(
         default_factory=lambda: _env_int(
             ENV_STREAM_MAX_WORKERS,
@@ -373,7 +443,7 @@ class SDKConfiguration:
             ENV_ENABLE_CACHING, DEFAULT_ENABLE_CACHING
         )
     )
-    region: Region = field(
+    region: Region | str = field(
         default_factory=lambda: Region(_env_str(ENV_REGION, ""))
     )
     single_host: str = field(
@@ -413,17 +483,26 @@ class SDKConfiguration:
         if not self.api_key:
             raise MissingAPIKeyError()
 
+        client_cert = os.path.expanduser(self.client_cert.strip())
+        client_key = os.path.expanduser(self.client_key.strip())
+        _validate_client_cert_pair(client_cert, client_key)
+        object.__setattr__(self, "client_cert", client_cert)
+        object.__setattr__(self, "client_key", client_key)
+
         # Validate and freeze user-supplied default headers. Store a defensive
         # shallow copy so a caller mutating their dict afterward cannot alter
         # this (frozen) configuration.
         _validate_default_headers(self.default_headers)
         object.__setattr__(self, "default_headers", dict(self.default_headers))
 
+        region = Region(self.region)
+        object.__setattr__(self, "region", region)
+
         # Check which override options are set
         has_base_domain = bool(self.base_domain)
         has_single_host = bool(self.single_host)
         has_single_port = self.single_port != 0
-        has_region = self.region is not Region.UNSET
+        has_region = region is not Region.UNSET
 
         # Ensure only one override method is used (mutually exclusive)
         override_count = sum(
@@ -433,7 +512,7 @@ class SDKConfiguration:
             # Determine which overrides were provided
             provided_overrides = []
             if has_region:
-                provided_overrides.append(f"region={self.region.value}")
+                provided_overrides.append(f"region={region.value}")
             if has_single_host or has_single_port:
                 if has_single_host:
                     provided_overrides.append(
@@ -486,9 +565,9 @@ class SDKConfiguration:
         if has_region:
             logger.info(
                 "Region %s provided; overriding hosts & ports configuration with region defaults.",
-                self.region.value,
+                region.value,
             )
-            endpoints = REGION_ENDPOINTS[self.region]
+            endpoints = REGION_ENDPOINTS[region]
             object.__setattr__(self, "api_host", endpoints.api_host)
             object.__setattr__(self, "otlp_host", endpoints.otlp_host)
             object.__setattr__(self, "flight_host", endpoints.flight_host)
@@ -505,6 +584,24 @@ class SDKConfiguration:
     def cache_dir(self) -> str:
         """Return the path to the cache directory."""
         return str(Path(self.arize_directory) / "cache")
+
+    @property
+    def requests_verify(self) -> bool | str:
+        """Return the ``verify`` argument for ``requests`` calls.
+
+        False when ``request_verify`` is disabled, otherwise the
+        ``ssl_ca_cert`` path when set, otherwise True.
+        """
+        if not self.request_verify:
+            return False
+        return self.ssl_ca_cert or True
+
+    @property
+    def client_cert_pair(self) -> tuple[str, str] | None:
+        """Return ``(client_cert, client_key)`` for mutual TLS, or None if unset."""
+        if not self.client_cert:
+            return None
+        return (self.client_cert, self.client_key)
 
     @property
     def api_url(self) -> str:

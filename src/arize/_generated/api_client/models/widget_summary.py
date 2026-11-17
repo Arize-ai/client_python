@@ -31,7 +31,7 @@ class WidgetSummary(BaseModel):
     id: Optional[StrictStr] = Field(default=None, description="A universally unique identifier (base64-encoded opaque string).")
     title: Optional[StrictStr] = Field(default=None, description="Display title of the widget.")
     type: Optional[WidgetType] = None
-    grid_position: Optional[Annotated[List[Annotated[int, Field(strict=True, ge=0)]], Field(min_length=4, max_length=4)]] = Field(default=None, description="Widget position and size as [x, y, width, height].")
+    grid_position: Optional[Annotated[List[Annotated[int, Field(strict=True, ge=1)]], Field(min_length=4, max_length=4)]] = Field(default=None, description="Widget position as CSS grid lines [rowStart, colStart, rowEnd, colEnd]. Lines are 1-based, and each end line must be greater than its corresponding start line. The dashboard has 12 columns, so colEnd must not exceed 13. ")
     __properties: ClassVar[List[str]] = ["id", "title", "type", "grid_position"]
 
     model_config = ConfigDict(

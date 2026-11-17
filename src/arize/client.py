@@ -78,9 +78,7 @@ class ArizeClient(LazySubclientsMixin):
         Initialize with region (overrides host/port settings):
 
             >>> from arize.regions import Region
-            >>> client = ArizeClient(
-            ...     api_key="your-api-key", region=Region.EU_WEST
-            ... )
+            >>> client = ArizeClient(api_key="your-api-key", region=Region.EU)
     """
 
     saml_identity_providers: SamlIdentityProvidersClient
@@ -194,7 +192,7 @@ class ArizeClient(LazySubclientsMixin):
         self,
         *,
         api_key: str | None = None,
-        region: Region | None = None,
+        region: Region | str | None = None,
         api_host: str | None = None,
         api_scheme: str | None = None,
         api_port: int | None = None,
@@ -208,6 +206,8 @@ class ArizeClient(LazySubclientsMixin):
         request_verify: bool | None = None,
         ssl_ca_cert: str | None = None,
         proxy_url: str | None = None,
+        client_cert: str | None = None,
+        client_key: str | None = None,
         stream_max_workers: int | None = None,
         stream_max_queue_bound: int | None = None,
         max_http_payload_size_mb: float | None = None,
@@ -229,7 +229,7 @@ class ArizeClient(LazySubclientsMixin):
             api_key: Arize API key for authentication. Required - must be provided here
                 or via ARIZE_API_KEY environment variable.
                 Raises MissingAPIKeyError if not set.
-            region: Arize region (e.g., Region.US_CENTRAL, Region.EU_WEST). When specified,
+            region: Arize region (e.g., Region.US, Region.EU). When specified,
                 overrides individual host/port settings.
                 ENV: ARIZE_REGION.
                 Default: Region.UNSET.
@@ -277,6 +277,14 @@ class ArizeClient(LazySubclientsMixin):
             proxy_url: HTTP(S) proxy URL for REST API and OTLP requests.
                 Reads from ARIZE_PROXY_URL → HTTPS_PROXY → HTTP_PROXY.
                 Default: "" (direct connection).
+            client_cert: Path to a PEM client certificate (optionally followed by its
+                chain) presented to servers that require mutual TLS. Must be set
+                together with client_key.
+                ENV: ARIZE_CLIENT_CERT.
+                Default: "" (no client certificate).
+            client_key: Path to the unencrypted PEM private key for client_cert.
+                ENV: ARIZE_CLIENT_KEY.
+                Default: "" (no client certificate).
             stream_max_workers: Maximum worker threads for streaming (minimum: 1).
                 ENV: ARIZE_STREAM_MAX_WORKERS.
                 Default: 8.
@@ -362,6 +370,10 @@ class ArizeClient(LazySubclientsMixin):
             cfg_kwargs["ssl_ca_cert"] = ssl_ca_cert
         if proxy_url is not None:
             cfg_kwargs["proxy_url"] = proxy_url
+        if client_cert is not None:
+            cfg_kwargs["client_cert"] = client_cert
+        if client_key is not None:
+            cfg_kwargs["client_key"] = client_key
         if stream_max_workers is not None:
             cfg_kwargs["stream_max_workers"] = stream_max_workers
         if stream_max_queue_bound is not None:

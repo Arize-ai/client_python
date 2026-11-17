@@ -54,6 +54,28 @@ class TestClientInitialization:
         assert config.arize_directory == "/tmp/test_arize"
         assert config.enable_caching is False
 
+    def test_client_passes_client_certificate(
+        self, client_cert_files: tuple[str, str]
+    ) -> None:
+        """Client should forward client_cert and client_key to the config."""
+        cert, key = client_cert_files
+
+        client = ArizeClient(
+            api_key="test_key", client_cert=cert, client_key=key
+        )
+
+        assert client.sdk_config.client_cert_pair == (cert, key)
+
+    def test_client_rejects_half_client_certificate(
+        self, client_cert_files: tuple[str, str]
+    ) -> None:
+        """Setting only client_cert should fail at construction time."""
+        with pytest.raises(
+            ValueError,
+            match="ARIZE_CLIENT_CERT and ARIZE_CLIENT_KEY must be set together",
+        ):
+            ArizeClient(api_key="test_key", client_cert=client_cert_files[0])
+
     def test_client_with_region(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Client should apply region configuration correctly."""
         monkeypatch.setenv("ARIZE_API_KEY", "test_key")

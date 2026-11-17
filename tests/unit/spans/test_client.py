@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 from unittest.mock import MagicMock, Mock, create_autospec, patch
 
 import pytest
@@ -12,6 +12,7 @@ import pytest
 from arize._flight.types import FlightRequestType
 from arize._generated.api_client import SpansApi
 from arize._generated.protocol.flight import flight_pb2
+from arize.config import SDKConfiguration
 from arize.spans.client import SpansClient, _log_flight_update_summary
 
 if TYPE_CHECKING:
@@ -1023,3 +1024,91 @@ class TestListSpansResponseSpanKinds:
 
         assert response is not None
         assert response.spans[0].kind is SpanKind.DECISION
+
+
+@pytest.mark.unit
+class TestSpansClientCertificate:
+    """HTTP span and evaluation uploads present the client certificate."""
+
+    CERT_PAIR = ("/certs/client.crt", "/certs/client.key")
+
+    @pytest.fixture(autouse=True)
+    def _http_config(self, mock_sdk_config: Mock) -> None:
+        mock_sdk_config.files_url = "https://files.arize.com"
+        mock_sdk_config.request_verify = True
+        mock_sdk_config.pyarrow_max_chunksize = 1000
+        mock_sdk_config.headers = {"Authorization": "Bearer test_api_key"}
+        mock_sdk_config.client_cert_pair = self.CERT_PAIR
+
+    def test_log_passes_client_cert(self, spans_client: SpansClient) -> None:
+        with patch(
+            "arize.spans.client.post_arrow_table", return_value=Mock()
+        ) as mock_post:
+            spans_client.log(
+                space_id="space-1",
+                project_name="my-project",
+                dataframe=TestSpansClientLogWithEvals._make_spans_df(),
+            )
+
+        assert mock_post.call_args.kwargs["cert"] == self.CERT_PAIR
+
+    def test_update_evaluations_http_passes_client_cert(
+        self, spans_client: SpansClient
+    ) -> None:
+        with patch(
+            "arize.spans.client.post_arrow_table", return_value=Mock()
+        ) as mock_post:
+            spans_client.update_evaluations(
+                space_id="space-1",
+                project_name="my-project",
+                dataframe=TestSpansClientLogWithEvals._make_evals_df(),
+                force_http=True,
+            )
+
+        assert mock_post.call_args.kwargs["cert"] == self.CERT_PAIR
+
+
+@pytest.mark.unit
+class TestSpansClientRequestsVerify:
+    """HTTP span and evaluation uploads verify against ssl_ca_cert."""
+
+    @staticmethod
+    def _client(config_kwargs: dict) -> SpansClient:
+        config = SDKConfiguration(api_key="test_key", **config_kwargs)
+        with patch("arize._generated.api_client.SpansApi"):
+            return SpansClient(sdk_config=config, generated_client=Mock())
+
+    def test_log_verify(
+        self, requests_verify_case: tuple[dict[str, Any], bool | str]
+    ) -> None:
+        config_kwargs, expected = requests_verify_case
+        client = self._client(config_kwargs)
+
+        with patch(
+            "arize.spans.client.post_arrow_table", return_value=Mock()
+        ) as mock_post:
+            client.log(
+                space_id="space-1",
+                project_name="my-project",
+                dataframe=TestSpansClientLogWithEvals._make_spans_df(),
+            )
+
+        assert mock_post.call_args.kwargs["verify"] == expected
+
+    def test_update_evaluations_http_verify(
+        self, requests_verify_case: tuple[dict[str, Any], bool | str]
+    ) -> None:
+        config_kwargs, expected = requests_verify_case
+        client = self._client(config_kwargs)
+
+        with patch(
+            "arize.spans.client.post_arrow_table", return_value=Mock()
+        ) as mock_post:
+            client.update_evaluations(
+                space_id="space-1",
+                project_name="my-project",
+                dataframe=TestSpansClientLogWithEvals._make_evals_df(),
+                force_http=True,
+            )
+
+        assert mock_post.call_args.kwargs["verify"] == expected

@@ -1,6 +1,8 @@
 """Unit tests for src/arize/config.py."""
 
 import logging
+import os
+from pathlib import Path
 
 import pytest
 
@@ -1213,7 +1215,7 @@ class TestMultipleEndpointOverridesError:
             (
                 {
                     "base_domain": "x.com",
-                    "region": Region.US_EAST_1B,
+                    "region": Region.US_CENTRAL_1A,
                     "single_host": "y.com",
                 },
                 ["base_domain", "region", "single_host"],
@@ -1410,3 +1412,304 @@ class TestDefaultHeaders:
         """Latin-1 encodable values (e.g. 'café') are permitted."""
         config = self._config(default_headers={"x-note": "café"})
         assert config.headers["x-note"] == "café"
+
+
+@pytest.mark.unit
+class TestClientCertificate:
+    """Tests for client_cert and client_key (mutual TLS) validation."""
+
+    PAIR_ERROR = "ARIZE_CLIENT_CERT and ARIZE_CLIENT_KEY must be set together"
+
+    @pytest.fixture(autouse=True)
+    def _clean_env(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setenv("ARIZE_API_KEY", "test_key")
+        monkeypatch.delenv("ARIZE_CLIENT_CERT", raising=False)
+        monkeypatch.delenv("ARIZE_CLIENT_KEY", raising=False)
+
+    def test_defaults_to_no_client_certificate(self) -> None:
+        config = SDKConfiguration()
+
+        assert config.client_cert == ""
+        assert config.client_key == ""
+        assert config.client_cert_pair is None
+
+    def test_explicit_pair(self, client_cert_files: tuple[str, str]) -> None:
+        cert, key = client_cert_files
+        config = SDKConfiguration(client_cert=cert, client_key=key)
+
+        assert config.client_cert_pair == (cert, key)
+
+    def test_pair_from_env(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        client_cert_files: tuple[str, str],
+    ) -> None:
+        cert, key = client_cert_files
+        monkeypatch.setenv("ARIZE_CLIENT_CERT", cert)
+        monkeypatch.setenv("ARIZE_CLIENT_KEY", key)
+
+        config = SDKConfiguration()
+
+        assert config.client_cert_pair == (cert, key)
+
+    def test_explicit_overrides_env(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        client_cert_files: tuple[str, str],
+    ) -> None:
+        cert, key = client_cert_files
+        monkeypatch.setenv("ARIZE_CLIENT_CERT", "/nonexistent/env.crt")
+        monkeypatch.setenv("ARIZE_CLIENT_KEY", "/nonexistent/env.key")
+
+        config = SDKConfiguration(client_cert=cert, client_key=key)
+
+        assert config.client_cert_pair == (cert, key)
+
+    def test_expands_home_directory(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        client_cert_files: tuple[str, str],
+    ) -> None:
+        cert, key = client_cert_files
+        home = str(Path(cert).parent)
+        monkeypatch.setenv("HOME", home)
+
+        config = SDKConfiguration(
+            client_cert="~/client.crt", client_key="~/client.key"
+        )
+
+        assert config.client_cert_pair == (cert, key)
+
+    @pytest.mark.parametrize("missing", ["client_cert", "client_key"])
+    def test_only_one_explicit_raises(
+        self, missing: str, client_cert_files: tuple[str, str]
+    ) -> None:
+        cert, key = client_cert_files
+        kwargs = {"client_cert": cert, "client_key": key}
+        del kwargs[missing]
+
+        with pytest.raises(ValueError) as exc_info:
+            SDKConfiguration(**kwargs)
+
+        assert str(exc_info.value) == self.PAIR_ERROR
+
+    @pytest.mark.parametrize(
+        "env_name", ["ARIZE_CLIENT_CERT", "ARIZE_CLIENT_KEY"]
+    )
+    def test_only_one_env_raises(
+        self,
+        env_name: str,
+        monkeypatch: pytest.MonkeyPatch,
+        client_cert_files: tuple[str, str],
+    ) -> None:
+        monkeypatch.setenv(env_name, client_cert_files[0])
+
+        with pytest.raises(ValueError) as exc_info:
+            SDKConfiguration()
+
+        assert str(exc_info.value) == self.PAIR_ERROR
+
+    @pytest.mark.parametrize("missing", ["client_cert", "client_key"])
+    def test_missing_file_raises(
+        self, missing: str, client_cert_files: tuple[str, str], tmp_path: Path
+    ) -> None:
+        cert, key = client_cert_files
+        kwargs = {"client_cert": cert, "client_key": key}
+        absent = str(tmp_path / "absent.pem")
+        kwargs[missing] = absent
+
+        with pytest.raises(ValueError) as exc_info:
+            SDKConfiguration(**kwargs)
+
+        assert str(exc_info.value) == f"{missing} file not found: {absent}"
+
+    def test_directory_instead_of_file_raises(
+        self, client_cert_files: tuple[str, str], tmp_path: Path
+    ) -> None:
+        _, key = client_cert_files
+
+        with pytest.raises(ValueError, match="client_cert file not found"):
+            SDKConfiguration(client_cert=str(tmp_path), client_key=key)
+
+    @pytest.mark.parametrize("pasted", ["client_cert", "client_key"])
+    def test_pem_content_instead_of_path_is_not_echoed(
+        self, pasted: str, client_cert_files: tuple[str, str]
+    ) -> None:
+        cert, key = client_cert_files
+        kwargs = {"client_cert": cert, "client_key": key}
+        pem = Path(kwargs[pasted]).read_text()
+        kwargs[pasted] = pem
+
+        with pytest.raises(ValueError) as exc_info:
+            SDKConfiguration(**kwargs)
+
+        message = str(exc_info.value)
+        assert message == (
+            f"{pasted} must be a path to a PEM file, not the PEM content"
+        )
+        assert "-----BEGIN" not in message
+        assert "Y2xpZW50" not in message
+
+    def test_pem_content_in_env_is_not_echoed(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        client_cert_files: tuple[str, str],
+    ) -> None:
+        cert, key = client_cert_files
+        monkeypatch.setenv("ARIZE_CLIENT_CERT", cert)
+        monkeypatch.setenv("ARIZE_CLIENT_KEY", Path(key).read_text())
+
+        with pytest.raises(ValueError) as exc_info:
+            SDKConfiguration()
+
+        assert "-----BEGIN" not in str(exc_info.value)
+        assert "Y2xpZW50" not in str(exc_info.value)
+
+    @pytest.mark.skipif(os.name != "posix", reason="POSIX file modes")
+    @pytest.mark.parametrize("mode", [0o640, 0o604, 0o644])
+    def test_key_readable_by_others_warns(
+        self,
+        mode: int,
+        client_cert_files: tuple[str, str],
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        cert, key = client_cert_files
+        Path(key).chmod(mode)
+
+        with caplog.at_level(logging.WARNING, logger="arize.config"):
+            SDKConfiguration(client_cert=cert, client_key=key)
+
+        warnings = [r for r in caplog.records if "chmod 600" in r.getMessage()]
+        assert len(warnings) == 1
+        assert key in warnings[0].getMessage()
+
+    @pytest.mark.skipif(os.name != "posix", reason="POSIX file modes")
+    def test_key_owner_only_does_not_warn(
+        self,
+        client_cert_files: tuple[str, str],
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        cert, key = client_cert_files
+
+        with caplog.at_level(logging.WARNING, logger="arize.config"):
+            SDKConfiguration(client_cert=cert, client_key=key)
+
+        assert not [r for r in caplog.records if "chmod" in r.getMessage()]
+
+    @pytest.mark.parametrize(
+        "key_pem",
+        [
+            b"-----BEGIN ENCRYPTED PRIVATE KEY-----\nAAAA\n"
+            b"-----END ENCRYPTED PRIVATE KEY-----\n",
+            b"-----BEGIN RSA PRIVATE KEY-----\nProc-Type: 4,ENCRYPTED\n"
+            b"DEK-Info: AES-256-CBC,00\n\nAAAA\n-----END RSA PRIVATE KEY-----\n",
+        ],
+    )
+    def test_encrypted_key_raises(
+        self, key_pem: bytes, client_cert_files: tuple[str, str]
+    ) -> None:
+        cert, key = client_cert_files
+        Path(key).write_bytes(key_pem)
+
+        with pytest.raises(ValueError) as exc_info:
+            SDKConfiguration(client_cert=cert, client_key=key)
+
+        message = str(exc_info.value)
+        assert "is encrypted" in message
+        assert "-----BEGIN" not in message
+
+    def test_repr_does_not_leak_key_path_in_full(
+        self, client_cert_files: tuple[str, str]
+    ) -> None:
+        cert, key = client_cert_files
+        config = SDKConfiguration(client_cert=cert, client_key=key)
+
+        text = repr(config)
+
+        assert f"client_cert={cert!r}" in text
+        assert key not in text
+
+
+@pytest.mark.unit
+class TestRequestsVerify:
+    """Tests for the requests_verify property."""
+
+    @pytest.fixture(autouse=True)
+    def _clean_env(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setenv("ARIZE_API_KEY", "test_key")
+        for name in (
+            "ARIZE_SSL_CA_CERT",
+            "REQUESTS_CA_BUNDLE",
+            "SSL_CERT_FILE",
+            "ARIZE_REQUEST_VERIFY",
+        ):
+            monkeypatch.delenv(name, raising=False)
+
+    @pytest.mark.parametrize(
+        ("kwargs", "expected"),
+        [
+            ({}, True),
+            ({"ssl_ca_cert": "/certs/ca.pem"}, "/certs/ca.pem"),
+            ({"request_verify": False}, False),
+            ({"request_verify": False, "ssl_ca_cert": "/certs/ca.pem"}, False),
+        ],
+    )
+    def test_requests_verify(self, kwargs: dict, expected: bool | str) -> None:
+        assert SDKConfiguration(**kwargs).requests_verify == expected
+
+    def test_requests_verify_from_arize_env(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setenv("ARIZE_SSL_CA_CERT", "/certs/env-ca.pem")
+
+        assert SDKConfiguration().requests_verify == "/certs/env-ca.pem"
+
+
+@pytest.mark.parametrize(
+    ("value", "region"),
+    [
+        ("US", Region.US),
+        ("us", Region.US),
+        ("us-central-1a", Region.US),
+        ("EU", Region.EU),
+        ("eu", Region.EU),
+        ("eu-west-1a", Region.EU),
+        ("CA", Region.CA),
+        ("ca", Region.CA),
+        ("ca-central-1a", Region.CA),
+    ],
+)
+@pytest.mark.parametrize("source", ["argument", "environment"])
+def test_public_region_configuration(
+    monkeypatch: pytest.MonkeyPatch, value: str, region: Region, source: str
+) -> None:
+    if source == "environment":
+        monkeypatch.setenv("ARIZE_REGION", value)
+        config = SDKConfiguration(api_key="test-key")
+    else:
+        config = SDKConfiguration(api_key="test-key", region=value)
+    assert config.region == region
+    assert config.api_host == f"api.{region.value}.arize.com"
+    assert config.otlp_host == f"otlp.{region.value}.arize.com"
+    assert config.flight_host == f"flight.{region.value}.arize.com"
+
+
+@pytest.mark.parametrize("value", ["us-east-1b", "us-east-1", "invalid"])
+@pytest.mark.parametrize("source", ["argument", "environment"])
+def test_unavailable_regions_rejected(
+    monkeypatch: pytest.MonkeyPatch, value: str, source: str
+) -> None:
+    if source == "environment":
+        monkeypatch.setenv("ARIZE_REGION", value)
+        with pytest.raises(ValueError):
+            SDKConfiguration(api_key="test-key")
+    else:
+        with pytest.raises(ValueError):
+            SDKConfiguration(api_key="test-key", region=value)
+
+
+def test_public_region_enum_members() -> None:
+    assert list(Region) == [Region.US, Region.EU, Region.CA, Region.UNSET]
+    assert Region.US_CENTRAL_1A is Region.US
+    assert Region.EU_WEST_1A is Region.EU
+    assert Region.CA_CENTRAL_1A is Region.CA

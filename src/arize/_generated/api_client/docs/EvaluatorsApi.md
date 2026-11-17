@@ -337,6 +337,9 @@ version immediately (versioning is append-only).
   space (`Integration not found`), or `decision_judge_config.ai_integration_id`
   does not exist or is not available in the space
   (`LLM integration not found or not accessible to this space`).
+- `409` — the result column name (`template_config.name` or
+  `code_config.name`) is already used by another evaluator in the
+  same space; or an evaluator with the same `name` already exists.
 - `422` — the body is well-formed JSON but fails validation, for example a
   missing `commit_message`, a config mismatch, an invalid template column
   name, a remote integration with the wrong type, a `model_name` that is not
@@ -498,6 +501,7 @@ Name | Type | Description  | Notes
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
+**409** | Resource conflict |  -  |
 **422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 

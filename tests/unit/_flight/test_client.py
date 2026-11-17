@@ -10,7 +10,9 @@ All tests use mocks and are marked with @pytest.mark.unit.
 from __future__ import annotations
 
 import json
+import logging
 from functools import partial
+from pathlib import Path
 from typing import TYPE_CHECKING
 from unittest.mock import MagicMock, Mock, patch
 
@@ -40,7 +42,6 @@ from arize.utils.openinference_conversion import convert_json_str_to_dict
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
-    from pathlib import Path
 
 
 # ==================== Helper Functions ====================
@@ -2149,3 +2150,103 @@ class TestInitExperiment:
         assert isinstance(result, tuple)
         assert len(result) == 2
         assert all(isinstance(item, str) for item in result)
+
+
+@pytest.mark.unit
+class TestArizeFlightClientMutualTLS:
+    """Test that the Flight connection presents the client certificate."""
+
+    @pytest.mark.parametrize(
+        ("host", "request_verify", "disable_verification"),
+        [
+            ("example.com", True, False),
+            ("example.com", False, True),
+            ("localhost", True, True),
+        ],
+    )
+    @patch("arize._flight.client.flight.FlightClient")
+    def test_ensure_client_passes_cert_chain_and_private_key(
+        self,
+        mock_flight_client_class: Mock,
+        host: str,
+        request_verify: bool,
+        disable_verification: bool,
+        client_cert_files: tuple[str, str],
+    ) -> None:
+        cert, key = client_cert_files
+        client = ArizeFlightClient(
+            sdk_config=SDKConfiguration(
+                api_key="test_key",
+                flight_host=host,
+                flight_port=443,
+                flight_scheme="grpc+tls",
+                request_verify=request_verify,
+                client_cert=cert,
+                client_key=key,
+            )
+        )
+
+        client._ensure_client()
+
+        mock_flight_client_class.assert_called_once_with(
+            location=f"grpc+tls://{host}:443",
+            disable_server_verification=disable_verification,
+            cert_chain=Path(cert).read_bytes(),
+            private_key=Path(key).read_bytes(),
+        )
+
+    @patch("arize._flight.client.flight.FlightClient")
+    def test_ensure_client_drops_client_cert_for_plaintext_scheme(
+        self,
+        mock_flight_client_class: Mock,
+        client_cert_files: tuple[str, str],
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        cert, key = client_cert_files
+        client = ArizeFlightClient(
+            sdk_config=SDKConfiguration(
+                api_key="test_key",
+                flight_host="example.com",
+                flight_port=443,
+                flight_scheme="grpc+tcp",
+                client_cert=cert,
+                client_key=key,
+            )
+        )
+
+        with caplog.at_level(logging.WARNING, logger="arize._flight.client"):
+            client._ensure_client()
+
+        kwargs = mock_flight_client_class.call_args.kwargs
+        assert "cert_chain" not in kwargs
+        assert "private_key" not in kwargs
+        assert "does not use TLS" in caplog.text
+
+    @patch("arize._flight.client.flight.FlightClient")
+    def test_ensure_client_passes_ca_and_client_cert(
+        self,
+        mock_flight_client_class: Mock,
+        client_cert_files: tuple[str, str],
+        tmp_path: Path,
+    ) -> None:
+        cert, key = client_cert_files
+        ca = tmp_path / "ca.crt"
+        ca.write_bytes(b"ca-bundle")
+        client = ArizeFlightClient(
+            sdk_config=SDKConfiguration(
+                api_key="test_key",
+                flight_host="example.com",
+                flight_port=443,
+                flight_scheme="grpc+tls",
+                ssl_ca_cert=str(ca),
+                client_cert=cert,
+                client_key=key,
+            )
+        )
+
+        client._ensure_client()
+
+        kwargs = mock_flight_client_class.call_args.kwargs
+        assert kwargs["tls_root_certs"] == b"ca-bundle"
+        assert kwargs["cert_chain"] == Path(cert).read_bytes()
+        assert kwargs["private_key"] == Path(key).read_bytes()

@@ -9,11 +9,20 @@ from arize.constants.config import DEFAULT_FLIGHT_PORT
 class Region(Enum):
     """Enum representing available Arize deployment regions."""
 
-    CA_CENTRAL_1A = "ca-central-1a"
-    EU_WEST_1A = "eu-west-1a"
-    US_CENTRAL_1A = "us-central-1a"
-    US_EAST_1B = "us-east-1b"
+    US = "us-central-1a"
+    EU = "eu-west-1a"
+    CA = "ca-central-1a"
+    US_CENTRAL_1A = US
+    EU_WEST_1A = EU
+    CA_CENTRAL_1A = CA
     UNSET = ""
+
+    @classmethod
+    def _missing_(cls, value: object) -> "Region | None":
+        if isinstance(value, str):
+            aliases = {"US": cls.US, "EU": cls.EU, "CA": cls.CA}
+            return aliases.get(value.upper())
+        return None
 
     @classmethod
     def list_regions(cls, include_unset: bool = False) -> list[str]:

@@ -25,6 +25,7 @@
   - [Optional Dependencies](#optional-dependencies)
   - [Migrating from Version 7](#migrating-from-version-7)
 - [Usage](#usage)
+  - [Regions](#regions)
   - [Space Resolution](#space-resolution)
   - [Instrumentation](#instrumentation)
   - [Operations on Spans](#operations-on-spans)
@@ -159,6 +160,7 @@
     - [Single host and port](#single-host-and-port)
     - [Per-endpoint ports](#per-endpoint-ports)
     - [SSL certificate verification](#ssl-certificate-verification)
+    - [Client certificates (mutual TLS)](#client-certificates-mutual-tls)
     - [Egress / CONNECT proxy](#egress--connect-proxy)
     - [Via Environment Variables](#via-environment-variables-2)
 - [Community](#community)
@@ -217,6 +219,26 @@ pip install arize[otel,embeddings,mimic]
 If you're upgrading from version 7, please refer to the [Migration Guide](https://arize.com/docs/api-clients/python/version-8/migration/index) for detailed migration steps and breaking changes.
 
 # Usage
+
+## Regions
+
+Choose the region where your account is hosted. The public regions are `US`, `EU`, and `CA`. The default uses the normal US GCP deployment.
+
+```python
+from arize import ArizeClient, Region
+
+client = ArizeClient(api_key="your-api-key", region=Region.US)
+```
+
+You can also pass `region="US"` or set `ARIZE_REGION=US`. Friendly names are case-insensitive. The GCP identifiers and enum names remain valid aliases:
+
+| Public region | Identifier | Enum alias |
+| --- | --- | --- |
+| `US` | `us-central-1a` | `Region.US_CENTRAL_1A` |
+| `EU` | `eu-west-1a` | `Region.EU_WEST_1A` |
+| `CA` | `ca-central-1a` | `Region.CA_CENTRAL_1A` |
+
+The unfinished AWS US East deployment is not a supported public region. `us-east-1b` and `us-east-1` are rejected. Use custom endpoints for self-hosted deployments.
 
 ## Space Resolution
 
@@ -2495,9 +2517,9 @@ client = ArizeClient(
 )
 ```
 
-`ssl_ca_cert` applies to **all three transports**: REST API, OTLP (gRPC), and
-Apache Arrow Flight. The CA bundle is loaded once at connection time for each
-transport.
+`ssl_ca_cert` applies to **every transport**: REST API, file uploads, record
+streaming, OTLP (gRPC) export from experiments, and Apache Arrow Flight. With
+`request_verify=False`, verification stays off even when `ssl_ca_cert` is set.
 
 The `ssl_ca_cert` field reads the first set environment variable from
 `ARIZE_SSL_CA_CERT` → `REQUESTS_CA_BUNDLE` → `SSL_CERT_FILE`, so existing CA
@@ -2507,6 +2529,35 @@ bundle configuration in your environment is picked up automatically:
 # Works out of the box — no code change needed
 export REQUESTS_CA_BUNDLE=/etc/ssl/certs/corp-ca-bundle.crt
 ```
+
+### Client certificates (mutual TLS)
+
+When your Arize ingress requires clients to present a certificate, set
+`client_cert` and `client_key` to the paths of PEM files:
+
+```python
+client = ArizeClient(
+    api_key=API_KEY,
+    single_host="arize.corp.example.com",
+    ssl_ca_cert="/etc/ssl/certs/corp-ca-bundle.crt",
+    client_cert="/etc/arize/client.crt",
+    client_key="/etc/arize/client.key",
+)
+```
+
+Or set `ARIZE_CLIENT_CERT` and `ARIZE_CLIENT_KEY`. The SDK presents the
+certificate on every connection to Arize: REST API, file uploads, record
+streaming, Apache Arrow Flight, and OTLP (gRPC) export from experiments.
+
+- Both values must be file paths, not PEM text. The certificate file can hold
+  the client certificate followed by its intermediate chain.
+- Set both or neither. Setting only one raises `ValueError` when the client is
+  created.
+- The private key must be unencrypted. Restrict it to its owner
+  (`chmod 600`); the SDK logs a warning when group or others can read it.
+- Tracing through `arize-otel` does not use these settings. Configure its
+  exporters with `OTEL_EXPORTER_OTLP_CLIENT_CERTIFICATE` and
+  `OTEL_EXPORTER_OTLP_CLIENT_KEY`.
 
 ### Egress / CONNECT proxy
 
@@ -2572,6 +2623,8 @@ All endpoint and connection settings can be configured via environment variables
 | `ARIZE_REQUEST_VERIFY` | SSL certificate verification (`true`/`false`) | `true` |
 | `ARIZE_SSL_CA_CERT` | Path to CA bundle file (falls back to `REQUESTS_CA_BUNDLE`, then `SSL_CERT_FILE`) | — |
 | `ARIZE_PROXY_URL` | Egress proxy URL (falls back to `HTTPS_PROXY`, then `HTTP_PROXY`) | — |
+| `ARIZE_CLIENT_CERT` | Path to the PEM client certificate (and chain) for mutual TLS | — |
+| `ARIZE_CLIENT_KEY` | Path to the unencrypted PEM private key for `ARIZE_CLIENT_CERT` | — |
 
 ```python
 import os

@@ -20,6 +20,48 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 
+CLIENT_CERT_PEM = b"-----BEGIN CERTIFICATE-----\nY2xpZW50LWNlcnQ=\n-----END CERTIFICATE-----\n"
+CLIENT_KEY_PEM = b"-----BEGIN PRIVATE KEY-----\nY2xpZW50LWtleQ==\n-----END PRIVATE KEY-----\n"
+
+
+@pytest.fixture
+def client_cert_files(tmp_path: Path) -> tuple[str, str]:
+    """Write a placeholder client certificate and 0600 key to disk.
+
+    Returns:
+        tuple[str, str]: Paths to the certificate and key files.
+    """
+    cert = tmp_path / "client.crt"
+    key = tmp_path / "client.key"
+    cert.write_bytes(CLIENT_CERT_PEM)
+    key.write_bytes(CLIENT_KEY_PEM)
+    key.chmod(0o600)
+    return str(cert), str(key)
+
+
+@pytest.fixture(
+    params=[
+        pytest.param(
+            ({"ssl_ca_cert": "/certs/ca.pem"}, "/certs/ca.pem"), id="ca"
+        ),
+        pytest.param(
+            ({"ssl_ca_cert": "/certs/ca.pem", "request_verify": False}, False),
+            id="verify-off-with-ca",
+        ),
+        pytest.param(({"ssl_ca_cert": ""}, True), id="default"),
+    ]
+)
+def requests_verify_case(
+    request: pytest.FixtureRequest,
+) -> tuple[dict[str, Any], bool | str]:
+    """SDKConfiguration overrides and the ``verify`` value requests should get.
+
+    Returns:
+        tuple[dict[str, Any], bool | str]: Config kwargs and expected ``verify``.
+    """
+    return request.param
+
+
 @pytest.fixture
 def test_api_key() -> str:
     """Provide mock API key for testing.
@@ -43,6 +85,10 @@ def mock_sdk_config() -> Mock:
     config.cache_dir = "~/.arize/cache"
     config.request_verify = True
     config.ssl_ca_cert = ""
+    config.requests_verify = True
+    config.client_cert = ""
+    config.client_key = ""
+    config.client_cert_pair = None
     config.proxy_url = ""
     config.default_headers = {}
     config.headers = {

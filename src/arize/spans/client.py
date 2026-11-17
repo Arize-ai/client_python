@@ -527,9 +527,10 @@ class SpansClient:
             proto_schema=proto_schema,
             headers=headers,
             timeout=timeout,
-            verify=self._sdk_config.request_verify,
+            verify=self._sdk_config.requests_verify,
             max_chunksize=self._sdk_config.pyarrow_max_chunksize,
             tmp_dir=tmp_dir,
+            cert=self._sdk_config.client_cert_pair,
         )
 
     def update_evaluations(
@@ -672,9 +673,10 @@ class SpansClient:
                 proto_schema=proto_schema,
                 headers=headers,
                 timeout=timeout,
-                verify=self._sdk_config.request_verify,
+                verify=self._sdk_config.requests_verify,
                 max_chunksize=self._sdk_config.pyarrow_max_chunksize,
                 tmp_dir=tmp_dir,
+                cert=self._sdk_config.client_cert_pair,
             )
 
         request_type = FlightRequestType.EVALUATION

@@ -116,6 +116,7 @@ __all__ = [
     "AwsProviderMetadataRequest",
     "AzureParams",
     "AzureParamsRequest",
+    "BarChartPlotCreateRequest",
     "BarChartWidget",
     "BaselineConfig",
     "BedrockOptions",
@@ -147,6 +148,7 @@ __all__ = [
     "CreateAwsBedrockConfig",
     "CreateAwsBedrockDefaultAuth",
     "CreateAwsBedrockProxyWithHeadersAuth",
+    "CreateBarChartWidgetRequest",
     "CreateCategoricalAnnotationConfigRequest",
     "CreateCloudflareConfig",
     "CreateCodeEvaluationTaskRequest",
@@ -157,7 +159,10 @@ __all__ = [
     "CreateCustomDefaultAuth",
     "CreateCustomOauth2ClientCredentialsAuth",
     "CreateDashboardRequest",
+    "CreateDashboardWidgetRequest",
+    "CreateDatasetColumnSourceField",
     "CreateDatasetRequest",
+    "CreateDatasetSource",
     "CreateDecisionJudgeEvaluationTaskRequest",
     "CreateDecisionJudgeEvaluatorVersionRequest",
     "CreateDeepSeekConfig",
@@ -165,18 +170,22 @@ __all__ = [
     "CreateEvaluatorIntegrationRequest",
     "CreateEvaluatorRequest",
     "CreateEvaluatorVersionRequest",
+    "CreateExperimentChartWidgetRequest",
     "CreateExperimentRequest",
     "CreateFireworksConfig",
     "CreateFreeformAnnotationConfigRequest",
     "CreateGeminiConfig",
     "CreateIntegrationRequest",
+    "CreateLineChartWidgetRequest",
     "CreateLiteLlmConfig",
     "CreateLlmConfig",
     "CreateLlmIntegrationRequest",
+    "CreateNestedJsonFieldSourceField",
     "CreateNvidiaNimConfig",
     "CreateOpenAiConfig",
     "CreateOrganizationRequest",
     "CreatePerplexityConfig",
+    "CreatePivotTableWidgetRequest",
     "CreateProjectRequest",
     "CreatePromptRequest",
     "CreatePromptVersionRequest",
@@ -189,10 +198,12 @@ __all__ = [
     "CreateSamlRoleMappingRequest",
     "CreateServiceApiKeyRequest",
     "CreateSpaceRequest",
+    "CreateStatisticWidgetRequest",
     "CreateTagRequest",
     "CreateTaskRequest",
     "CreateTemplateEvaluationTaskRequest",
     "CreateTemplateEvaluatorVersionRequest",
+    "CreateTextWidgetRequest",
     "CreateTogetherAiConfig",
     "CreateTypeSafeAiConfig",
     "CreateUserApiKeyRequest",
@@ -202,6 +213,8 @@ __all__ = [
     "CreateWebhookRequest",
     "CreateWebhookResponse",
     "CreateWebhookSubscriptionRequest",
+    "CreateWidgetFilter",
+    "CreateWidgetSourceField",
     "CreatedServiceApiKey",
     "CreatedServiceKeyBotUser",
     "CreatedUserApiKey",
@@ -288,6 +301,9 @@ __all__ = [
     "EvaluatorVersionTemplate",
     "EvaluatorWithVersion",
     "Experiment",
+    "ExperimentChartPlotCreateRequest",
+    "ExperimentChartPlotCreateRequestOneOf",
+    "ExperimentChartPlotCreateRequestOneOf1",
     "ExperimentChartWidget",
     "ExperimentChartWidgetPlot",
     "ExperimentRun",
@@ -317,6 +333,7 @@ __all__ = [
     "JsonSchemaConfigRequest",
     "LLMMessage",
     "LLMMessageRequest",
+    "LineChartPlotCreateRequest",
     "LineChartType",
     "LineChartWidget",
     "ListAiIntegrationsResponse",
@@ -401,6 +418,7 @@ __all__ = [
     "Permission",
     "PerplexityConfig",
     "PivotTableColumn",
+    "PivotTableColumnCreateRequest",
     "PivotTableWidget",
     "PredefinedRoleAssignment",
     "PredefinedRoleAssignmentRequest",
@@ -674,6 +692,7 @@ from arize._generated.api_client.models.aws_provider_metadata_kind import AwsPro
 from arize._generated.api_client.models.aws_provider_metadata_request import AwsProviderMetadataRequest as AwsProviderMetadataRequest
 from arize._generated.api_client.models.azure_params import AzureParams as AzureParams
 from arize._generated.api_client.models.azure_params_request import AzureParamsRequest as AzureParamsRequest
+from arize._generated.api_client.models.bar_chart_plot_create_request import BarChartPlotCreateRequest as BarChartPlotCreateRequest
 from arize._generated.api_client.models.bar_chart_widget import BarChartWidget as BarChartWidget
 from arize._generated.api_client.models.baseline_config import BaselineConfig as BaselineConfig
 from arize._generated.api_client.models.bedrock_options import BedrockOptions as BedrockOptions
@@ -705,6 +724,7 @@ from arize._generated.api_client.models.create_aws_bedrock_bearer_token_auth imp
 from arize._generated.api_client.models.create_aws_bedrock_config import CreateAwsBedrockConfig as CreateAwsBedrockConfig
 from arize._generated.api_client.models.create_aws_bedrock_default_auth import CreateAwsBedrockDefaultAuth as CreateAwsBedrockDefaultAuth
 from arize._generated.api_client.models.create_aws_bedrock_proxy_with_headers_auth import CreateAwsBedrockProxyWithHeadersAuth as CreateAwsBedrockProxyWithHeadersAuth
+from arize._generated.api_client.models.create_bar_chart_widget_request import CreateBarChartWidgetRequest as CreateBarChartWidgetRequest
 from arize._generated.api_client.models.create_categorical_annotation_config_request import CreateCategoricalAnnotationConfigRequest as CreateCategoricalAnnotationConfigRequest
 from arize._generated.api_client.models.create_cloudflare_config import CreateCloudflareConfig as CreateCloudflareConfig
 from arize._generated.api_client.models.create_code_evaluation_task_request import CreateCodeEvaluationTaskRequest as CreateCodeEvaluationTaskRequest
@@ -715,7 +735,10 @@ from arize._generated.api_client.models.create_custom_config import CreateCustom
 from arize._generated.api_client.models.create_custom_default_auth import CreateCustomDefaultAuth as CreateCustomDefaultAuth
 from arize._generated.api_client.models.create_custom_oauth2_client_credentials_auth import CreateCustomOauth2ClientCredentialsAuth as CreateCustomOauth2ClientCredentialsAuth
 from arize._generated.api_client.models.create_dashboard_request import CreateDashboardRequest as CreateDashboardRequest
+from arize._generated.api_client.models.create_dashboard_widget_request import CreateDashboardWidgetRequest as CreateDashboardWidgetRequest
+from arize._generated.api_client.models.create_dataset_column_source_field import CreateDatasetColumnSourceField as CreateDatasetColumnSourceField
 from arize._generated.api_client.models.create_dataset_request import CreateDatasetRequest as CreateDatasetRequest
+from arize._generated.api_client.models.create_dataset_source import CreateDatasetSource as CreateDatasetSource
 from arize._generated.api_client.models.create_decision_judge_evaluation_task_request import CreateDecisionJudgeEvaluationTaskRequest as CreateDecisionJudgeEvaluationTaskRequest
 from arize._generated.api_client.models.create_decision_judge_evaluator_version_request import CreateDecisionJudgeEvaluatorVersionRequest as CreateDecisionJudgeEvaluatorVersionRequest
 from arize._generated.api_client.models.create_deep_seek_config import CreateDeepSeekConfig as CreateDeepSeekConfig
@@ -723,18 +746,22 @@ from arize._generated.api_client.models.create_evaluator_integration_config_inpu
 from arize._generated.api_client.models.create_evaluator_integration_request import CreateEvaluatorIntegrationRequest as CreateEvaluatorIntegrationRequest
 from arize._generated.api_client.models.create_evaluator_request import CreateEvaluatorRequest as CreateEvaluatorRequest
 from arize._generated.api_client.models.create_evaluator_version_request import CreateEvaluatorVersionRequest as CreateEvaluatorVersionRequest
+from arize._generated.api_client.models.create_experiment_chart_widget_request import CreateExperimentChartWidgetRequest as CreateExperimentChartWidgetRequest
 from arize._generated.api_client.models.create_experiment_request import CreateExperimentRequest as CreateExperimentRequest
 from arize._generated.api_client.models.create_fireworks_config import CreateFireworksConfig as CreateFireworksConfig
 from arize._generated.api_client.models.create_freeform_annotation_config_request import CreateFreeformAnnotationConfigRequest as CreateFreeformAnnotationConfigRequest
 from arize._generated.api_client.models.create_gemini_config import CreateGeminiConfig as CreateGeminiConfig
 from arize._generated.api_client.models.create_integration_request import CreateIntegrationRequest as CreateIntegrationRequest
+from arize._generated.api_client.models.create_line_chart_widget_request import CreateLineChartWidgetRequest as CreateLineChartWidgetRequest
 from arize._generated.api_client.models.create_lite_llm_config import CreateLiteLlmConfig as CreateLiteLlmConfig
 from arize._generated.api_client.models.create_llm_config import CreateLlmConfig as CreateLlmConfig
 from arize._generated.api_client.models.create_llm_integration_request import CreateLlmIntegrationRequest as CreateLlmIntegrationRequest
+from arize._generated.api_client.models.create_nested_json_field_source_field import CreateNestedJsonFieldSourceField as CreateNestedJsonFieldSourceField
 from arize._generated.api_client.models.create_nvidia_nim_config import CreateNvidiaNimConfig as CreateNvidiaNimConfig
 from arize._generated.api_client.models.create_open_ai_config import CreateOpenAiConfig as CreateOpenAiConfig
 from arize._generated.api_client.models.create_organization_request import CreateOrganizationRequest as CreateOrganizationRequest
 from arize._generated.api_client.models.create_perplexity_config import CreatePerplexityConfig as CreatePerplexityConfig
+from arize._generated.api_client.models.create_pivot_table_widget_request import CreatePivotTableWidgetRequest as CreatePivotTableWidgetRequest
 from arize._generated.api_client.models.create_project_request import CreateProjectRequest as CreateProjectRequest
 from arize._generated.api_client.models.create_prompt_request import CreatePromptRequest as CreatePromptRequest
 from arize._generated.api_client.models.create_prompt_version_request import CreatePromptVersionRequest as CreatePromptVersionRequest
@@ -747,10 +774,12 @@ from arize._generated.api_client.models.create_saml_identity_provider_request im
 from arize._generated.api_client.models.create_saml_role_mapping_request import CreateSamlRoleMappingRequest as CreateSamlRoleMappingRequest
 from arize._generated.api_client.models.create_service_api_key_request import CreateServiceApiKeyRequest as CreateServiceApiKeyRequest
 from arize._generated.api_client.models.create_space_request import CreateSpaceRequest as CreateSpaceRequest
+from arize._generated.api_client.models.create_statistic_widget_request import CreateStatisticWidgetRequest as CreateStatisticWidgetRequest
 from arize._generated.api_client.models.create_tag_request import CreateTagRequest as CreateTagRequest
 from arize._generated.api_client.models.create_task_request import CreateTaskRequest as CreateTaskRequest
 from arize._generated.api_client.models.create_template_evaluation_task_request import CreateTemplateEvaluationTaskRequest as CreateTemplateEvaluationTaskRequest
 from arize._generated.api_client.models.create_template_evaluator_version_request import CreateTemplateEvaluatorVersionRequest as CreateTemplateEvaluatorVersionRequest
+from arize._generated.api_client.models.create_text_widget_request import CreateTextWidgetRequest as CreateTextWidgetRequest
 from arize._generated.api_client.models.create_together_ai_config import CreateTogetherAiConfig as CreateTogetherAiConfig
 from arize._generated.api_client.models.create_type_safe_ai_config import CreateTypeSafeAiConfig as CreateTypeSafeAiConfig
 from arize._generated.api_client.models.create_user_api_key_request import CreateUserApiKeyRequest as CreateUserApiKeyRequest
@@ -760,6 +789,8 @@ from arize._generated.api_client.models.create_vertex_ai_config import CreateVer
 from arize._generated.api_client.models.create_webhook_request import CreateWebhookRequest as CreateWebhookRequest
 from arize._generated.api_client.models.create_webhook_response import CreateWebhookResponse as CreateWebhookResponse
 from arize._generated.api_client.models.create_webhook_subscription_request import CreateWebhookSubscriptionRequest as CreateWebhookSubscriptionRequest
+from arize._generated.api_client.models.create_widget_filter import CreateWidgetFilter as CreateWidgetFilter
+from arize._generated.api_client.models.create_widget_source_field import CreateWidgetSourceField as CreateWidgetSourceField
 from arize._generated.api_client.models.created_service_api_key import CreatedServiceApiKey as CreatedServiceApiKey
 from arize._generated.api_client.models.created_service_key_bot_user import CreatedServiceKeyBotUser as CreatedServiceKeyBotUser
 from arize._generated.api_client.models.created_user_api_key import CreatedUserApiKey as CreatedUserApiKey
@@ -846,6 +877,9 @@ from arize._generated.api_client.models.evaluator_version_remote import Evaluato
 from arize._generated.api_client.models.evaluator_version_template import EvaluatorVersionTemplate as EvaluatorVersionTemplate
 from arize._generated.api_client.models.evaluator_with_version import EvaluatorWithVersion as EvaluatorWithVersion
 from arize._generated.api_client.models.experiment import Experiment as Experiment
+from arize._generated.api_client.models.experiment_chart_plot_create_request import ExperimentChartPlotCreateRequest as ExperimentChartPlotCreateRequest
+from arize._generated.api_client.models.experiment_chart_plot_create_request_one_of import ExperimentChartPlotCreateRequestOneOf as ExperimentChartPlotCreateRequestOneOf
+from arize._generated.api_client.models.experiment_chart_plot_create_request_one_of1 import ExperimentChartPlotCreateRequestOneOf1 as ExperimentChartPlotCreateRequestOneOf1
 from arize._generated.api_client.models.experiment_chart_widget import ExperimentChartWidget as ExperimentChartWidget
 from arize._generated.api_client.models.experiment_chart_widget_plot import ExperimentChartWidgetPlot as ExperimentChartWidgetPlot
 from arize._generated.api_client.models.experiment_run import ExperimentRun as ExperimentRun
@@ -875,6 +909,7 @@ from arize._generated.api_client.models.json_schema_config import JsonSchemaConf
 from arize._generated.api_client.models.json_schema_config_request import JsonSchemaConfigRequest as JsonSchemaConfigRequest
 from arize._generated.api_client.models.llm_message import LLMMessage as LLMMessage
 from arize._generated.api_client.models.llm_message_request import LLMMessageRequest as LLMMessageRequest
+from arize._generated.api_client.models.line_chart_plot_create_request import LineChartPlotCreateRequest as LineChartPlotCreateRequest
 from arize._generated.api_client.models.line_chart_type import LineChartType as LineChartType
 from arize._generated.api_client.models.line_chart_widget import LineChartWidget as LineChartWidget
 from arize._generated.api_client.models.list_ai_integrations_response import ListAiIntegrationsResponse as ListAiIntegrationsResponse
@@ -959,6 +994,7 @@ from arize._generated.api_client.models.performance_monitor import PerformanceMo
 from arize._generated.api_client.models.permission import Permission as Permission
 from arize._generated.api_client.models.perplexity_config import PerplexityConfig as PerplexityConfig
 from arize._generated.api_client.models.pivot_table_column import PivotTableColumn as PivotTableColumn
+from arize._generated.api_client.models.pivot_table_column_create_request import PivotTableColumnCreateRequest as PivotTableColumnCreateRequest
 from arize._generated.api_client.models.pivot_table_widget import PivotTableWidget as PivotTableWidget
 from arize._generated.api_client.models.predefined_role_assignment import PredefinedRoleAssignment as PredefinedRoleAssignment
 from arize._generated.api_client.models.predefined_role_assignment_request import PredefinedRoleAssignmentRequest as PredefinedRoleAssignmentRequest

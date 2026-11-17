@@ -33,6 +33,27 @@ class TestDashboardsApi(unittest.TestCase):
         """
         pass
 
+    def test_create_dashboard_widget(self) -> None:
+        """Test case for create_dashboard_widget
+
+        Create a dashboard widget
+        """
+        pass
+
+    def test_delete_dashboard(self) -> None:
+        """Test case for delete_dashboard
+
+        Delete a dashboard
+        """
+        pass
+
+    def test_delete_dashboard_widget(self) -> None:
+        """Test case for delete_dashboard_widget
+
+        Delete a dashboard widget
+        """
+        pass
+
     def test_get_dashboard(self) -> None:
         """Test case for get_dashboard
 

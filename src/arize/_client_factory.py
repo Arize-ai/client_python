@@ -60,6 +60,8 @@ class GeneratedClientFactory:
             cfg.verify_ssl = self._sdk_config.request_verify
             if self._sdk_config.ssl_ca_cert:
                 cfg.ssl_ca_cert = self._sdk_config.ssl_ca_cert
+            if self._sdk_config.client_cert_pair:
+                cfg.cert_file, cfg.key_file = self._sdk_config.client_cert_pair
             if self._sdk_config.proxy_url:
                 cfg.proxy = self._sdk_config.proxy_url
                 proxy = urlsplit(self._sdk_config.proxy_url)

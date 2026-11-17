@@ -34,9 +34,10 @@ def post_arrow_table(
     proto_schema: pb2.Schema,
     headers: dict[str, str],
     timeout: float | None,
-    verify: bool,
+    verify: bool | str,
     max_chunksize: int,
     tmp_dir: str = "",
+    cert: tuple[str, str] | None = None,
 ) -> requests.Response:
     """Post a PyArrow table to Arize via HTTP file upload.
 
@@ -46,9 +47,12 @@ def post_arrow_table(
         proto_schema: The protobuf schema for the data.
         headers: HTTP headers for the request.
         timeout: Request timeout in seconds, or :obj:`None` for no timeout.
-        verify: Whether to verify SSL certificates.
+        verify: Whether to verify SSL certificates, or the path to a CA
+            bundle to verify them against.
         max_chunksize: Maximum chunk size for splitting large tables.
         tmp_dir: Temporary directory for serialization. Defaults to "".
+        cert: ``(cert_path, key_path)`` client certificate for mutual TLS, or
+            None to send no client certificate.
 
     Returns:
         The HTTP response from the upload request.
@@ -107,6 +111,7 @@ def post_arrow_table(
                 data=f,
                 headers=headers,
                 verify=verify,
+                cert=cert,
             )
             if resp.status_code in (401, 403):
                 raise AuthenticationError(

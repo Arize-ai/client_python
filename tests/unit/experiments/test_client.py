@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+import logging
+from pathlib import Path
+from typing import Any
 from unittest.mock import MagicMock, Mock, create_autospec, patch
 
 import numpy as np
@@ -13,11 +15,8 @@ import pytest
 
 from arize._generated.api_client import ExperimentsApi
 from arize._generated.api_client.models.dataset import Dataset
-from arize.experiments.client import ExperimentsClient
+from arize.experiments.client import ExperimentsClient, _get_tracer_resource
 from arize.experiments.types import ExperimentTaskFieldNames
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 
 @pytest.fixture
@@ -1267,6 +1266,7 @@ class TestRunFlightUpload:
     ) -> None:
         mock_sdk_config.enable_caching = False
         mock_sdk_config.pyarrow_max_chunksize = 10
+        mock_sdk_config.client_cert_pair = ("/certs/c.crt", "/certs/c.key")
         experiments_client._datasets_api.get_dataset.return_value = (
             Dataset.from_dict({"space_id": "space-1", "name": dataset_name})
         )
@@ -1301,7 +1301,7 @@ class TestRunFlightUpload:
             patch(
                 "arize.experiments.client._get_tracer_resource",
                 return_value=(Mock(), Mock(), Mock()),
-            ),
+            ) as tracer_resource,
             patch(
                 "arize.experiments.client.run_experiment",
                 return_value=output_df,
@@ -1317,6 +1317,10 @@ class TestRunFlightUpload:
             )
 
         assert result_df is output_df
+        assert (
+            tracer_resource.call_args.kwargs["client_cert_pair"]
+            == mock_sdk_config.client_cert_pair
+        )
         metadata = run.call_args.kwargs["metadata"]
         assert metadata["dataset_id"] == "dataset-1"
         if dataset_name is None:
@@ -1333,3 +1337,104 @@ class TestRunFlightUpload:
             == ["pong"] * 25
         )
         get.assert_called_once_with(experiment="exp-1")
+
+
+@pytest.mark.unit
+class TestTracerClientCertificate:
+    """The experiment OTLP gRPC exporter presents the client certificate."""
+
+    EXPORTER = (
+        "opentelemetry.exporter.otlp.proto.grpc.trace_exporter.OTLPSpanExporter"
+    )
+
+    def _build(
+        self, endpoint: str = "https://otlp.arize.com/v1", **kwargs: Any
+    ) -> tuple[Mock, Mock]:
+        with (
+            patch("grpc.ssl_channel_credentials") as credentials,
+            patch(self.EXPORTER) as exporter,
+        ):
+            _get_tracer_resource(
+                project_name="p",
+                space_id="s",
+                api_key="k",
+                endpoint=endpoint,
+                **kwargs,
+            )
+        return credentials, exporter
+
+    def test_client_cert_without_ca(
+        self, client_cert_files: tuple[str, str]
+    ) -> None:
+        cert, key = client_cert_files
+
+        credentials, exporter = self._build(client_cert_pair=(cert, key))
+
+        credentials.assert_called_once_with(
+            root_certificates=None,
+            private_key=Path(key).read_bytes(),
+            certificate_chain=Path(cert).read_bytes(),
+        )
+        assert (
+            exporter.call_args.kwargs["credentials"] is credentials.return_value
+        )
+
+    def test_client_cert_with_ca(
+        self, client_cert_files: tuple[str, str], tmp_path: Path
+    ) -> None:
+        cert, key = client_cert_files
+        ca = tmp_path / "ca.crt"
+        ca.write_bytes(b"ca-bundle")
+
+        credentials, _ = self._build(
+            ssl_ca_cert=str(ca), client_cert_pair=(cert, key)
+        )
+
+        credentials.assert_called_once_with(
+            root_certificates=b"ca-bundle",
+            private_key=Path(key).read_bytes(),
+            certificate_chain=Path(cert).read_bytes(),
+        )
+
+    def test_no_client_cert_keeps_insecure_flag_path(self) -> None:
+        credentials, exporter = self._build()
+
+        credentials.assert_not_called()
+        assert exporter.call_args.kwargs["insecure"] is False
+
+    def test_client_cert_on_plaintext_endpoint_is_ignored_with_warning(
+        self,
+        client_cert_files: tuple[str, str],
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        with caplog.at_level(
+            logging.WARNING, logger="arize.experiments.client"
+        ):
+            credentials, exporter = self._build(
+                endpoint="http://localhost:4317",
+                client_cert_pair=client_cert_files,
+            )
+
+        credentials.assert_not_called()
+        assert exporter.call_args.kwargs["insecure"] is True
+        assert any("does not use TLS" in r.getMessage() for r in caplog.records)
+
+    def test_dry_run_with_client_cert_does_not_warn(
+        self,
+        client_cert_files: tuple[str, str],
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        with caplog.at_level(
+            logging.WARNING, logger="arize.experiments.client"
+        ):
+            credentials, exporter = self._build(
+                endpoint="http://localhost:4317",
+                client_cert_pair=client_cert_files,
+                dry_run=True,
+            )
+
+        credentials.assert_not_called()
+        exporter.assert_not_called()
+        assert not any(
+            "does not use TLS" in r.getMessage() for r in caplog.records
+        )

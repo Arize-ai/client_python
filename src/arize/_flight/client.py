@@ -5,6 +5,7 @@ import logging
 import os
 from dataclasses import dataclass, field
 from enum import Enum
+from pathlib import Path
 from typing import TYPE_CHECKING, TypeAlias
 
 import pyarrow as pa
@@ -15,6 +16,7 @@ from tqdm import tqdm
 
 from arize._flight.types import FlightRequestType
 from arize._generated.protocol.flight import flight_pb2
+from arize.constants.config import FLIGHT_TLS_SCHEME
 from arize.constants.pyarrow import (
     DEFAULT_FLIGHT_BATCH_BUDGET_BYTES,
     EXPORT_ROW_GROUP_BUDGET_BYTES,
@@ -113,11 +115,20 @@ class ArizeFlightClient:
             "disable_server_verification": disable_cert,
         }
         if self.sdk_config.ssl_ca_cert and not disable_cert:
-            from pathlib import Path
-
             kwargs["tls_root_certs"] = Path(
                 self.sdk_config.ssl_ca_cert
             ).read_bytes()
+        if self.sdk_config.client_cert_pair:
+            if self.sdk_config.flight_scheme == FLIGHT_TLS_SCHEME:
+                cert_path, key_path = self.sdk_config.client_cert_pair
+                kwargs["cert_chain"] = Path(cert_path).read_bytes()
+                kwargs["private_key"] = Path(key_path).read_bytes()
+            else:
+                logger.warning(
+                    "Ignoring the client certificate for Arrow Flight: "
+                    "scheme %s does not use TLS.",
+                    self.sdk_config.flight_scheme,
+                )
 
         new_client = flight.FlightClient(**kwargs)
         object.__setattr__(self, "_client", new_client)

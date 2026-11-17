@@ -20,11 +20,6 @@ from arize.tasks.types import TaskEvaluatorInput, TaskType
 API_KEY = os.environ.get("ARIZE_API_KEY", "")
 SPACE_NAME = os.environ.get("ARIZE_TEST_SPACE_NAME", "")
 
-CUSTOM_CODE_EVALUATOR_LIMIT_MESSAGE = (
-    "Only one custom code evaluator runs per task. "
-    "Create one task per custom evaluator."
-)
-
 pytestmark = [
     pytest.mark.integration,
     pytest.mark.skipif(
@@ -60,10 +55,10 @@ def arize_client() -> Any:
     return ArizeClient(api_key=API_KEY)
 
 
-class TestTasksCustomCodeEvaluatorLimit:
-    """The REST API rejects multiple custom code evaluators for one task."""
+class TestTasksMultipleCustomCodeEvaluators:
+    """The REST API accepts multiple custom code evaluators for one task."""
 
-    def test_create_and_update_reject_two_custom_code_evaluators(
+    def test_create_and_update_accept_two_custom_code_evaluators(
         self, arize_client: Any
     ) -> None:
         project = arize_client.projects.create(
@@ -72,6 +67,7 @@ class TestTasksCustomCodeEvaluatorLimit:
         )
         evaluator_one = None
         evaluator_two = None
+        created_task = None
         task = None
         try:
             evaluator_one = arize_client.evaluators.create_code_evaluator(
@@ -90,18 +86,17 @@ class TestTasksCustomCodeEvaluatorLimit:
                 TaskEvaluatorInput(evaluator_id=evaluator_one.id),
                 TaskEvaluatorInput(evaluator_id=evaluator_two.id),
             ]
+            expected_ids = {evaluator_one.id, evaluator_two.id}
 
-            with pytest.raises(ApiException) as create_error:
-                arize_client.tasks.create_evaluation_task(
-                    name=_unique("sdk-test-two-custom-evaluators"),
-                    task_type=TaskType.CODE_EVALUATION,
-                    evaluators=evaluator_inputs,
-                    project=project.id,
-                )
-            assert create_error.value.status == 422
-            assert CUSTOM_CODE_EVALUATOR_LIMIT_MESSAGE in str(
-                create_error.value
+            created_task = arize_client.tasks.create_evaluation_task(
+                name=_unique("sdk-test-two-custom-evaluators"),
+                task_type=TaskType.CODE_EVALUATION,
+                evaluators=evaluator_inputs,
+                project=project.id,
             )
+            assert {
+                e.evaluator_id for e in created_task.evaluators or []
+            } == expected_ids
 
             task = arize_client.tasks.create_evaluation_task(
                 name=_unique("sdk-test-one-custom-evaluator"),
@@ -109,16 +104,17 @@ class TestTasksCustomCodeEvaluatorLimit:
                 evaluators=[TaskEvaluatorInput(evaluator_id=evaluator_one.id)],
                 project=project.id,
             )
-            with pytest.raises(ApiException) as update_error:
-                arize_client.tasks.update(
-                    task=task.id,
-                    evaluators=evaluator_inputs,
-                )
-            assert update_error.value.status == 422
-            assert CUSTOM_CODE_EVALUATOR_LIMIT_MESSAGE in str(
-                update_error.value
+            updated_task = arize_client.tasks.update(
+                task=task.id,
+                evaluators=evaluator_inputs,
             )
+            assert {
+                e.evaluator_id for e in updated_task.evaluators or []
+            } == expected_ids
         finally:
+            if created_task is not None:
+                with contextlib.suppress(ApiException):
+                    arize_client.tasks.delete(task=created_task.id)
             if task is not None:
                 with contextlib.suppress(ApiException):
                     arize_client.tasks.delete(task=task.id)

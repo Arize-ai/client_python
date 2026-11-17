@@ -9,7 +9,7 @@ Name | Type | Description | Notes
 **id** | **str** | A universally unique identifier (base64-encoded opaque string). | 
 **title** | **str** | Display title of the widget. | 
 **type** | [**WidgetType**](WidgetType.md) |  | 
-**grid_position** | **List[int]** | Widget position and size as [x, y, width, height]. | 
+**grid_position** | **List[int]** | Widget position as CSS grid lines [rowStart, colStart, rowEnd, colEnd]. Lines are 1-based, and each end line must be greater than its corresponding start line. The dashboard has 12 columns, so colEnd must not exceed 13.  | 
 
 ## Example
 
