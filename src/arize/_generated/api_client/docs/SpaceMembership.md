@@ -6,7 +6,7 @@ A space membership record.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **str** | Unique identifier for the membership record | 
+**id** | **str** | Unique identifier for the membership record. It identifies the current role assignment, so it changes when the member&#39;s role is replaced.  | 
 **user_id** | **str** | The unique identifier of the user | 
 **space_id** | **str** | The unique identifier of the space | 
 **role** | [**SpaceRoleAssignment**](SpaceRoleAssignment.md) |  | 

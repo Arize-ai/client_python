@@ -1,5 +1,17 @@
 # Changelog
 
+## [8.66.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.65.0...arize-python-sdk/v8.66.0) (2026-11-23)
+
+
+### 🎁 New Features
+
+* **Evaluators:** List available evaluator templates. ([#95844](https://github.com/Arize-ai/arize/issues/95844)) ([0cd77d8](https://github.com/Arize-ai/arize/commit/0cd77d8f58e74dcf877f308f5ae25f3d8df303ad))
+
+
+### 🐛 Bug Fixes
+
+* **Service keys:** Create Account Admin service keys without assigning organizations or spaces. ([#95789](https://github.com/Arize-ai/arize/issues/95789)) ([50a9454](https://github.com/Arize-ai/arize/commit/50a94545d56186833c7c65268c3cd00250cc4dce))
+
 ## [8.65.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.64.0...arize-python-sdk/v8.65.0) (2026-11-17)
 
 

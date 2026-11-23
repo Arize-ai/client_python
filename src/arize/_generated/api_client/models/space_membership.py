@@ -27,7 +27,7 @@ class SpaceMembership(BaseModel):
     """
     A space membership record. 
     """ # noqa: E501
-    id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the membership record")
+    id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the membership record. It identifies the current role assignment, so it changes when the member's role is replaced. ")
     user_id: Optional[StrictStr] = Field(default=None, description="The unique identifier of the user")
     space_id: Optional[StrictStr] = Field(default=None, description="The unique identifier of the space")
     role: Optional[SpaceRoleAssignment] = None

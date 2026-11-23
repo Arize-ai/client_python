@@ -465,6 +465,22 @@ class TestApiKeysClientCreateServiceKey:
         with pytest.raises(ValueError, match="at least one entry"):
             api_keys_client.create_service_key(name="svc-key", orgs=[])
 
+    def test_create_account_only_admin_key(
+        self, api_keys_client: ApiKeysClient, mock_api: Mock
+    ) -> None:
+        """Account Admin keys send an empty organization list."""
+        account_role = UserRoleAssignmentRequest.from_dict(
+            {"type": "PREDEFINED", "name": "ADMIN"}
+        )
+        api_keys_client.create_service_key(
+            name="account-admin", orgs=[], account_role=account_role
+        )
+        body = mock_api.create_api_key.call_args.kwargs[
+            "create_api_key_request"
+        ].actual_instance
+        assert body.organizations == []
+        assert body.account_role.actual_instance.name == "ADMIN"
+
     def test_create_service_key_raises_on_empty_spaces_in_org(
         self, api_keys_client: ApiKeysClient, mock_api: Mock
     ) -> None:

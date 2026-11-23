@@ -20,6 +20,7 @@ from pydantic import Field, StrictBool, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.add_tags_request import AddTagsRequest
+from arize._generated.api_client.models.create_monitor_request import CreateMonitorRequest
 from arize._generated.api_client.models.data_quality_metric import DataQualityMetric
 from arize._generated.api_client.models.dimension_category import DimensionCategory
 from arize._generated.api_client.models.drift_metric import DriftMetric
@@ -343,6 +344,575 @@ class MonitorsApi:
         return self.api_client.param_serialize(
             method='POST',
             resource_path='/v2/monitors/{monitor_id}/tags',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def create_monitor(
+        self,
+        create_monitor_request: Annotated[CreateMonitorRequest, Field(description="The monitor to create. `type` selects the variant.")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> Monitor:
+        """Create a monitor
+
+        Create a monitor on a project: `TRACING` on an LLM tracing project, or `DATA_QUALITY` on an ML project. The monitor is published and starts evaluating immediately, and the response matches `GET /v2/monitors/{monitor_id}`.  **Payload Requirements** - `type`, `project_id`, `name`, `metric`, `dimension` and `threshold`   are required. Field-level limits are documented on each field. - `project_id` must be a project of the kind `type` needs that is not   an Arize demo project. - `dimension.name` and each filter's name must match the project's   data exactly: recent tracing data for `TRACING`, the monitored   `environment` for `DATA_QUALITY`. A `CUSTOM_BASELINE` reads   production data, so its filters and the monitored dimension must   also be in production data. Embedding and dictionary fields cannot   be monitored or filtered. - `metric` must suit the dimension; each request's `metric` field   lists the metrics each kind of dimension supports. - `DATA_QUALITY` monitors require `baseline_config` for `NEW_VALUES`   and `MISSING_VALUES` and reject it otherwise. `MODEL_BASELINE`   requires a primary baseline, and every `model_versions` entry must   be a version of the project. - `INTEGRATION` and `WEBHOOK` destinations require a plan with alert   integrations and must belong to the project's organization. - Unknown fields, `null` values and system-managed fields (`id`,   `status`, `created_at` and so on) are rejected.  Structural problems return `400`, and values that break a rule above return `422`, including a project of the wrong kind for `type`. A project that does not exist or that the caller cannot read returns `404`. A caller who can read the project but cannot create monitors in it gets `403` before the body is validated. A `5xx` does not guarantee the monitor was not created, so list the project's monitors by `name` before retrying.  **Valid example** ```json {   \"type\": \"TRACING\",   \"project_id\": \"TW9kZWw6MTIz\",   \"name\": \"Root span latency p95\",   \"metric\": \"P95\",   \"dimension\": { \"category\": \"SPAN_ATTRIBUTE\", \"name\": \"latency_ms\" },   \"threshold\": { \"type\": \"MANUAL_SINGLE\", \"operator\": \"GREATER_THAN\", \"value\": 2000 },   \"evaluation_window_length_seconds\": 3600,   \"filters\": [     {       \"dimension\": { \"category\": \"SPAN_ATTRIBUTE\", \"name\": \"parent_id\" },       \"operator\": \"EQUALS\",       \"values\": [\"NULL\"]     }   ],   \"notification_configs\": [     { \"type\": \"EMAIL\", \"email_address\": \"oncall@example.com\" }   ] } ```  **Invalid example** (a system-managed field, and a range whose lower bound uses an upper-bound operator) ```json {   \"id\": \"TW9uaXRvcjo0NTY=\",   \"type\": \"TRACING\",   \"project_id\": \"TW9kZWw6MTIz\",   \"name\": \"Hallucination rate\",   \"metric\": \"AVG\",   \"dimension\": { \"category\": \"LLM_EVAL\", \"name\": \"eval.hallucination.score\" },   \"threshold\": {     \"type\": \"MANUAL_RANGE\",     \"lower\": { \"operator\": \"LESS_THAN\", \"value\": 0.2 },     \"upper\": { \"operator\": \"LESS_THAN\", \"value\": 0.8 }   } } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param create_monitor_request: The monitor to create. `type` selects the variant. (required)
+        :type create_monitor_request: CreateMonitorRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._create_monitor_serialize(
+            create_monitor_request=create_monitor_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "Monitor",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "ForbiddenProblem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def create_monitor_with_http_info(
+        self,
+        create_monitor_request: Annotated[CreateMonitorRequest, Field(description="The monitor to create. `type` selects the variant.")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[Monitor]:
+        """Create a monitor
+
+        Create a monitor on a project: `TRACING` on an LLM tracing project, or `DATA_QUALITY` on an ML project. The monitor is published and starts evaluating immediately, and the response matches `GET /v2/monitors/{monitor_id}`.  **Payload Requirements** - `type`, `project_id`, `name`, `metric`, `dimension` and `threshold`   are required. Field-level limits are documented on each field. - `project_id` must be a project of the kind `type` needs that is not   an Arize demo project. - `dimension.name` and each filter's name must match the project's   data exactly: recent tracing data for `TRACING`, the monitored   `environment` for `DATA_QUALITY`. A `CUSTOM_BASELINE` reads   production data, so its filters and the monitored dimension must   also be in production data. Embedding and dictionary fields cannot   be monitored or filtered. - `metric` must suit the dimension; each request's `metric` field   lists the metrics each kind of dimension supports. - `DATA_QUALITY` monitors require `baseline_config` for `NEW_VALUES`   and `MISSING_VALUES` and reject it otherwise. `MODEL_BASELINE`   requires a primary baseline, and every `model_versions` entry must   be a version of the project. - `INTEGRATION` and `WEBHOOK` destinations require a plan with alert   integrations and must belong to the project's organization. - Unknown fields, `null` values and system-managed fields (`id`,   `status`, `created_at` and so on) are rejected.  Structural problems return `400`, and values that break a rule above return `422`, including a project of the wrong kind for `type`. A project that does not exist or that the caller cannot read returns `404`. A caller who can read the project but cannot create monitors in it gets `403` before the body is validated. A `5xx` does not guarantee the monitor was not created, so list the project's monitors by `name` before retrying.  **Valid example** ```json {   \"type\": \"TRACING\",   \"project_id\": \"TW9kZWw6MTIz\",   \"name\": \"Root span latency p95\",   \"metric\": \"P95\",   \"dimension\": { \"category\": \"SPAN_ATTRIBUTE\", \"name\": \"latency_ms\" },   \"threshold\": { \"type\": \"MANUAL_SINGLE\", \"operator\": \"GREATER_THAN\", \"value\": 2000 },   \"evaluation_window_length_seconds\": 3600,   \"filters\": [     {       \"dimension\": { \"category\": \"SPAN_ATTRIBUTE\", \"name\": \"parent_id\" },       \"operator\": \"EQUALS\",       \"values\": [\"NULL\"]     }   ],   \"notification_configs\": [     { \"type\": \"EMAIL\", \"email_address\": \"oncall@example.com\" }   ] } ```  **Invalid example** (a system-managed field, and a range whose lower bound uses an upper-bound operator) ```json {   \"id\": \"TW9uaXRvcjo0NTY=\",   \"type\": \"TRACING\",   \"project_id\": \"TW9kZWw6MTIz\",   \"name\": \"Hallucination rate\",   \"metric\": \"AVG\",   \"dimension\": { \"category\": \"LLM_EVAL\", \"name\": \"eval.hallucination.score\" },   \"threshold\": {     \"type\": \"MANUAL_RANGE\",     \"lower\": { \"operator\": \"LESS_THAN\", \"value\": 0.2 },     \"upper\": { \"operator\": \"LESS_THAN\", \"value\": 0.8 }   } } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param create_monitor_request: The monitor to create. `type` selects the variant. (required)
+        :type create_monitor_request: CreateMonitorRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._create_monitor_serialize(
+            create_monitor_request=create_monitor_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "Monitor",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "ForbiddenProblem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def create_monitor_without_preload_content(
+        self,
+        create_monitor_request: Annotated[CreateMonitorRequest, Field(description="The monitor to create. `type` selects the variant.")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Create a monitor
+
+        Create a monitor on a project: `TRACING` on an LLM tracing project, or `DATA_QUALITY` on an ML project. The monitor is published and starts evaluating immediately, and the response matches `GET /v2/monitors/{monitor_id}`.  **Payload Requirements** - `type`, `project_id`, `name`, `metric`, `dimension` and `threshold`   are required. Field-level limits are documented on each field. - `project_id` must be a project of the kind `type` needs that is not   an Arize demo project. - `dimension.name` and each filter's name must match the project's   data exactly: recent tracing data for `TRACING`, the monitored   `environment` for `DATA_QUALITY`. A `CUSTOM_BASELINE` reads   production data, so its filters and the monitored dimension must   also be in production data. Embedding and dictionary fields cannot   be monitored or filtered. - `metric` must suit the dimension; each request's `metric` field   lists the metrics each kind of dimension supports. - `DATA_QUALITY` monitors require `baseline_config` for `NEW_VALUES`   and `MISSING_VALUES` and reject it otherwise. `MODEL_BASELINE`   requires a primary baseline, and every `model_versions` entry must   be a version of the project. - `INTEGRATION` and `WEBHOOK` destinations require a plan with alert   integrations and must belong to the project's organization. - Unknown fields, `null` values and system-managed fields (`id`,   `status`, `created_at` and so on) are rejected.  Structural problems return `400`, and values that break a rule above return `422`, including a project of the wrong kind for `type`. A project that does not exist or that the caller cannot read returns `404`. A caller who can read the project but cannot create monitors in it gets `403` before the body is validated. A `5xx` does not guarantee the monitor was not created, so list the project's monitors by `name` before retrying.  **Valid example** ```json {   \"type\": \"TRACING\",   \"project_id\": \"TW9kZWw6MTIz\",   \"name\": \"Root span latency p95\",   \"metric\": \"P95\",   \"dimension\": { \"category\": \"SPAN_ATTRIBUTE\", \"name\": \"latency_ms\" },   \"threshold\": { \"type\": \"MANUAL_SINGLE\", \"operator\": \"GREATER_THAN\", \"value\": 2000 },   \"evaluation_window_length_seconds\": 3600,   \"filters\": [     {       \"dimension\": { \"category\": \"SPAN_ATTRIBUTE\", \"name\": \"parent_id\" },       \"operator\": \"EQUALS\",       \"values\": [\"NULL\"]     }   ],   \"notification_configs\": [     { \"type\": \"EMAIL\", \"email_address\": \"oncall@example.com\" }   ] } ```  **Invalid example** (a system-managed field, and a range whose lower bound uses an upper-bound operator) ```json {   \"id\": \"TW9uaXRvcjo0NTY=\",   \"type\": \"TRACING\",   \"project_id\": \"TW9kZWw6MTIz\",   \"name\": \"Hallucination rate\",   \"metric\": \"AVG\",   \"dimension\": { \"category\": \"LLM_EVAL\", \"name\": \"eval.hallucination.score\" },   \"threshold\": {     \"type\": \"MANUAL_RANGE\",     \"lower\": { \"operator\": \"LESS_THAN\", \"value\": 0.2 },     \"upper\": { \"operator\": \"LESS_THAN\", \"value\": 0.8 }   } } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param create_monitor_request: The monitor to create. `type` selects the variant. (required)
+        :type create_monitor_request: CreateMonitorRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._create_monitor_serialize(
+            create_monitor_request=create_monitor_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "Monitor",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "ForbiddenProblem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _create_monitor_serialize(
+        self,
+        create_monitor_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if create_monitor_request is not None:
+            _body_params = create_monitor_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/monitors',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def delete_monitor(
+        self,
+        monitor_id: Annotated[StrictStr, Field(description="The unique monitor identifier (base64)")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> None:
+        """Delete a monitor
+
+        Delete a monitor by its ID. The monitor stops evaluating and sending notifications, and no longer appears in get or list responses. A deleted monitor cannot be restored through the API.  A caller who can read the monitor but not delete it gets `403`. A monitor that does not exist, was already deleted, or is on a project the caller cannot read returns `404`, so deleting the same monitor twice returns `404` the second time.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param monitor_id: The unique monitor identifier (base64) (required)
+        :type monitor_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._delete_monitor_serialize(
+            monitor_id=monitor_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '204': None,
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def delete_monitor_with_http_info(
+        self,
+        monitor_id: Annotated[StrictStr, Field(description="The unique monitor identifier (base64)")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[None]:
+        """Delete a monitor
+
+        Delete a monitor by its ID. The monitor stops evaluating and sending notifications, and no longer appears in get or list responses. A deleted monitor cannot be restored through the API.  A caller who can read the monitor but not delete it gets `403`. A monitor that does not exist, was already deleted, or is on a project the caller cannot read returns `404`, so deleting the same monitor twice returns `404` the second time.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param monitor_id: The unique monitor identifier (base64) (required)
+        :type monitor_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._delete_monitor_serialize(
+            monitor_id=monitor_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '204': None,
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def delete_monitor_without_preload_content(
+        self,
+        monitor_id: Annotated[StrictStr, Field(description="The unique monitor identifier (base64)")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Delete a monitor
+
+        Delete a monitor by its ID. The monitor stops evaluating and sending notifications, and no longer appears in get or list responses. A deleted monitor cannot be restored through the API.  A caller who can read the monitor but not delete it gets `403`. A monitor that does not exist, was already deleted, or is on a project the caller cannot read returns `404`, so deleting the same monitor twice returns `404` the second time.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param monitor_id: The unique monitor identifier (base64) (required)
+        :type monitor_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._delete_monitor_serialize(
+            monitor_id=monitor_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '204': None,
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _delete_monitor_serialize(
+        self,
+        monitor_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if monitor_id is not None:
+            _path_params['monitor_id'] = monitor_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/problem+json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='DELETE',
+            resource_path='/v2/monitors/{monitor_id}',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

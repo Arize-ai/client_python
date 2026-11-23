@@ -113,6 +113,9 @@ from arize._generated.api_client.models.evaluator_version_remote import (
 from arize._generated.api_client.models.evaluator_version_template import (
     EvaluatorVersionTemplate,
 )
+from arize._generated.api_client.models.list_evaluator_templates_response import (
+    ListEvaluatorTemplatesResponse,
+)
 from arize._generated.api_client.models.list_evaluators_response import (
     ListEvaluatorsResponse,
 )
@@ -385,6 +388,7 @@ __all__ = [
     "EvaluatorVersionRemote",
     "EvaluatorVersionTemplate",
     "EvaluatorWithVersion",
+    "ListEvaluatorTemplatesResponse",
     "ListEvaluatorVersionsResponse",
     "ListEvaluatorsResponse",
     "ManagedCodeConfig",

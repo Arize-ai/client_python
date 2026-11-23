@@ -31,7 +31,7 @@ class ServiceKeyBotUser(BaseModel):
     id: Optional[StrictStr] = Field(default=None, description="Global ID of the bot user.")
     name: Optional[StrictStr] = Field(default=None, description="Display name of the bot user.")
     account_role: Optional[UserRoleAssignment] = Field(default=None, description="Account-level role assigned to the bot user. Always present — defaults are resolved server-side. In a list response (`GET /v2/api-keys`) for a bot user that could not be resolved, this is a `MEMBER` placeholder and `name` is empty. ")
-    organizations: Optional[List[ServiceKeyBotUserOrgAssignment]] = Field(default=None, description="Organization access assignments for the service account, each containing nested space assignments. Always empty in a list response (`GET /v2/api-keys`) filtered by `space_id`. Also empty in a list response for a bot user whose bindings could not be resolved (e.g. a stale or otherwise unrecoverable bot user). `CreatedServiceKeyBotUser` (used in the `POST /v2/api-keys` response) tightens this to at least one entry, since creating a service key always requires an organization. ")
+    organizations: Optional[List[ServiceKeyBotUserOrgAssignment]] = Field(default=None, description="Organization access assignments for the service account, each containing nested space assignments. Always empty in a list response (`GET /v2/api-keys`) filtered by `space_id`. Also empty in a list response for a bot user whose bindings could not be resolved (e.g. a stale or otherwise unrecoverable bot user). Empty for account-only Admin keys, which inherit access to all organizations and spaces. ")
     __properties: ClassVar[List[str]] = ["id", "name", "account_role", "organizations"]
 
     model_config = ConfigDict(

@@ -119,6 +119,7 @@ __all__ = [
     "BarChartPlotCreateRequest",
     "BarChartWidget",
     "BaselineConfig",
+    "BaselineConfigInput",
     "BedrockOptions",
     "BedrockOptionsRequest",
     "CategoricalAnnotationConfig",
@@ -160,6 +161,7 @@ __all__ = [
     "CreateCustomOauth2ClientCredentialsAuth",
     "CreateDashboardRequest",
     "CreateDashboardWidgetRequest",
+    "CreateDataQualityMonitorRequest",
     "CreateDatasetColumnSourceField",
     "CreateDatasetRequest",
     "CreateDatasetSource",
@@ -180,6 +182,7 @@ __all__ = [
     "CreateLiteLlmConfig",
     "CreateLlmConfig",
     "CreateLlmIntegrationRequest",
+    "CreateMonitorRequest",
     "CreateNestedJsonFieldSourceField",
     "CreateNvidiaNimConfig",
     "CreateOpenAiConfig",
@@ -205,6 +208,7 @@ __all__ = [
     "CreateTemplateEvaluatorVersionRequest",
     "CreateTextWidgetRequest",
     "CreateTogetherAiConfig",
+    "CreateTracingMonitorRequest",
     "CreateTypeSafeAiConfig",
     "CreateUserApiKeyRequest",
     "CreateUserRequest",
@@ -220,7 +224,9 @@ __all__ = [
     "CreatedUserApiKey",
     "CustomAuth",
     "CustomBaselineConfig",
+    "CustomBaselineConfigInput",
     "CustomBaselineWindow",
+    "CustomBaselineWindowInput",
     "CustomCodeConfig",
     "CustomCodeConfigRequest",
     "CustomConfig",
@@ -277,12 +283,17 @@ __all__ = [
     "Dimension",
     "DimensionCategory",
     "DowntimeConfig",
+    "DowntimeConfigInput",
     "DriftMetric",
     "DriftMonitor",
     "DynamicRangeThreshold",
+    "DynamicRangeThresholdInput",
     "DynamicSingleThreshold",
+    "DynamicSingleThresholdInput",
     "DynamicThresholdBound",
+    "DynamicThresholdBoundInput",
     "EmailNotificationConfig",
+    "EmailNotificationConfigInput",
     "Evaluation",
     "Evaluator",
     "EvaluatorInputMode",
@@ -312,6 +323,7 @@ __all__ = [
     "FilterOperator",
     "FireworksConfig",
     "FixedCustomBaselineWindow",
+    "FixedCustomBaselineWindowInput",
     "ForbiddenProblem",
     "FreeformAnnotationConfig",
     "GcpProviderMetadata",
@@ -323,6 +335,7 @@ __all__ = [
     "InsertExperimentRunsRequest",
     "Integration",
     "IntegrationNotificationConfig",
+    "IntegrationNotificationConfigInput",
     "IntegrationScoping",
     "IntegrationScopingRequest",
     "IntegrationType",
@@ -387,18 +400,29 @@ __all__ = [
     "ManagedCodeConfigRequest",
     "ManagedCodeEvaluator",
     "ManualRangeThreshold",
+    "ManualRangeThresholdInput",
     "ManualSingleThreshold",
+    "ManualSingleThresholdInput",
     "ManualThresholdBound",
+    "ManualThresholdBoundInput",
     "MessageRole",
+    "MlDimensionCategory",
+    "MlDimensionInput",
+    "MlFilterInput",
+    "MlMonitorEnvironment",
     "ModelBaselineConfig",
+    "ModelBaselineConfigInput",
     "Monitor",
     "MonitorBase",
     "MonitorFilter",
+    "MonitorFilterInputOperator",
     "MonitorStatus",
     "MonitorType",
     "MovingCustomBaselineWindow",
+    "MovingCustomBaselineWindowInput",
     "NestedJsonFieldSourceField",
     "NotificationConfig",
+    "NotificationConfigInput",
     "NvidiaNimConfig",
     "OpenAiConfig",
     "OptimizationDirection",
@@ -460,6 +484,7 @@ __all__ = [
     "SamlRoleMapping",
     "SamlSpaceAssignment",
     "ScheduledRuntimeConfig",
+    "ScheduledRuntimeConfigInput",
     "SearchDatasetExamplesRequest",
     "SearchExperimentRunsRequest",
     "ServiceApiKey",
@@ -507,6 +532,7 @@ __all__ = [
     "TextWidget",
     "ThresholdCalculation",
     "ThresholdConfig",
+    "ThresholdConfigInput",
     "ThresholdOperator",
     "TogetherAiConfig",
     "ToolCall",
@@ -518,7 +544,10 @@ __all__ = [
     "ToolConfigRequest",
     "Trace",
     "TraceOrSessionEvaluatorInput",
+    "TracingAttributeCategory",
+    "TracingAttributeInput",
     "TracingDataQualityMetric",
+    "TracingFilterInput",
     "TracingMonitor",
     "TriggerEvaluationTaskRunRequest",
     "TriggerRunExperimentTaskRunRequest",
@@ -532,6 +561,7 @@ __all__ = [
     "UpdateAnnotationQueueRequest",
     "UpdateCategoricalAnnotationConfigRequest",
     "UpdateContinuousAnnotationConfigRequest",
+    "UpdateDashboardRequest",
     "UpdateDatasetExampleInput",
     "UpdateDatasetExamplesRequest",
     "UpdateDatasetRequest",
@@ -572,6 +602,7 @@ __all__ = [
     "WebhookDeliveryAttempt",
     "WebhookEventType",
     "WebhookNotificationConfig",
+    "WebhookNotificationConfigInput",
     "WebhookSourceType",
     "WebhookSubscription",
     "Widget",
@@ -695,6 +726,7 @@ from arize._generated.api_client.models.azure_params_request import AzureParamsR
 from arize._generated.api_client.models.bar_chart_plot_create_request import BarChartPlotCreateRequest as BarChartPlotCreateRequest
 from arize._generated.api_client.models.bar_chart_widget import BarChartWidget as BarChartWidget
 from arize._generated.api_client.models.baseline_config import BaselineConfig as BaselineConfig
+from arize._generated.api_client.models.baseline_config_input import BaselineConfigInput as BaselineConfigInput
 from arize._generated.api_client.models.bedrock_options import BedrockOptions as BedrockOptions
 from arize._generated.api_client.models.bedrock_options_request import BedrockOptionsRequest as BedrockOptionsRequest
 from arize._generated.api_client.models.categorical_annotation_config import CategoricalAnnotationConfig as CategoricalAnnotationConfig
@@ -736,6 +768,7 @@ from arize._generated.api_client.models.create_custom_default_auth import Create
 from arize._generated.api_client.models.create_custom_oauth2_client_credentials_auth import CreateCustomOauth2ClientCredentialsAuth as CreateCustomOauth2ClientCredentialsAuth
 from arize._generated.api_client.models.create_dashboard_request import CreateDashboardRequest as CreateDashboardRequest
 from arize._generated.api_client.models.create_dashboard_widget_request import CreateDashboardWidgetRequest as CreateDashboardWidgetRequest
+from arize._generated.api_client.models.create_data_quality_monitor_request import CreateDataQualityMonitorRequest as CreateDataQualityMonitorRequest
 from arize._generated.api_client.models.create_dataset_column_source_field import CreateDatasetColumnSourceField as CreateDatasetColumnSourceField
 from arize._generated.api_client.models.create_dataset_request import CreateDatasetRequest as CreateDatasetRequest
 from arize._generated.api_client.models.create_dataset_source import CreateDatasetSource as CreateDatasetSource
@@ -756,6 +789,7 @@ from arize._generated.api_client.models.create_line_chart_widget_request import 
 from arize._generated.api_client.models.create_lite_llm_config import CreateLiteLlmConfig as CreateLiteLlmConfig
 from arize._generated.api_client.models.create_llm_config import CreateLlmConfig as CreateLlmConfig
 from arize._generated.api_client.models.create_llm_integration_request import CreateLlmIntegrationRequest as CreateLlmIntegrationRequest
+from arize._generated.api_client.models.create_monitor_request import CreateMonitorRequest as CreateMonitorRequest
 from arize._generated.api_client.models.create_nested_json_field_source_field import CreateNestedJsonFieldSourceField as CreateNestedJsonFieldSourceField
 from arize._generated.api_client.models.create_nvidia_nim_config import CreateNvidiaNimConfig as CreateNvidiaNimConfig
 from arize._generated.api_client.models.create_open_ai_config import CreateOpenAiConfig as CreateOpenAiConfig
@@ -781,6 +815,7 @@ from arize._generated.api_client.models.create_template_evaluation_task_request 
 from arize._generated.api_client.models.create_template_evaluator_version_request import CreateTemplateEvaluatorVersionRequest as CreateTemplateEvaluatorVersionRequest
 from arize._generated.api_client.models.create_text_widget_request import CreateTextWidgetRequest as CreateTextWidgetRequest
 from arize._generated.api_client.models.create_together_ai_config import CreateTogetherAiConfig as CreateTogetherAiConfig
+from arize._generated.api_client.models.create_tracing_monitor_request import CreateTracingMonitorRequest as CreateTracingMonitorRequest
 from arize._generated.api_client.models.create_type_safe_ai_config import CreateTypeSafeAiConfig as CreateTypeSafeAiConfig
 from arize._generated.api_client.models.create_user_api_key_request import CreateUserApiKeyRequest as CreateUserApiKeyRequest
 from arize._generated.api_client.models.create_user_request import CreateUserRequest as CreateUserRequest
@@ -796,7 +831,9 @@ from arize._generated.api_client.models.created_service_key_bot_user import Crea
 from arize._generated.api_client.models.created_user_api_key import CreatedUserApiKey as CreatedUserApiKey
 from arize._generated.api_client.models.custom_auth import CustomAuth as CustomAuth
 from arize._generated.api_client.models.custom_baseline_config import CustomBaselineConfig as CustomBaselineConfig
+from arize._generated.api_client.models.custom_baseline_config_input import CustomBaselineConfigInput as CustomBaselineConfigInput
 from arize._generated.api_client.models.custom_baseline_window import CustomBaselineWindow as CustomBaselineWindow
+from arize._generated.api_client.models.custom_baseline_window_input import CustomBaselineWindowInput as CustomBaselineWindowInput
 from arize._generated.api_client.models.custom_code_config import CustomCodeConfig as CustomCodeConfig
 from arize._generated.api_client.models.custom_code_config_request import CustomCodeConfigRequest as CustomCodeConfigRequest
 from arize._generated.api_client.models.custom_config import CustomConfig as CustomConfig
@@ -853,12 +890,17 @@ from arize._generated.api_client.models.delete_spans_response import DeleteSpans
 from arize._generated.api_client.models.dimension import Dimension as Dimension
 from arize._generated.api_client.models.dimension_category import DimensionCategory as DimensionCategory
 from arize._generated.api_client.models.downtime_config import DowntimeConfig as DowntimeConfig
+from arize._generated.api_client.models.downtime_config_input import DowntimeConfigInput as DowntimeConfigInput
 from arize._generated.api_client.models.drift_metric import DriftMetric as DriftMetric
 from arize._generated.api_client.models.drift_monitor import DriftMonitor as DriftMonitor
 from arize._generated.api_client.models.dynamic_range_threshold import DynamicRangeThreshold as DynamicRangeThreshold
+from arize._generated.api_client.models.dynamic_range_threshold_input import DynamicRangeThresholdInput as DynamicRangeThresholdInput
 from arize._generated.api_client.models.dynamic_single_threshold import DynamicSingleThreshold as DynamicSingleThreshold
+from arize._generated.api_client.models.dynamic_single_threshold_input import DynamicSingleThresholdInput as DynamicSingleThresholdInput
 from arize._generated.api_client.models.dynamic_threshold_bound import DynamicThresholdBound as DynamicThresholdBound
+from arize._generated.api_client.models.dynamic_threshold_bound_input import DynamicThresholdBoundInput as DynamicThresholdBoundInput
 from arize._generated.api_client.models.email_notification_config import EmailNotificationConfig as EmailNotificationConfig
+from arize._generated.api_client.models.email_notification_config_input import EmailNotificationConfigInput as EmailNotificationConfigInput
 from arize._generated.api_client.models.evaluation import Evaluation as Evaluation
 from arize._generated.api_client.models.evaluator import Evaluator as Evaluator
 from arize._generated.api_client.models.evaluator_input_mode import EvaluatorInputMode as EvaluatorInputMode
@@ -888,6 +930,7 @@ from arize._generated.api_client.models.experiment_with_run_ids import Experimen
 from arize._generated.api_client.models.filter_operator import FilterOperator as FilterOperator
 from arize._generated.api_client.models.fireworks_config import FireworksConfig as FireworksConfig
 from arize._generated.api_client.models.fixed_custom_baseline_window import FixedCustomBaselineWindow as FixedCustomBaselineWindow
+from arize._generated.api_client.models.fixed_custom_baseline_window_input import FixedCustomBaselineWindowInput as FixedCustomBaselineWindowInput
 from arize._generated.api_client.models.forbidden_problem import ForbiddenProblem as ForbiddenProblem
 from arize._generated.api_client.models.freeform_annotation_config import FreeformAnnotationConfig as FreeformAnnotationConfig
 from arize._generated.api_client.models.gcp_provider_metadata import GcpProviderMetadata as GcpProviderMetadata
@@ -899,6 +942,7 @@ from arize._generated.api_client.models.insert_dataset_examples_request import I
 from arize._generated.api_client.models.insert_experiment_runs_request import InsertExperimentRunsRequest as InsertExperimentRunsRequest
 from arize._generated.api_client.models.integration import Integration as Integration
 from arize._generated.api_client.models.integration_notification_config import IntegrationNotificationConfig as IntegrationNotificationConfig
+from arize._generated.api_client.models.integration_notification_config_input import IntegrationNotificationConfigInput as IntegrationNotificationConfigInput
 from arize._generated.api_client.models.integration_scoping import IntegrationScoping as IntegrationScoping
 from arize._generated.api_client.models.integration_scoping_request import IntegrationScopingRequest as IntegrationScopingRequest
 from arize._generated.api_client.models.integration_type import IntegrationType as IntegrationType
@@ -963,18 +1007,29 @@ from arize._generated.api_client.models.managed_code_config import ManagedCodeCo
 from arize._generated.api_client.models.managed_code_config_request import ManagedCodeConfigRequest as ManagedCodeConfigRequest
 from arize._generated.api_client.models.managed_code_evaluator import ManagedCodeEvaluator as ManagedCodeEvaluator
 from arize._generated.api_client.models.manual_range_threshold import ManualRangeThreshold as ManualRangeThreshold
+from arize._generated.api_client.models.manual_range_threshold_input import ManualRangeThresholdInput as ManualRangeThresholdInput
 from arize._generated.api_client.models.manual_single_threshold import ManualSingleThreshold as ManualSingleThreshold
+from arize._generated.api_client.models.manual_single_threshold_input import ManualSingleThresholdInput as ManualSingleThresholdInput
 from arize._generated.api_client.models.manual_threshold_bound import ManualThresholdBound as ManualThresholdBound
+from arize._generated.api_client.models.manual_threshold_bound_input import ManualThresholdBoundInput as ManualThresholdBoundInput
 from arize._generated.api_client.models.message_role import MessageRole as MessageRole
+from arize._generated.api_client.models.ml_dimension_category import MlDimensionCategory as MlDimensionCategory
+from arize._generated.api_client.models.ml_dimension_input import MlDimensionInput as MlDimensionInput
+from arize._generated.api_client.models.ml_filter_input import MlFilterInput as MlFilterInput
+from arize._generated.api_client.models.ml_monitor_environment import MlMonitorEnvironment as MlMonitorEnvironment
 from arize._generated.api_client.models.model_baseline_config import ModelBaselineConfig as ModelBaselineConfig
+from arize._generated.api_client.models.model_baseline_config_input import ModelBaselineConfigInput as ModelBaselineConfigInput
 from arize._generated.api_client.models.monitor import Monitor as Monitor
 from arize._generated.api_client.models.monitor_base import MonitorBase as MonitorBase
 from arize._generated.api_client.models.monitor_filter import MonitorFilter as MonitorFilter
+from arize._generated.api_client.models.monitor_filter_input_operator import MonitorFilterInputOperator as MonitorFilterInputOperator
 from arize._generated.api_client.models.monitor_status import MonitorStatus as MonitorStatus
 from arize._generated.api_client.models.monitor_type import MonitorType as MonitorType
 from arize._generated.api_client.models.moving_custom_baseline_window import MovingCustomBaselineWindow as MovingCustomBaselineWindow
+from arize._generated.api_client.models.moving_custom_baseline_window_input import MovingCustomBaselineWindowInput as MovingCustomBaselineWindowInput
 from arize._generated.api_client.models.nested_json_field_source_field import NestedJsonFieldSourceField as NestedJsonFieldSourceField
 from arize._generated.api_client.models.notification_config import NotificationConfig as NotificationConfig
+from arize._generated.api_client.models.notification_config_input import NotificationConfigInput as NotificationConfigInput
 from arize._generated.api_client.models.nvidia_nim_config import NvidiaNimConfig as NvidiaNimConfig
 from arize._generated.api_client.models.open_ai_config import OpenAiConfig as OpenAiConfig
 from arize._generated.api_client.models.optimization_direction import OptimizationDirection as OptimizationDirection
@@ -1036,6 +1091,7 @@ from arize._generated.api_client.models.saml_project_assignment import SamlProje
 from arize._generated.api_client.models.saml_role_mapping import SamlRoleMapping as SamlRoleMapping
 from arize._generated.api_client.models.saml_space_assignment import SamlSpaceAssignment as SamlSpaceAssignment
 from arize._generated.api_client.models.scheduled_runtime_config import ScheduledRuntimeConfig as ScheduledRuntimeConfig
+from arize._generated.api_client.models.scheduled_runtime_config_input import ScheduledRuntimeConfigInput as ScheduledRuntimeConfigInput
 from arize._generated.api_client.models.search_dataset_examples_request import SearchDatasetExamplesRequest as SearchDatasetExamplesRequest
 from arize._generated.api_client.models.search_experiment_runs_request import SearchExperimentRunsRequest as SearchExperimentRunsRequest
 from arize._generated.api_client.models.service_api_key import ServiceApiKey as ServiceApiKey
@@ -1083,6 +1139,7 @@ from arize._generated.api_client.models.test_webhook_response import TestWebhook
 from arize._generated.api_client.models.text_widget import TextWidget as TextWidget
 from arize._generated.api_client.models.threshold_calculation import ThresholdCalculation as ThresholdCalculation
 from arize._generated.api_client.models.threshold_config import ThresholdConfig as ThresholdConfig
+from arize._generated.api_client.models.threshold_config_input import ThresholdConfigInput as ThresholdConfigInput
 from arize._generated.api_client.models.threshold_operator import ThresholdOperator as ThresholdOperator
 from arize._generated.api_client.models.together_ai_config import TogetherAiConfig as TogetherAiConfig
 from arize._generated.api_client.models.tool_call import ToolCall as ToolCall
@@ -1094,7 +1151,10 @@ from arize._generated.api_client.models.tool_config import ToolConfig as ToolCon
 from arize._generated.api_client.models.tool_config_request import ToolConfigRequest as ToolConfigRequest
 from arize._generated.api_client.models.trace import Trace as Trace
 from arize._generated.api_client.models.trace_or_session_evaluator_input import TraceOrSessionEvaluatorInput as TraceOrSessionEvaluatorInput
+from arize._generated.api_client.models.tracing_attribute_category import TracingAttributeCategory as TracingAttributeCategory
+from arize._generated.api_client.models.tracing_attribute_input import TracingAttributeInput as TracingAttributeInput
 from arize._generated.api_client.models.tracing_data_quality_metric import TracingDataQualityMetric as TracingDataQualityMetric
+from arize._generated.api_client.models.tracing_filter_input import TracingFilterInput as TracingFilterInput
 from arize._generated.api_client.models.tracing_monitor import TracingMonitor as TracingMonitor
 from arize._generated.api_client.models.trigger_evaluation_task_run_request import TriggerEvaluationTaskRunRequest as TriggerEvaluationTaskRunRequest
 from arize._generated.api_client.models.trigger_run_experiment_task_run_request import TriggerRunExperimentTaskRunRequest as TriggerRunExperimentTaskRunRequest
@@ -1108,6 +1168,7 @@ from arize._generated.api_client.models.update_annotation_config_request import 
 from arize._generated.api_client.models.update_annotation_queue_request import UpdateAnnotationQueueRequest as UpdateAnnotationQueueRequest
 from arize._generated.api_client.models.update_categorical_annotation_config_request import UpdateCategoricalAnnotationConfigRequest as UpdateCategoricalAnnotationConfigRequest
 from arize._generated.api_client.models.update_continuous_annotation_config_request import UpdateContinuousAnnotationConfigRequest as UpdateContinuousAnnotationConfigRequest
+from arize._generated.api_client.models.update_dashboard_request import UpdateDashboardRequest as UpdateDashboardRequest
 from arize._generated.api_client.models.update_dataset_example_input import UpdateDatasetExampleInput as UpdateDatasetExampleInput
 from arize._generated.api_client.models.update_dataset_examples_request import UpdateDatasetExamplesRequest as UpdateDatasetExamplesRequest
 from arize._generated.api_client.models.update_dataset_request import UpdateDatasetRequest as UpdateDatasetRequest
@@ -1148,6 +1209,7 @@ from arize._generated.api_client.models.webhook_auth_type import WebhookAuthType
 from arize._generated.api_client.models.webhook_delivery_attempt import WebhookDeliveryAttempt as WebhookDeliveryAttempt
 from arize._generated.api_client.models.webhook_event_type import WebhookEventType as WebhookEventType
 from arize._generated.api_client.models.webhook_notification_config import WebhookNotificationConfig as WebhookNotificationConfig
+from arize._generated.api_client.models.webhook_notification_config_input import WebhookNotificationConfigInput as WebhookNotificationConfigInput
 from arize._generated.api_client.models.webhook_source_type import WebhookSourceType as WebhookSourceType
 from arize._generated.api_client.models.webhook_subscription import WebhookSubscription as WebhookSubscription
 from arize._generated.api_client.models.widget import Widget as Widget

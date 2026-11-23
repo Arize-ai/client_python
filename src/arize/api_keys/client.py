@@ -5,6 +5,9 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
+from arize._generated.api_client.models.predefined_user_role_assignment_request import (
+    PredefinedUserRoleAssignmentRequest,
+)
 from arize._utils import unwrap_oneof
 from arize.api_keys.types import ApiKeyType
 from arize.constants.config import DEFAULT_LIST_LIMIT
@@ -176,8 +179,10 @@ class ApiKeysClient:
     ) -> CreatedServiceApiKey:
         """Create a service-type API key with org and space bindings.
 
-        Service keys are tied to a dedicated service account scoped to one or
-        more organizations, each containing one or more spaces. All spaces must
+        Service keys are tied to a dedicated service account. Account Admin
+        keys may omit organization bindings and inherit access to all
+        organizations and spaces. Other keys require organizations and spaces
+        in their bindings. All spaces must
         belong to the same account. When no role is specified for a space or
         org, the server applies the default predefined role (``MEMBER`` for
         spaces, ``READ_ONLY`` for orgs, ``MEMBER`` for accounts).
@@ -190,8 +195,8 @@ class ApiKeysClient:
             name: User-defined name for the API key (max 256 characters).
             orgs: List of :class:`OrgBinding` objects, each specifying an
                 optional org-level role and a list of :class:`SpaceBinding`
-                objects within that org. At least one org with at least one
-                space is required.
+                objects within that org. May be empty for an Account Admin key.
+                Other roles require at least one org with at least one space.
             account_role: Optional account-level role for the bot user. When
                 ``None``, the server applies the default predefined ``MEMBER``
                 role.
@@ -203,14 +208,24 @@ class ApiKeysClient:
             The created API key, including the one-time raw key value.
 
         Raises:
-            ValueError: If ``orgs`` is empty or any org has no space bindings.
+            ValueError: If ``orgs`` is empty for a non-admin key or any org has
+                no space bindings.
             ApiException: If the API request fails (e.g. invalid role
                 assignment or insufficient permissions).
         """
         if not orgs:
-            raise ValueError(
-                "orgs must contain at least one entry for service keys"
+            role = (
+                account_role.actual_instance
+                if account_role is not None
+                else None
             )
+            if not (
+                isinstance(role, PredefinedUserRoleAssignmentRequest)
+                and role.name == "ADMIN"
+            ):
+                raise ValueError(
+                    "orgs must contain at least one entry for service keys"
+                )
 
         from arize._generated import api_client as gen
 

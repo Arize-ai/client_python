@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **str** | Unique identifier for the membership record | 
+**id** | **str** | Unique identifier for the membership record. It identifies the current role assignment, so it changes when the member&#39;s role is replaced.  | 
 **user_id** | **str** | The unique identifier of the user | 
 **organization_id** | **str** | The unique identifier of the organization | 
 **role** | [**OrganizationRoleAssignment**](OrganizationRoleAssignment.md) |  | 

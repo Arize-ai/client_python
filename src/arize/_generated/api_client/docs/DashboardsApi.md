@@ -12,6 +12,7 @@ Method | HTTP request | Description
 [**get_dashboard_widget**](DashboardsApi.md#get_dashboard_widget) | **GET** /v2/dashboards/{dashboard_id}/widgets/{widget_id} | Get a dashboard widget
 [**list_dashboard_widgets**](DashboardsApi.md#list_dashboard_widgets) | **GET** /v2/dashboards/{dashboard_id}/widgets | List dashboard widgets
 [**list_dashboards**](DashboardsApi.md#list_dashboards) | **GET** /v2/dashboards | List dashboards
+[**update_dashboard**](DashboardsApi.md#update_dashboard) | **PATCH** /v2/dashboards/{dashboard_id} | Update a dashboard
 
 
 # **create_dashboard**
@@ -762,6 +763,102 @@ Name | Type | Description  | Notes
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **update_dashboard**
+> Dashboard update_dashboard(dashboard_id, update_dashboard_request)
+
+Update a dashboard
+
+Update a dashboard's name and time settings. The caller must have permission to
+update the dashboard. Only the fields included in the request are changed. Set
+`timezone`, `start_time`, `end_time`, or `time_series_data_granularity` to `null`
+to clear it. The updated dashboard is returned with its tags and published widget
+summaries.
+
+To remove a dashboard, use the delete operation instead.
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.dashboard import Dashboard
+from arize._generated.api_client.models.update_dashboard_request import UpdateDashboardRequest
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.DashboardsApi(api_client)
+    dashboard_id = 'RGFzaGJvYXJkOjEyMzQ1' # str | The Relay global ID of the dashboard.
+    update_dashboard_request = {"name":"Production Overview","time_range_key":"14d"} # UpdateDashboardRequest | Body containing the dashboard fields to update
+
+    try:
+        # Update a dashboard
+        api_response = api_instance.update_dashboard(dashboard_id, update_dashboard_request)
+        print("The response of DashboardsApi->update_dashboard:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling DashboardsApi->update_dashboard: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **dashboard_id** | **str**| The Relay global ID of the dashboard. | 
+ **update_dashboard_request** | [**UpdateDashboardRequest**](UpdateDashboardRequest.md)| Body containing the dashboard fields to update | 
+
+### Return type
+
+[**Dashboard**](Dashboard.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Returns a dashboard with its tags and published widgets. |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

@@ -21,6 +21,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictFloat, StrictInt, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional, Union
 from arize._generated.api_client.models.downtime_config import DowntimeConfig
+from arize._generated.api_client.models.ml_monitor_environment import MlMonitorEnvironment
 from arize._generated.api_client.models.monitor_filter import MonitorFilter
 from arize._generated.api_client.models.monitor_status import MonitorStatus
 from arize._generated.api_client.models.notification_config import NotificationConfig
@@ -56,10 +57,11 @@ class PerformanceMonitor(BaseModel):
     latest_computed_value: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, description="The most recently computed metric value. Omitted if it has never been evaluated.")
     notes: Optional[StrictStr] = Field(default=None, description="Free-form notes attached to the monitor. Omitted when unset.")
     metric: Optional[PerformanceMetric] = None
+    environment: Optional[MlMonitorEnvironment] = None
     model_versions: Optional[List[StrictStr]] = Field(default=None, description="The model versions the metric is scoped to. An empty array means all model versions. ")
     positive_class_value: Optional[StrictStr] = Field(default=None, description="The positive class used for classification metrics. Omitted when unset.")
     metric_at_ranking_k_value: Optional[StrictInt] = Field(default=None, description="The `k` cutoff for ranking metrics (e.g. NDCG@k). Omitted when unset.")
-    __properties: ClassVar[List[str]] = ["id", "name", "type", "project_id", "uri", "status", "threshold", "notifications_enabled", "manual_evaluation_enabled", "created_by_user_id", "filters", "notification_configs", "created_at", "updated_at", "downtime", "scheduled_runtime", "evaluation_window_length_seconds", "delay_seconds", "evaluated_at", "latest_computed_value", "notes", "metric", "model_versions", "positive_class_value", "metric_at_ranking_k_value"]
+    __properties: ClassVar[List[str]] = ["id", "name", "type", "project_id", "uri", "status", "threshold", "notifications_enabled", "manual_evaluation_enabled", "created_by_user_id", "filters", "notification_configs", "created_at", "updated_at", "downtime", "scheduled_runtime", "evaluation_window_length_seconds", "delay_seconds", "evaluated_at", "latest_computed_value", "notes", "metric", "environment", "model_versions", "positive_class_value", "metric_at_ranking_k_value"]
 
     @field_validator('type')
     def type_validate_enum(cls, value):
@@ -177,6 +179,7 @@ class PerformanceMonitor(BaseModel):
             "latest_computed_value": obj.get("latest_computed_value"),
             "notes": obj.get("notes"),
             "metric": obj.get("metric"),
+            "environment": obj.get("environment"),
             "model_versions": obj.get("model_versions"),
             "positive_class_value": obj.get("positive_class_value"),
             "metric_at_ranking_k_value": obj.get("metric_at_ranking_k_value")

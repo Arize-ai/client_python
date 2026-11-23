@@ -28,6 +28,7 @@ Name | Type | Description | Notes
 **notes** | **str** | Free-form notes attached to the monitor. Omitted when unset. | [optional] 
 **metric** | [**DataQualityMetric**](DataQualityMetric.md) |  | 
 **dimension** | [**Dimension**](Dimension.md) |  | 
+**environment** | [**MlMonitorEnvironment**](MlMonitorEnvironment.md) |  | [optional] 
 **model_versions** | **List[str]** | The model versions the metric is scoped to. An empty array means all model versions.  | 
 **baseline_config** | [**BaselineConfig**](BaselineConfig.md) |  | [optional] 
 

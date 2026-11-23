@@ -5,6 +5,8 @@ All URIs are relative to *https://api.arize.com*
 Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**add_monitor_tags**](MonitorsApi.md#add_monitor_tags) | **POST** /v2/monitors/{monitor_id}/tags | Attach tags to a monitor
+[**create_monitor**](MonitorsApi.md#create_monitor) | **POST** /v2/monitors | Create a monitor
+[**delete_monitor**](MonitorsApi.md#delete_monitor) | **DELETE** /v2/monitors/{monitor_id} | Delete a monitor
 [**get_monitor**](MonitorsApi.md#get_monitor) | **GET** /v2/monitors/{monitor_id} | Get a monitor
 [**list_monitor_tags**](MonitorsApi.md#list_monitor_tags) | **GET** /v2/monitors/{monitor_id}/tags | List tags on a monitor
 [**list_monitors**](MonitorsApi.md#list_monitors) | **GET** /v2/monitors | List monitors
@@ -131,6 +133,258 @@ Name | Type | Description  | Notes
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **422** | Unprocessable entity |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **create_monitor**
+> Monitor create_monitor(create_monitor_request)
+
+Create a monitor
+
+Create a monitor on a project: `TRACING` on an LLM tracing project, or
+`DATA_QUALITY` on an ML project. The monitor is published and starts
+evaluating immediately, and the response matches
+`GET /v2/monitors/{monitor_id}`.
+
+**Payload Requirements**
+- `type`, `project_id`, `name`, `metric`, `dimension` and `threshold`
+  are required. Field-level limits are documented on each field.
+- `project_id` must be a project of the kind `type` needs that is not
+  an Arize demo project.
+- `dimension.name` and each filter's name must match the project's
+  data exactly: recent tracing data for `TRACING`, the monitored
+  `environment` for `DATA_QUALITY`. A `CUSTOM_BASELINE` reads
+  production data, so its filters and the monitored dimension must
+  also be in production data. Embedding and dictionary fields cannot
+  be monitored or filtered.
+- `metric` must suit the dimension; each request's `metric` field
+  lists the metrics each kind of dimension supports.
+- `DATA_QUALITY` monitors require `baseline_config` for `NEW_VALUES`
+  and `MISSING_VALUES` and reject it otherwise. `MODEL_BASELINE`
+  requires a primary baseline, and every `model_versions` entry must
+  be a version of the project.
+- `INTEGRATION` and `WEBHOOK` destinations require a plan with alert
+  integrations and must belong to the project's organization.
+- Unknown fields, `null` values and system-managed fields (`id`,
+  `status`, `created_at` and so on) are rejected.
+
+Structural problems return `400`, and values that break a rule above
+return `422`, including a project of the wrong kind for `type`. A
+project that does not exist or that the caller cannot read returns
+`404`. A caller who can read the project but cannot create monitors in
+it gets `403` before the body is validated. A `5xx` does not guarantee
+the monitor was not created, so list the project's monitors by `name`
+before retrying.
+
+**Valid example**
+```json
+{
+  "type": "TRACING",
+  "project_id": "TW9kZWw6MTIz",
+  "name": "Root span latency p95",
+  "metric": "P95",
+  "dimension": { "category": "SPAN_ATTRIBUTE", "name": "latency_ms" },
+  "threshold": { "type": "MANUAL_SINGLE", "operator": "GREATER_THAN", "value": 2000 },
+  "evaluation_window_length_seconds": 3600,
+  "filters": [
+    {
+      "dimension": { "category": "SPAN_ATTRIBUTE", "name": "parent_id" },
+      "operator": "EQUALS",
+      "values": ["NULL"]
+    }
+  ],
+  "notification_configs": [
+    { "type": "EMAIL", "email_address": "oncall@example.com" }
+  ]
+}
+```
+
+**Invalid example** (a system-managed field, and a range whose lower
+bound uses an upper-bound operator)
+```json
+{
+  "id": "TW9uaXRvcjo0NTY=",
+  "type": "TRACING",
+  "project_id": "TW9kZWw6MTIz",
+  "name": "Hallucination rate",
+  "metric": "AVG",
+  "dimension": { "category": "LLM_EVAL", "name": "eval.hallucination.score" },
+  "threshold": {
+    "type": "MANUAL_RANGE",
+    "lower": { "operator": "LESS_THAN", "value": 0.2 },
+    "upper": { "operator": "LESS_THAN", "value": 0.8 }
+  }
+}
+```
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.create_monitor_request import CreateMonitorRequest
+from arize._generated.api_client.models.monitor import Monitor
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.MonitorsApi(api_client)
+    create_monitor_request = {"type":"TRACING","project_id":"TW9kZWw6MTIz","name":"Root span latency p95","metric":"P95","dimension":{"category":"SPAN_ATTRIBUTE","name":"latency_ms"},"threshold":{"type":"MANUAL_SINGLE","operator":"GREATER_THAN","value":2000},"evaluation_window_length_seconds":3600,"filters":[{"dimension":{"category":"SPAN_ATTRIBUTE","name":"parent_id"},"operator":"EQUALS","values":["NULL"]}],"notification_configs":[{"type":"EMAIL","email_address":"oncall@example.com"}]} # CreateMonitorRequest | The monitor to create. `type` selects the variant.
+
+    try:
+        # Create a monitor
+        api_response = api_instance.create_monitor(create_monitor_request)
+        print("The response of MonitorsApi->create_monitor:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling MonitorsApi->create_monitor: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **create_monitor_request** | [**CreateMonitorRequest**](CreateMonitorRequest.md)| The monitor to create. &#x60;type&#x60; selects the variant. | 
+
+### Return type
+
+[**Monitor**](Monitor.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**201** | Returns a single monitor object |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions, the account&#39;s plan doesn&#39;t include this capability, or the account has reached its plan&#39;s limit |  -  |
+**404** | Not found |  -  |
+**422** | Unprocessable entity |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **delete_monitor**
+> delete_monitor(monitor_id)
+
+Delete a monitor
+
+Delete a monitor by its ID. The monitor stops evaluating and sending
+notifications, and no longer appears in get or list responses. A deleted
+monitor cannot be restored through the API.
+
+A caller who can read the monitor but not delete it gets `403`. A
+monitor that does not exist, was already deleted, or is on a project the
+caller cannot read returns `404`, so deleting the same monitor twice
+returns `404` the second time.
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.MonitorsApi(api_client)
+    monitor_id = 'TW9uaXRvcjoxMjM=' # str | The unique monitor identifier (base64)
+
+    try:
+        # Delete a monitor
+        api_instance.delete_monitor(monitor_id)
+    except Exception as e:
+        print("Exception when calling MonitorsApi->delete_monitor: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **monitor_id** | **str**| The unique monitor identifier (base64) | 
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**204** | Monitor successfully deleted |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

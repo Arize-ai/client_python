@@ -27,6 +27,7 @@ Name | Type | Description | Notes
 **latest_computed_value** | **float** | The most recently computed metric value. Omitted if it has never been evaluated. | [optional] [readonly] 
 **notes** | **str** | Free-form notes attached to the monitor. Omitted when unset. | [optional] 
 **custom_metric_id** | **str** | The custom metric this monitor evaluates (base64 global ID).   | 
+**environment** | [**MlMonitorEnvironment**](MlMonitorEnvironment.md) |  | [optional] 
 **model_versions** | **List[str]** | The model versions the metric is scoped to. An empty array means all model versions.  | 
 
 ## Example

@@ -24,6 +24,7 @@ from arize._generated.api_client.models.baseline_config import BaselineConfig
 from arize._generated.api_client.models.data_quality_metric import DataQualityMetric
 from arize._generated.api_client.models.dimension import Dimension
 from arize._generated.api_client.models.downtime_config import DowntimeConfig
+from arize._generated.api_client.models.ml_monitor_environment import MlMonitorEnvironment
 from arize._generated.api_client.models.monitor_filter import MonitorFilter
 from arize._generated.api_client.models.monitor_status import MonitorStatus
 from arize._generated.api_client.models.notification_config import NotificationConfig
@@ -59,9 +60,10 @@ class DataQualityMonitor(BaseModel):
     notes: Optional[StrictStr] = Field(default=None, description="Free-form notes attached to the monitor. Omitted when unset.")
     metric: Optional[DataQualityMetric] = None
     dimension: Optional[Dimension] = None
+    environment: Optional[MlMonitorEnvironment] = None
     model_versions: Optional[List[StrictStr]] = Field(default=None, description="The model versions the metric is scoped to. An empty array means all model versions. ")
     baseline_config: Optional[BaselineConfig] = None
-    __properties: ClassVar[List[str]] = ["id", "name", "type", "project_id", "uri", "status", "threshold", "notifications_enabled", "manual_evaluation_enabled", "created_by_user_id", "filters", "notification_configs", "created_at", "updated_at", "downtime", "scheduled_runtime", "evaluation_window_length_seconds", "delay_seconds", "evaluated_at", "latest_computed_value", "notes", "metric", "dimension", "model_versions", "baseline_config"]
+    __properties: ClassVar[List[str]] = ["id", "name", "type", "project_id", "uri", "status", "threshold", "notifications_enabled", "manual_evaluation_enabled", "created_by_user_id", "filters", "notification_configs", "created_at", "updated_at", "downtime", "scheduled_runtime", "evaluation_window_length_seconds", "delay_seconds", "evaluated_at", "latest_computed_value", "notes", "metric", "dimension", "environment", "model_versions", "baseline_config"]
 
     @field_validator('type')
     def type_validate_enum(cls, value):
@@ -186,6 +188,7 @@ class DataQualityMonitor(BaseModel):
             "notes": obj.get("notes"),
             "metric": obj.get("metric"),
             "dimension": Dimension.from_dict(obj["dimension"]) if obj.get("dimension") is not None else None,
+            "environment": obj.get("environment"),
             "model_versions": obj.get("model_versions"),
             "baseline_config": BaselineConfig.from_dict(obj["baseline_config"]) if obj.get("baseline_config") is not None else None
         }.items() if key in obj})

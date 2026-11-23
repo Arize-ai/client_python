@@ -29,6 +29,7 @@ Name | Type | Description | Notes
 **notes** | **str** | Free-form notes attached to the monitor. Omitted when unset. | [optional] 
 **metric** | [**TracingDataQualityMetric**](TracingDataQualityMetric.md) | Tracing monitors support only these data quality metrics. | 
 **dimension** | [**Dimension**](Dimension.md) | The span/trace-derived field the metric is computed over. **Restricted to span_attribute, llm_eval, and user_annotation only.**  | 
+**environment** | [**MlMonitorEnvironment**](MlMonitorEnvironment.md) |  | [optional] 
 **model_versions** | **List[str]** | The model versions the metric is scoped to. An empty array means all model versions.  | 
 **baseline_config** | [**BaselineConfig**](BaselineConfig.md) |  | 
 **positive_class_value** | **str** | The positive class used for classification metrics. Omitted when unset. | [optional] 

@@ -27,7 +27,7 @@ class OrganizationMembership(BaseModel):
     """
     OrganizationMembership
     """ # noqa: E501
-    id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the membership record")
+    id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the membership record. It identifies the current role assignment, so it changes when the member's role is replaced. ")
     user_id: Optional[StrictStr] = Field(default=None, description="The unique identifier of the user")
     organization_id: Optional[StrictStr] = Field(default=None, description="The unique identifier of the organization")
     role: Optional[OrganizationRoleAssignment] = None

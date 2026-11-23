@@ -715,6 +715,42 @@ class TestEvaluatorsClientListVersions:
 
 
 @pytest.mark.unit
+class TestEvaluatorsClientListTemplates:
+    """Tests for EvaluatorsClient.list_templates()."""
+
+    def test_list_templates_calls_api_and_returns_response(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        """list_templates() should call the API with no params and return its response."""
+        expected = Mock()
+        mock_api.list_evaluator_templates.return_value = expected
+
+        result = evaluators_client.list_templates()
+
+        mock_api.list_evaluator_templates.assert_called_once_with()
+        assert result is expected
+
+    def test_list_templates_emits_alpha_prerelease_warning(
+        self,
+        evaluators_client: EvaluatorsClient,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """First call should emit the ALPHA prerelease warning."""
+        from arize import pre_releases
+
+        pre_releases._WARNED.clear()
+        caplog.set_level(logging.WARNING)
+
+        evaluators_client.list_templates()
+
+        assert any(
+            "ALPHA" in record.message
+            and "evaluators.list_templates" in record.message
+            for record in caplog.records
+        )
+
+
+@pytest.mark.unit
 class TestEvaluatorsClientDeleteVersions:
     """Tests for EvaluatorsClient.delete_versions()."""
 

@@ -21,6 +21,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictFloat, StrictInt, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional, Union
 from arize._generated.api_client.models.downtime_config import DowntimeConfig
+from arize._generated.api_client.models.ml_monitor_environment import MlMonitorEnvironment
 from arize._generated.api_client.models.monitor_filter import MonitorFilter
 from arize._generated.api_client.models.monitor_status import MonitorStatus
 from arize._generated.api_client.models.notification_config import NotificationConfig
@@ -55,8 +56,9 @@ class CustomMetricMonitor(BaseModel):
     latest_computed_value: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, description="The most recently computed metric value. Omitted if it has never been evaluated.")
     notes: Optional[StrictStr] = Field(default=None, description="Free-form notes attached to the monitor. Omitted when unset.")
     custom_metric_id: Optional[StrictStr] = Field(default=None, description="The custom metric this monitor evaluates (base64 global ID).  ")
+    environment: Optional[MlMonitorEnvironment] = None
     model_versions: Optional[List[StrictStr]] = Field(default=None, description="The model versions the metric is scoped to. An empty array means all model versions. ")
-    __properties: ClassVar[List[str]] = ["id", "name", "type", "project_id", "uri", "status", "threshold", "notifications_enabled", "manual_evaluation_enabled", "created_by_user_id", "filters", "notification_configs", "created_at", "updated_at", "downtime", "scheduled_runtime", "evaluation_window_length_seconds", "delay_seconds", "evaluated_at", "latest_computed_value", "notes", "custom_metric_id", "model_versions"]
+    __properties: ClassVar[List[str]] = ["id", "name", "type", "project_id", "uri", "status", "threshold", "notifications_enabled", "manual_evaluation_enabled", "created_by_user_id", "filters", "notification_configs", "created_at", "updated_at", "downtime", "scheduled_runtime", "evaluation_window_length_seconds", "delay_seconds", "evaluated_at", "latest_computed_value", "notes", "custom_metric_id", "environment", "model_versions"]
 
     @field_validator('type')
     def type_validate_enum(cls, value):
@@ -174,6 +176,7 @@ class CustomMetricMonitor(BaseModel):
             "latest_computed_value": obj.get("latest_computed_value"),
             "notes": obj.get("notes"),
             "custom_metric_id": obj.get("custom_metric_id"),
+            "environment": obj.get("environment"),
             "model_versions": obj.get("model_versions")
         }.items() if key in obj})
         return _obj

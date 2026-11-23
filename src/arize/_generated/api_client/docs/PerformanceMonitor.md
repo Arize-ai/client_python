@@ -27,6 +27,7 @@ Name | Type | Description | Notes
 **latest_computed_value** | **float** | The most recently computed metric value. Omitted if it has never been evaluated. | [optional] [readonly] 
 **notes** | **str** | Free-form notes attached to the monitor. Omitted when unset. | [optional] 
 **metric** | [**PerformanceMetric**](PerformanceMetric.md) |  | 
+**environment** | [**MlMonitorEnvironment**](MlMonitorEnvironment.md) |  | [optional] 
 **model_versions** | **List[str]** | The model versions the metric is scoped to. An empty array means all model versions.  | 
 **positive_class_value** | **str** | The positive class used for classification metrics. Omitted when unset. | [optional] 
 **metric_at_ranking_k_value** | **int** | The &#x60;k&#x60; cutoff for ranking metrics (e.g. NDCG@k). Omitted when unset. | [optional] 

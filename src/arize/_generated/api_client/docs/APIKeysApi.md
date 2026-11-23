@@ -19,9 +19,10 @@ Create a new API key for the authenticated user.
 
 - Choose `key_type: "USER"` for a personal key that authenticates as you, or
   `key_type: "SERVICE"` for an automated service account key. The field is required.
-- For service keys, supply at least one space via the `organizations` array. The service
-  account is granted membership in each specified space. Multiple organizations and multiple
-  spaces per organization are supported.
+- For service keys, send `organizations` as an explicit array. Omitting it or sending
+  `null` returns 422. Service keys with the ADMIN account role can send `[]` and inherit
+  access to all organizations and spaces. Other service keys require at least one space
+  assignment. Multiple organizations and multiple spaces per organization are supported.
 - For `USER` keys, the key inherits the authenticated user's own permissions.
 - You may only assign roles at or below your own privilege level. Attempting to
   assign a role higher than your own returns `422 Unprocessable Entity`.
@@ -30,8 +31,9 @@ Create a new API key for the authenticated user.
 
 **Authorization:**
 - **User keys:** The authenticated user may create personal keys for themselves.
-- **Service keys:** Requires the `SERVICE_KEY_CREATE` permission in the target space (space
-  member or above).
+- **Service keys:** The account's plan must include service keys. Creating one without
+  organization or space assignments requires the Account Admin role. For explicit assignments,
+  the caller needs `SERVICE_KEY_CREATE` in every target space.
 
 When developer access is disabled for an account, users cannot create user keys or service
 keys. Existing service keys remain active with their assigned roles.
@@ -119,7 +121,7 @@ Name | Type | Description  | Notes
 **201** | API key successfully created or refreshed. The raw key is only returned once. |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
-**403** | Insufficient permissions to access this resource |  -  |
+**403** | Insufficient permissions, the account&#39;s plan doesn&#39;t include this capability, or the account has reached its plan&#39;s limit |  -  |
 **404** | Not found |  -  |
 **422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
@@ -266,8 +268,10 @@ returns `403`.
 
 **Authorization:**
 - **User keys:** The creator or an account admin may refresh the key.
-- **Service keys:** space admins (and higher) may refresh any service key in their space.
-  Non-admins require the `SERVICE_KEY_CREATE` permission and must be the creator of the key.
+- **Service keys:** Only account admins can refresh keys with the Account Admin role or keys
+  without space bindings. For other service keys, account admins and admins of every bound
+  space can refresh the key regardless of who created it. Other callers must have
+  `SERVICE_KEY_CREATE` in every bound space and must be the key's creator.
 
 **Expiry behaviour:** `expires_at` is **required** when the existing key has an expiry
 — omitting it would extend the key's lifetime to unbounded and is rejected with `422`.
@@ -376,9 +380,10 @@ already-revoked key is a no-op and still returns `204`.
 
 **Authorization:**
 - **User keys:** The key's creator or an account admin may revoke the key.
-- **Service keys:** Account admins and space admins in all of the key's bound spaces may
-  revoke the key regardless of who created it. All other callers must have the
-  `SERVICE_KEY_REVOKE` permission in every bound space and must be the key's creator.
+- **Service keys:** Only account admins can revoke keys with the Account Admin role or keys
+  without space bindings. For other service keys, account admins and admins of every bound
+  space can revoke the key regardless of who created it. Other callers must have
+  `SERVICE_KEY_REVOKE` in every bound space and must be the key's creator.
   Callers without read access to the key receive `404` to prevent key-ID enumeration.
 
   <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>

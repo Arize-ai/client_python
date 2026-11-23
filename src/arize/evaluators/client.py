@@ -55,6 +55,7 @@ if TYPE_CHECKING:
         EvaluatorVersionHarness,
         EvaluatorVersionTemplate,
         ListEvaluatorsResponse,
+        ListEvaluatorTemplatesResponse,
     )
 
 
@@ -269,6 +270,26 @@ class EvaluatorsClient:
             cursor=cursor,
             **kwargs,
         )
+
+    @prerelease_endpoint(
+        key="evaluators.list_templates", stage=ReleaseStage.ALPHA
+    )
+    def list_templates(self) -> ListEvaluatorTemplatesResponse:
+        """List the built-in LLM-as-a-judge evaluator templates.
+
+        The catalog is identical for every caller and is not paginated. Each
+        template carries the judge prompt, its labels and scores, optimization
+        direction, and data granularity. Map these fields onto the
+        ``template_config`` of :meth:`create_template_evaluator` to create an
+        evaluator from a template.
+
+        Returns:
+            The full list of built-in evaluator templates.
+
+        Raises:
+            ApiException: If the API request fails.
+        """
+        return self._api.list_evaluator_templates()
 
     @prerelease_endpoint(key="evaluators.get", stage=ReleaseStage.BETA)
     def get(

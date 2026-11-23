@@ -8,7 +8,7 @@ Name | Type | Description | Notes
 **id** | **str** | Global ID of the bot user. | 
 **name** | **str** | Display name of the bot user. | 
 **account_role** | [**UserRoleAssignment**](UserRoleAssignment.md) | Account-level role assigned to the bot user. Always present — defaults are resolved server-side. | 
-**organizations** | [**List[ServiceKeyBotUserOrgAssignment]**](ServiceKeyBotUserOrgAssignment.md) | Organization access assignments for the service account, each containing nested space assignments. Always has at least one entry — creating a service key requires at least one organization.  | 
+**organizations** | [**List[ServiceKeyBotUserOrgAssignment]**](ServiceKeyBotUserOrgAssignment.md) | Organization access assignments for the service account, each containing nested space assignments. Empty for account-only Admin keys, which inherit access to all organizations and spaces.  | 
 
 ## Example
 

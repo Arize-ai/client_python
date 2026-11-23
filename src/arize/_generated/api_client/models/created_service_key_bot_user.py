@@ -19,7 +19,6 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List
-from typing_extensions import Annotated
 from arize._generated.api_client.models.service_key_bot_user_org_assignment import ServiceKeyBotUserOrgAssignment
 from arize._generated.api_client.models.user_role_assignment import UserRoleAssignment
 from typing import Optional, Set
@@ -32,7 +31,7 @@ class CreatedServiceKeyBotUser(BaseModel):
     id: Optional[StrictStr] = Field(default=None, description="Global ID of the bot user.")
     name: Optional[StrictStr] = Field(default=None, description="Display name of the bot user.")
     account_role: Optional[UserRoleAssignment] = Field(default=None, description="Account-level role assigned to the bot user. Always present — defaults are resolved server-side.")
-    organizations: Optional[Annotated[List[ServiceKeyBotUserOrgAssignment], Field(min_length=1)]] = Field(default=None, description="Organization access assignments for the service account, each containing nested space assignments. Always has at least one entry — creating a service key requires at least one organization. ")
+    organizations: Optional[List[ServiceKeyBotUserOrgAssignment]] = Field(default=None, description="Organization access assignments for the service account, each containing nested space assignments. Empty for account-only Admin keys, which inherit access to all organizations and spaces. ")
     __properties: ClassVar[List[str]] = ["id", "name", "account_role", "organizations"]
 
     model_config = ConfigDict(

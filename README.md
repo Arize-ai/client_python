@@ -70,6 +70,7 @@
     - [Prompt Labels](#prompt-labels)
   - [Operations on Evaluators](#operations-on-evaluators)
     - [List Evaluators](#list-evaluators)
+    - [List Evaluator Templates](#list-evaluator-templates)
     - [Create a Template Evaluator](#create-a-template-evaluator)
     - [Create a Code Evaluator](#create-a-code-evaluator)
     - [Create a Remote Evaluator](#create-a-remote-evaluator)
@@ -1139,6 +1140,20 @@ Decision Judge evaluators are listed only when you pass
 `evaluator_type=EvaluatorType.DECISION_JUDGE`; without a filter, every other
 type is returned.
 
+### List Evaluator Templates
+
+```python
+resp = client.evaluators.list_templates()
+for template in resp.evaluator_templates:
+    print(template.column_name, template.display_name)
+```
+
+Returns the built-in LLM-as-a-judge catalog. It is not paginated. To create an
+evaluator from one, map its `column_name` to `template_config.name`, and its
+`template`, `classification_choices`, `direction`, and `data_granularity` onto
+the same-named `template_config` fields of `create_template_evaluator`. When the
+template's `data_granularity` is `None`, pass `"SPAN"` or omit it.
+
 ### Create a Template Evaluator
 
 ```python
@@ -1897,7 +1912,7 @@ client.users.reset_password(
 
 ## Operations on API Keys
 
-Use `client.api_keys` to manage API keys in the Arize platform. Two key types are supported: **user** keys (authenticate as the creating user) and **service** keys (scoped to a specific space).
+Use `client.api_keys` to manage API keys in the Arize platform. Two key types are supported: **user** keys (authenticate as the creating user) and **service** keys (authenticate as a dedicated service account).
 
 > **Note:** The raw key value is only returned at creation time. Store it securely.
 
@@ -1917,7 +1932,7 @@ api_key_list = resp.api_keys
 
 ### Create an API Key
 
-Creates a user-type key that authenticates as the creating user. For space-scoped service keys, use `create_service_key()` instead.
+Creates a user-type key that authenticates as the creating user. For service keys, use `create_service_key()` instead.
 
 ```python
 created = client.api_keys.create(
@@ -1930,17 +1945,27 @@ raw_key = created.key  # Store this securely — only returned once
 
 ### Create a Service Key
 
-Creates a service-type key scoped to a specific space, backed by a dedicated bot user. Role assignments default to `space_role="MEMBER"`, `org_role="READ_ONLY"`, `account_role="MEMBER"` when omitted. All roles must be at or below the caller's own privilege level.
+Creates a service-type key backed by a dedicated bot user. Account Admin keys can pass `orgs=[]` and inherit access to all organizations and spaces. Other roles require organization and space bindings. All roles must be at or below the caller's own privilege level.
 
 ```python
+from arize.api_keys.types import OrgBinding, SpaceBinding, UserRoleAssignmentRequest
+
+account_key = client.api_keys.create_service_key(
+    name="account-admin",
+    orgs=[],
+    account_role=UserRoleAssignmentRequest.from_dict(
+        {"type": "PREDEFINED", "name": "ADMIN"}
+    ),
+)
+
 created = client.api_keys.create_service_key(
     name="my-service-key",
-    space="<space-id-or-name>",
+    orgs=[OrgBinding(
+        org_id="<organization-id>",
+        spaces=[SpaceBinding(space="<space-id-or-name>")],
+    )],
     description=...,  # Optional
     expires_at=...,   # Optional
-    space_role=...,   # Optional, "ADMIN" | "MEMBER" | "READ_ONLY"
-    org_role=...,     # Optional, "ADMIN" | "MEMBER" | "READ_ONLY"
-    account_role=..., # Optional, "ADMIN" | "MEMBER"
 )
 raw_key = created.key  # Store this securely — only returned once
 ```
